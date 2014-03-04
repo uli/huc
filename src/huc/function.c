@@ -56,9 +56,8 @@ char *fixup[32];
 void newfunc (void)
 {
 	char n[NAMESIZE], *ptr;
+	char fn[NAMESIZE];
 	long  nbarg;
-
-	fexitlab = getlabel();
 
 	/* allow (and ignore) return type */
 	if (amatch("char", 4) || amatch("int", 3) || amatch("void", 4)) {
@@ -70,22 +69,9 @@ void newfunc (void)
 		kill ();
 		return;
 	}
-	if ( (ptr = findglb (n)) ) {
-		if (ptr[IDENT] != FUNCTION)
-			multidef (n);
-		else if (ptr[OFFSET] == FUNCTION)
-			multidef (n);
-		else
-			ptr[OFFSET] = FUNCTION;
-	} else
-		addglb (n, FUNCTION, CINT, FUNCTION, PUBLIC);
+	strcpy(fn, n);
 	if (!match ("("))
 		error ("missing open paren");
-	flush_ins(); /* David, .proc directive support */
-	ot (".proc ");
-	prefix ();
-	outstr (n);
-	nl ();
 	locptr = STARTLOC;
 	argstk = 0;
 	nbarg = 0;
@@ -134,6 +120,11 @@ void newfunc (void)
 		if (endst ())
 			break;
 	}
+
+	/* ignore function prototypes */
+	if (match(";"))
+		return;
+
 	stkp = 0;
 	argtop = argstk;
 	while (argstk) {
@@ -167,6 +158,25 @@ void newfunc (void)
 			}
 		}
 	}
+
+	fexitlab = getlabel();
+
+	if ( (ptr = findglb (fn)) ) {
+		if (ptr[IDENT] != FUNCTION)
+			multidef (fn);
+		else if (ptr[OFFSET] == FUNCTION)
+			multidef (fn);
+		else
+			ptr[OFFSET] = FUNCTION;
+	} else
+		addglb (fn, FUNCTION, CINT, FUNCTION, PUBLIC);
+
+	flush_ins(); /* David, .proc directive support */
+	ot (".proc ");
+	prefix ();
+	outstr (fn);
+	nl ();
+
 	if (nbarg)      /* David, arg optimization */
 		gpusharg (0);
 	statement(YES);
