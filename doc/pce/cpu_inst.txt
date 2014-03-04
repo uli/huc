@@ -1,0 +1,131 @@
+
+                              "PC Engine CPU"
+                              ===============
+
+
+
+    Instruction set
+    ---------------
+
+        +------+----------+-----------------------------+
+        |      | NVTBDIZC | Description                 |
+        +------+----------+-----------------------------+
+        | ADC  | XX0---XX | Add with Carry              |
+        | AND  | X-0---X- | Logical AND                 |
+        | ASL  | X-0---XX | Arithmetic Shift left       |
+        | BBRi | --0----- | Branch if Bit Reset         |
+        | BBSi | --0----- | Branch if Bit Set           |
+        | BCC  | --0----- | Branch if Carry Clear       |
+        | BCS  | --0----- | Branch if Carry Set         |
+        | BEQ  | --0----- | Branch if Equal             |
+        | BIT  | XX0---X- | Bit Test                    |
+        | BMI  | --0----- | Branch if Minus             |
+        | BNE  | --0----- | Branch if Not Equal         |
+        | BPL  | --0----- | Branch if Plus              |
+        | BRA  | --0----- | Branch Always               |
+        | BRK  | --0----- | Break                       |
+        | BSR  | --0----- | Branch Sub Routine          |
+        | BVC  | --0----- | Branch if Overflow Clear    |
+        | BVS  | --0----- | Branch if Overflow Set      |
+        | CLA  | --0----- | Clear A                     |
+        | CLC  | --0----0 | Clear Carry flag            |
+        | CLD  | --0-0--- | Clear Decimal flag          |
+        | CLI  | --0--0-- | Clear Interrupt disable     |
+        | CLV  | -00----- | Clear Overflow flag         |
+        | CLX  | --0----- | Clear X                     |
+        | CLY  | --0----- | Clear Y                     |
+        | CMP  | X-0---XX | Compare A with source       |
+        | CPX  | X-0---XX | Compare X with source       |
+        | CPY  | X-0---XX | Compare Y with source       |
+        | CSH  | --0----- | Clock Select High           |
+        | CSL  | --0----- | Clock Select Low            |
+        | DEC  | X-0---X- | Decrement                   |
+        | DEX  | X-0---X- | Decrement X                 |
+        | DEY  | X-0---X- | Decrement Y                 |
+        | EOR  | X-0---X- | Logical Exclusive OR        |
+        | INC  | X-0---X- | Increment                   |
+        | INX  | X-0---X- | Increment X                 |
+        | INY  | X-0---X- | Increment Y                 |
+        | JMP  | --0----- | Jump                        |
+        | JSR  | --0----- | Jump to Sub Routine         |
+        | LDA  | X-0---X- | Load A                      |
+        | LDX  | X-0---X- | Load X                      |
+        | LDY  | X-0---X- | Load Y                      |
+        | LSR  | 0-0---XX | Logical Shift Right         |
+        | NOP  | --0----- | No Operation                |
+        | OR   | X-0---X- | Logical inclusive OR        |
+        | PHA  | --0----- | Push A                      |
+        | PHP  | --0----- | Push P                      |
+        | PHX  | --0----- | Push X                      |
+        | PHY  | --0----- | Push Y                      |
+        | PLA  | X-0---X- | Pull A                      |
+        | PLP  | XXXXXXXX | Pull P                      |
+        | PLX  | X-0---X- | Pull X                      |
+        | PLY  | X-0---X- | Pull Y                      |
+        | RMBi | --0----- | Reset Memory Bit            |
+        | ROL  | X-0---XX | Rotate Left                 |
+        | ROR  | X-0---XX | Rotate Right                |
+        | RTI  | XXXXXXXX | Return from Interrupt       |
+        | RTS  | --0----- | Return from Sub Routine     |
+        | SAX  | --0----- | Swap A and X                |
+        | SAY  | --0----- | Swap A and Y                |
+        | SBC  | XX0---XX | Substract with Carry        |
+        | SEC  | --0----1 | Set Carry flag              |
+        | SED  | --0-1--- | Set Decimal flag            |
+        | SEI  | --0--1-- | Set Interrupt disable       |
+        | SET  | --1----- | Set T flag                  |
+        | SMBi | --0----- | Set Memory Bit              |
+        | ST0  | --0----- | Store into HuC6270 port 0   |
+        | ST1  | --0----- | Store into HuC6270 port 2   |
+        | ST2  | --0----- | Store into HuC6270 port 3   |
+        | STA  | --0----- | Store A                     |
+        | STX  | --0----- | Store X                     |
+        | STY  | --0----- | Store Y                     |
+        | STZ  | --0----- | Store Zero                  |
+        | SXY  | --0----- | Swap X and Y                |
+        | TAI  | --0----- | Transfer block              |
+        | TAMi | --0----- | Transfer A to MPRi          |
+        | TAX  | X-0---X- | Transfer A to X             |
+        | TAY  | X-0---X- | Transfer A to Y             |
+        | TDD  | --0----- | Transfer block              |
+        | TIA  | --0----- | Transfer block              |
+        | TII  | --0----- | Transfer block              |
+        | TIN  | --0----- | Transfer block              |
+        | TMAi | --0----- | Transfer MPRi to A          |
+        | TRB  | XX0---X- | Test and Reset Bit          |
+        | TSB  | XX0---X- | Test and Set Bit            |
+        | TST  | XX0---X- | Test memory                 |
+        | TSX  | X-0---X- | Transfer S to X             |
+        | TXA  | X-0---X- | Transfer X to A             |
+        | TXS  | --0----- | Transfer X to S             |
+        | TYA  | X-0---X- | Transfer Y to A             |
+        +------+----------+-----------------------------+
+
+
+    Operand syntax
+    --------------
+        A        accumulator
+        #i       immediate
+        #i,<n    immediate and zero page              | TST/SMB/RMB 
+        #i,<n,X  immediate and zero page indexed by X | TST
+        #i,<n,r  immediate, zero page and relative    | BBS/BBR
+        #i,n     immediate and absolute               | TST
+        #i,n,X   immediate and absolute indexed by X  | TST
+        <n       zero page
+        <n,X     zero page indexed by X
+        <n,Y     zero page indexed by Y
+        <n,r     zero page and relative               | BBRi/BBSi
+        [n]      indirect (*)
+        [n,X]    indirect pre-indexed by X (*)
+        [n],Y    indirect zero page post-indexed by Y
+        r        relative                             | BRA/BSR/Bcc
+        n        absolute
+        n,X      absolute indexed by X
+        n,Y      absolute indexed by Y
+        n,n,n    source, destination, length          | TAI/TIA/TII/TIN/TDD
+
+        (*) can be zero page or absolute
+
+
+--
+

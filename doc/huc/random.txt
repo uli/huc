@@ -1,0 +1,87 @@
+                              Notes on Randomness:
+                              --------------------
+
+Randomness is possibly the most difficult subject to actually implement on
+an embedded platform like a videogame consile, which is by definition
+deterministic.
+
+Here, I'll try to explain some principles to randomness and using it well.
+
+Basics:
+-------
+The pseudo-random number generator outputs a pattern based on a seed number.
+Since the machine always powers up in exactly the same state, the power-on
+seed number is always the same... if you grab a series of numbers in the
+same number of cycles after boot, they will always be the same too...
+(and this is the nature of direct-boot HuCards).
+
+Seed:
+-----
+The seed number will re-start the sequence, from a different base value
+(and thus produce a different series of numbers).  But, if your demo sets
+the seed to the same seed number each time it powers up, you are back in
+the same situation with the same sequence.  And how does one propose to
+"seed" the random number generator with a "random" number to generate
+a truly random sequence ?  (rhetorical question)
+
+Workaround:
+-----------
+I have already embedded a couple of "get random number" calls within the
+VSYNC interrupt service routine (since 3.10 I think).  This will advance
+the sequence, and cause additional randomness - especially if you have
+some variability to the number of times you call random() each VSYNC
+interval.
+
+I have found that user interaction should be the source of the randomness
+seed in programs, and this is probably why most games have elaborate title
+screen boot-ups, and more than one layer of menu choice: To allow for
+variability of user interaction to seed the random number generator.
+
+That is, if you launch directly into your demo, it is too deterministic.
+
+But if you create a title screen which takes 4 seconds to start up, it is
+very difficult for a user to hit "RUN" on the exact same VSYNC interval
+each time.  The "current random number at time of keypress" can then be
+used as a seed to the random number generator, and the new sequence starts.
+The next menu level appears, and another layer of randomness is created
+depending on the interval to keypress.
+
+Gradual fade-ins help a lot in creating an extended range of variance until
+keypress.
+
+
+Additional notes:
+-----------------
+As for attempts to call rand() or random() several times to advance the
+sequence, this should be automatic - the VSYNC grab of a couple of random
+numbers will definitely alter the pattern, but if it's a determinate number
+of VSYNCs, you're back where you started.
+
+random() and rand() use the same base 16-bit "random" number.
+The function which has a user-defined range ( "random()" ) takes 8 bits,
+then "multiplies by the range", and takes the most significant byte.
+
+So, "a random interval of (((0->255) * n) / 256)" is a
+"random interval of (0->(n-1))"
+
+But there is a school of thought that the most significant bits of a
+pseudo-random number are less random than the lower bits.
+
+For both speed and randomess, it is sometimes better to do this:
+random(8):
+a = rand() & 7;
+
+Or, random(6):
+a = 8;
+while (a > 5) {
+  a = rand() & 7;
+}
+
+The first instance just removes extraneous bits for a random number which
+fits nicely in a binary field.  The second case shows that we can repeat
+the call until it falls in the range we expect.  This theoretically uses
+an indeterminate amount of time, but the randomness should give us a
+reasonable time to completion, with a repeat only 25% of the time.  And
+even 3 calls to rand() should be faster than the multiply in random().
+
+

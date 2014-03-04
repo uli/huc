@@ -1,0 +1,911 @@
+<html>
+<head>
+<title>HuC documentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF">
+<h3 align="center"><font face="Arial, Helvetica, sans-serif" color="#0000FF">Little 
+  doc for HuC<br>
+  the PC Engine C compiler</font></h3>
+<p align="center"><font face="Verdana, Arial, Helvetica, sans-serif" size="1">previous 
+  home : <a href="http://utopia.consolemul.com">utopia.consolemul.com</a></font><font face="Verdana, Arial, Helvetica, sans-serif"><br>
+  <font size="1">home : <a href="http://www.zeograd.com">www.zeograd.com</a><br>
+  <a href="http://www.magickit.com/mkit">www.magickit.com/mkit </a></font></font></p>
+<p><font face="Arial, Helvetica, sans-serif">In this documentation, you'll find 
+  how to use this compiler, how to interface it with your own asm routine and 
+  such. If you want to see anything added there or just want some explanation, 
+  tell <a href="mailto:zeograd@caramail.com">me</a>. I'll try my best to make 
+  it clearer.</font></p>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif"><i>What's new ?</i></font></h2>
+<ul>
+  <font face="Arial, helvetica, sans-serif">
+    <li>From 3.20 to 3.21 (Denki version)
+      <ul>
+	    <li>Bug fix when #incchr filename invalid</li>
+      </ul>
+    </li>
+    <br>
+    <li>From 3.11 to 3.20 (Nuku Nuku version)
+      <ul>
+	    <li>Substantial speed and size optimization improvements</li>
+	    <li>Enhanced tile functionality to include easier use of multiple
+                palettes and either 8x8 or 16x16 tiles</li>
+	    <li>Added functionality to create a specify a "special" CDROM overlay
+                for use when a SCD game/demo is run on plain CDROM hardware</li>
+	    <li>Fixed screen positioning between CDROM and HuCard to match</li>
+	    <li>New clock_xx functions for measuring time</li>
+	    <li>PSG player is started, and will be available soon</li>
+	    <li>Several bug fixes</li>
+      </ul>
+    </li>
+    <br>
+    <li>From 3.10 to 3.11 (Ayeka version)
+      <ul>
+	    <li>Much improved display on real console</li>
+	    <li>New horizontal resolution (512 pixels width)</li>
+	    <li>Color correction</li>
+	    <li>Bug fixed in put_number with 3 arguments</li>
+	    <li>Line drawing function</li>
+      </ul>
+    </li>
+    <br>
+    <li>From 3.04 to 3.10 (Washu version)
+      <ul>
+	    <li>CD overlays !!. Stacks your programs into a single cd image
+and share variable and stuff like this.</li>
+      </ul>
+    </li>
+    <br>
+    <li>From 3.03 to 3.04 (Miz version)
+      <ul>
+        <li>Some font fixes</li>
+	<li>Ability to change  the font base address (with #asmdef FONT_VADDR $1000 e.g.)</li>
+	<li>Fixes in assembler output concerning segment usage</li>
+	<li>Lots of bug fixes (in cd generation, or bm_rawwrite function e.g.)</li>
+	<li>Removed obsolete grp_* functions</li>
+	<li>Added several memory access functions</li>
+	<li>Added pixel plotting functions</li>
+	<li>Improved randomness</li>
+	<li>Childish "let's give 'codenames' to release" idea implemented (blame zeo!)</li>
+      </ul>
+    </li>
+    <br>
+    <li>From 3.02 to 3.03
+      <ul>
+        <li>Better output to segment listing</li>
+	<li>Improved document mostly concerning BRAM related functions</li>
+	<li>Bunch of new BRAM functions (complete list in whats.new)</li>
+	<li>Some new functions to handle string (complete list in whats.new)</li>
+      </ul>
+    </li>
+    <br>
+    <li>From 3.01 to 3.02
+      <ul>
+        <li>Substantial changes in bank management in the library banks;
+removed 2 unused banks, and merged code into a shared bank with font data</li>
+        <li>For SCD programs, the machine is checked at bootup, and issues
+an error message if the runtime machine is not SCD-capable</li>
+        <li>Fixed 'Segment Usage' display output significantly</li>
+        <li>Improved default font slightly, and added a new font - italics
+(but access to thie new font has not yet tested)</li>
+        <li>cd_fade() function now fixed</li>
+        <li>cd_playtrk() now fixed to convert data to BCD for BIOS call</li>
+	<li>New CDrom functions(though simple to write) features :
+	  <ul>
+             <li>ac_exists() detects Arcade Card (but HuC does not yet use it)</li>
+             <li>ad_reset() resets ADPCM sound generator</li>
+             <li>cd_unpause() continues playing CD track</li>
+             <li>cd_playmsf(start m, s, f, end m, s, f, mode) plays CD
+audio like cd_playtrk() but with minute/second/frame indexing</li>
+             <li>cd_numtrk() returns number of tracks on CD</li>
+             <li>cd_trktype(track) returns type of track on CD (audio/data)</li>
+	  </ul>
+        </li>
+      </ul>
+    </li>
+    <br>
+  </font>
+  <font face="Arial, helvetica, sans-serif">
+    <li>From 3.0 to 3.01
+      <ul>
+        <li>joytrg() function have been fixed in the cd version</li>
+	<li>joyold() and joybuf() have been added and allow deeper reading of joypad</li>
+	<li>Fixed some minor init bugs in the mouse driver</li>
+	<li>Improved stability of cd games (while we hadn't detected 
+problems, there were a little design flaw when calling interruptions)</li>
+	<li>CDrom library appears which some tasty (though simple to 
+write) features :
+	  <ul>
+	    <li>cd_reset() which stops cd player and motor</li>
+	    <li>cd_pause() which pauses the cd track playing</li>
+	    <li>cd_playtrk(start,end,mode) which plays from track start until end (non-inclusive) in a certain mode</li>
+	    <li>cd_getver() which returns the version of the cd system used</li>
+	    <li>cd_fade(mode) which fades out the pcm and adpcm music</li>
+	  </ul>
+	</li>
+      </ul>
+    </li>
+  </font>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.5 to 3.0 </font>
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">This release, like the previous release,
+        had Dave Shadoff as the main programmer for all areas of changes.  But it was mostly
+        integrating code that David Michel had previously written (similar to backup RAM
+        support in previous version).</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">The main new feature is CDROM/SCD support,
+        to create programs which can boot from CDROM.  (Isn't that enough ?  ;-)  )</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Synchronization between HuC and MagicKit
+        version numbering.  3.0 was the next major number after MagicKit's previous version
+        (2.51).</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Miscellaneous bugfixes</font></li>
+    </ul>
+  </li>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.4.2 to 1.5 </font>
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">Backup ram support (to save/load 
+        game data).</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Mouse and 6 button joypads 
+        support.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Preliminary sound support.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Improved libc in term of speed 
+        (while the code takes a bit more space).</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Several function added (disable_scroll, 
+        srandom, bounded random generation).</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Extended font for text output.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Improved randomness in random 
+        functions.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Compiler sources are now 100% 
+        ansi and compile without a warning on modern compilers (i.e. made after 
+        83 ^^)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">The base code is now in CVS 
+        form for better team programming.</font></li>
+    </ul>
+  </li>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.4 to 1.4.2 </font> 
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">As you may have seen, the 
+        official magic kit homepage have opened on <a href="www.magicengine.com/mkit/index.html">www.magicengine.com/mkit/index.html</a>. 
+        Since the magickit and HuC are extremely close, you'll find there extremely 
+        valuables stuff (doc, games and much more)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">A few bugs have been fixed</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Offset can now be added to 
+        far pointers. Offset are those name/pointer created when including tiles 
+        or sprites and such. This feature enables you to write such a piece of 
+        code :<br>
+        <code>#include(tiles, &quot;tiles.pcx&quot;, 1, 16);<br>
+        load_vram(0x1400, tiles + (1 &lt;&lt; 6), 64);<br>
+        </code>This way, you'll be able to easily create multi pattern sprite 
+        (for animated moves, e.g.)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">All included data through
+        #INC and #DEF directives can be accessed as const array too. #INCBIN directive 
+        creates a char array while others create int arrays.<br>
+        After having wrote<br>
+        <code>#INCBIN(level1, &quot;level1.fmp&quot;);</code><br>
+        It's exactly as if you had wrote<br>
+        <code>const char level1[] = { &lt;stuff inside level1.fmp&gt; };</code></font></li>
+      <li><font face="Arial, Helvetica, sans-serif">fmp ?<br>
+        did you see fmp ?<br>
+        what's that ?<br>
+        Well, it's a feature of magic kit 2.51 (on which HuC 1.4.2 relies and 
+        thus also benefits this). fmp is a format from <a href="http://www.geocities.com/SiliconValley/Vista/7336/robmpy.htm">mappy</a>, 
+        a map editor. Now, you can make maps using this tool and then add them 
+        natively into HuC with the #INCBIN directive.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Some functions have been added 
+        to the libC, <code>get_tile(x,y)</code> to return the index of the tile 
+        at position x,y in the current map (for sprite/tile collision checking, 
+        isn't it, gravis ?). <code>get_map_width()</code> and <code>get_map_height()</code> 
+        which work on the current map.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif"><b>HUGE</b> maps are supported! 
+        16384x16384 tiles (which is 262144x262144 pixels) is what I call huge 
+        :-) Well, all maps functions are still limited to 256x256 maps but we can 
+        now gather all of them using a special array and a special function,
+        scan_map_table() . 
+        This function returns the map at the requested position.<br>
+        Here's an example :<br></font>
+        <pre><code>#incbin(level1, "level1.fmp") /* 256x256 */
+        #incbin(level2, "level2.fmp") /* 256x256 */
+        #incbin(level3, "level3.fmp") /* 256x256 */
+        #incbin(level4, "level4.fmp") /* 256x256 */
+
+        const int big_map[] = {
+        /* width & height of all the maps
+        &nbsp;* put together
+        &nbsp;*/
+        &nbsp; 512, 512,
+
+        /* the following lines declare all
+        &nbsp;* the small maps, one line per map :
+        &nbsp;*
+        &nbsp;* the two first values are the top/left
+        &nbsp;* coordinates of the small map inside
+        &nbsp;* the big map, the two followings values
+        &nbsp;* are bottom/right coordinates (inclusive),
+        &nbsp;* and the two last values are the map
+        &nbsp;* address in ROM
+        &nbsp;*/
+
+        &nbsp;&nbsp;0, &nbsp;&nbsp;0, 255, 255, bank(level1), level1,
+        256, &nbsp;&nbsp;0, 511, 255, bank(level2), level2,
+        &nbsp; 0, 256, 255, 511, bank(level3), level3,
+        256, 256, 511, 511, bank(level4), level4,
+
+        /* -1 closes the table */
+
+        -1
+        };</code></pre></li>
+    </ul>
+  </li>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.3 to 1.4 </font> 
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">Support of tiles and scrolling, 
+        check the scroll demo and the LibC reference to see how to implement this 
+        on your own roms.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Added plenty of other little 
+        functions, you can find them in the <a href="clibref.htm">LibC reference</a> 
+        too (Exists also in plain text version, in the doc/HuC subdir too)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">As for sign support, we added 
+        it to integer BUT chars remain unsigned, we choosed this. So when declaring 
+        'int', you'll have a 16 bits signed integer while using 'char', you'll 
+        have an unsigned 8 bits value. We plan to add full support of 'unsigned'/'signed' 
+        type modifier.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Compatibility is slightly 
+        broken since last versions, David Michel uses the fact we're not yet a 
+        lot to break compatibility to implement more robust basis.<br>
+        In order to adapt your code, you'll have to do the following : </font> 
+        <ul>
+          <li><font face="Arial, Helvetica, sans-serif">put* functions in debug.c 
+            have been renamed to put_* (added underscore). By the way, thses functions 
+            are integrated in assembler so you won't have to include &quot;debug.c&quot; 
+            anymore.</font></li>
+          <li><font face="Arial, Helvetica, sans-serif">put_number syntax has 
+            changed, it's now : <br>
+            <code>put_number(int num, char width, int vaddr);</code><br>
+            'width' is the field width, the number will be right justified, and 
+            eventualy truncated, or spaces will be added if the field is larger 
+            than the number. If the number is negative a '-' is printed. Before, 
+            the VRAM was corresponding to the right, it's now more classic, it 
+            represent the left address.</font></li>
+          <li><font face="Arial, Helvetica, sans-serif">It's not really useful 
+            for porting code but it's better to have it said somewhere : There's 
+            a function able to handle 16x16 tiles, <br>
+            <code>put_tile(int tile, int vaddr);</code><br>
+            'tile' is not a bat value, it's a tile index. To use this function 
+            you first need to initialize the tiles with set_tile_data();</font></li>
+          <li><font face="Arial, Helvetica, sans-serif">The size of the screen 
+            has been changed, a 256x224 screen is now opened (it was 256x240). 
+            This means that it's no more necessary to add $40 to VRAM address 
+            to write something at the top of the screen. But this also means that 
+            all the put_* functions will have to be patched. :) But idealy rather 
+            than subtracting $40 to every put_* call, you can use the new put_* 
+            syntax : <br>
+            <code>put_digit(char num, char x, char y);</code><br>
+            All the put_* functions have now two syntaxes, one with a VRAM address, 
+            and one with screen coordinates. The latter is a little bit slower, 
+            but very handy.</font></li>
+          <li><font face="Arial, Helvetica, sans-serif"><code>spr_x()</code> and 
+            <code>spr_y()</code> has been changed, the syntax is always the same, 
+            but the coordinate system is different. Now 0 corresponds to the top 
+            of the screen. To make a sprite disappear behind the top border you 
+            must use negative value. This way, a char is enough to handle the 
+            position (note that chars are unsigned and can handle until coordinate 
+            256 [while screen is 256x224])</font></li>
+        </ul>
+      </li>
+      <li><font face="Arial, Helvetica, sans-serif">Corrected argument order in 
+        #inc* statements, I wrongly inverted the two last couple or argument in 
+        former from of each #inc* statements.</font></li>
+    </ul>
+  </li>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.2 to 1.3 </font> 
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">secret ^^, well in fact, I 
+        hadn't understood/don't remember why we choose to skip 1.3</font></li>
+    </ul>
+  </li>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.1 to 1.2 </font> 
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">This version is marked by 
+        the return of David Michel as coder and David Shadoff as cool ideas generator.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">The first feature you'll notice 
+        is the arrival of a GREAT optimiser. Your proggy will run up to 2 or 3 
+        times faster and somewhat smaller.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Another thing is that the 
+        assembler under HuC have evolved a lot. Since it now support an auto filling 
+        of bank, you don't have to worry anymore about mapping stuff and the resulting 
+        rom will be optimaly filled (thus smaller). Thank to this, you don't need 
+        anymore the <code>newbank</code> pseudo instruction.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Addition of constant variables 
+        (syntax is const int x[4] = {0, 1, 2, 3} )</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Correction of some bugs when 
+        using static variables</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">The switch/case instruction 
+        have been implemented even if not optimised yet.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Interface between asm and 
+        C have changed, in this doc, some parts have been said <i>outdated</i> 
+        but let because it's still useful to know how it was implemented before.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">On error, line and file where 
+        problem were is displayed in an &quot;easy to parse&quot; way.</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Some little things I must 
+        have forgotten.</font></li>
+    </ul>
+  </li>
+    <br>
+  <li><font face="Arial, Helvetica, sans-serif">From 1.0 to 1.1 </font> 
+    <ul>
+      <li><font face="Arial, Helvetica, sans-serif">Modulo operator debugged (it's 
+        was twice my fault, writing the modulo code and writing memory mangement 
+        in Hu-Go!, I was writing to ROM in fact)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Some operators have been rewritten 
+        ( ==, !=, &lt;, &gt;, &lt;=, &gt;=). They are now faster and smaller (sometimes 
+        up to 66% shorter) in the libc</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Optimisation have been tackled 
+        (but not yet working)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Produced variable reservation 
+        code is smaller if you put all your declarations on one line</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Lots of pseudo instructions 
+        have been added to add easy support for multi bank rom and sprite handling 
+        (assembler were needed until then)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Added transparent support 
+        for inter bank function calls</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">Some libc functions have been 
+        improved for more security ( X &lt;&lt; 0 was egal to 0 before)</font></li>
+      <li><font face="Arial, Helvetica, sans-serif">More examples have been included</font></li>
+    </ul>
+  </li>
+</ul>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif"><i>Known bugs</i></font></h2>
+<ul>
+  <li><font face="Arial, Helvetica, sans-serif">No more known bugs... ^^</font></li>
+</ul>
+<ul>
+  <ul>
+    <ul>
+      <ul>
+        <ul>
+          <ul>
+            <ul>
+              <ul>
+                <ul>
+                  <ul>
+                  </ul>
+                </ul>
+              </ul>
+            </ul>
+          </ul>
+        </ul>
+      </ul>
+    </ul>
+  </ul>
+</ul>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif"><i>C/asm interface</i></font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> You'll find here some trick to understand 
+  how this compiler works. Before trying to write your own asm routine, read that 
+  first. Even if you don't intend to make asm, I think you should read it at least 
+  once, knowledge can't harm.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> Whatever you write in a asm block 
+  (i.e. beginning by #asm and ended by #endasm) is directly passed to the assembler, 
+  without any modification from the C compiler. You can write this way your own 
+  assembler lib function (when speed is needed for example) but it's harder to 
+  write and support than C code, of course.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> You must be aware that C function 
+  names are limited to 24 chars and when passed to assembler are preceded with 
+  a '_' char. That's why you can't have 2 functions with the same 24 first characters 
+  and need to add a _ when calling a function directly from an assembly block. 
+  (The part concerning the length of identifier is not as important as when this 
+  document was first wrote, it was then limited to 8)</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Argument passage is done trough a 
+  special stack, not the internal stack of the pc engine (that is 256 bytes long 
+  only and must be saved whenever possible) but a stack situated in RAM, at the 
+  end of the RAM to be more precise. The head of this stack is pointed by the 
+  variable __stack ( 2 '_' characters before ).</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Since the tail is fixed at the very 
+  end of the RAM ($4000), the head 'goes down' when you add an item in it. Here's 
+  the pseudo code for adding an item on it (&quot;pushing&quot; a value).</font></p>
+<blockquote> 
+  <p><font face="Courier New, Courier, mono">__stack -= sizeof(var);<br>
+    *__ stack = var;</font></p>
+</blockquote>
+<p><font face="Arial, Helvetica, sans-serif">This is exactly what is done in assembler 
+  before calling a function, to set the value of the various arguments.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><i>outdated : If you want to write 
+  your own assembler function with parameters, you must restore the value of __stack 
+  because it's the calling program that must 'clean' the stack and not the called 
+  sub routine (contrary to the pascal convention) . This is due to the C calling 
+  convention which allows variable number of arg for subroutines (which is not 
+  supported by HuC and is likely to be never supported).</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">Now, David Michel decided (for optimisation 
+  purpose) to use anew the pascal convention for passing arguments and passing 
+  the first argument in the A:X registers instead of using the stack. This means 
+  that the stack must be restored in the called function, no more in the calling 
+  one. </font></p>
+<p><font face="Arial, Helvetica, sans-serif">Once in the subroutine, argument 
+  are then situated 'above' the stack (i.e. *__stack, *(__stack+1), and so on.. 
+  ). As for the order, rightmost C declared arguments are found on the 'bottom' 
+  of the stack. A little example to understand better...</font></p>
+<pre><code>                                             +------------+<br>dummy(val,offset,x, reg_arg) __stack     -&gt;  |//// x /////|
+   char val;                                 +------------+
+   int offset;               __stack + 1 -&gt;  |\\\\\\\\\\\\|<br>   char x;                                   +-- offset --+
+   int reg_arg;              __stack + 2 -&gt;  |\\\\\\\\\\\\|<br>                                             +------------+<br>                             __stack + 3 -&gt;  |/// val ////|<br>                                             +------------+<br>                                             |            |</code></pre>
+<p><font face="Arial, Helvetica, sans-serif">You may even consider the following 
+  pseudo code is executed to set the value of the argument using the stack :</font>
+<pre><code>  reg_arg = value of reg X + 256 * value of reg A;
+  x = *__stack;
+  offset = (*(__stack + 1) + 256 * (*(__stack + 2))
+  val = *(__stack + 3)
+</code></pre>
+</p>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif"><i><a name="sprite_handling"></a>Sprite 
+  handling</i></font></h2>
+<p><font face="Arial, Helvetica, sans-serif">Sprites are handled trough a table 
+  of 64 items, one for each sprite, each entry being 8 bytes long.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">We are reusing the method of the 
+  magic kit, that's to say that we keep a local copy of this table in RAM on which 
+  we work and then we copy this local table to the real one (located in the video 
+  ram) each frame. This method allows faster manipulation (RAM is easier to access 
+  than video memory).</font></p>
+<p><font face="Arial, Helvetica, sans-serif">This local SATB (Sprite Attribute 
+  TaBle) is initialized by <code>satb_init()</code>, future call to this function 
+  will just clear it.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">You can change every attribute of 
+  each sprite, individually. There are 4 attributes (using 16 bits each, which 
+  make this 64 sprites long table using 512 bytes). 2 are for the position (x,y), 
+  one for the pattern and the last one contains various flags...</font></p>
+<p><font face="Arial, Helvetica, sans-serif">When you want to change anything 
+  in a sprite, the method is the following : first, you must tell the system what 
+  is the sprite you want to deal with <code>spr_set(no)</code> where <code>no</code> 
+  is the number of the sprite (in 0-63).</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Once done, you have a few functions 
+  you can use to modify the sprite you've chosen. <code>spr_x(x_coord)</code> 
+  and <code>spr_y(y_coord)</code> respectively change the position of the sprite 
+  on screen.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><code>spr_pri(priority)</code> allows 
+  to set the priority of the sprite, that's to say behind or in front of tiles. 
+  Priority of 0 makes it behind the tiles map and 1 draw them front of them.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><code>spr_pal(pal_number)</code> 
+  changes the palette for this sprite. There are 16 palettes of 16 colors for 
+  sprites. You can change the palette using <code>set_sprpal(palette)</code>, 
+  supposing you have a palette defined somewhere else with the <code>incpal</code> 
+  or <code>defpal</code> statement we'll also talk about.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Last function to control flags is 
+  the more generic <code>spr_ctrl(ctrl_mask, ctrl_value)</code> function. It controls 
+  the mirror flags (you can flip a sprite, either horizontally or vertically) 
+  and size flags (sprites can be 16x16, 32x16, 16x32, 32x32, 16x64 or 32x64). 
+  To use this, you must provide as the mask, the one corresponding to the flag 
+  you want to change or both (combining them with a logical 'or' i.e. | ) and 
+  on value, well, the value. There's a bunch of #define statements in the file 
+  <code>huc.h</code> which make it easy to use. A few examples, to draw the 13th 
+  sprite horizontally flipped, write :</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><code>spr_set(13);<br>
+  spr_ctrl(FLIP_MAS, FLIP_X);</code></font></p>
+<p><font face="Arial, Helvetica, sans-serif">As for drawing a sprite flipped both 
+  horizontally and vertically, while setting the size to 32x64, simply put :</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><code>spr_ctrl(FLIP_MAS | SIZE_MAS, 
+  FLIP_X | FLIP_Y | SZ_32x64);</code></font></p>
+<p><font face="Arial, Helvetica, sans-serif">The last function to handle sprite 
+  is the <code>spr_pattern(pattern_address)</code> function. It's used to change 
+  the pattern of a sprite, i.e. the real shape of it. This 16 bits address is 
+  the place in the video memory where resides the pattern. The address is in word, 
+  not in bytes, which allows to access the whole 0x20000 bytes of video. You must 
+  not forget to load this pattern from the rom with another asm piece of code. 
+  First, you must define the pattern in a data bank including pieces of pcx files 
+  (or even creating yours with hexa numbers), then loading these datas in the 
+  video memory using the <code>load_sprite</code> statement. The <code>load_sprite</code> 
+  function takes the label of the data first, then the address in the video ram 
+  where it should be situated, <b>THIS IS THE VERY SAME PARAMETER THAT SHOULD 
+  BE USED IN THE <code>SPR_PATTERN</code> FUNCTION</b>, and finally the number 
+  of sprite that should be loaded. This number is in 32x64 big sprites. So loading 
+  8 16x16 sprites requires only the value 1 here...</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Finally, you shouldn't forget to 
+  update the true satb with the local one using the function <code>satb_update()</code>, 
+  which should be also accompanied by a <code>vsync(1)</code> call in order to 
+  let the user see the changes. </font></p>
+<h2><font face="Verdana, Arial, Helvetica, sans-serif"><i>PSEUDO INSTRUCTIONS</i></font></h2>
+<p><font face="Arial, Helvetica, sans-serif">This part describes all the instructions 
+  which are not real C statements. They are HuC built in instructions and are 
+  processed at the compilation time, they are not call to library function for 
+  example (although they often produce calls to library functions). Since they're 
+  specific to HuC, they deal with all which is pc engine specific such as banking, 
+  sprites and tiles...</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><i>Outdated :</i></font></p>
+<ul>
+  <li><i><font face="Arial, Helvetica, sans-serif"><code><font size="2"><b>newbank</b></font></code> 
+    : This instruction must be used at top level only (that's to say outside any 
+    function, at the same 'level' than <code>main</code> function for example). 
+    Its goal is to provide an easy way to take advantage of pc engine banking 
+    ability (in fact, to use more than 8 kilobytes of memory :). You can use it 
+    of 4 different ways :</font> </i>
+    <ol>
+      <li><i><code>newbank();<br>
+        </code><font face="Arial, Helvetica, sans-serif">Without argument, all 
+        that follow this instruction is placed in the next free bank, and code 
+        which will be in will be designed to be placed at a compiler chosen position 
+        (If you want to know more, you can check <a href="file:///A%7C/Huc_Doc.htm#hardware_summary">a 
+        brief summary of the pc engine hardware</a>). This is the most used form. 
+        It's typical use is when you get an assembler error such as <code>&quot;Out 
+        of range, bank offset &gt; 0x1FFF&quot;</code>. This means you have filled 
+        a bank (which is 0x2000 bytes long, that's to say 8192 bytes). In order 
+        to solve this you have to 'break' your code. Indeed, currently, since 
+        <code>newbank</code> can only occur at top level, you can't have a function 
+        the flow of which goes from one bank to another. Each function must reside 
+        in one bank. It's then up to you to put the 'overflowing' code into a 
+        newer bank including the <code>newbank</code> instruction before it. From 
+        this moment, you still have another 0x2000 bytes of data for your use 
+        (in the limit of 128 banks, which still represent 1 megabyte). I fear 
+        this point is relatively unprecise but we'll try our best to improve it.</font></i></li>
+      <li><i><font face="Arial, Helvetica, sans-serif"><code>newbank(bank_number);</code></font><br>
+        <font face="Arial, Helvetica, sans-serif">You can specify the number of 
+        the bank you want to 'tackle'. This number must be in 0-127 range. Usually 
+        you shouldn't have to deal with this form of <code>newbank</code>. Only 
+        people who see what's its use should use it :)</font></i></li>
+      <li><i><font face="Arial, Helvetica, sans-serif"><code>newbank(offset_value);</code><br>
+        This version of newbank must be used in certain situation by non pc engine 
+        expert coders. It's used to tell the compiler we want a new bank but designed 
+        to be placed in a certain position (here again, check the <a href="file:///A%7C/Huc_Doc.htm#hardware_summary">brief 
+        summary of the pc engine hardware</a> if you want to learn more). When 
+        you want to import any kind of graphical data (such as palettes, sprites 
+        patterns, tiles and such), you must declare this bank with <code>newbank(0x4000);</code> 
+        because we've decided it would make things much more easier to have all 
+        data mapped at 0x4000. This version is recognized from the previous because 
+        the argument is a multiple of 0x2000 and is greater than 128.</font></i></li>
+      <li><i><font face="Arial, Helvetica, sans-serif"><code>newbank(bank_number, 
+        offset_value);</code></font><br>
+        <font face="Arial, Helvetica, sans-serif">Here is a combination of the 
+        two later forms and its use is pretty rare.<br>
+        </font></i><font face="Arial, Helvetica, sans-serif"><br>
+        </font></li>
+    </ol>
+  </li>
+  <li><code><b>incpal</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    top level instruction allows to include a palette coming from a .pcx file. 
+    It's basically a wrapper for the magic kit equivalent instruction. It exists 
+    in 3 flavors :</font> 
+    <ol>
+      <li>#<code>incpal(identifier_name, &quot;filename&quot;);</code><br>
+        <font face="Arial, Helvetica, sans-serif">Creates a series of palette 
+        identified by <code>identifier_name</code></font> <font face="Arial, Helvetica, sans-serif">coming 
+        from the file called</font> <code>filename</code><font face="Arial, Helvetica, sans-serif">. 
+        It extracts 16 palettes from the 0th to the 15th.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>incpal(identifier_name, 
+        &quot;filename&quot;, start_pal);</code><br>
+        Extract only from palette <code>start_pal</code> to the 15th</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>incpal(identifier_name, 
+        &quot;filename&quot;, start_pal, number_pal);</code><br>
+        Extract <code>number_pal</code> palettes from palette <code>start_pal</code>.<br>
+        <br>
+        </font></li>
+    </ol>
+  </li>
+  <li><code><b>incspr</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    instruction includes data for sprite patterns from a .pcx file.</font> 
+    <ol>
+      <li>#<code>incspr(identifier_name, &quot;filename&quot;);</code><br>
+        <font face="Arial, Helvetica, sans-serif">Extract all possible 16x16 sprites 
+        from the file called <code>filename</code>.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>incspr(identifier_name, 
+        &quot;filename&quot;, col, row);</code><br>
+        Extract only <code>row</code> rows and <code>col</code> columns of 16x16 
+        sprites from the file.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"> <code>incspr(identifier_name, 
+        &quot;filename&quot;, begin_x, begin_y, col, row);</code><br>
+        Extract <code>row</code> rows and <code>col</code> columns of 16x16 sprites 
+        starting at position (<code>begin_x</code>, <code>begin_y)</code></font><font face="Arial, Helvetica, sans-serif"><br>
+        </font></li>
+    </ol>
+  </li>
+</ul>
+<ul>
+  <li><code><b>incchr</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    instruction includes data for character patterns from a .pcx file.</font> 
+    <ol>
+      <li>#<code>incchr(identifier_name, &quot;filename&quot;);</code><br>
+        <font face="Arial, Helvetica, sans-serif">Extract all possible 8x8 tiles 
+        from the file called <code>filename</code>.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>incchr(identifier_name, 
+        &quot;filename&quot;, col, row);</code><br>
+        Extract only <code>row</code> rows and <code>col</code> columns of 8x8 
+        tiles from the file.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>incchr(identifier_name, 
+        &quot;filename&quot;, begin_x, begin_y, col, row);</code><br>
+        Extract <code>row</code> rows and <code>col</code> columns of 8x8 tiles 
+        starting at position (<code>begin_x</code>, <code>begin_y)<br>
+        <br>
+        </code></font></li>
+    </ol>
+  </li>
+  <li><code><b>incchr_ex</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    instruction includes data for character patterns from a series of .pcx files, and
+    sets up for the "new style" of 8x8 scroll-tiling.</font> 
+    <ol>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>incchr(identifier_name, 
+	&quot;filename_1&quot;, begin_x, begin_y, col, row, pal_idx1, \<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &quot;filename_2&quot;, begin_x, begin_y, col, rox, pal_idx2, \<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &quot;filename_n&quot;, begin_x, begin_y, col, rox, pal_idxn );</code><br>
+        Extract <code>row</code> rows and <code>col</code> columns of 8x8 tiles 
+        starting at position (<code>begin_x</code>, <code>begin_y</code>), and using the stated
+	pal_idx from filename_1 (etc.), assembling them as a single list of tiles
+	in memory, available for use in the map and scrolling functions<br>
+        <br>
+        </code></font></li>
+    </ol>
+  </li>
+
+  <li><code><b>inctile</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    instruction includes data for tile patterns from a .pcx file.</font> 
+    <ol>
+      <li>#<code>inctile(identifier_name, &quot;filename&quot;);</code><br>
+        <font face="Arial, Helvetica, sans-serif">Extract all possible 16x16 tiles 
+        from the file called <code>filename</code>.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>inctile(identifier_name, 
+        &quot;filename&quot;, col, row);</code><br>
+        Extract only <code>row</code> rows and <code>col</code> columns of 16x16 
+        tiles from the file.</font></li>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>inctile(identifier_name, 
+        &quot;filename&quot;, begin_x, begin_y, col, row);</code><br>
+        Extract <code>row</code> rows and <code>col</code> columns of 16x16 tiles 
+        starting at position (<code>begin_x</code>, <code>begin_y)<br>
+        <br>
+        </code></font></li>
+    </ol>
+  </li>
+  <li><code><b>inctile_ex</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    instruction includes data for character patterns from a series of .pcx files, and
+    sets up for the "new style" of 16x16 scroll-tiling.</font> 
+    <ol>
+      <li>#<font face="Arial, Helvetica, sans-serif"><code>inctile(identifier_name, 
+	&quot;filename_1&quot;, begin_x, begin_y, col, row, pal_idx1, \<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &quot;filename_2&quot;, begin_x, begin_y, col, rox, pal_idx2, \<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &quot;filename_n&quot;, begin_x, begin_y, col, rox, pal_idxn );</code><br>
+        Extract <code>row</code> rows and <code>col</code> columns of 16x16 tiles 
+        starting at position (<code>begin_x</code>, <code>begin_y</code>), and using the stated
+	pal_idx from filename_1 (etc.), assembling them as a single list of tiles
+	in memory, available for use in the map and scrolling functions<br>
+        <br>
+        </code></font></li>
+    </ol>
+  </li>
+
+  <li><code><b>incbat</b></code> :<font face="Arial, Helvetica, sans-serif"> This 
+    is a special instruction that include a kind of map used to recreate a background 
+    picture in conjunction with inclusion of tiles pattern. We've set another 
+    pseudo instruction that does that but it's not completely flexible (see <a href="file:///A%7C/HuC_doc.htm#load_background">load_background</a>).</font> 
+    <ol>
+      <li>#<code>incbat(identifier_name, &quot;filename&quot;, pcx_offset);</code><br>
+        <font face="Arial, Helvetica, sans-serif">Extract the map for displaying 
+        the whole pcx containing in the file <code>filename</code>. <code>pcx_offset</code> 
+        is the position in the video ram where will be stored the pattern to draw 
+        the picture. I advise you to let 0x1000 for this argument, if you want 
+        to use the <a href="file:///A%7C/HuC_doc.htm#load_background">load_background</a> instruction 
+        for now.</font></li>
+      <li>#<code>incbat(identifier_name, &quot;filename&quot;, pcx_offset, col, 
+        row)</code><br>
+        <font face="Arial, Helvetica, sans-serif">Extract only <code>col</code> 
+        columns and <code>row</code> rows from the file.</font></li>
+      <li>#<code>incbat(identifier_name, &quot;filename&quot;, pcx_offset, begin_x, 
+        begin_y, col, row);</code><br>
+        <font face="Arial, Helvetica, sans-serif">Extract only <code>col</code> 
+        columns and <code>row</code> rows starting at position (<code>begin_x</code>, 
+        <code>begin_y</code>)</font><br>
+        <br>
+      </li>
+    </ol>
+  </li>
+  <li><code><b>defpal</b></code> : <font face="Arial, Helvetica, sans-serif">This 
+    instruction allows you to define a palette data in your code. Instead of referencing 
+    it from a picture, you will simply tell the RGB components for each color 
+    of the palette.</font> 
+    <blockquote> 
+      <p><code>#defpal(identifier_name, &lt;color component&gt; * 16);</code><br>
+        <font face="Arial, Helvetica, sans-serif">You are not obliged to define 
+        all 16 colors of a palette. As for the components, they are easy to use 
+        if you use the hexa decimal notation in which only the 3 last digits are 
+        used and represent (from left to right) <font color="red">red</font>, 
+        <font color="green">green</font> and <font color="blue">blue</font>. The 
+        maximum for each component is 7, thus a perfect while is 0x777, while 
+        a purple is something like 0x607...</font></p>
+    </blockquote>
+  </li>
+  <li><font face="Arial, Helvetica, sans-serif"><code><b>defspr</b></code> : With 
+    this one, you'll define your own sprites using also inline data, not coming 
+    from a picture. </font> 
+    <blockquote> 
+      <p><code>#defspr(identifier_name, vram_address, default_palette, &lt;8 pixels 
+        data&gt; * 32);</code><br>
+        <font face="Arial, Helvetica, sans-serif">The <code>vram_address</code> 
+        is a value in the range 0-0x10000 which tell the assembler where you want 
+        to see these data in the video ram. Don't forget that before using a sprite 
+        and such, you'll have to load data into video ram before the real use. 
+        In fact, this argument just tells a preference and its value doesn't oblige 
+        you to respect this. This is also true for the <code>default_palette</code> 
+        (there are 16 palettes for sprites). As for the data, I recommand you 
+        to use the hexadecimal notation, in which each 32 bits number easily represent 
+        8 pixels using a digits for each. I bet a little example will make this 
+        appear clearer. To declare 8 pixels beginning by 3 pixels of color 5, 
+        then 2 of color 10 and finishing by color 1, you'll use the number 0x555AA111. 
+        Since we're defining 16x16 sprites, we need two of these numbers to define 
+        a line and thus we'll have 32 arguments to define the whole sprite pattern.</font></p>
+    </blockquote>
+  </li>
+  <li><code><b>defchr</b></code> : <font face="Arial, Helvetica, sans-serif">basically, 
+    you should have guessed what this one is for :) (I'm also pretty tired to 
+    make documentation ***yawn*** ) </font> 
+    <blockquote> 
+      <p><font face="Arial, Helvetica, sans-serif"><code>#defchr(identifier_name, 
+        vram_address, default_palette, &lt;8 pixels data&gt; * 8);</code><br>
+        See <code>defspr</code> for most information. I just want to confirm that 
+        you also have 16 palettes for tiles data (which makes a total of 32 differents 
+        palettes). And since a tile is only 8x8, you have only one hexa number 
+        per line and 8 of these numbers. You can have a look at the debug.c file 
+        which has the font used for printing defined this way (notice how the 
+        <code>vram_address</code> is useless :)</font></p>
+    </blockquote>
+  </li>
+  <li><font face="Arial, Helvetica, sans-serif"><b><code>set_sprpal</code></b> 
+    : We're arriving to pseudo functions built to be used inside functions, as 
+    the same place you would write down statements, function calls, declarations 
+    and such... This function change a palette using data included or defined. 
+    </font> 
+    <blockquote> 
+      <p><font face="Arial, Helvetica, sans-serif"><code>set_sprpal(first_palette, 
+        palette_name [, number_palette ] );</code><br>
+        <code>first_palette</code> is the number of the palette to alter (in the 
+        range 0-15) while <code>palette_name</code> is an identifier to a palette 
+        to load or to the first palette you want to load (in this case, you should 
+        have included or defined all your palettes without any other actions between 
+        them). The last argument is optionnal and assumed to be 1 is missing. 
+        It's the number of palette you'll load from the rom into the hardware.</font></p>
+    </blockquote>
+  </li>
+  <li><font face="Arial, Helvetica, sans-serif"><code><b>set_bgpal</b></code> 
+    : This one is exactly the same as the previous one expected that it will alter 
+    one of the 16 tile palettes.</font><br>
+    <br>
+  </li>
+  <li><font face="Arial, Helvetica, sans-serif"><code><b>load_sprites</b></code> 
+    : This function is just a wrapper for a magic kit macro but it's pretty important. 
+    It's the function that permit to load sprite from the rom to the video ram. 
+    Don't forget it only become useful there. Once in the video ram, you'll be 
+    able to use it in the spr_pattern function (see <a href="file:///A%7C/HuC_doc.htm#sprite_handling">sprite 
+    handling</a>). </font> 
+    <blockquote> 
+      <p><font face="Arial, Helvetica, sans-serif"><code>load_sprites(vram_address, 
+        data_name, number_sprites);</code><br>
+        <code>vram_address</code> is the address in the video ram where you want 
+        to transfert your sprites. This is this value that you need to pass to 
+        the <code>spr_pattern</code> function. <code>data_name</code> is an identifier 
+        of the sprites you want to copy and <code>number_sprites</code> is the 
+        amount of sprites to transfert. Be careful however that the unit of transfert 
+        data is in 32x64 sprites. This mean that for transfering 4 16x16 sprites, 
+        putting 1 for <code>number_sprites</code> is enough.</font></p>
+    </blockquote>
+  </li>
+  <li><font face="Arial, Helvetica, sans-serif"><code><b><a name="load_background"></a>load_background</b></code> 
+    : contrary to what you could think about, this function isn't the tiles equivalent 
+    of <code>load_sprites</code>. It used to load a whole background picture using 
+    tiles. I consider this function as unperfect, it still requires some improvements, 
+    some flexibility but as it is, it works :) </font> 
+    <blockquote> 
+      <p><font face="Arial, Helvetica, sans-serif"><code>load_background(data_name, 
+        palette_name, bat_name, width, height);</code><br>
+        <code>data_name</code> is the identifier of the first tile that compose 
+        the picture. As it is currently, it must be beginning a bank; you can't 
+        have some data between the last <code>newbank(0x4000)</code> statement 
+        and the label you're referencing. The <code>palette_name</code> identifier 
+        must refer to the whole palette which have been extracted from the picture. 
+        It is <b>HIGHLY</b> recommended to convert your picture to 16 colors only 
+        before including them because if you know that each 8x8 tile must use 
+        only 16 colors consecutive, you'll quickly understand that it's not so 
+        easy to have more than 16 colors on a whole picture. <code>bat_name</code> 
+        is the identifier of the BAT which is in fact the way to use tiles to 
+        compose anew the original picture. Finally <code>width</code> and <code>height</code> 
+        are self explicite ^^, the only thing I could add is that the unit is 
+        the tile, that's to say a 8x8 piece of graphic. The best to see how this 
+        function works is to check sources of Pong.</font></p>
+    </blockquote>
+  </li>
+</ul>
+<h2><i><font face="Verdana, Arial, Helvetica, sans-serif"><a name="hardware_summary"></a>BRIEF 
+  SUMMARY OF THE PC ENGINE HARDWARE</font></i></h2>
+<p><font face="Arial, Helvetica, sans-serif">The goal of this documentation is 
+  not to explain how does the pc engine works but since it's quite near of the 
+  machine architecture, I fell obliged to talk a bit about it to fully understand 
+  the utility of HuC. For a complete pc engine documentation, don't worry, we're 
+  also working on it. Until it's complete, you would like to check the one done 
+  my J.C. Restemeyer and on which ours will be based.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Concerning the memory management, 
+  you must be aware that the pc engine owns a very little addressable memory, 
+  64 kB. In order to access the whole 1MB which can be present on a HuCard (plus 
+  some more special part of memory), there're a system of banking which allow 
+  you to access some part of the HuCard at a given moment. The 64 kb is divided 
+  in 8 pieces of 8 kb each. Each one of these piece is controlled by a special 
+  register indicating the &quot;mapping&quot; that's to say the bank we are accessing 
+  trough the memory range controlled by this register. For example, let's say 
+  you're setting MMR (Memory Management Unit I think) number 4 to the value 30. 
+  Since MMR4 controls 0x8000-0xA000 memory range, you'll be able to read the 15th 
+  byte of bank 30 at 0x800F and the last byte of bank 30 at position 0x9FFF.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">Normal banks are numbered from 0-127, 
+  above these, you can find special banks. The bank numbered 0xFF is the Input/Output 
+  bank. When you read or write in memory where this bank is mapped, you won't 
+  read or write in some memory but rather access some hardware ports. For example, 
+  writing at position 0 of this bank will change the current video register (forget 
+  about its use, it's an example), sound stuff is at offset 0x800, cdrom stuff 
+  at 0x1800 and such... It's the way the program can communicate with the hardware. 
+  Bank 0xF8 is the ram for the coregraphx (there may be more for supergraphx). 
+  Whenever available the backup RAM is located at bank 0xF7.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">There's also something I didn't explain. 
+  In order to make it more easy to handle all of this, we generally &quot;schedule&quot; 
+  a bank to be placed at a certain place (such as 0x4000 or 0xC000 and such). 
+  We way, we can use absolute jumps and such, we are not limited to relative addressing. 
+  Whatever, you must be aware that each bank is prepared for a certain position, 
+  not forgetting that some MMR are reserved. Indeed, it's not compulsory but most 
+  of roms, not to say absolutely all, uses a certain scheme. MMR0 (controlling 
+  0x0000-0x2000) is mapped to the I/O bank for controlling the hardware. MMR1 
+  (controlling 0x2000-0x4000) is mapped to the RAM bank. MMR7 (the last one) is 
+  mapped to bank 0. This one should always be mapped since interruption vectors 
+  are taken from the very end of the RAM (and thus in this bank), this bank generally 
+  contain general purpose functions (BIOS) and it's the only one which is mapped 
+  by default when booting anew. So code at the beginning of this bank will be 
+  the 'boot' code.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"><i>Outdated : As for easing creation 
+  of ROM from HuC, we've also decided to use 0x4000-0x6000 for data such as sprites, 
+  tiles. If you've read everything, you'll notice we still have 0x6000-0xDFFF 
+  for our purposes. Code can be placed in any of these and when telling HuC to 
+  use a new bank, it will try to feed all this bank so that you won't have overlapping 
+  function calls. About function calls, we're still working on it but we already 
+  have a working solution.</i></font></p>
+<ul>
+  <li><i><font face="Arial, Helvetica, sans-serif">Calling a function in the same 
+    bank as the caller : nothing easier, a simple instruction in assembler is 
+    able to call a sub routine which is currently in memory. We're sure it's mapped 
+    since it's the same bank of the calling function, which insure us that it's 
+    in memory.</font></i></li>
+  <li><i><font face="Arial, Helvetica, sans-serif">Calling a function in another 
+    bank as the caller, AND the called function bank is scheduled to be mapped 
+    at another place than the calling function bank : In this case, we can safely 
+    map the new bank since it won't overwrite the calling function bank. Once 
+    mapped, we can use the assembler instruction to call a subroutine.</font></i></li>
+  <li><i><font face="Arial, Helvetica, sans-serif">Calling a function in another 
+    bank as the caller, BUT the called function bank is scheduled to be mapped 
+    at the SAME place than the calling function bank : Here, this is trickier 
+    and there are a current working way of doing as well as another approach from 
+    <a href="mailto:dmichel@easynet.fr">David Michel</a>. The current approach 
+    put a few values on the pc engine stack and then call a special function in 
+    the bank 0 (which is always mapped, don't forget). This little function will 
+    map the new bank, make a call to the new function then restore the old mapping. 
+    The other approach would be to store a fake function in the bank 0 that would 
+    always map the new bank and restore the mapping. Each version got advantages 
+    and backdraws. As for now, I've kept the one which work and is implemented 
+    even if it will changes. Whatever the solution it will be transparent for 
+    the user.</font></i></li>
+</ul>
+<p><i><font face="Arial, Helvetica, sans-serif">All of this to show you that a 
+  good spreading of the code will make things faster and smaller...</font><br>
+  </i></p>
+<p><font face="Arial, Helvetica, sans-serif">Thanks to the new magic kit used, 
+  the assembler is able to map automaticaly data and code. This means that you 
+  don't use to specify any &quot;newbank&quot; statement since the assembler will 
+  spread code and data in various banks and will take care of mapping stuff before 
+  using it. As far as I remember the code only uses one bank and another one will 
+  only be used to contain a wraper for each function that maps correctly a bank 
+  before calling a function. Two banks are used for startup code (hucard and cd 
+  one). One will contain data (such as sprites, tiles and such) and another one 
+  for constant data (as the string constant in C programs). Remain the two classical 
+  first MMR filled with the hardware access bank and the RAM one.</font></p>
+<p><font face="Arial, Helvetica, sans-serif">As you can see, everything is used 
+  now and transparently for us, C coders :)</font></p>
+</body>
+</html>

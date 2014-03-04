@@ -1,0 +1,335 @@
+
+                     "PC Engine Video Display Controller"
+                     ====================================
+
+
+
+    1/ VDC I/O ports
+       -------------
+
+        The VDC can be accessed through 2 16-bit I/O ports in the hardware
+        page (bank $FF):
+
+
+        +-------+-----+----------------------------------------------------+
+        | $0000 | R/  | Status Register                                    |
+        +-------+-----+----------------------------------------------------+
+
+                Bit 15-07 : (unused)
+
+                Bit    06 : busy flag
+
+                Bit    05 : vertical blanking flag.
+
+                Bit    04 : VRAM DMA end of transfer flag, set to
+                            indicate the end of a VRAM to VRAM
+                            DMA transfer.
+
+                Bit    03 : VRAM to SATB end of transfer flag.
+
+                Bit    02 : scanline interrupt flag.
+
+                Bit    01 : sprite overflow flag, set whenever
+                            the sprite data could not be fetched,
+                            usualy when there are more than 16
+                            sprites on a scanline.
+
+                Bit    00 : sprite collision flag, set when
+                            sprite #0 is in collision with any
+                            other sprites.
+
+
+        +-------+-----+----------------------------------------------------+
+        | $0000 |  /W | Index Register                                     |
+        +-------+-----+----------------------------------------------------+
+
+                Bit 15-05 : (unused)
+
+                Bit 04-00 : VDC register index (0-19).
+
+
+        +-------+-----+----------------------------------------------------+
+        | $0002 | R/W | Data Register                                      |
+        +-------+-----+----------------------------------------------------+
+
+                bit 15-00 : data to be read/written to a VDC register.
+
+
+    2/ VDC registers
+       -------------
+
+        The VDC has a total of 20 16-bit registers.
+
+        Note : Two of these registers (registers $03 and $04) are reserved
+               and should not be accessed.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $0 |  /W | Memory Address Write Register                         |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : VRAM write pointer, set this register to
+                            the VRAM location you want to change and write
+                            the new data in the VRAM data register $02
+                            (auto-incremented after each write to the high
+                             byte of register $02). 
+
+
+        +----+-----+-------------------------------------------------------+
+        | $1 |  /W | Memory Address Read Register                          |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : VRAM read pointer, set this register to the VRAM
+                            location you want to read and get the data
+                            from the VRAM data register $02
+                            (auto-incremented after each read of the high
+                             byte of register $02). 
+
+
+        +----+-----+-------------------------------------------------------+
+        | $2 | R/  | VRAM Read Register                                    |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : VRAM read latch; contains the data of
+                            the VRAM location pointed to by register $01.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $2 |  /W | VRAM Write Register                                   |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : VRAM write latch; any data written in
+                            this register will be copied to the VRAM
+                             location pointed to by register $00. 
+
+
+        +----+-----+-------------------------------------------------------+
+        | $5 |  /W | Control Register                                      |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-13 : (unused)
+
+                Bit 12-11 : read/write address auto-increment :
+
+                                 00 -> +1
+                                 01 -> +32
+                                 10 -> +64
+                                 11 -> +128
+
+                            Affect by how much are incremented the address
+                            register $00 and $01.
+
+                Bit 10-08 : (reserved) - always set to 0.
+
+                Bit    07 : background enable flag (1 = on).
+
+                Bit    06 : sprites enable flag (1 = on).
+
+                Bit 05-04 : (reserved) - always set to 0.
+
+                Bit 03-00 : interrupt enable flags (1 = on).
+
+                                 Bit 03 : vertical blanking.
+                                 Bit 02 : scanline match flag.
+                                 Bit 01 : sprite overflow, more than 16
+                                          sprites on a scanline.
+                                 Bit 00 : collision detection (between
+                                          sprite #0 and any other
+                                          sprites).
+
+
+        +----+-----+-------------------------------------------------------+
+        | $6 |  /W | Raster Counter Register                               |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-10 : (unused)
+
+                Bit 09-00 : scanline index on which an interrupt
+                            should be raised (the first scanline of
+                            the display is scanline number 64).
+
+
+        +----+-----+-------------------------------------------------------+
+        | $7 |  /W | Background X Scroll Register                          |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-10 : (unused)
+
+                Bit 09-00 : horizontal screen position in the virtual BG
+                            map; each time the VDC renders a scanline
+                            it gets the display starting X position from
+                            this register (some pretty nice effects can
+                            be done by just changing this register every
+                            scanline: distortion, sine scroll, etc...).
+
+
+        +----+-----+-------------------------------------------------------+
+        | $8 |  /W | Background Y Scroll Register                          |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-09 : (unused)
+
+                Bit 08-00 : vertical screen position in the virtual BG
+                            map; same principle as the X scroll register
+                            but for the vertical position.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $9 |  /W | Memory Access Width Register                          |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-08 : (unused)
+
+                Bit    07 : (reserved) - always set to 0.
+
+                Bit 06-04 : size of the virtual BG map:
+
+                                 000 -  32 x 32
+                                 001 -  64 x 32
+                                 010 - 128 x 32
+                                 011 - 128 x 32
+                                 100 -  32 x 64
+                                 101 -  64 x 64
+                                 110 - 128 x 64
+                                 111 - 128 x 64
+
+                Bit 03-00 : (reserved) - always set to 0.
+
+
+    3/ VDC display registers : 
+       ----------------------
+
+        Registers $0A to $0E hold values used to build the display.
+        They contain settings for the vertical and horizontal synchro signals,
+        as well as for the screen geometry. Playing with these registers could
+        damage your TV or your monitor if you enter incorrect values.
+        They are documented here for completeness, but be careful if you want
+        to play with them... Reference values for setting up a 256x240 screen
+        are given for each register.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $A |  /W | Horizontal Synchro Register              [ref. $0202] |
+        +----+-----+-------------------------------------------------------+
+
+                Bit    15 : (unused)
+
+                Bit 14-08 : horizontal display start position -1.
+
+                Bit 07-05 : (unused)
+
+                Bit 04-00 : horizontal sync pulse width.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $B |  /W | Horizontal Display Register              [ref. $031F] |
+        +----+-----+-------------------------------------------------------+
+
+                Bit    15 : (unused)
+
+                Bit 14-08 : horizontal display end position -1.
+
+                Bit    07 : (unused)
+
+                Bit 06-00 : horizontal display width -1.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $C |  /W | Vertical Synchro Register                [ref. $0F02] |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-08 : vertical display start position -2.
+
+                Bit 07-05 : (unused)
+
+                Bit 04-00 : vertical sync pulse width.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $D |  /W | Vertical Display Register                [ref. $00EF] |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-09 : (unused)
+
+                Bit 08-00 : vertical display width -1.
+
+
+        +----+-----+-------------------------------------------------------+
+        | $E |  /W | Vertical Display End Position Register   [ref. $0003] |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-08 : (unused)
+                   
+                Bit 07-00 : vertical display end position.
+
+
+    4/ VDC DMA registers : 
+       ------------------
+
+        The VDC has two DMA channels, one used to do VRAM to VRAM transfers,
+        and another dedicated to VRAM to SATB transfers. The SATB is the
+        Sprite Attribute Table Block, it contains all the sprite informations.
+        It's located inside the VDC and can not be accessed directly,
+        the only way to change sprite attributes is through a local SATB
+        in VRAM that is transfered to the VDC internal SATB each frame
+        using the VRAM to SATB DMA channel. 
+
+
+        +----+-----+-------------------------------------------------------+
+        | $F |  /W | DMA Control Register                                  |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-05 : (unused)
+
+                Bit    04 : VRAM to SATB auto-transfer enable flag (1 = on).
+
+                Bit    03 : destination address direction, '1' to
+                            decrement and '0' to increment.
+
+                Bit    02 : source address direction, '1' to
+                            decrement and '0' to increment.
+
+                Bit    01 : VRAM to VRAM end of transfer interrupt
+                            enable flag (1 = on).
+
+                Bit    00 : VRAM to SATB end of transfer interrupt
+                            enable flag (1 = on).
+
+
+        +----+-----+-------------------------------------------------------+
+        |$10 |  /W | DMA Source Address Register                           |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : source address for VRAM to VRAM DMA transfer.
+
+
+        +----+-----+-------------------------------------------------------+
+        |$11 |  /W | DMA Destination Address Register                      |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : destination address for VRAM to VRAM DMA transfer.
+
+
+        +----+-----+-------------------------------------------------------+
+        |$12 |  /W | DMA Block Length Register                             |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : length in words of the VRAM to VRAM DMA transfer;
+                            writing to the high byte of this register will
+                            auto-start the DMA transfer.
+
+
+        +----+-----+-------------------------------------------------------+
+        |$13 |  /W | VRAM-SATB Source Address Register                     |
+        +----+-----+-------------------------------------------------------+
+
+                Bit 15-00 : source address for the VRAM to SATB DMA transfer;
+                            writing to this register will auto-start the
+                            DMA at the next vertical sync, even if bit 4
+                            in the DMA control register is not set, however,
+                            the transfer will be repeated every vertical
+                            sync only if this bit is set.
+
+
+--
+

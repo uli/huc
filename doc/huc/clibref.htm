@@ -1,0 +1,330 @@
+<title>HuC LibC reference</title>
+<body bgcolor="#FFFFFF">
+<p><font face="Arial, Helvetica, sans-serif"> 2000.08.17 (60 functions) </font></p>
+<p><font face="Arial, Helvetica, sans-serif">Table of content :</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <a href="#video">Video Functions</a><br>
+  <a href="#palette">Palette Functions</a><br>
+  <a href="#font">Font Functions</a><br>
+  </font><font face="Arial, Helvetica, sans-serif"><a href="#text">Text output 
+  Functions</a><br>
+  <a href="#tile">Tile Functions</a><br>
+  <a href="#sprite">Sprite Functions</a><br>
+  <a href="#joypad">Joypad Functions</a><br>
+  <a href="#misc">Miscelaneous Functions</a></font> </p>
+<hr>
+<h2><a name="video"></a><font face="Arial, Helvetica, sans-serif"><i><b>VIDEO 
+  FUNCTIONS</b></i></font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> disp_off();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Blank the display.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> disp_on();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Enable display output.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> cls();<br>
+  cls(int val);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Clear all the screen.<br>
+  Without parameters the screen is filled with a space character, else it's filled 
+  with the bat-value given as argument.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">vsync();<br>
+  vsync(char nb_frame);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Synchronize your program to the 
+  video vertical blanking signal (VBL), which is 1/60th of a second. Without parameters 
+  this function return as soon as a VBL signal has been received, else your program 
+  will be synchronized to the number of frame you requested. So for example to 
+  run your game at 20fps, just use vsync(3) at the end of your game loop.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">vreg(char idx);<br>
+  vreg(char idx, int val);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>This function gives you direct 
+  access to the video processor (VDC) registers. The first form of this function 
+  is used to just select a VDC register (for custom accesses), and the second 
+  is used to set the value of a register (it also selects this register).</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">vram_addr(char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Simple function to return the 
+  screen video memory address of the character located at position x/y. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">set_screen_size(char size);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Change the virtual screen size. 
+  By default the startup code initialize a virtual screen of 64 characters wide 
+  and 32 character tall, but other values are possible, namely : 32x32, 128x32, 
+  32x64, 64x64, or 128x64. More the virtual screen is big, less video memory you 
+  have for your graphics (font, tiles, sprites).</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_vram(int vaddr, int *data, int 
+  nb);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Generic function to load data 
+  (BAT, CG, sprites) in video memory, at address 'vaddr'. 'nb' is the number of 
+  16-bit words to load.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_bat(int vaddr, int *bat_data, 
+  char w, char h);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load a rectangular character 
+  attribute table (BAT) of width 'w' and of height 'h' in video memory, at address 
+  'vaddr'.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_background(char *gfx, int *pal, 
+  int *bat, char width, char height);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>This function is an all-in-one 
+  function, it is used to display a whole background image on the screen, like 
+  a game title image. It will load BG character data, it will load the palette, 
+  and finaly if will load the BAT. Use it with directives #incchr, #incpal and 
+  #incbat to manage the different type of data. The BG character data will be 
+  stored at address 0x1000 to 0x5000 in video memory.</i></font><font face="Arial, Helvetica, sans-serif"> 
+  </font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"><a name="palette"></a>PALETTE FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> set_color(int num, int rgb);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the specified color (0-511) 
+  to the given rgb-value.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> set_color_rgb(int num, char r, char 
+  g, char b);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the specified color to the 
+  given rgb component values. This function is easier to use than set_color(), 
+  but it is slower.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">get_color(int num);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Retrieve the rgb-value of the 
+  specified color.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_palette(char pal_num, int *pal, 
+  char nb_pal);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load one or more 16-color palette-blocks 
+  at once. 'pal_num' is the index of the first block (0-31) to load, and 'nb_pal' 
+  the number of block. This function can be used to load palette defined using 
+  #defpal or included with #incpal directive.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">set_sprpal(char pal_num, int *pal);<br>
+  set_sprpal(char pal_num, int *pal, int nb_pal);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Exactly the same function has 
+  load_palette(), but this function offers direct access to sprite palette-blocks. 
+  Sprite palette-blocks are standard block number 16 to 31, but with this function 
+  you can simply access them with indexes 0 to 15. This function and set_bgpal() 
+  function make sprite and character palette-blocks manipulation easier; with 
+  them you don't have to know the real block indexes. Without the third arguments, 
+  the function loads only one block.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">set_bgpal(char pal_num, int *pal);<br>
+  set_bgpal(char pal_num, int *pal, int nb_pal);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Same function as set_sprpal() 
+  but for character palette-blocks.</i></font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"><a name="font"></a>FONT FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> set_font_color(char fg, char bg);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the default font foreground 
+  and background colors (colors range from 0 to 15). Changes won't take effect 
+  immediately, you must re-load the font by calling load_default_font().</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">set_font_pal(char pal);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the font palette index (0-15).</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> set_font_addr(int vaddr);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the font address in video 
+  memory. Use this function to change the current font; to use several font on 
+  the same screen, or when you load yourself a font and need to tell the library 
+  where it is. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">get_font_pal();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the current font palette 
+  index.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> get_font_addr();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the current font address 
+  in video memory.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> load_default_font();<br>
+  load_default_font(char num);<br>
+  load_default_font(char num, int vaddr);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load a default font in video 
+  memory. Without parameters the first default font is loaded just above the BAT 
+  in video memory; usualy it's address 0x800. Otherwise you can select the font 
+  number, and eventualy the address in video memory. In its current implementation 
+  the library support only one default font, but in the future more fonts could 
+  be available.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_font(char *font, char nb_char);<br>
+  load_font(char *font, char nb_char, int vaddr);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load a custom font in video memory. 
+  Used together with the #incchr directive it will allow you to load a font from 
+  a PCX file. Note that custom fonts are colored fonts, so they won't be affected 
+  by any previous call to set_font_color(). The number of character to load range 
+  from 0 to 224, ASCII characters 0 to 31 are never used, and can't be defined, 
+  you must start your font at the space character, which is ASCII code 32. If 
+  you don't implicitely give a video memory address, the function will load your 
+  font just above the BAT (usualy it's address 0x800).</i></font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"> <a name="text"></a>TEXT OUTPUT 
+  FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> All the text output functions have 
+  two forms, one where you directly specify the video memory address, and another 
+  one where you specify x/y coordinates (in character unit). The second form is 
+  a bit slower but more user-friendly.</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> put_digit(char digit, int vaddr);<br>
+  put_digit(char digit, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Output a digit character '0'-'9' 
+  given its numeric value. Hexa digits ('A'-'F') are also supported, a value of 
+  10 will output 'A', a value of 11 will output 'B', and so on... </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">put_char(char c, int vaddr);<br>
+  put_char(char c, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Output an ASCII character.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> put_raw(int bat_val, int vaddr);<br>
+  put_raw(int bat_val, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Output a raw bat-value.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> put_number(int number, char width, 
+  int vaddr);<br>
+  put_number(int number, char width, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Output a signed number. The 'width' 
+  argument is used to format the number. As much as 'width' digit(s) will be displayed. 
+  If the number has less than 'width' digit(s), blank spaces will be added at 
+  its left. If the number is negative, a '-' sign is added.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">put_hex(int number, char width, int 
+  vaddr);<br>
+  put_hex(int number, char width, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Output an hexa number.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> put_string(char *string, int vaddr);<br>
+  put_string(char *string, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Output a null terminated ASCII 
+  string.</i></font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"><a name="tile"></a>TILE & MAP FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> set_tile_data(char *tile_data, int 
+  nb_tile, char *pal_ref);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Define an array of tile to be 
+  used by all the tile and map functions. 'tile_data' is the address of the tile 
+  graphics data in memory, 'nb_tile' is the number of tile (max. 256), and 'pal_ref' 
+  is the address of a palette-index array to use for tiles; each tile has its 
+  own palette index attached to it (note that palette indexes must be shifted 
+  to the left by four bits, ie. 0x40 for palette index 4).</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_tile(int vaddr);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load tile graphics data in video 
+  memory, at address 'vaddr'. You must first have defined a tile array with set_tile_data() 
+  before using this function.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">put_tile(int num, int vaddr);<br>
+  put_tile(int num, char x, char y);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Put individual tiles on the screen, 
+  either directly at video memory location 'vaddr', or at screen coordinates 'x/y' 
+  (in tile unit). 'num' is a tile index in the tile array defined by the most 
+  recent call to set_tile_data().</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">set_map_data(char *map, char w, char 
+  h);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Define a tile-index map to be 
+  used by load_map(). 'map' is the address of a map of width 'w' (max. 256) and 
+  of height 'h' (max. 256).</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">load_map(char sx, char sy, int mx, 
+  int my, char w, char h);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load a part of a map on the screen. 
+  'sx' and 'sy' are screen coordinates (in tile unit; 16 pixels), 'mx' and 'my' 
+  are position in the map, and 'w' and 'h' are respectively the number of tile-index 
+  to load horizontaly and verticaly. This function doesn't do any screen clipping, 
+  so you must not pass incorrect or too big screen coordinates to it, that would 
+  corrupt the video memory.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">scroll(char num, int x, int y, char 
+  top, char bottom, char disp);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Define screen window 'num'. Up 
+  to four window can be defined. 'top' and 'bottom' are the screen top and bottom 
+  limits of the window (limits are included in the window area). 'disp' controls 
+  the type of the window, if bit 7 is set background graphics will be displayed 
+  in this window, and if bit 6 is set sprites will also be displayed. If none 
+  of these bits are set the window will stay blank. 'x' and 'y' are the top-left 
+  coordinates of the area in the virtual screen that will be displayed in the 
+  window.</i></font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"><a name="sprite"></a>SPRITE FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> load_sprites(int vaddr, int *spr_data, 
+  int nb_spr);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Load sprite graphics data in 
+  video memory, at address 'vaddr'. This function load sprites by chunk of 8 sprites 
+  of 16x16 pixels. 'nb_spr' is the number of chunk to load. If you need to load 
+  less 16x16 sprites than the eight contained in a chunk, use load_vram() function 
+  instead.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">init_satb();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Initialize the internal sprite 
+  attribute table (SATB) used by the library to handle sprites. This function 
+  must be called before any other sprite function is called.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">reset_satb();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Reset the internal SATB, this 
+  has the effect to disable and reset all the sprites.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> satb_update();<br>
+  satb_update(char nb);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Copy the internal sprite attribute 
+  table to the video ram. This will refresh sprites on the screen. Use this function 
+  regularly to update the sprite display. The best place to call satb_update() 
+  is after every vsync() call, but no need to call satb_update if you didn't change 
+  any sprite attribute. 'nb' specifys the number of sprite to refresh; starting 
+  from sprite 0. By default the library refreshes only the sprites you use, but 
+  if you need to implicitely refresh a certain number of sprites then you can 
+  use 'nb'. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_set(char num);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Select sprite 'num' (0-63) as 
+  the current sprite.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> spr_x(int value);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the x coordinate of the current 
+  sprite. Negative values will make the sprite disappear under the left border, 
+  while values higher than the screen width will make it disappear under the right 
+  border.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_y(int value);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the y coordinate of the current 
+  sprite. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_pattern(int vaddr);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the pattern address in video 
+  memory of the current sprite. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_ctrl(char mask, char value);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set different attributes of the 
+  current sprite. With this function you can change the sprite size (16x16, 32x32, 
+  ...) and the sprite orientation (horizontal/vertical flipping). </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_pal(char pal);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the palette-block index (0-15) 
+  of the current sprite.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> spr_pri(char pri);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Set the priority of the current 
+  sprite. '0' will make it appear behind the background (through color 0), '1' 
+  will make it appear in front of the background.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_get_x();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the x coordinate of the 
+  current sprite. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_get_y();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the y coordinate of the 
+  current sprite.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> spr_get_pal();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the palette-block index 
+  (0-15) of the current sprite.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> spr_get_pattern();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the pattern address in 
+  video memory of the current sprite.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> spr_hide();<br>
+  spr_hide(char num);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Without parameters this function 
+  will hide the current sprite. Use 'num' to hide a different sprite than the 
+  current one.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">spr_show();<br>
+  spr_show(char num);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Show a sprite that has been hidden 
+  using the spr_hide() function.</i></font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"><a name="joypad"></a>JOYPAD FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif"> joy(char num);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return the current status of 
+  joypad number 'num'.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif"> joytrg(char num);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return informations about newly 
+  pressed buttons and directions of joypad number 'num'. But beware of this function, 
+  these informations are refreshed every frame, so if your game loop is not fast 
+  enough you could miss some keypresses. In such a case use the joy_events() functions, 
+  they do keep trace of all the keypresses.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">set_joy_callback(char num, char mask, 
+  char keys, void (*proc)());</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>You can program the library to 
+  call one of your function when a certain joypad key as been pressed. The best 
+  use of this function is to handle game pause mode when the player press the 
+  START button. 'num' is the numero of the callback to install, for now there's 
+  only one callback (0), but future versions of the library may have more. 'mask' 
+  indicates which joypad to scan (one bit for each joypad, with bit 0 for joypad 
+  0, etc...), and 'keys' indicates which keypresses to look, usualy just JOY_STRT. 
+  'proc' is the address of the function you want to be called by the library. 
+  </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">get_joy_events(char num);<br>
+  get_joy_events(char num, char rst);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return all the joypad keypresses 
+  for joypad 'num' that has happened since this function was last called. With 
+  this function you can't miss any keypress. 'rst' tells the function if the keypress 
+  events will be reset after having being read, by default they are reset after 
+  each read, but if 'rst' is equal to zero events won't be reset.</i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">clear_joy_events(char mask);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Reset the joypad keypress event 
+  list(s). 'mask' indicates which joypad event list you want to reset. One bit 
+  for each joypad, bit 0 is joypad 0, bit 1 is joypad 1, etc... All the event 
+  lists can be reset by setting 'mask' to 0x1F.</i></font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif"><a name="misc"></a>MISC FUNCTIONS</font></h2>
+<p><font face="Arial, Helvetica, sans-serif">poke(int offset, char val);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Write 'val' value at memory location 
+  'offset'. This function can be used to access the hardware I/O ports located 
+  at 0x0000 to 0x1FFF. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">peek(int offset);</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Read the content of memory location 
+  'offset'. </i></font></p>
+<p><font face="Arial, Helvetica, sans-serif">rand();</font></p>
+<p><font face="Arial, Helvetica, sans-serif"> <i>Return a 16-bit random number. 
+  </i></font></p>

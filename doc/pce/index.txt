@@ -1,0 +1,40 @@
+
+ -*[ MAGIC KIT v2.51 ]*-
+    -----------------
+
+
+    \MAGICKIT
+    |
+    |--\DOC
+       |
+       |--\PCE  INDEX.TXT      -- this file
+
+                HISTORY.TXT    -- revision history of the assembler
+
+                CONCEPTS.TXT   -- introduction to programming for the PCE;
+                                  introduces data grouping and
+                                  video objects
+
+                USAGE.TXT      -- how to use the assembler; syntax, etc...
+
+                CPU.TXT        -- Hu6280 CPU documentation
+
+                CPU_INST.TXT   -- a list of all the CPU instructions and
+                                  addressing modes
+
+                LIBRARY.TXT    -- documentation of the library
+
+                SPRITES.TXT    -- a tutorial on sprite programming using
+                                  the sprites macro library
+
+                VDC.TXT        -- a small document on the VDC registers
+
+                VCE.TXT        -- a small document on the VCE registers
+
+                PSG.TXT        -- introduction to sound programming for
+                                  the PCE; complete PSG reference and
+                                  two small examples
+
+
+--
+

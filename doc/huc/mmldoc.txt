@@ -1,0 +1,1100 @@
+Subject: Update to Develo Music Language
+
+
+This is an updated version of my original post to the tghack-list
+(from August 1996) about Develo's MML language.
+
+However, MML has been around much longer than Develo - from what
+I have been able to find, it originated around the time of MSX,
+and was subsequently used by many platforms as a human-readable
+form of music notation for computers - although only inside Japan.
+
+I have taken the original post as a base, and enhanced it into a
+document, rather than a complementary post, which would require
+readers to have both in fornt of them.
+
+After this post, it should be possible to compose music tracks
+(background music, 'accomplishment' trills, etc.) for use in any
+upcoming game/demo.
+
+Note to anyone who may wish to help in this effort:
+Tools for editing/compiling/test-running these scores would be
+very much appreciated.  I will continue to post information as it
+becomes available, and I will be available to clarify any ambiguities
+to assist in the effort (if I am able).
+
+Here's a sample of some develo music notation... The develo system
+comes with its own music compiler/simulator.  I have attempted to
+document it as completely as possible.
+
+I believe Jens Ch. Restemeier may have written a separate but
+compatible MML compiler in the past; it should not be difficult to
+ensure that all language constructs are included and output is
+compatible.
+
+For the purposes of illustration, I am using a MML file called
+"battle.mml", which came from the original Develo BASIC CDROM.
+Unfortunately, I do not know who the author is, so I will just
+attribute ownership to Tokuma Shoten Intermedia.
+
+I believe that re-publishing this MML in this form for educational
+purposes is fair use.  Please contact me if you are the owner of
+this work and do not wish it to be published.
+
+Herein, I will use a '#' symbol as the marker for a line of MML.
+All of the lines from this file are included, and in proper
+sequence; documentary comments are interspersed in order to
+explain the symbols.  Comments are prefixed by ';'.
+
+
+*********** PART #1 - HEADER/INITIALIZATION
+;
+#.START1=T075 P15,15     @E1 @D0     /A0/
+#.START2=T075 P15,15 @09 @E1 @D0     /B0/
+#.START3=T075 P15,15 @09 @E1 @D0 V26 /C0/
+#.START4=T075 P15,15 @09 @E1 @D0 V18 /D0/
+#.START5=T075 P15,15 @09 @E1 @D0 V16 /E0/
+#.START6=T075 P15,15     @E1 @D0 V18 /F0/
+
+; The above block specifies various attributes for all 6 available
+; voices.  This is really an 'initialize voice' string of codes.
+;
+; Note the initial sequence '.START' which is used by the parser
+; to determine which voices are in use in a particular music/noise
+; piece.  It should not be necessary to group these '.START'
+; command together.
+;
+; In the original shift-JIS document, it stated that
+; voices 1-4 were 'chords', while voice 5 was 'bass', and
+; voice 6 was 'melody'
+;
+; Only voices 5 and 6 can be used for noise/percussion.
+;
+; You can find the following constructs in this section
+; (the above does not contain all of them):
+;
+; Note: all numbers are in decimal notation
+;
+; Tnnn   = tempo = nnn
+; Pxx,yy = pan volume xx left, yy right
+; Vnn    = volume (on this voice) = nn
+; @nn    = "o n tsu yo ku" - not sure (value = n)
+; @En    = envelope n
+; @Dn    = "de-tune" n (I believe this is for fine-adjustment
+;           of notes)
+; On     = octave #n
+; /CH1/  = jump to label CH1 (actual music)
+; *      = end of data for this line (optional)
+;
+; The end of the line can be a Jump ("/label/"), or an explicit
+; Terminator ("*")
+;
+;
+; So the above .START definitions turn to bytecodes:
+; START1:
+;   DB 4B DD FF E6 01 EC 00 EF xx xx (address of A0 label)
+; START2:
+;   DB 4B DD FF E5 09 E6 01 EC 00 EF xx xx (address of B0 label)
+; START3:
+;   DB 4B DD FF E5 09 E6 01 EC 00 DC 1A EF xx xx (address of C0 label)
+; START4:
+;   DB 4B DD FF E5 09 E6 01 EC 00 DC 12 EF xx xx (address of D0 label)
+; START5:
+;   DB 4B DD FF E5 09 E6 01 EC 00 DC 10 EF xx xx (address of E0 label)
+; START6:
+;   DB 4B DD FF E6 01 EC 00 DC 12 EF xx xx (address of F0 label)
+;
+;
+; So, we have bytecodes (data in hexadecimal here):
+;
+;  DB nn    = tempo set
+;  DC nn    = set volume to nn
+;  DD xy    = pan volume set left = x, right = y
+;  E5 nn    = "on tsu yo ku" nn
+;  E6 nn    = set envelope nn
+;  EC nn    = de-tune nn
+;  EF xx xx = 'jump' to address
+;  FF       = end of data (ie '*')
+;
+*********** PART #2 - CANONICAL SEQUENCING
+;
+#A0=(A1)(A2)(A3)(A4)/A0/
+#B0=(B1)(B2)(B3)    /B0/
+#C0=[3(C1)]     (C4)/C0/
+#D0=(D1)(D2)(D3)(D4)/D0/
+#E0=(E1)(E2)(E3)(E4)/E0/
+#F0=[3(F1)]     (F4)/F0/
+;
+; Here, we have only call/jump/repeat notation:
+; (label)   = execute 'label' as a subroutine
+; [naction] = repeat action n times
+;             (ie. [3(A0)] = execute A0 as subrouine 3 times)
+; /label/   = jump to label
+;
+; So the above definitions turn into bytecodes:
+; A0:
+;   F0 aa aa F0 bb bb F0 cc cc F0 dd dd EF nn nn
+;     where aaaa = address of A1
+;     where bbbb = address of A2
+;     where cccc = address of A3
+;     where dddd = address of A4
+;     where nnnn = address of A0
+; B0:
+;   F0 aa aa F0 bb bb F0 cc cc EF nn nn
+;     where aaaa = address of B1
+;     where bbbb = address of B2
+;     where cccc = address of B3
+;     where nnnn = address of B0
+; C0:
+;   E3 03 F0 aa aa E4 F0 bb bb EF nn nn
+;     where aaaa = address of C1
+;     where bbbb = address of C4
+;     where nnnn = address of C0
+; D0:
+;   F0 aa aa F0 bb bb F0 cc cc F0 dd dd EF nn nn
+;     where aaaa = address of D1
+;     where bbbb = address of D2
+;     where cccc = address of D3
+;     where dddd = address of D4
+;     where nnnn = address of D0
+; E0:
+;   F0 aa aa F0 bb bb F0 cc cc F0 dd dd EF nn nn
+;     where aaaa = address of E1
+;     where bbbb = address of E2
+;     where cccc = address of E3
+;     where dddd = address of E4
+;     where nnnn = address of E0
+; F0:
+;   E3 03 F0 aa aa E4 F0 bb bb EF nn nn
+;     where aaaa = address of F1
+;     where bbbb = address of F4
+;     where nnnn = address of F0
+;
+; So, we have bytecodes (data in hexadecimal here):
+;
+;  E3 nn    = start of repeat sequence, nn iterations
+;  E4       = end of repeat sequence
+;  EF xx xx = 'jump' to address
+;  F0 xx xx = 'call' subroutine
+;  
+;
+*********** PART #3 - MUSIC
+;
+#A1=V20 Q4 @09 O4 R4A8.A16R2R4G8.G16R2 R4A8.A16R2.G8.G16R2'
+;
+;
+; Here, I will comment the usage as it occurs, with a summary
+; reference at the end.
+;
+; Vnn        = set volume to nn
+; Qn         = "o n chi yo u hi", n
+; @nn        = "o n tsu yo ku", n
+; On         = octave n
+; Rn         = rest (n is optional duration)
+; A (to G)   = musical notes
+; . (period)     = extend by 50% (NOTE: these can compound;
+;                  "A8.." = 1/8th + 1/16th + 1/32nd note)
+; ' (apostrophe) = return from subroutine
+;
+; And we have bytecodes:
+;
+; A1:
+;  DC 14 DE 04 E5 09 D4 00 30 A0 24 A0 0C 00 60
+;  00 30 80 24 80 0C 00 60 00 30 A0 24 A0 0C
+;  00 90 80 24 80 0C 00 60 F1
+;
+; So, we have bytecodes (data in hexadecimal here):
+;
+;  Dn       = set octave to n (? <= n <= ?)
+;  DC nn    = set volume to nn
+;  DE nn    = Qn/"o n chi yo u hi" n
+;  E5 nn    = "on tsu yo ku" nn
+;  F1       = return from subroutine
+;
+; and we have a general pattern of note/duration where:
+;  Note:   Rest  C   C+  D   D+  E   F   F+  G   G+  A   B-  B
+;  Value:   00   10  20  30  40  50  60  70  80  90  A0  B0  C0
+;
+;  Duration:  whole note   1/2   1/4   1/8  1/16  1/32  1/64
+;  Value:             C0    60    30    18    0C    06    03
+;
+;
+#A2=R16 V22 A16 @15 >D16G16F+16D16<A16>D16<B16G16E16A16F16D16C16D16<B2.R8>C16D16<B1&B2R2'
+;
+;
+; In addition to the above codes, we also see here:
+;
+;  >  = octave up
+;  <  = octave down
+;  &  = tie
+;
+; And we have bytecodes:
+;
+; A2:
+;  00 0C DC 16 A0 0C E5 0F D8 30 0C 80 0C 70 0C
+;  30 0C D9 A0 0C D8 30 0C D9 C0 0C 80 0C 50 0C
+;  A0 0C 60 0C 30 0C 10 0C 30 0C D9 C0 90 00 18
+;  D8 10 0C 30 0C D9 C0 C0 DA C0 60 00 60 F1
+;
+; So we have bytecode translations of:
+;
+;  D8 = Octave up
+;  D9 = Octave down
+;  DA = Tie
+;  
+;
+#A3=R16>A16>D16G16F+16E16D16C16<B16>C16<A16B16G16A16F16G16E16F16E2R8E8.F32G32E1&E2R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; A3:
+;  00 0C D8 A0 0C D8 30 0C 80 0C 70 0C 50 0C 30 0C 10 0C
+;  D9 C0 0C D8 10 0C D9 A0 0C C0 0C 80 0C A0 0C 60 0C
+;  80 0C 50 0C 60 0C 50 60 00 18 50 24 60 06 80 06 50 C0
+;  DA 50 60 00 60 F1
+;
+;
+#A4=L16R16<A>DGG>CDAA32G32FEFGD<B>C<ABAGF8.R16R16EGFEFDC<A+>C<G+A+F+8.R16R16F+G+A+>C<A+G+A+Q8G4Q7GA>CDDGG>CCDDGG>CCDFD+DC<A+>C<A+R16G+A+G+R16GG+GR16FGFR16D+FD+DCDD+<A+>C<FGA+> CG>C<G CG>C<G CG>C<G CG>C<G CG>D<G CG>D<G CG>D<G'
+;
+;
+; Here we have a new notation:
+;
+;  L16 = set default length.
+;        This does not translate to a bytecode; it causes all
+;        notes without a specific duration to be assessed as
+;        having the default duration
+;
+; We have bytecodes:
+;
+; A4:
+;  00 0C D9 A0 0C D8 30 0C 80 0C 80 0C D8 10 0C 30 0C
+;  A0 0C A0 06 80 06 60 0C 50 0C 60 0C 80 0C 30 0C D9
+;  C0 0C D8 10 0C D9 A0 0C A0 0C A0 0C 80 0C 60 24
+;  00 0C 00 0C 50 0C 80 0C 60 0C 50 0C 60 0C 30 0C
+;  10 0C D9 B0 0C D8 10 0C D9 90 0C B0 0C 70 24 00 0C
+;  00 0C 70 0C 90 0C B0 0C D8 10 0C D9 B0 0C 90 0C
+;  B0 0C DE 08 80 30 DE 07 80 0C A0 0C D8 10 0C 30 0C
+;  30 0C 80 0C 80 0C D8 10 0C 10 0C 30 0C 30 0C 80 0C
+;  80 0C D8 10 0C 10 0C 30 0C 60 0C 40 0C 30 0C 10 0C
+;  D9 B0 0C D8 10 0C D9 B0 0C 00 0C 90 0C B0 0C 90 0C
+;  00 0C 80 0C 90 0C 80 0C 00 0C 60 0C 80 0C 60 0C
+;  00 0C 40 0C 60 0C 40 0C 30 0C 10 0C 30 0C 40 0C D9
+;  B0 0C D8 10 0C D9 60 0C 80 0C B0 0C D8 10 0C 80 0C
+;  D8 10 0C D9 80 0C 10 0C 80 0C D8 10 0C D9 80 0C
+;  10 0C 80 0C D8 10 0C D9 80 0C 10 0C 80 0C D8 10 0C
+;  D9 80 0C 10 0C 80 0C D8 30 0C D9 80 0C 10 0C 80 0C
+;  D8 30 0C D9 80 0C 10 0C 80 0C D8 30 0C D9 80 0C F1
+;
+;  No new bytecode translations here
+;
+;
+
+#B1=V22 Q7 O3 L4R4B8.B16R2>R4C8.C16R2R4<B8.B16R2>R4C8.C16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; B1:
+;  DC 16 DE 07 D3 00 30 C0 24 C0 0C 00 60 D8 00 30
+;  10 24 10 0C 00 60 00 30 D9 C0 24 C0 0C 00 60 D8
+;  00 30 10 24 10 0C 00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#B2=R1R4V18 @0 L32<F+GF+GF+GF+GF+GF+GF+GF+GF+GF+GF+GF+G> V25 @09 L4R4>A8.A16R2R4G8.G16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; B2:
+;  00 C0 00 30 DC 12 E5 00 D9 70 06 80 06 70 06 80 06
+;  70 06 80 06 70 06 80 06 70 06 80 06 70 06 80 06 70 06
+;  80 06 70 06 80 06 70 06 80 06 70 06 80 06 70 06 80 06
+;  70 06 80 06 D8 DC 19 E5 09 00 30 D8 A0 24 A0 0C 00 60
+;  00 30 80 24 80 0C 00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#B3=R1R4V18 @0 L32<<F+GF+GF+GF+GF+GF+GF+GF+GF+GF+GF+GF+G V25 @09 L4R4>>A8.A16R2R4G8.G16R2V24<<<CR8C4.R4DR8D4.R4D+R8D+4.R4DR8D4.R4 CR8C4.R4DR8D4.R4D+R8D+4.R4DR8D4.R4'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; B3:
+;  00 C0 00 30 DC 12 E5 00 D9 D9 70 06 80 06 70 06 80 06
+;  70 06 80 06 70 06 80 06 70 06 80 06 70 06 80 06 70 06
+;  80 06 70 06 80 06 70 06 80 06 70 06 80 06 70 06 80 06
+;  70 06 80 06 DC 19 E5 09 00 30 D8 D8 A0 24 A0 0C 00 60
+;  00 30 80 24 80 0C 00 60 DC 18 D9 D9 D9 10 30 00 18
+;  10 48 00 30 30 30 00 18 30 48 00 30 40 30 00 18 40 48
+;  00 30 30 30 00 18 30 48 00 30 10 30 00 18 10 48 00 30
+;  30 30 00 18 30 48 00 30 40 30 00 18 40 48 00 30 30 30
+;  00 18 30 48 00 30 F1
+;
+;  No new bytecode translations here
+;
+;
+
+#C1=O3 L8 EDE<B>EDE<B>EDE<B>EDE<B >EDE<B>EDE<B>EDE<B>EDE<B>'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; C1:
+;  D3 50 18 30 18 50 18 D9 C0 18 D8 50 18 30 18 50 18 D9
+;  C0 18 D8 50 18 30 18 50 18 D9 C0 18 D8 50 18 30 18
+;  50 18 D9 C0 18 D8 50 18 30 18 50 18 D9 C0 18 D8 50 18
+;  30 18 50 18 D9 C0 18 D8 50 18 30 18 50 18 D9 C0 18 D8
+;  50 18 30 18 50 18 D9 C0 18 D8 F1
+;
+;  No new bytecode translations here
+;
+;
+#C4=Q7 @09 L4FR8F4.R4GR8G4.R4G+R8G+4.R4GR8G4.R4 FR8F4.R4GR8G4.R4G+R8G+4.R4GR8G4.R4'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; C4:
+;  DE 07 E5 09 60 30 00 18 60 48 00 30 80 30 00 18 80 48
+;  00 30 90 30 00 18 90 48 00 30 80 30 00 18 80 48 00 30
+;  60 30 00 18 60 48 00 30 80 30 00 18 80 48 00 30 90 30
+;  00 18 90 48 00 30 80 30 00 18 80 48 00 30 F1
+;
+;  No new bytecode translations here
+;
+;
+
+#D1=O4 V18 Q6 R4F+8.F+16R2R4E8.E16R2R4F+8.F+16R2R4E8.E16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; D1:
+;  D4 DC 12 DE 06 00 30 70 24 20 0C 00 60 00 30 50 24
+;  50 0C 00 60 00 30 70 24 70 0C 00 60 00 30 50 24 50 0C
+;  00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#D2=R1R1R4F+8.F+16R2R4E8.E16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; D2:
+;  00 C0 00 C0 00 30 70 24 70 0C 00 60 00 30 50 24 50 0C
+;  00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#D3=>R1R1R4F+8.F+16R2R4E8.E16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; D3:
+;  D8 00 C0 00 C0 00 30 70 24 70 0C 00 60 00 30 50 24
+;  50 0C 00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#D4=V22<<FR8F4.R4GR8G4.R4G+R8G+4.R4GR8G4.R4 FR8F4.R4GR8G4.R4G+R8G+4.R4GR8G4.R4'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; D4:
+;  DC 16 D9 D9 60 30 00 18 60 48 00 30 80 30 00 18 80 48
+;  00 30 90 30 00 18 90 48 00 30 80 30 00 18 80 48 00 30
+;  60 30 00 18 60 48 00 30 80 30 00 18 80 48 00 30 90 30
+;  00 18 90 48 00 30 80 30 00 18 80 48 00 30 F1
+;
+;  No new bytecode translations here
+;
+;
+
+#E1=O4 V16 Q6 R4D8.D16R2R4<A8.A16R2R4>D8.D16R2R4<A8.A16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; E1:
+;  D4 DC 10 De 06 00 30 30 24 30 0C 00 60 00 30 D9 A0 24
+;  A0 0C 00 60 00 30 D8 30 24 30 0C 00 60 00 30 D9 A0 24
+;  A0 0C 00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#E2=R1R1R4>D8.D16R2R4<A8.A16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; E2:
+;  00 C0 00 C0 00 30 D8 30 24 30 0C 00 60 00 30 D9 A0 24
+;  A0 0C 00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#E3=R1R1R4D8.D16R2R4C8.C16R2'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; E3:
+;  00 C0 00 C0 00 30 30 24 30 0C 00 60 00 30 10 24 10 0C
+;  00 60 F1
+;
+;  No new bytecode translations here
+;
+;
+#E4=V10<CR8C4.R4DR8D4.R4D+R8D+4.R4DR8D4.R4 CR8C4.R4DR8D4.R4D+R8D+4.R4DR8D4.R4'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; E4:
+;  DC 0A D9 10 30 00 18 10 48 00 30 30 30 00 18 30 48
+;  00 30 40 30 00 18 40 48 00 30 30 30 00 18 30 48 00 30
+;  10 30 00 18 10 48 00 30 30 30 00 18 30 48 00 30 40 30
+;  00 18 40 48 00 30 30 30 00 18 30 48 00 30 F1
+;  
+;
+;  No new bytecode translations here
+;
+;
+
+#F1=@M1 V18 S16H16H16H16H16H16H16H16S16H16H16H16M16H16H16H16S16H16H16H16H16H16H16H16S16H16H16H16M16H16H16S16M16H16H16H16H16H16H16H16S16H16H16H16M16H16H16H16S16H16H16H16H16H16H16H16S16H16H16H16M16H16H16M16'
+;
+;
+; Here, we have the following new notations:
+;  @Mn = Mode n (mode 1 = percussion)
+;  Rn  = 
+;  Sn  = 
+;  Mn  = 
+;  Cn  = 
+;  Hn  = 
+;
+; We have bytecodes:
+;
+; F1:
+;  F8 01 DC 12 30 0C 60 0C 60 0C 60 0C 60 0C 60 0C 60 0C
+;  60 0C 30 0C 60 0C 60 0C 60 0C 40 0C 60 0C 60 0C 60 0C
+;  30 0C 60 0C 60 0C 60 0C 60 0C 60 0C 60 0C 60 0C 30 0C
+;  60 0C 60 0C 60 0C 40 0C 60 0C 60 0C 30 0C 40 0C 60 0C
+;  60 0C 60 0C 60 0C 60 0C 60 0C 60 0C 30 0C 60 0C 60 0C
+;  60 0C 40 0C 60 0C 60 0C 60 0C 30 0C 60 0C 60 0C 60 0C 
+;  60 0C 60 0C 60 0C 60 0C 30 0C 60 0C 60 0C 60 0C 40 0C
+;  60 0C 60 0C 40 0C F1
+;
+;  New bytecode translations here are:
+;    F8 nn = Change to mode nn
+;
+;  And while in 'percussion' mode, the following MML/bytecode
+;  translations take effect:
+;
+;  Note/Instrument:  R   S   M   C   H
+;  Pitch value:      10  30  40  50  60
+;
+;
+#F4=@M1 V22 MS4R8CS4S16S16S4 MS4R8CS4H16H16S4 MS4R8CS4S16S16S4 MS4R8CS4.S16S16S16S16 MS4R8CS4S16S16S4 MS4R8CS4H16H16S4 MS4R8CS4S16S16S4 MS4R8CS4.M16M16M16M16'
+;
+;
+; Here, we have the same codes as above, so no new notations
+;
+; We have bytecodes:
+;
+; F4:
+;  F8 01 DC 16 40 30 10 18 50 30 30 0C 30 0C 30 30 40 30
+;  10 18 50 30 60 0C 60 0C 30 30 40 30 10 18 50 30 30 0C
+;  30 0C 30 30 40 30 10 18 50 48 30 0C 30 0C 30 0C 30 0C 
+;  40 30 10 18 50 30 30 0C 30 0C 30 30 40 30 10 18 50 30
+;  60 0C 60 0C 30 30 40 30 10 18 50 30 30 0C 30 0C 30 30
+;  40 30 10 18 50 48 40 0C 40 0C 40 0C 40 0C F1
+;
+;  This one is very interesting, since the following constructs
+;  are special:
+;   CS4 => 50 30
+;   MS4 => 40 30
+;
+;  The outputs of these are equivalent to "C4" or "M4"
+;
+;  The MML compiler ignores 'default' durations for percussion,
+;  which implies this is either a bug in the compiler, or an
+;  error in the creation of this particular MML piece.
+;
+;
+*********** final output Header
+;
+;
+; track0:  (byte code output)
+;    $3f   = bit mask (0011_1111B = 6 voices)
+;    aa aa = pointer to START1 (see top of file)
+;    bb bb = pointer to START2 (see top of file)
+;    cc cc = pointer to START3 (see top of file)
+;    dd dd = pointer to START4 (see top of file)
+;    ee ee = pointer to START5 (see top of file)
+;    ff ff = pointer to START6 (see top of file)
+;
+; Note:
+;  Bitmask values are:
+;   bit 7: Main Track/Subtrack switch (0: Main Track; 1: Subtrack)
+;   bit 6: Debug mode (0: Normal; 1: Debug)
+;   bit 5: Channel 6 (0: Off; 1: On)
+;   bit 4: Channel 5
+;   bit 3: Channel 4
+;   bit 2: Channel 3
+;   bit 1: Channel 2
+;   bit 0: Channel 1
+;
+;  Pointers which follow correspond with only channels
+;  in use, in sequence from channel 1 through 6
+;
+
+*********** END
+
+Summary of MML commands:
+------------------------
+
+Notation   Description
+--------   -----------
+{CDEFGAB} [{#+-}] [<num>]] [.]
+        Plays a note with pitch of (ie. C+), and duration determined
+        as follows: length = 1/num (ie. if num = 4, it's a 1/4 note)
+
+	(a) if duration is not listed, use default duration which
+            is 4 unless changed by 'L' command
+        (b) if '.' is used, add 50% to duration.  If 2 dots, add
+            an additional 25%, etc.  (ie. if base note is 1/4 note,
+            followed by '..', total duration = 1/4 + 1/8 + 1/16 note
+
+R [<num>] [.]
+	Same as above, but represents a rest
+
+{BMSCH} [!] [<num>]] [.]
+	In percussion mode (@M1), and only on voices 5 or 6:
+	Same as notes above, but notes represent:
+	B = Bass drum
+	M = Mid Tom
+	S = Snare Drum
+	C = Cymbal
+	H = Hi Hat
+	! = volume emphasis, but is not translated to bytecode
+
+On	Specify Octave, 1-7 (default 4)
+>	Octave Up
+<	Octave Down
+
+&	Tie
+
+Tn	Specify Tempo, 35-255 (default 64)
+
+Vn	Specify Volume, 0-31
+	(default 31)
+
+@Vn	Extended Volume, 0-127 (changed to regular volume)
+
+Pn,n	Specify 'Pan Pot' right/left, values 0-15 each
+	(default 15,15)
+
+Qn	Ontsuyoku, which seems to be a duration adjustment
+	(Perhaps an on/off ratio of when decay and release
+	occur, within the full duration of the note ... ?)
+	Valid values are 1 through 8; develo expresses them
+	as 1/8, 2/8, 3/8, etc.
+	(default 8)
+
+[n	Repeat begin, n iterations, 0-255
+]	Repeat end
+
+@n	Wave/timbre #n, 0-44 internal (or 45-127 for user)
+	(default 1)
+
+@En	Envelope #n, 0-15 internal (or 16-127 for user)
+	(default 1)
+
+@Dn	Detune n, -128 thorugh 127
+	(default 0)
+
+/label/	Jump to label
+(label)	Call label as subroutine
+'	Return from subroutine
+
+@Mn	Set mode #n
+	0: normal;
+	1: percussion for voices 5/6
+	2: noise for voices 5/6
+	(default 0)
+
+L	Set default length of notes
+	(default 4)
+
+*	Data End
+
+- - - - - -
+develo BASIC Percussion MML extensions:
+
+{Bb}	Bass Drum  ('B' only above)
+{Ss}	Snare Drum ('S' only above)
+H	Hi Hat Open
+h	Hi Hat Close
+M	Hi Tom
+m	Mid Tom
+n	Low Tom
+{Zz}	Hand Clap
+C	Hi Conga
+c	Mid Conga
+g	Low Conga
+
+These extensions do not correspond to bytecodes AFAIK
+- - - - - -
+
+Summary of Hudson player byte codes:
+------------------------------------
+
+Hex     Description
+---     -----------
+00 nn	Rest, for nn timesteps; whole note = $C0 timesteps
+
+10 nn	C note, nn timesteps   (Bass Drum in percussion mode)
+20 nn	C#                     (Mid Tom in percussion mode)
+30 nn	D                      (Snare Drum in percussion mode)
+40 nn	D#                     (Cymbal in percussion mode)
+50 nn	E                      (Hi Hat in percussion mode)
+60 nn	F
+70 nn	F#
+80 nn	G
+90 nn	G#
+A0 nn	A
+B0 nn	A#
+C0 nn	B
+
+Actually, duration is not so straightforward; there are two mode:
+(1) Direct Length Mode, which is 2 bytes as stated above
+(2) Timebase Length Mode, which is one byte
+    (top 4 bits = note; bottom 4 bits = timebase multiple)
+
+D0 nn	Specify Timebase multiple, value = 0-15
+	In Timebase Length Mode, the duration equals this value
+	(plus 1) times the lower 4 bits of the note byte.
+	To use the 2-byte version ('direct length mode'), this
+	must set to zero.
+
+D1-D7	Specify octave #1 through 7
+D8	Octave up
+D9	Octave down
+
+DA	Tie
+
+DB nn	Set Tempo, value from 35-255 ($23-$FF)
+
+DC nn	Set Volume, value 0-31 ($00-$1F)
+
+DD xy	Set 'Pan Pot' R/L balance, values 0-15 each ($00-$0F)
+	x = right level, y = left level
+
+DE nn	'On tsu yo ku' or "Sound long ratio"
+        This is like the length of time that a key is 'pressed', within
+	the total note duration interval (ie. "staccato" is a smaller ratio)
+	values from 1 through 8
+
+E3 nn	Repeat begin; nn iterations, 0-255 ($00-$FF)
+E4	Repeat end
+
+E5 nn	Set Timbre/Wave,  0-44  are internal        ($00-$2C)
+	                 45-127 are user-specififed ($2D-$7F)
+
+E6 nn	Set Envelope,  0-15 are internal         ($00-$0F)
+	              16-127 are user-specified  ($10-7F)
+	(default 0)
+
+EC nn	Detune, -128 to 127 ($80-$7F)
+	(default 0)
+	This is minor frequency adjustment.
+	Note: when 'sweep' is activated, this amplifies the
+	rate of frequenecy change
+
+EF nnnn	Jump to location (in range $8000-$BFFF)
+F0 nnnn	Call subroutine at location (in range $8000-$BFFF)
+F1	Return from subroutine
+
+F8 nn	Set mode, values 0-2
+	00 = normal
+	01 = percussion, voices 5 & 6 only
+	02 = noise, voices 5 & 6 only
+
+FF	Data End
+
+
+
+
+These codes are not supported by MML parser; but
+are apparently in HES bytecode sound sequencer
+------------------------------------------------
+
+DF nn	'Relative Volume'
+	range -31 to 31
+	A minor amount to adjust volume up or down by.
+	A change equal to 128 on this scale, will affect the
+	channel volume by one hardware level.
+
+E1	("Da se - ni yo")
+        Continue processing from save point.
+
+E2	("se - ni yo")
+        Set save point.
+
+E7 nn	'Frequency Modulated' (*)
+	Vibrato ?  LFO ?
+	range $00-$7F
+
+E8 nn	FM Delay
+	Some sort of delay time, in same units as the notes
+	above ("direct length mode")
+	range $00-$7F
+
+E9 nn	'FM Correction' (*)
+	Parameter relates to octave.  Somehow related to pitch
+	envelope, detune and sweep.
+	range $00-$07
+
+EA nn	Pitch Envelope
+	range $00-$7F
+
+EB nn	Pitch Envelope Delay
+	range $00-$FF
+
+ED nn	Sweep (*)
+	range $80-$7F (-128 to 127)
+	Negative values affect pitch upwards
+
+EE nn	Sweep Time (*)
+	Some sort of time, same units as the notes ("direct
+	length mode").
+	range $00-$FF
+
+F2 nn	'Transposition'
+	range $80-$7F (-128 to 127)
+	Move all notes for this voice by this amount.
+
+F3 nn	'Relative Transposition' (*)
+	range $80-$7F (-128 to 127)
+	Increase transpose amount for this voice by this amount.
+
+F4 nn	'Entire Transposition' (*)
+	This may affect all channels, but I am not sure
+	range $80-$7F (-128 to 127)
+	Move all notes for all voices by this amount.
+
+F5 nn	Volume Change
+	Volume adjust up or down by relative amount
+	range $80-$7F (-128 to 127)
+
+F6 nn	Pan Right Change
+	Volume adjust up or down for pan right amount
+	range $80-$7F (-128 to 127)
+
+F7 nn	Pan Left Change
+	Volume adjust up or down for pan left amount
+	range $80-$7F (-128 to 127)
+
+F9 nn	Fade Out
+	Speed.
+	range $00-$7F
+
+
+(*) - Names in apostrophes are from english translator
+      Names in quotation marks are Japanese pronunciations
+      Nor further information is available
+
+
+
+These codes are unaccounted for in base MML:
+--------------------------------------------
+E0
+FA-FE
+
+
+
+
+Envelope Data....
+-----------------
+This data is in code/level format, where level is a 2-byte number
+
+Similar to track data, you submit a header address to the PSG
+driver, with a list of pointers to Envelope Data.
+
+Note: $400 of these values corresponds to one volume level on
+      the per-channel volume.
+
+00-FA 	Time; folowed by level (range -$7C00 (ie. $8400) to $7C00)
+	Negative values more likely expected.
+	Appears to be a graduated decay rate while sound is
+	held (ie. on a piano, while key is held)
+
+FB	Release Rate; followed by level (range -$7C00 to $7C00)
+	Negative values more likely expected.
+	This is a release rate (ie. on a piano, after the key
+	is released)
+
+	Note: this must be the first code in an envelope sequence,
+	even though it is the last one to be used.
+
+FC	Level Data; followed by level (range $0000 to $7C00)
+	Expectations in multiples of $400
+	This is an initial, or "attack" volume level.  It can
+	also be reset several times throughout the envelope,
+	prior to release.
+
+FF	Data End
+
+
+
+
+Vibrato Data....
+----------------
+This data is in sequential byte format.
+
+Similar to track data, you submit a header address to the PSG
+driver, with a list of pointers to Vibrato Data.
+
+Values range from -$7F (ie. $81) to $7F, with $80 signifying
+end of data.  This frequenecy modulation data is repeated when
+the end-of-data is reached.
+
+Sample usage:
+FM_INDX:
+	DW	FMD0
+	DW	FMD1
+	. . .
+FMD0:
+	DB	0,1,2,3,2,1,0,-1,-2,-3,-2,-1,$80
+FMD1:
+	DB	0,-2,-4,-6,-4,-2,0,2,4,6,4,2,$80
+
+
+
+
+Pitch Envelope Data....
+-----------------------
+This data is in sequential byte format.
+
+Similar to Vibrato data, you submit a header address to the PSG
+driver, with a list of pointers to Pitch Envelope Data.
+
+Values range from -$7F (ie. $81) to $7F, with $80 signifying
+end of data.  This data repeats the final value (apllying this
+frequency change amount) when it reaches end-of-data.  This is
+why all data ends in '00' prior to '80'.
+
+Sample usage:
+PE_INDX:
+	DW	PED0
+	DW	PED1
+	. . .
+PED0:
+	DB	-15,-12,-10,-8,-6,-5,-4,-3,-2,-1,0,$80
+PED1:
+	DB	-1,-3,-6,-10,-13,-14,-13,-10,-6,-3,-1,0,$80
+
+
+
+Percussion data:
+----------------
+This data is in a byte format, and defines the actions to take when
+a 'percussion' instrument is invoked.
+
+Similar to track data, you submit a header address to the PSG
+driver, with a list of pointers to Percussion Data.
+
+00-1F	Noise sequence
+
+Bx yy	Define tone.  Parameter is 12-bit value to apply as noise to
+	the frequency channel according to the following formula:
+	fout = 3.58MHx/(32*(12-bit value))
+	
+C0 nn	Envelope sequence, range $00-$7F
+
+D0 xy	Pan Pot, x = Left (0-15), y = Right (0-15)
+
+E0 nn	Wave no., range $00-$7F
+
+F0	Data End
+
+Sample usage:
+PC_INDX:
+	DW	PCN0	; C  ($10)
+	DW	PCN1	; C# ($20)
+	DW	PCN2	; D  ($30)
+	DW	PCN3	; D# ($40)
+	DW	PCN4	; E  ($50)
+	DW	PCN5	; F  ($60)
+	DW	PCN6	; F# ($70)
+	DW	PCN7	; G  ($80)
+	DW	PCN8	; G# ($90)
+	DW	PCN9	; A  ($A0)
+	DW	PCN10	; A# ($B0)
+	DW	PCN11	; B  ($C0)
+PCN0:
+	DB	$C0,7	; envelope
+	DB	$E0,6	; wave no.
+	DB	$D0,$FF	; pan pot
+	DB	$B3,$AC	; tone
+	DB	$B4,$0C	; tone
+	DB	$1F	; noise
+	DB	$1B	; noise
+	DB	$F0	; Data End
+
+
+
+
+Cross-Reference of Musical Notes and Pitch Values:
+--------------------------------------------------
+The tone generators are run as down-counters from a 3.58 MHz base clock.
+
+The 'tone value' for each voice is used as a down-counter, decremented
+once per cycle of this clock, allowing the next sample of the waveform
+to appear when the down-counter reaches zero.
+
+Since there are 32 samples per complete cycle of a waveform, the actual
+frequency = 3.58MHz / (32 * pitch-value)
+
+There are 7 octaves of range in this MML, and here are the pitch-values
+for all of those notes:
+
+(We are speaking of course, about the actual hardware-level access
+to the sound generator ports memory-mapped in the area $FF:$0800)
+
+            Pitch     Counter    PSG     Musical
+MML Note    Value    LSB   MSB   Freq.   Freq.
+--------    -----    ---   ---   -----   -------
+C1          3421     5D    0D     32.7     32.7
+C1#         3229     9D    0C     34.7     34.7
+D1          3047     E7    0B     36.7     36.7
+D1#         2877     3D    0B     38.9     38.9
+E1          2715     9B    0A     41.2     41.2
+F1          2563     03    0A     43.7     43.7
+F1#         2419     73    09     46.3     46.3
+G1          2283     EB    08     49.0     49.0
+G1#         2155     6A    08     51.9     51.9
+A1          2034     F2    07     55.0     55.0
+A1#         1920     80    07     58.3     58.3
+B1          1812     14    07     61.7     61.7
+
+C2          1711     AF    06     65.4     65.4
+C2#         1615     4F    06     69.3     69.3
+D2          1524     F4    05     73.4     73.4
+D2#         1438     9E    05     77.8     77.8
+E2          1358     4E    05     82.4     82.4
+F2          1282     02    05     87.3     87.3
+F2#         1209     B9    04     92.5     92.5
+G2          1142     76    04     98.0     98.0
+G2#         1077     35    04    103.9    103.9
+A2          1017     F9    03    110.0    110.0
+A2#          960     C0    03    116.5    116.5
+B2           906     8A    03    123.5    123.5
+
+C3           855     57    03    130.9    130.8
+C3#          807     27    03    138.6    138.6
+D3           762     FA    02    146.8    146.8
+D3#          719     CF    02    155.6    155.6
+E3           679     A7    02    164.8    164.8
+F3           641     81    02    174.6    174.6
+F3#          605     5D    02    184.9    185.0
+G3           571     3B    02    195.9    196.0
+G3#          539     1B    02    207.6    207.7
+A3           508     FC    01    220.2    220.0
+A3#          480     E0    01    233.1    233.1
+B3           453     C5    01    247.0    246.9
+
+C4           428     AC    01    261.4    261.6
+C4#          403     93    01    277.6    277.6
+D4           381     7D    01    293.6    293.7
+D4#          360     68    01    310.8    311.1
+E4           339     53    01    330.0    329.6
+F4           320     40    01    349.6    349.2
+F4#          302     2E    01    370.5    370.0
+G4           285     1D    01    392.5    392.0
+G4#          269     0D    01    415.9    415.3
+A4           254     FE    00    440.5    440.0
+A4#          240     F0    00    466.2    466.2
+B4           227     E3    00    492.8    493.9
+
+C5           214     D6    00    522.8    523.3
+C5#          202     CA    00    553.8    554.4
+D5           190     BE    00    588.8    587.3
+D5#          180     B4    00    621.5    622.3
+E5           170     AA    00    658.1    659.3
+F5           160     A0    00    699.2    698.0
+F5#          151     97    00    740.9    740.0
+G5           143     8F    00    782.3    784.0
+G5#          135     87    00    828.7    830.6
+A5           127     7F    00    880.9    880.0
+A5#          120     78    00    932.3    932.3
+B5           113     71    00    990.4    987.8
+
+C6           107     6B    00   1045.6   1046.5
+C6#          101     65    00   1107.7   1108.7
+D6            95     5F    00   1177.6   1174.7
+D6#           90     5A    00   1243.1   1244.5
+E6            85     55    00   1316.2   1318.5
+F6            80     50    00   1398.4   1396.5
+F6#           76     4B    00   1472.0   1480.0
+G6            71     46    00   1575.7   1568.0
+G6#           67     43    00   1669.8   1661.2
+A6            64     40    00   1748.0   1760.0
+A6#           60     3C    00   1864.6   1864.7
+B6            57     39    00   1962.7   1975.7
+
+C7            53     35    00   2110.8   2093.0
+C7#           50     32    00   2237.5   2217.5
+D7            48     30    00   2330.7   2349.3
+D7#           45     2D    00   2486.1   2489.0
+E7            42     2A    00   2663.7   2637.0
+F7            40     28    00   2796.9   2793.8
+F7#           38     26    00   2944.1   2960.0
+G7            36     24    00   3107.6   3136.0
+G7#           34     22    00   3290.4   3322.4
+A7            32     20    00   3496.1   3520.0
+A7#           30     1E    00   3729.2   3729.3
+B7            28     1C    00   3995.5   3951.1
+
+C8            27     1B    00   4143.5   4186.0
+

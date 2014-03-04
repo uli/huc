@@ -1,0 +1,171 @@
+MagicKit/HuC tech doc
+---------------------
+
+This document isn't very organized yet, but I wanted to put together
+some information.  Perhaps structure will follow later.
+
+
+HuC
+---
+First and foremost, HuC does *NOT* compile 'C' code straight to
+PCE bytecode.  It translates the 'C' code into assembler code, and
+expects the assembler (together with some handy library source code)
+to turn it into PCE bytecode.
+
+This simplicity allows HuC to be developed rapidly and basically
+separately from the MagicKit assembler.  Furthermore, it allows
+the use of common libraries between the two source languages with
+only a few minor variances.
+
+<<Handy information about HuC-generated code should be added here>>
+(ie. every HuC variable is prefixed with underscore in assembler.)
+
+Hints about speeding your HuC code:
+(1) Variable definition:
+(a) automatic variables (ie. local to a subroutine) should be specified
+on same line wherever possible:
+GOOD:  int i, j, k, l;
+BAD:   int i;
+       int j;
+       int k;
+       int l;
+
+(b) For critical variables, use globals rather than local variables.
+While this may seem to defy logic, global variables occupy a definitive
+memory location and can be accessed directly (absolute ddressing mode),
+whereas automatic variables are on a pseudo-stack, and thus references
+waste some extra cycles to evaluate its memory location.
+NOTE: 'static' can be specified within functions to keep the variable
+      definition local, and also avoid stack usage.  For scalars, this
+      rule is straightforward, however for arrays you may want to choose
+      between 'static' and automatic based on actual usage comparisons.
+
+
+MagicKit & Library
+------------------
+The assembler is quite flexible, but in order to extend its usefulness
+quickly, certain design decisions were made in the support library.  I will
+try to detail some of these here.
+
+.proc/.endp:
+---------------
+This is a handy pseudo-op pairing which declares that this subroutine
+should be considered as a functional group.  The code between .proc and
+.endp must reside in the same bank (ie. cannot exceed 8KB), and the
+assembler will decide whether or not to move it to another bank, and to
+map it in and out when used.
+
+The assembler will automatically create a wrapper in another segment
+(which is permanently mapped) in order to map/unmap the segment when the
+function is used.  The programmer need not be conscious of this wrapper.
+
+NOTE: a weakness of the current assembler is that it leaves too much empty
+space in segments when a .proc/.endp will not fit in the current segment
+with pre-existing code.  I believe that it simply allocates a new bank and
+places the code there, instead of evaluating the size of the empty spaces
+in previous banks as candidates for placing the code.
+
+
+Memory map usage:
+-----------------
+
+This memory map details the conventional usage of the various main
+memory banks and segments.  It should be noted that this is a usage
+convention, and not an absolute.  However, it meshes well with the
+'normal' usage of banks and segments in known code, such as the Develo
+System and CDROM system card.
+
+Feel free to rewrite the libraries to use memory in a different way...
+
+
+MMR   Memory      HuCard  CDROM/SCD
+reg. Loc. Range   Bank #  Bank #     Usage            Permanence
+---- -----------  ------  --------- ----------------  ----------------------
+MMR0 $0000-$1FFF   $FF      $FF     Hardware          Always mapped
+MMR1 $2000-$3FFF   $F8      $F8     Scratch RAM       Always mapped
+MMR2 $4000-$5FFF   $02      $02(R)  DATA (const/data) Mapped as needed
+MMR3 $6000-$7FFF   $01      $01(R)  DATA (font)       Mapped as needed
+MMR4 $8000-$9FFF   last     last    Proc Mapper       Always mapped
+MMR5 $A000-$BFFF   $xx      $xx     CODE (.proc)      Mapped as needed
+MMR7 $E000-$FFFF   $00      $00(P)  Library routines  Always mapped
+
+HuCard:
+MMR6 $C000-$DFFF   $xx              CODE              Unused
+
+CDROM:
+MMR6 $C000-$DFFF            $00(R)  Bootstrap,        Always mapped
+                                    Library routines
+
+
+$xx - Not necessarily mapped to anything special
+
+$00(P) - This is PHYSICAL bank $00, which is actually the CDROM System card
+on a CDROM system (not the relative first bank of memory in your program).
+For a HuCard, this is the first bank of memory in your program.
+
+$00(R) - This is RELATIVE bank $00, which is the first bank of memory in
+your program.  Or more appropriately, the 'STARTUP.ASM' library code.
+
+
+bank usage:
+-----------
+$00 - library routines (CODE).  CDROM also has boot loader, but some routines
+are shorter on CDROM due to usage of the CDROM system card functions
+Mapped at $E000 for HuCard
+Mapped at $C000 for CDROM (CDROM occupies bank 'base bank'+$00)
+
+$01 - fonts (DATA) Mapped at $6000.  As of v3.02, also includes library
+routines (CODE) mapped at $A000.
+
+$02 - const data (DATA) Mapped at $4000
+
+$03+ - data bank (DATA) - user's program data grows outward from here,
+followed by '.proc'-based code segments.
+
+$04+ - CODE (.proc's) Mapped at $A000
+
+final bank - map segment which wraps .proc subroutine calls.  Mapped at $8000
+This code is silently generated by the compiler, and is not printed in any
+human-readable output documents.
+
+
+Boot sequence:
+--------------
+A HuCard has its origin at bank 0, and is mapped at $E000
+It needs to grab the interrupt vectors at $FFF6 and implement
+implement handlers for them
+
+A CDROM will load at bank $80, and the initial loader will be
+mapped at $4000 (and at $C000).  (Later it will be copied to
+bank $68 if it's a Super CDROM, running on a Super CDROM system).
+
+First the CDROM loads the first 2 sectors off of CDROM.
+It does a validity check against an image in memory, and then grabs the
+load info from the sector (ie. load mode, # sectors, load address, and
+initial settings of MMR registers).
+
+Then the boot loader is loaded into the base CDROM memory bank ($80) and
+is run.  If the program is compiled for Super CDROM, the boot loader will
+copy itself into bank $68.  In either case, it will set itself to occupy the
+memory area $C000-$DFFF.  In the event that is was compiled for SCD, but
+running on an inferior system, it should output the error message here.
+
+The boot loader is currently 8 sectors (16KB, or two banks), and loads into
+memory, setting MMR's for the $4000 and $C000 address ranges to point to
+the first bank, and $6000 to the second.  $4000 is used for the boot program,
+and $C000 is used for the library routines.  The boot loader then proceeds to
+initialize the hardware, load the remainder of the program, and jump the to the
+_main function.  (In fact, the change from $4000 to $C000 takes place at the
+routine 'init_go' immediately after loading the remainder of the program.)
+
+It would seem like a natural extension of this functional block grouping
+that CDROM loadable modules should contain their own consts, data, sound,
+procs, and mappers.  This would allow a 'C' program to load another roughly
+independent module from disk without much effort, and would provide a
+useful convention for program module management.
+
+That would leave fonts and libraries as the only resident code.
+It will be interesting to write the instructions for the compiler and
+assembler to allow them to group things in this way.
+
+

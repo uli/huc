@@ -1,0 +1,249 @@
+New in version 3.21:
+--------------------
+- Added support for adpcm
+- Fixed bug in pseudo.c when opening bad filename in '#incchr'
+- Added support for non-256-wide maps, the multiply was wrong (map_get_tile/map_put_tile).
+- Fixed bug for a 3-parm set_map_data, the mapheight was always greater than 256
+- Fixed bug to support bank boundary crossing map data (in map_calc_tile_addr)
+- Fixed bug to support bat wrapping in load_map function
+- Fixed bug in dumplits (in main.c), const bytes were and'ed by 127
+
+New in version 3.20:
+--------------------
+- New tile functions from David Michel !
+  These functions allow for more flexible use of palettes, and will allow use
+  of 8x8 tile or 16x16 tiles with the same functions.  (see below)
+- Ensured at least 2 seconds of trailing zeroes on CDROM tracks
+- Fixed bug with FONT_BANK continuing to be addressed in bank $81
+  (instead of $69) for SCD's
+- Sped up BLiT to VRAM in functions satb_transfer() and load_palette()
+  by using a RAM-resident TIA function to BLit 32 bytes at a time.
+- Cleaned up set_xres() code a bit
+- Added new functionality to use custom CDROM program instead of default
+  "Super System Card needed" error message when running SCD programs on
+  plain old CDROM hardware
+
+- Added directives:
+  - #incchr_ex(my_chr, "file1.pcx", x, y, cols, rows, pal_idx1, \
+                       "file2.pcx", x, y, cols, rows, pal_idx2, \
+                       "filex.pcx", x, y, cols, rows, pal_idxx );
+  - #inctile_ex(my_chr, "file1.pcx", x, y, cols, rows, pal_idx1, (... etc... ) );
+  - Note: the #incchr_ex() and #inctile_ex() directive only work with set_tile_data()
+    but raw data of 'my_chr' can be accessed as 'my_chr__data__'
+  - Note 2: both of these #incxxx() directives now prepend a 'data type' integer
+    immediately before the label.  This means that multiple #incxxx() data elements
+    can no longer be addressed as a single contiguous data element.
+
+- Added functions:
+  - cd_status(int) - $00 input -> 'busy check', else 'ready check'
+                   busy check:  $00 return -> not busy, else busy
+                   ready check: $00 return -> ready, else sub error code
+  - set_tile_data(my_chr); (see #incchr_ex(); and #inctile_ex();)
+  - map_put_tile() will manipulate the map data (if in RAM)
+  - srand(int rand) to set random number seed
+                    ('C' function should have existed before, but only
+                     asm was accessible)
+  - srand32(int rand1, int rand2) to set a full 32-bit random number seed
+
+- Renamed functions:
+  - 'get_tile()' is now called 'map_get_tile()' to match 'map_put_tile()'
+
+
+New in version 3.12 beta: (not formal release)
+-------------------------
+- Substantial updates to Makefiles for building DOS versions and improved
+  dependencies
+- Possibly improved speed of satb_update() by resetting the automatic counter
+  for maximum sprites *_on each transfer_*
+- Tinkered with optimization quite a bit:
+  - comparison operators are substantially faster now (about twice as fast)
+  - increment/decrement operators are also improved (both pre- and post-)
+  - increased speed of logical-AND, logical-OR, and subtraction functions in most
+    situations, and addition functions in some (was already optimized in most
+    situations)
+  - significantly increased speed of array-accesses (3 to 4 times faster !)
+  - generated code is smaller, but you may or may not save any ROM banks
+- Fixed bug in abs() function - which was masked on MagicEngine by a bug in its
+  CPU core !
+- Fixed bug regarding length of compile filenames (too short)
+- Fixed screen-positioning between CDROM and HuCard.  They match now.
+- Roughed-in PSG player for HuCard including data
+- Added/started new tool, 'pcxtool' for manipulating PCX palettes
+- Roughed-in area for new tool, MOD2MML
+- New functions:
+  - clock_hh() - gets time (hours part) since startup (0-255)
+  - clock_mm() - gets time (minutes part) since startup (0-59)
+  - clock_ss() - gets time (seconds part) since startup (0-59)
+  - clock_tt() - gets time (ticks part) since startup (0-59)
+  - clock_reset()  - resets clock to 00:00:00.00
+
+New in version 3.11:
+--------------------
+- NEW horizontal resolution - up to 512 pixels per line, useable in set_xres()
+  (Thanks to Charles MacDonald)
+- Added support for color-correction flag which makes images look better
+  Defaulted to use this flag (again, thanks to Charles MacDonald)
+- changed set_xres() function to allow 1 or 2 parameter versions:
+  - set_xres(x_resolution)
+  - set_xres(x_resolution, color_correct_flag) (XRES_SHARP or XRES_SOFT)
+- fixed horizontal alignment for set_xres() and HSR/HDR macros, especially for
+  5.37 MHz dot-clock versions - Thanks to Frank Caputo for highlighting the issue
+- fixed put_number(3-parameter) bank switching bug
+- added new graphics function:
+  - gfx_line(int x1, int y1, int x1, int y2, char color)
+
+
+New in version 3.10:
+--------------------
+- fixed __fgetb MACRO so that far-pointer subscripting will work - well actually,
+  this fix snuck in during the final moments of the HuC v3.04 release
+- fix "vram[n] = val" assignment operation
+- Added overlay support by doing the following:
+  - add '-overlay' as command line switch to MagicKit which does
+    everything as before except add the boot sector and the trailing
+    empty space; uses file suffix '.ovl' for code overlays
+  - add '-overlay' as command line switch to huc which passes it to
+    MagicKit and adds an implicit '#include "globals.h"' for
+    standardization of BSS segment across modules (ie. linking)
+  - create new utility 'isolink' to make the iso image from the ipl.bin and all
+    the stated modules.  An array of module info is encoded into the library
+    segment of all overlays for use by all overlays.
+  - second entry point for overlays which only maps needed segments (doesn't
+    initialize hardware or erase memory)
+- Added functions to read the CD:
+  - cd_execoverlay(int ovl_idx)
+  - cd_loadvram(int ovl_idx, int sector_offset, int vram_addr, int bytes)
+  - cd_loaddata(int ovl_idx, int sector_offset, farptr seg:addr, int bytes)
+- Backed out changes which deleted writevram/readvram; the 'C' syntax 'vram[n] = val'
+  and 'val = vram[n]' were broken by this.
+- Backed out creation of vm_rawread() and vm_rawwrite() functions (use vram[] access
+  method as stated above)
+- Added one more cd function:
+  - cd_trkinfo(char track, char * min, char * sec, char * frame)
+
+
+New in version 3.04:
+--------------------
+- Fixed the darn 'i' and 'z' characters in the font.  They looked so weird
+  they were bothering me
+- Allowed an override to the VRAM address where the font is loaded at bootup
+  Just place '#asmdef FONT_VADDR $1000' to load it at $1000 in VRAM instead
+  (default location is at $0800)
+- Fixed the ROM size totals on 'Segment List' output from assembler to also
+  include empty segments
+- Fixed several bugs from v3.03:
+  - bm_rawwrite.2 (name)
+  - fixed length of name comparison in bm_*() functions
+  - CD/SCD would not compile (LIB1_BANK was too full)
+  - subtle change in strncpy/strncat - behaviour now matches gcc/linux
+- Moved several functions to LIB2_BANK from LIB1_BANK including
+  - most of the BRAM library
+  - farmemget() from huc_misc.asm
+- Changed a few more functions to pragma fastcall
+- Modified the random number generator slightly
+- Added 'get random number' during VSYNC interrupt; hopefully it will be
+  a bit more random now
+- Obsoleted the CDROM-card grp_*() functions - I couldn't get them to work
+- Removed library functions which were not visible to 'C', and not
+  referenced anywhere.  Replaced with functions visible to 'C'.
+  - writevram
+  - readvram
+- Added new memory-access functions:
+  - peekw(int) - returns 16-bit peek value
+  - pokew(char *, int) - places 16-bit integer value into memory
+  - vm_rawread(int) - returns 16-bit value from VRAM at address
+  - vm_rawwrite(int, int) - places 16-bit value into VRAM at address
+- Added pixel-graphics functions (thanks to Frank Caputo for model code):
+  - gfx_setbgpal(char) - set major palette # for use in gfx_init
+  - gfx_init(int) - initialize BGMAP to point to sequential tiles at given
+                    address in VRAM
+  - gfx_clear(int) - initialize tiles at given address in VRAM to all zeroes
+                     up to size of the virtual screen
+  - gfx_plot(int x, int y, char color) - set a pixel to color, at position (x,y)
+  - gfx_point(int x, int y) - determine color of pixel at position (x,y)
+- various minor changes to macros, etc.
+- Added a couple more "pragma fastcall" definitions
+  >> you may find that you need a temporary variable in some cases if you
+  >> used a function call as a parameter to a fastcall function, such as:
+  >> "poke(loc, peek(loc)+1);"
+ 
+
+New in version 3.03:
+--------------------
+- Added some better output to segment listing
+- Fixes and documentation improvements to some existing bm_* (backup memory)
+  functions, especially pertaining to "what is a BRAM name" and the return value
+  from bm_exist()
+- Several new BRAM functions
+  - bm_size(void) - total size of BRAM, as formatted
+  - bm_sizeof(char *) - return size of user data from named BRAM file
+  - bm_getptr(int, char *) - get name of file at ptr, and return ptr to next
+                             (see documentation)
+  - bm_delete(char *) - removed named file from BRAM
+  - bm_rawread(char *) - read byte in BRAM at ptr (or offset)
+  - bm_rawwrite(char *, char) - write byte to BRAM at ptr (or offset)
+- added several standard C copy/compare functions:
+  - strcpy()
+  - strncpy()
+  - strcmp()
+  - strncmp()
+  - strcat()
+  - strncat()
+  - memcpy()
+  - memcmp()
+
+New in version 3.02:
+--------------------
+- Removed two excess unused banks in output file
+- Merged font bank with new bank for library routines
+- Move some functions into second library bank
+- For SCD's, check machine at bootup; show error message on lesser machines
+- Changed Segment-Usage output significantly
+- Improved default font
+- Added new font data (italic print) - but not tested
+- Roughed-in Arcade Card ports in equ.inc
+- Fixed cd_fade() function to call CD_FADE properly
+- fixed cd_playtrk() to convert values to BCD before calling BIOS
+- new CDROM/Arcade Card functions:
+  - ac_exists(void) - returns 0 if no AC, 1 if AC exists
+  - ad_reset(void) - reset ADPCM device
+  - cd_unpause(void) - to continue playing audio after pause
+  - cd_playmsf(start m, s, f, end m, s, f, mode) - minute/second/frame
+    version of cd_playtrk()
+  - cd_numtrk(void) - returns number of tracks on disc
+  - cd_trktype(int track) - returns media type of given track (audio/data)
+  - GRAPHICS functions - but I can't get them to do as expected
+    - grp_init(void) - initialize graphics BIOS
+    - grp_cls(void) - clear screen from graphics BIOS
+    - grp_set(x,y,color) - set a pixel
+    - grp_point(x,y) - find a pixel's color
+    - grp_line(x1, y1, x2, y2, color) - draw a line
+    - grp_box(x1, y1, x2, y2, color, fill) - draw a box, filled or not
+    - grp_flood(x, y, color) - flood area with (color) pixels
+    - grp_paint(x, y, ?, color) -  ???
+
+New in version 3.01:
+--------------------
+- Fixed joytrg() problem on CD version
+- 2 new joystick functions: joyold() and joybuf()
+- Fixed minor initialization bug in mouse driver
+- replaced literals with argument MACRO constants in library.inc
+- added RAM-based IRQ handlers so CDROM calls won't get killed by
+interrupts
+- new CDROM library functions:
+  - cd_reset(void) - resets CD player & stops motor
+  - cd_pause(void) - pauses while playing music
+  - cd_playtrk(int start_trk,int end_trk,int mode) 
+                      - play music either mute, normal, or repeat
+                      - Note: end_trk is the first track that you
+                              DON'T want to play
+  - ex_getver(void) - get CDROM version
+  - cd_fade(int mode) - (ADPCM/PCM only; not for CD music)
+
+
+New in version 3.0:
+-------------------
+- Added support to boot from CDROM
+- upgraded number system to match between HuC and MagicKit
+- fixed some bugs in compiler, assembler, and libraries
+- eliminated several useless command-line options

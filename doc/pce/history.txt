@@ -1,0 +1,175 @@
+
+ -*[ PCE ASM ]*-
+    ---------
+
+
+    History
+    -------
+
+        v2.51 : September 9th, 2000
+        -----
+                Assembler core :
+                - added support for a new file format to the INCBIN directive,
+                  INCBIN can now include '.fmp' map files created with the
+                  map editor Mappy.
+
+
+        v2.50 : July 27th, 2000
+        -----
+                Too much changes to quote them all!
+                This was mainly a HuC release, with tons of new features
+                designed specialy for a C compiler (like .proc/.endp directives,
+                etc...). The library was also enhanced with scrolling and
+                maps support. And a few bugs were fixed too. :)
+
+
+        v2.10 : February 15th, 1999
+        -----
+                Assembler core :
+                - fixed a bug in backward branch code.
+                - fixed a little bug in the expression parser.
+                - merged the code of the NES and the PCE assembler, now
+                  there's only one program.
+                - made the code more portable; it can now be compiled without
+                  any change on most Unix systems.
+                - added '.byte' and '.word' directives for compatibility with
+                  other assemblers (same as '.db' and '.dw').
+                - added a new pre-defined function: 'defined', return 0
+                  for undefined symbols, 1 for defined symbols.
+                - added Develo Box support!!
+                - added three new command line switches, '-dev' to run
+                  a program directly on the Develo, '-mx' to output a
+                  Develo .mx file, and '-srec' to ouput a Motorola S-record
+                  file (for EPROM programming).
+
+                Support libraries :
+                - created "vdc.inc", MACROs to program the VDC.
+                - moved the 'vreg' MACRO from "macro.inc" to "vdc.inc".
+                - fixed a bug in 'vdc_init' routine (VRAM was not cleared).
+
+                Documentation :
+                - documented the new MACROs, 'setvinc' and 'setbgmap'
+
+
+        v2.01 : December 21th, 1998
+        -----
+                - minor update, fixed a litte bug in the bank code
+
+
+        v2.00 : December 19th, 1998
+        -----
+                Assembler core :
+                - added '.zp/.bss/.code/.data' directives.
+                - added concept of 'Default CG Palette' for CG graphics and
+                  sprites, and 'Video Memory Location' for video objects.
+                - added '.vram/.pal/.defpal/.defchr/.defspr' directives
+                  for defining video objects.
+                - changed the MACRO processor substantially, to allow
+                  expression-typing.
+                - added '.if/.ifdef/.ifndef/.else/.endif'
+                  conditional-assembly directives.
+                - added capability for user-defined functions.
+                - added '.fail' directive.
+                - added comparison operators in expression parser.
+                - added support to output ROM file headers.
+                - added segment-usage report.
+                - added PCE_INCLUDE path search for include files.
+                - added line-continuation (using "\" character).
+                - added support for additional syntax for SMB/RMB/BBS/BBR.
+                - reorganized source tree.
+                - renamed assembler from "as.exe" to "pceas.exe".
+
+                Support libraries :
+                - created "standard.inc" for standard includes.
+                - created "startup.asm" to simply programming.
+                - created "sprites.inc" MACROs for easier sprite manipulation.
+                - created "func.inc" for standard user function definitions.
+                - added a few new MACROs and named hardware ports.
+                - changed existing MACROs to take advantage of
+                  expression-typing.
+
+                Documentation :
+                - added sprite document & demo code.
+                - added sound and video documents.
+                - added CG demo code (document ?).
+                - documented existing MACROs.
+                - broke "as.txt" into component documents.
+
+                Note : Some of the changes introduced in this release cause
+                       minor incompatibilities with code written for earlier
+                       releases.  Much of this code has been rewritten for
+                       this release, and included as demo programs.
+
+
+        v1.30 : April 15th, 1998 [unreleased]
+        -----
+                - added '.ds' directive.
+                - enhanced the PCX loading function, now 16 colors
+                  (or less) PCX files are supported.
+                - new INCBAT directive, see SLIDSHOW.ASM for an example
+                  of how useful this directive is.
+
+
+        v1.20 : February 28th, 1998
+        -----
+                - fixed a bug in the PCX decoding function;
+                  the palette was not always decoded.
+                - added two new directives: .RSSET and .RS.
+                - labels can now be placed everywhere in a line;
+                  just add a ':' after the label if it doesn't
+                  start on the first column.
+                - enhanced syntax for binary numbers; the character
+                  '_' is now allowed in the number: %1001_1000,
+                  can be useful to split different bit-fields.
+                - many minor bug fixes here and there.
+                - included source code.
+
+
+        v1.10 : July 15th, 1997 [first public release]
+        -----
+                - added macro support.
+                - modified the .ORG directive and removed the .PAGE
+                  directive.
+                - corrected a few bugs (PCX and MACRO code).
+                - added a small demo.
+
+
+        v1.00 : July 6th, 1997
+        -----
+                - rewrote the expression parser.
+                - added support for PCX file.
+                - added two new functions PAGE and BANK [thanks Dave!].
+                - corrected lots of minor bugs.
+
+
+        v0.40 : July 2nd, 1997
+        -----
+                - added all the missing HuC6280 instructions : BBRi, BBSi
+                  TST, TII, TDD, TIN, TIA and TAI.
+                - changed some error messages.
+                - added two functions : HIGH, LOW.
+
+
+        v0.30 : June 26th, 1997
+        -----
+                - corrected a bug with undefined symbols.
+                - rewrote all the symbol routines and added local
+                  symbols.
+                - enhanced a bit the format of the listing file.
+
+
+        v0.20 : June 18th, 1997
+        -----
+                - added the .INCLUDE directive.
+                - added a trap for divisions by zero.
+
+
+        v0.10 : June 12th, 1997
+        -----
+                - took an old 6502 assembler and modified it to support
+                  the HuC6280 instruction set.
+                - added most of the new HuC6280 instructions.
+
+
+--
+

@@ -1,0 +1,245 @@
+
+ -*[ ASM v2.51 ]*-
+    -----------
+
+
+        The assembler is designed for the Hu6280, which is similar to
+        the popular 6502 and 65C02 CPU's.  In this document, it is
+        assumed that the reader is already familiar with programming
+        for these CPU's.
+
+        This is an introduction to concepts which may be new to the reader.
+
+
+    1/ Programming Concepts
+       ====================
+
+        Data Grouping
+        ------------
+
+            Background:
+            -----------
+            This assembler is perhaps unique due to its concept of
+            "Data Grouping".
+
+            Most assembler programs (at least for 8-bit CPU's) assume that
+            the program is executing in RAM, so that code and data can be
+            interleaved in program source code.  For game-console machines,
+            this is not the case - there is very limited RAM, and the program
+            runs in ROM.
+
+            So, changeable items need to separated from items which don't
+            change.  But if we 'include' library functions in the code, we
+            also need to respect their RAM usage, and not use the same
+            memory location twice for conflicting items.
+
+
+            Implementation:
+            ---------------
+            To make this process easier, the concept of "Data Groups" have
+            been added to the assembler.  Various source code files can
+            use their own data, and it will be allocated at compile-time.
+
+            Program source code can belong to the following types:
+
+               .ZP   - Zero-Page data
+
+               .BSS  - Regular "scratchpad" memory area available on
+                       all PC-Engine or TurboGrafx machines
+
+               .CODE - Program code, which can be assumed to be in ROM
+
+               .DATA - Program data (usually graphics or sound), which can
+                       also be assumed to be in ROM
+
+            The assembler will group all data of a similar type together;
+            the compilation will fail if the area is full.
+
+            ZP is only 256 bytes (not all can be used as ZP data), BSS is
+            slightly smaller than one segment, and CODE/DATA are complete
+            segments.
+
+
+            Usage
+            -----
+            The Data Grouping directives are intended to be used in-line to
+            define the grouping of the following directives.  For example:
+
+                          .zp
+                counter   .ds   1        ; allocate 1 byte in ZP for counter
+
+                          .bss
+                array     .ds   10       ; allocate 10 bytes in RAM
+
+                          .code
+                          lda   #$1
+                          sta   counter  ; initialize counter
+                          . . .
+
+            Any files which are included into the main source file(s) can
+            also have their own data storage allocated, so that it won't 
+            conflict with any other storage.
+
+            Note: Not all types of directives/opcodes are allowed in all
+                  data groups.  The 'ZP'/'BSS' groups only allocate storage,
+                  *not* give it initial values.  'CODE'/'DATA' groups allow
+                  the full range of operations.
+
+
+        Video Objects
+        -------------
+
+            Background
+            ----------
+            A video object is any set of data which is stored inside the
+            program, but will ultimately be used by video memory.  These
+            are usually things like sprites, background maps, and character
+            tiles.
+
+            All of these things have "multiple addresses".  They have
+            a memory address in main memory, and a memory address in VRAM.
+            Furthermore, these items are really only useful after they are
+            resident in VRAM.
+
+
+            Implementation
+            --------------
+            In order to make programming easier for these objects, two new
+            attributes have been introduced to labels - VRAM location, and
+            default palette.  In addition to those attributes (and their
+            definition and reference operations), there are now several new
+            directives which help define graphics.
+
+            These objects are defined (by convention) as:
+
+               label:    .vram    vram_addr
+                         .pal     default_palette
+                         .db      data,...
+
+            The vram address and default palette information are not
+            stored as part of the program in the ROM file, but are instead
+            used by the assembler as attributes of the label.  This helps
+            the programmer in the rest of the program, as it facilitates a
+            syntax like this:
+
+               vramload: vload    VRAM(label),label,16
+
+            The above statement uses the vload macro to load 16 words of
+            data from label's address (in main memory) into VRAM at
+            label's destination address in VRAM.
+
+
+            Usage
+            -----
+
+            The "VRAM object" directives are as follows:
+
+                Assembler directives:
+                ---------------------
+
+                .VRAM           - Set the 'VRAM address' attribute of current
+                                  label.  There must not be any code-producing
+                                  operations between the label and this
+                                  directive.
+
+                                  Example:
+                                    label  .vram  $5000
+
+                .PAL            - Set the 'default palette' attribute of the
+                                  current label.  There must not be any
+                                  code-producing operations between the label
+                                  and this directive.
+
+                                  Example:
+                                    label  .pal   $0
+
+                .DEFPAL         - Define a palette using RGB values.  It can
+                                  have up to 16 entries.  Entries are specified
+                                  as RGB values in BCD format.  (ie. for a
+                                  colour with red=0/green=2/blue=4, use $024)
+
+                                  Example:
+                                    label  .defpal  $000,$011,$777,$444
+
+                .DEFCHR         - Define a character tile (8x8-pixel tile).
+                                  Operands are: VRAM address, default palette,
+                                  and 8 rows of pixel data (stored as 32-bit
+                                  values of 8 nybbles each).  The assembler
+                                  reorganizes the pixel data to the PC-Engine's
+                                  required bit format.
+
+                                  Example (a '0' character which resides at
+                                  VRAM location $1000, uses default palette #0,
+                                  and consists of transparent pixels (0), and
+                                  pixels of color #1; note the use of "\" as
+                                  the line continuation character):
+
+                                    zero   .defchr  $1000,$0,\
+                                                    $00111110,\
+                                                    $01000011,\
+                                                    $01000101,\
+                                                    $01001001,\
+                                                    $01010001,\
+                                                    $01100001,\
+                                                    $00111110,\
+                                                    $00000000
+
+                .DEFSPR         - Define a sprite cell (16x16-pixel tile).
+                                  Operands are: VRAM address, default palette,
+                                  and 16 rows of pixel data, each stored as
+                                  2x32-bit values, each nybble representing
+                                  a pixel.  The assembler reorganizes the pixel
+                                  data to the PC-Engine's required bit format.
+
+                                  Example (a '0' sprite which resides at VRAM
+                                  location $5000, uses default palette #0, and
+                                  consists of transparent pixels (0), and
+                                  pixels of color #1):
+
+                                    zero   .defspr  $5000,$0,\
+                                                    $00111110,$00000000,\
+                                                    $01000011,$00000000,\
+                                                    $01000101,$00000000,\
+                                                    $01001001,$00000000,\
+                                                    $01010001,$00000000,\
+                                                    $01100001,$00000000,\
+                                                    $00111110,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000,\
+                                                    $00000000,$00000000
+
+                Operators (native):
+                -------------------
+
+                VRAM(label)     - Return the VRAM address associated with
+                                  'label'
+
+                PAL(label)      - Return the default palette associated with
+                                  'label'
+
+                Operators (support-library):
+                ----------------------------
+
+                BATVAL(pal,vram)- Return a "background attribute" (for use in
+                                  a BAT map) composed of the character tile
+                                  at VRAM address 'vram', using palette 'pal'
+
+                CHAR(label)     - Return a "background attribute" of character
+                                  tile defined at 'label', using its default
+                                  palette
+
+                SPR_VRAM(label) - Return a "pattern address" for the sprite
+                                  defined at 'label'.  This "pattern adddress"
+                                  is suitable for use in a SATB (sprite
+                                  attribute table).  For further information,
+                                  see the tutorial on sprite programming.
+
+
+--
+

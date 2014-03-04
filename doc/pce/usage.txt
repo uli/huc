@@ -1,0 +1,459 @@
+
+ -*[ PCE ASM v2.51 ]*-
+    ---------------
+
+
+    Usage
+    -----
+
+        PCEAS [-options] [-? (for help)] infile[.ASM]
+
+        The assembler accepts only one input file 'infile' that will be
+        assembled  into ROM file (.PCE extension) directly useable
+        by an emulator or a RAM-cartridge device.
+        The size limit for a ROM is 1MB.
+
+        A listing file can also be generated (.LST extension) if the LIST
+        directive is encountered in the input file.
+
+        Here's a description of the different options:
+
+
+        Option  Description
+        ------  -----------
+
+         -s
+         -S     Show segment usage. If one of those options is specified
+                the assembler will display information on the ROM bank
+                usage. Use '-s' to show basic information and '-S' to
+                show more detailed information.
+
+         -l #   Control output of the listing file:
+
+                    0 - completely disable the listing file even if the
+                        LIST directive is used in the input file
+
+                    1 - minimum level; code produced by DB, DW, DEFPAL,
+                        DEFCHR and DEFSPR will not be dumped
+
+                    2 - normal level; only code produced by DEFPAL, DEFCHR
+                        and DEFSPR will not be dumped
+
+                    3 - maximum level; all the code is dumped in the
+                        listing file
+
+                The default level is level 2.
+
+         -m     Force macros expansion in the listing file, even if the
+                MLIST directive is not seen in the input file.
+
+         -raw   Control the header generation. By default the assembler
+                always adds an header to the ROM file; unless '-raw' is
+                specified, in this case no ROM header is generated.
+
+         -dev   ...
+
+         -mx    ...
+
+         -srec  ...
+
+         -cd    ...
+         -scd
+
+
+    Include path
+    ------------
+
+        By default the assembler looks in the current directory when
+        loading an include file, but when it doesn't find the file it
+        then uses the environment variable 'PCE_INCLUDE' to get a list
+        of include paths. Ideally, you will want to set this variable in
+        your 'AUTOEXEC.BAT' file, and have it point to the 'INCLUDE'
+        directory of MagicKit.
+
+        ex:   set PCE_INCLUDE=c:\magickit\include
+
+
+    Symbols
+    -------
+
+        Two types of symbol are supported, global symbols and local
+        symbols. Local symbols are preceded by a dot '.' and are valid
+        only between two global symbols. A symbol can be followed by
+        a colon ':' but this is not necessary.
+
+
+    Expressions
+    -----------
+
+        The assembler supports very complex expressions. You can use
+        as many level of parenthesis as you want and spaces between
+        operators and numbers are possible.
+        
+        Numbers can be written in three bases : hexadecimal ($7F), 
+        binary (%0101) and decimal (48). Character values are also 
+        supported ('A').
+
+        All the usual operators are present :
+
+            +, -, *, /, %, ^, &, |, ~, <<, >>
+
+        As well as the comparison operators :
+
+            =, !=, !, <, >, <=, >=
+
+        For the priority, the same rules as C apply.
+
+        You can also use predefined or user-defined functions in
+        an expression.
+
+
+        Predefined functions
+        --------------------
+
+            HIGH()   - Returns the high byte of a value.
+
+            LOW()    - Returns the low byte.
+
+            BANK()   - Returns the bank index of a symbol. If no symbol,
+                       or more than one, are given, the function will 
+                       return an error.
+
+            PAGE()   - Returns the page index of a label. See above for
+                       errors.
+
+            VRAM()   - Returns the VRAM address of a label (if defined).
+                  
+            PAL()    - Returns the default palette of a label (if defined).
+
+            SIZEOF() - Returns the size of a data element.
+
+
+        User-defined functions
+        ----------------------
+
+            User-defined functions are declared with the .FUNC directive,
+            for example:
+
+                BATVAL	.func	((\1) << 12) | ((\2) >> 4)
+
+            Up to nine arguments, \1 to \9, can be used.
+                                                    
+            To call a function simply enclose arguments within parenthesis
+            and separate them with a comma:
+
+                stw #BATVAL(4, $1000), <chr
+
+            User-defined functions can be very useful, one often needs to use
+            the same calculation again and again in expressions. Defining a
+            function will save you a lot of work, and reduce typo errors. :)
+
+            Note that function calls can be nested, you can call one function
+            from another without any problem, however, recursive calls will
+            produce an error.
+
+
+    Macros
+    ------
+
+        While functions are very useful to replace common expressions by
+        just a function call, macros are used to replace common groups
+        of instructions by a single line of code. 
+
+        You start a macro definition with : 
+
+            label  .macro
+
+        Or you can also place the label after the '.macro' keyword, like
+        this:
+
+                   .macro label 
+
+        After follow the body of the macro, which is terminated by
+        the '.endm' directive.
+
+        As an example let's define a 'neg' macro to negate the accumulator.
+
+            neg    .macro
+                    eor   #$FF
+                    inc   A
+                   .endm
+
+        Macros can also have parameters. In the macro body, you refer to
+        a parameter by using the backslash character ('\') followed by
+        a digit. Nine parameters can be used, \1 to \9.
+
+        Here's another example:
+
+            add    .macro       ; add a value to register A
+                    clc         ; (handle carry flag)
+                    adc   \1+1
+                   .endm
+
+        Other 'special' parameters can be used, here's a list of all
+        the possible parameter you can use inside a macro:
+
+
+        Parameter  Description
+        ---------  -----------
+        \1  -  \9  Input parameter - up to nine can be used in a macro call
+
+        \#         Number of input parameters
+
+        \?1 - \?9  Returns 'type' of input parameter:
+                     ARG_NONE      (= 0) = No argument
+                     ARG_REG       (= 1) = Register            -> A, X, Y
+                     ARG_IMMEDIATE (= 2) = Immediate data type -> #xx
+                     ARG_ABSOLUTE  (= 3) = Abosulte addressing -> label, $xxxx
+                     ARG_INDIRECT  (= 4) = Indirect addressing -> [label]
+                     ARG_STRING    (= 5) = String argument     -> "..."
+                     ARG_LABEL     (= 6) = Label argument      -> label
+
+        \@         Special parameter that returns a different number for
+                   each macro; can be used to define local symbols inside
+                   macros:
+
+                       abs    .macro
+                               lda   \1
+                               bpl   .x\@
+                               eor   #$FF
+                               inc   A
+                               sta   \1
+                       .x\@:
+                              .endm
+
+
+    Directives
+    ----------
+
+
+        LIST    - Enable the listing file generation. You can later stop
+                  temporarily the output with the NOLIST directive and
+                  restart it again with LIST.
+
+        NOLIST  - Stop the listing output.
+
+        MLIST   - Allow macro expansion in the listing file.
+
+        NOMLIST - Stop expanding macros in the listing file. This directive
+                  won't have any effect if you use the '-m' command line
+                  option.
+
+        OPT     - ...
+
+        EQU     - Assign a value to a symbol. The character '=' has
+                  the same function too.
+
+        BANK    - Select a 8KB ROM bank (0-127) and reset the location
+                  counter to the latest known position in this bank.
+
+        ORG     - Set the location of the program counter. The thirteen
+                  lower bits of the address inform the assembler about
+                  the offset in the ROM bank and the third upper bits
+                  represent the page index.
+
+        MML     - ...
+
+        DB      - Store one or more data bytes at the current location.
+
+        DW      - Store data words.
+
+        BYTE    - Same as DB.
+
+        WORD    - Same as DW.
+
+        DS      - Reserve space at the current location. This space will
+                  be filled with zeroes if this directive is used in the
+                  CODE or DATA group.
+
+        RSSET   - Set the internal counter of the RS directive to 
+                  a specified value.
+
+        RS      - Assign a value to a symbol; a bit like EQU but here
+                  the value assigned is taken from an internal counter,
+                  and after the assignation this counter is increased
+                  by the amount specified in the RS directive.
+                  This is a very handy way of defining structure member
+                  offsets, here's a small example:
+
+                      ; C:
+                      ; --
+                      ; struct {
+                      ;    short p_x;
+                      ;    short p_y;
+                      ;    byte p_color;
+                      ; } pixel;
+                      ;
+                      ; ASM:
+                      ; ----
+
+                              .rsset $0  ; set the initial value of RS counter
+                      P_X     .rs 2
+                      P_Y     .rs 2
+                      P_COLOR .rs 1
+
+                  You can later use these symbols as offsets in a 'pixel'
+                  struct:
+
+                              ldy #P_COLOR
+                              lda [pixel_ptr],Y
+
+        MACRO   - Start a macro definition.
+
+        ENDM    - End a macro definition.
+
+        PROC         - ...
+
+        ENDP         - ...
+
+        PROCGROUP    - ...
+
+        ENDPROCGROUP - ...
+
+        INCBIN  - Include a binary file at the current location. If the file
+                  is bigger than a ROM bank, as many successive banks as
+                  necessary will be used.
+
+        INCLUDE - Include a source file at the current location.
+                  Up to 7 levels are possible.
+
+        INCCHR  - Extract a part of a PCX file and convert it into PC Engine
+                  8x8 graphic characters. Three syntaxes are possible :
+
+                  INCCHR "pic.pcx"
+
+                      Without any additional parameters, the command
+                      convert the whole PCX file.
+
+                  INCCHR "pic.pcx",32,4
+
+                      Tell the assembler to convert only 4 rows
+                      of 32 characters (a character size is 8x8).
+
+                  INCCHR "pic.pcx",48,16,32,4
+
+                      Same as above but start extracting characters
+                      from coordinate 48,16 (in pixels).
+
+        INCTILE - ...
+
+        INCMAP  - ...
+
+        INCSPR  - Same as INCCHR but for sprites; note that the size
+                  of a sprite is 16x16.
+
+        INCPAL  - Extract the palette of a PCX file. If no extra parameters
+                  are given all the 256 colors are loaded and converted.
+                  The first parameter indicates from what sub-palette to
+                  start (a sub-palette is an aligned block of 16 colors).
+                  The second parameter is the number of sub-palette
+                  to extract; if omitted one is used instead.
+
+        INCBAT  - This directive work in pair with INCCHR, it builds the BAT
+                  table necessary to display a picture. And like INCCHR three
+                  syntaxes are possible:
+
+                  INCBAT "my_pic.pcx",$1000
+
+                      Build a BAT table for the whole PCX file, the second
+                      parameter indicates the address in VRAM where are
+                      stored the PCX characters.
+
+                  INCBAT "my_pic.pcx",$1000,32,30
+
+                      Build a BAT table for a part of the PCX file, third
+                      parameter is the number of columns, and fourth parameter
+                      the number of rows. Both numbers are in character
+                      (8x8 pixels).
+
+                  INCBAT "my_pic.pcx",$1000,16,16,32,30
+
+                      Same as above but tell the assembler that the picture
+                      starts at coordinates 16,16 (in pixels).
+
+        ZP      - Select the Zero-Page data group.
+
+        BSS     - Select the regular "scratchpad" memory data group.
+
+        CODE    - Select the program code group.
+
+        DATA    - Select the program data group.
+
+                  See 'concepts.txt' for an introduction to data groups.
+
+        VRAM    - Set the 'VRAM address' attribute of the current label.
+                  There must not be any code-producing operations between
+                  the label and this directive.
+
+        PAL     - Set the 'default palette' attribute of the current label.
+                  There must not be any code-producing operations between
+                  the label and this directive.
+
+        DEFPAL  - Define a palette using RGB values. Entries are specified
+                  as RGB values in BCD format. (ie. for a colour with
+                  red=0/green=2/blue=4, use $024)
+
+                      label:  .defpal  $000,$011,$777,$444
+
+        DEFCHR  - Define a character tile (8x8 pixels). Operands are: VRAM
+                  address, default palette, and 8 rows of pixel data (stored
+                  as 32-bit values of 8 nybbles each). This is what we call
+                  an all-in-one directive. :) This directive takes also care
+                  to reorganize the pixel data to the PC Engine's required
+                  bit format.
+
+                      zero:   .defchr  $1000,$0,\
+                                       $00111110,\
+                                       $01000011,\
+                                       $01000101,\
+                                       $01001001,\
+                                       $01010001,\
+                                       $01100001,\
+                                       $00111110,\
+                                       $00000000
+
+        DEFSPR  - Same type of directive as above but for a sprite cell
+                  (16x16 pixels). Operands are: VRAM address, default palette,
+                  and 16 rows of pixel data, each stored as 2x32-bit values,
+                  each nybble representing a pixel.
+
+                      zero:   .defspr  $5000,$0,\
+                                       $00111110,$00000000,\
+                                       $01000011,$00000000,\
+                                       $01000101,$00000000,\
+                                       $01001001,$00000000,\
+                                       $01010001,$00000000,\
+                                       $01100001,$00000000,\
+                                       $00111110,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000,\
+                                       $00000000,$00000000
+
+        IF      - Conditional assembly directive. This directive will evaluate
+                  the supplied expression and then turn conditional assembly
+                  on or off depending on the result. If the result is null
+                  conditional assembly is turned off, and on if the result is
+                  non null.
+        IFDEF
+        IFNDEF  - These directives allow conditional assembly depending on
+                  whether a label is defined or not.
+
+        ELSE    - Toggle conditional assembly on to off, or vice verca.
+
+        ENDIF   - Terminate the current level of conditional assembly.
+                  Report an error if the number of IF's and ENDIF's doesn't
+                  match.
+
+        FAIL    - When the assembler encounters this directive, it aborts
+                  the compilation. Can be used within a macro for argument
+                  error detection.
+
+
+--
+

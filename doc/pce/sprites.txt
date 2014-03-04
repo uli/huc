@@ -1,0 +1,610 @@
+
+                       "PC Engine Sprites Tutorial"
+                       ============================
+
+
+
+    There are two things that define sprites, the sprite generator and
+    the SATB (Sprite Attribute Table Block), both are in VRAM.
+
+
+    1/ the sprite generator
+       --------------------
+
+        The sprite generator contains the sprite graphics organized as
+        patterns of 16x16 dots. It can be seen as a continous area of
+        patterns but since the sprite hardware put some alignment
+        restrictions when patterns are assembled to make big sprites,
+        it's better to immediately think as groups of patterns rather
+        than individual patterns.
+
+        A group is formed of up to 8 aligned patterns, we will name
+        them 'A' to  'H'. Here is how is formed a group:
+
+                A | B
+               ---+---
+                C | D
+               ---+---
+                E | F
+               ---+---
+                G | H
+
+        Combined, they represent a large 32x64 sprite pattern.
+
+        There are a total of 6 size combinations, sprite width can be
+        16 or 32 and height 16, 32 or 64. Any combination is possible
+        (ie. 16x32, 16x64, 32x16, etc...), the only problem is alignment.
+        It's not a big problem but you must keep it in mind when organizing
+        or up-loading sprite patterns in VRAM. The restriction applies both
+        on width and height. When you use the smallest sprite size, 16x16
+        (one pattern), there's no restriction, any patterns can be used,
+        but for all the other sizes the sprite hardware uses predefined
+        pattern alignments. When the sprite width is 32, only aligned
+        pairs of patterns can be used, like A & B, C & D, etc... but
+        never unaligned pairs like B & C. Same for a height of 32,
+        pairs B & D or E & G are ok but not C & E.
+
+        The easiest way to avoid problems is to always work at the group
+        level. When you draw a sprite always include it in a large 32x64
+        pattern, even if the sprite is smaller. In this case either put
+        several small sprites in a group (take care of alignment), or
+        leave a few patterns empty, the wasted space won't be a too big
+        of a problem for now.
+
+        Now you can go draw a few sprites, :) when you will be ready we
+        will see how to upload them to VRAM.
+
+        The MagicKit's assembler makes this operation very simple, it has
+        a set of macros, library functions and directives dedicated to this
+        purpose. The first thing you will use is the 'incspr' directive,
+        this directive extracts sprite patterns from a PCX file and stores
+        them in the appropriate graphic format, ready to be uploaded to
+        VRAM. 'incspr' has several forms but the most frequent one you
+        will use is:
+
+              .incspr "sprites.pcx",x,y,w,h
+
+        where 'x,y' are sprite top/left pixel coordinates in the PCX image
+        and 'w,h' the number of patterns to extract horizontaly and verticaly.
+        If you use '2,4' for width and height you will load a pattern group,
+        other dimensions can be used but be careful, the assembler won't
+        necessarily extract sprites in the order you would expect. :)
+
+        The ideal is to reserve one or more ROM bank for sprites and to put
+        the 'incspr' there.
+
+              .bank 4
+          sprite_bank_1:
+              .incspr "sprites1.pcx",0,0,2,4  ; up to 8 pattern groups of 2x4
+              .incspr "sprites1.pcx",32,0,2,4 ; can be stored in a bank
+              .incspr "sprites1.pcx",64,0,2,4 ; each group is 1KB in size
+              ...
+
+              .bank 5
+          sprite_bank_2:
+              .incspr "sprites2.pcx",0,0,2,4
+              .incspr "sprites2.pcx",32,0,2,4
+              .incspr "sprites2.pcx",64,0,2,4
+              ...
+
+        To transfer the sprite patterns to VRAM we will use the 'load_vram'
+        library function of the assembler, this function uploads any memory
+        region to the VRAM. It needs three arguments:
+
+              _di -> destination address in VRAM
+              _bl -> source data bank index
+              _si -> source data memory address
+              _cx -> number of 16-bit words to transfer
+
+        It's perhaps the first time you've heard of _si, _di, etc... so
+        let's talk a bit of them. They are pseudo registers used to pass
+        arguments to the assembler library functions, the HuC6280 has
+        too few registers for this purpose and the stack is too limited
+        so we use a few bytes of the zero page to store function arguments.
+        These symbols are defined in the 'equ.inc' file, always include
+        it when you use them. There are six 16-bit pseudo registers :
+        _si, _di, _ax, _bx, _cx and _dx.
+
+        Now back to the 'load_vram' function.
+
+        As we said this function transfers data from memory to VRAM.
+        But it does only that, it doesn't take care of mapping ROM banks.
+        That's what we will do here. We will write a small macro called
+        'load_sprites' that will do everything for us (this macro and
+        all others in this tutorial are included in the MagicKit file
+        'sprites.inc'):
+
+          ; load_sprites(vram_addr, spr_bank, #nb_group)
+          ; ----
+          ; vram_addr, destination address in VRAM
+          ; spr_bank,  sprite bank address
+          ; nb_group,  number of 32x64 patterns to copy
+
+          load_sprites: .macro
+
+              ; put the VRAM address in _di
+
+              stw   #\1,<_di
+
+              ; put the sprite data address in _si/_bl
+
+              stw   #\2,<_si
+              stb   #BANK(\2),<_bl
+
+              ; get the number of patterns to copy,
+              ; multiply it by $200 - the size in words
+              ; of a 32x64 pattern (remember that
+              ; 'load_vram' need a size in words),
+              ; and put it in _cx
+
+              lda   \3
+              asl   A
+              stz   <_cx
+              sta   <_cx+1
+
+              ; call the 'load_vram' function
+
+              jsr load_vram
+             .endm
+
+        It looks like we are now ready to upload a sprite bank to VRAM. :)
+        But where to store them?  Any address in VRAM above the BAT
+        (Background Attribute Table) can be used but a standard address
+        of $4000, is suggested, it corresponds to the upper 32K of the
+        VRAM. This way we can reserve the lower 32K for the background
+        patterns and the BAT and the upper 32K for sprites and the SATB. 
+
+        However, never directly use $4000 in 'load_sprites', it's better
+        to define a symbol, so that if the VRAM address must be changed
+        for any reason, it will just be the symbol to change.
+
+          SPRITE_BASE .equ $4000
+
+              load_sprites SPRITE_BASE,sprite_bank_1,#8
+              load_sprites SPRITE_BASE+$1000,sprite_bank_2,#8
+              load_sprites SPRITE_BASE+$2000,sprite_bank_3,#8
+              ...
+
+        We have now imported all the sprite patterns in bulk but how
+        to know at which address will be a particular pattern? :)
+        There are a few ways to do that but let's keep it simple. So far
+        we have imported only pattern groups of 2x4, we can take advantage
+        of that and use our symbol that we defined above. Since we have
+        already defined SPRITE_BASE, the address of the sprite patterns
+        in VRAM, but we can also do that for pattern groups:
+
+          SPR_GROUP_1 .equ SPRITE_BASE+0
+          SPR_GROUP_2 .equ SPRITE_BASE+$200
+          SPR_GROUP_3 .equ SPRITE_BASE+$400
+          SPR_GROUP_4 .equ SPRITE_BASE+$600
+              :
+          SPR_GROUP_7 .equ SPRITE_BASE+$E00
+
+        You can also define patterns inside each group. Let's take
+        a simple example: a sprite animation for an explosion. We will
+        use four sprites, two of 16x16 for the explosion start and two
+        of 32x32 when it's bigger, for that we need two groups of patterns.
+        In group 1 there will be the first, second and third explosion
+        animations and in group 2 the fourth animation:
+
+          EXPLOSION_1 .equ SPR_GROUP_1+0     ;A         | A = $0   B = $40
+          EXPLOSION_2 .equ SPR_GROUP_1+$40   ;B         | C = $80  D = $C0
+          EXPLOSION_3 .equ SPR_GROUP_1+$100  ;E,F,G,H   | E = $100 F = $140
+          EXPLOSION_4 .equ SPR_GROUP_2+0     ;A,B,C,D   | G = $180 H = $1C0
+
+        The advantage of this method is that you can change the sprite
+        patterns base address in VRAM, or re-order group in the pattern
+        table, or even modify a pattern position in a group, all that
+        without having to re-define everything else each time.
+
+        Ok, now that our sprites are in VRAM, that we know where each one is,
+        we are ready to attack part II!
+
+
+    2/ the Sprite Attribute Table Buffer (SATB)
+       ----------------------------------------
+
+        The SATB is a small table of 64 entries (one entry for each of the
+        64 sprites of the PC Engine) that contains all the informations
+        necessary to display sprites. It contains x,y coordinates, the
+        size of the sprite (16x16, 32x32, etc...), the sprite pattern
+        address, informations for flipping the sprite horizontaly and
+        verticaly, a priority flag to display the sprite either in the
+        background or the foreground, and finaly the index of the sprite
+        color palette to use.
+
+        Here's what a SATB entry looks like:
+
+          +---------------------------------------------------------------+
+          |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+          +-----------------------+---------------------------------------+
+          |                       |             y coordinate              |
+          +-----------------------+---------------------------------------+
+          |                       |             x coordinate              |
+          +-------------------+---+---------------------------------------+
+          |                   |              pattern address              |
+          +---+---+-------+---+-------+---+---+-----------+---------------+
+          | Y |   |  CGY  | X |       |CGX|PRI|           | palette index |
+          +---+---+-------+---+-------+---+---+-----------+---------------+
+
+            Y -> vertical flip bit (0 = normal, 1 = reversed)
+            X -> horizontal flip bit (0 = normal, 1 = reversed)
+          CGY -> sprite height: 00 = 16
+                                01 = 32
+                                10 = invalid
+                                11 = 64
+          CGX -> width: 0 = 16
+                        1 = 32
+          PRI -> priority flag: 0 = in background
+                                1 = in foreground
+
+        The SATB is located in VRAM (at address $7F00 if you use MagicKit
+        startup code), but directly accessing the VRAM to modify a SATB
+        entry is not a simple task, especially if you want to change only
+        one bit. You would have to read the old value in VRAM, change the
+        bit, and rewrite the new value. That represents a lot of code.
+        We will use another approach here, we will maintain a local copy
+        of the SATB in RAM, which will be easier to manipulate. And after
+        each update of the local RAM SATB we will just have to copy it
+        to VRAM to update the display.
+
+        The local RAM SATB can be manipuled directly but a new set of macros
+        will make things even easier... The first macro we will define is
+        'spr_set', this macro will initialize '_si' with the address of the
+        sprite we want to modify. That will be faster than passing the
+        sprite number to each sprite macros.
+
+          ; spr_set(#sprite, satb)
+          ; ----
+          ; sprite, the sprite number (0-63)
+          ; satb,   the address of the SATB in RAM
+
+          spr_set: .macro
+
+              ; multiply the sprite number by 8 (the size of a SATB entry)
+              ; and put the result in _si
+
+              stz <_si+1
+              lda \1
+              asl A
+              asl A
+              asl A
+              rol <_si+1
+              sta <_si
+
+              ; add the satb address to _si
+
+              addw #\2,<_si
+             .endm
+
+        We can now define the other macros. First the two macros to set
+        the sprite coordinates.
+
+          ; spr_x(#x)
+          ; ----
+          ; x, the new x coordinate
+
+          spr_x: .macro
+              ldy #2
+              lda low_byte (\1)
+              sta [_si],Y
+              lda high_byte (\1)
+              iny
+              sta [_si],Y
+             .endm
+
+          ; spr_y(y)
+          ; ----
+          ; y, the new y coordinate
+
+          spr_y: .macro
+              lda low_byte (\1)
+              sta [_si]
+              lda high_byte (\1)
+              ldy #1
+              sta [_si],Y
+             .endm
+
+        Now the macro to set the sprite pattern address.
+
+          ; spr_pattern(addr)
+          ; ----
+          ; addr, address of the sprite pattern in VRAM
+
+          spr_pattern: .macro
+              ldy   #4
+              .if (\?1 = ARG_IMMED)
+               lda   #LOW((\1) >> 5)
+               sta   [_si],Y
+               lda   #HIGH((\1) >> 5)
+              .else
+               lda   \1
+               sta   [_si],Y
+               lda   \1+1
+              .endif
+              iny
+              sta   [_si],Y
+             .endm
+
+        The next macros will handle the control bits in the last word
+        of a SATB entry. But since this word has a lot of functions
+        we will regroup some of them into one macro. 
+
+        Three macros will be perfect, one to set the upper byte of the
+        control word (sprite size and flip bits), and two other macros
+        for setting the priority bit and the palette index.
+
+        First the macro for setting size and flipping. This macro accepts
+        two arguments, the first one will be a mask to specify what bits
+        we want to change, and the second will be the new value for
+        these bits.
+
+          ; spr_ctrl(#mask, #flag)
+          ; ----
+          ; mask, mask of the bits to change
+          ; flag, new bit value
+
+          spr_ctrl: .macro
+              ldy #7
+              lda \1
+              eor #$FF
+              and [_si],Y
+              ora \2
+              sta [_si],Y
+             .endm
+
+        Using this macro directly would be difficult, as each time you would
+        have to remember the role of each bit. A few symbols will be helpful:
+
+          FLIP_X_MASK .equ $08
+          FLIP_Y_MASK .equ $80
+          FLIP_MASK   .equ $88
+          SIZE_MASK   .equ $31
+
+          NO_FLIP    .equ 0
+          NO_FLIP_X  .equ 0
+          NO_FLIP_Y  .equ 0
+          FLIP_X     .equ $08
+          FLIP_Y     .equ $80
+          SIZE_16x16 .equ 0
+          SIZE_16x32 .equ $10
+          SIZE_16x64 .equ $30
+          SIZE_32x16 .equ $01
+          SIZE_32x32 .equ $11
+          SIZE_32x64 .equ $31
+
+        For example, to set or change the size of a sprite to 32x32, we just
+        have to do a:
+
+              spr_set  #4,satb
+              spr_ctrl #SIZE_MASK,#SIZE_32x32
+
+        It can't be simpler. :)
+
+        Now the two last macros, to set sprite priority and color palette
+        index.
+
+          ; spr_pri(#flag)
+          ; ----
+          ; flag, new priority (1 = in foreground, 0 = in background)
+
+          spr_pri: .macro
+              ldy #6
+              lda [_si],Y
+              and #$7F
+              ldx \1
+              beq .x\@
+              ora #$80
+          .x\@:
+              sta [_si],Y
+             .endm
+
+        Before we get to the last macro, let's look at how we can load
+        a palette into the MagicKit.  The PCE can have 32 seperate palettes.
+        The first 16 are used for the backgrounds, and the last 16 (16-31)
+        are used by the sprite palettes. To load a palette, use the
+        'incpal' function:
+
+              spr_pal:  .incpal "sprites.pcx",x,y
+
+        The first parameter is the file which contains the palette, the
+        second is which palette to start loading into, and the last parameter
+        is the number of palettes to read in. And remember that palette
+        groups must have consecutive colors (that is, palette group 0 can
+        contain colors 0-15; group 1 can contain 16-31, etc).
+
+        Now, before we can use the loaded palettes, we need to put them
+        in VRAM. Once again the MagicKit has functions to make this task
+        very simple:
+
+              map        spr_pal
+              set_sprpal #0,spr_pal,#16
+
+        The first statement maps the defined palettes, and the second
+        one actually places the palettes in VRAM. The first parameter of
+        the set_sprpal function is the number of the palette to map to.
+        The last parameter is the number (1-16) of palettes to load.
+
+        Okay, now we're ready to use the spr_pal macro:
+
+          ; spr_pal(#index)
+          ; ----
+          ; index, palette index (0-15)
+
+          spr_pal: .macro
+              ldy #6
+              lda [_si],Y
+              and #$F0
+              ora \1
+              sta [_si],Y
+             .endm
+
+        And a final macro we haven't talked about yet, this is the macro
+        to copy the local RAM SATB to VRAM, so that our sprites can be
+        displayed. An important macro!
+
+          ; update_satb(satb[, addr])
+          ; ----
+          ; satb, the address of the local RAM SATB
+          ; addr, the address where to copy the SATB in VRAM
+          ;       ($7F00 by default)
+
+              .macro update_satb
+               stw   #\1,<_si
+               stw   #bank(\1),<_si
+               .if (\?2)
+                stw   #\2,<_di
+               .else
+                stw   #$7F00,<_di
+               .endif
+               stw   #$100,<_cx
+               jsr   load_vram
+              .endm
+
+        With these macros we can handle almost all the cases. In certain
+        situations it will be necessary to access directly the local RAM
+        SATB by hand, to speed up a bit things or to retrieve the status
+        of a sprite, but for simple demos that will be perfect.
+
+        An example? OK!
+
+        What about a little ball bouncing on the bottom of the screen?
+
+          ;
+          ; BALL.ASM
+          ;
+
+                .include "startup.asm"
+
+          ; ----
+          ; sprite addresses
+
+          SATB_BASE     .equ $7F00
+          SPRITE_BASE   .equ $4000
+          SPR_GROUP     .equ SPRITE_BASE
+          BALL_A        .equ SPR_GROUP
+          BALL_B        .equ SPR_GROUP+$100
+
+          ; ----
+          ; variables
+
+                .bss
+          sx    .ds 2   ; the sprite coordinates
+          sy    .ds 2
+          y_idx .ds 2   ; index in the y coordinate table (0-63)
+          flag  .ds 1   ; used to remember in which direction the ball moves
+          cnt   .ds 1   ; counter used for loops
+          satb  .ds 512 ; the local RAM SATB
+
+          ; ----
+          ; ball demo main routine
+          
+                .code
+                .bank MAIN_BANK
+                .org  $C000
+          main:
+                ; upload the sprite in VRAM, the ball is 32x32 in size
+
+                load_sprites BALL_A,ball,#1
+
+                ; initialize the local SATB (hide all the 64 sprites)
+
+                init_satb satb
+
+                ; initialize our lovely ball
+
+                stw   #((256-32)/2),sx  ; these values will center it
+                stw   #((240-32)/2),sy  ; on the screen
+
+                spr_set #0,satb
+                spr_x sx,#32
+                spr_y sy,#56
+                spr_pattern #BALL_A
+                spr_ctrl  #SIZE_MASK|FLIP_MASK,#SIZE_32x32|NO_FLIP
+                spr_pri   #1
+                spr_pal   #0
+
+                ; wait the vertical sync before setting the palette,
+                ; to avoid snow
+
+                vsync
+
+                ; set the sprite palette
+
+                set_sprpal #0,ball_colors
+
+                ; we are now ready to move the ball!
+          .anim:
+                vsync
+          .go:
+                lda   flag              ; check in which direction to move
+                bne   .up
+          .down:
+                cmpw  #45,y_idx         ; that will be down
+                beq   .swap
+                incw  y_idx
+                bra   .update
+          .up:
+                cmpw  #0,y_idx          ; or up
+                beq   .swap
+                decw  y_idx
+                bra   .update
+          .swap:
+                lda   flag              ; change the ball direction
+                eor   #$1
+                sta   flag
+                bra   .go
+          .update:
+                stw   #y_table,<_si     ; get the y coordinate in the y index
+                lda   y_idx             ; table: sy = y_table[y_idx]
+                asl   A
+                tay
+                lda   [_si],Y
+                sta   sy
+                iny
+                lda   [_si],Y
+                sta   sy+1
+
+                spr_set #0,satb         ; select sprite
+                spr_x sx,#32            ; set coordinates
+                spr_y sy,#56
+                spr_pattern #BALL_A     ; set pattern
+
+                cmpw  #43,y_idx         ; different pattern (flattened ball)
+                blo   .satb             ; when y_idx >= 43
+                spr_pattern #BALL_B
+          .satb:
+                update_satb satb        ; upload the BAT in VRAM
+
+                jmp   .anim             ; and loop again and again
+
+          ; ----
+          ; the sprite data
+
+                .bank MAIN_BANK+1
+                .org  $4000
+          ball:
+                .incspr "ball.pcx",0,0,2,2      ; ball A
+                .incspr "ball.pcx",32,0,2,2     ; ball B
+          ball_colors:
+                .defpal $000,$000,$000,$000,$000,$000,$000,$000,\
+                        $000,$221,$332,$443,$554,$665,$776,$777
+          y_table:
+                .dw 107,107,108,109,110,111,112,113
+                .dw 114,115,116,117,118,119,120,122
+                .dw 123,124,126,127,129,130,132,133
+                .dw 135,137,139,141,143,145,147,149
+                .dw 152,155,158,161,164,168,172,177
+                .dw 183,189,195,195,196,196
+
+
+        We have not used all the sprite power here, but this is very simple
+        too. At the first look sprites can seem to be a big part, this is
+        true but once you have figured how they work all becomes very easy.
+
+        I hope you enjoyed this little tutorial, and sprite programming.
+        Have fun!
+
+
+--
+

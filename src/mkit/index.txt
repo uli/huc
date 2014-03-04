@@ -1,0 +1,27 @@
+
+ -*[ MAGIC KIT v2.51 ]*-
+    -----------------
+
+
+    \MAGICKIT           FILE_ID.DIZ     -- short description
+    |                   README.TXT      -- release notes
+    |                   INDEX.TXT       -- this file
+    |
+    |--\BIN             NESASM.EXE      -- NES assembler
+    |                   PCEAS.EXE       -- PCE assembler
+    |                   EXECMX.EXE    |
+    |                   GETROM.EXE    | -- PCE Develo tools
+    |                   PERUN.EXE     |
+    |                   CWSDMPI.EXE     -- DPMI server for DOS users
+    |
+    |--\DEMOS                           -- demos
+    |
+    |--\DOC                             -- documentation
+    |
+    |--\INCLUDE                         -- include files
+    |
+    |--\SRC                             -- utilities source code
+
+
+--
+

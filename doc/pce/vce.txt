@@ -1,0 +1,52 @@
+
+                        "PC Engine Video Color Encoder"
+                        ===============================
+
+
+
+    1/ VCE I/O ports
+       -------------
+
+        The VCE can be accessed through 3 16-bit I/O ports in the hardware
+        page (bank $FF):
+
+
+        +-------+-----+----------------------------------------------------+
+        | $0400 |  /W | Control Register                                   |
+        +-------+-----+----------------------------------------------------+
+
+                Bit 15-01 : (unused)
+                Bit    00 : Color clock frequency 0 = 5MHz / 1 = 7MHz.
+
+
+        +-------+-----+----------------------------------------------------+
+        | $0402 |  /W | Color Table Address Register                       |
+        +-------+-----+----------------------------------------------------+
+
+                Bit 15-09 : (unused)
+                Bit 08-00 : Color Table Address.
+
+                            Put in this register the index of the color
+                            you want to change. This register is
+                            auto-incremented after each access to
+                            the high byte ($0405) of the color data
+                            register.
+
+
+        +-------+-----+----------------------------------------------------+
+        | $0404 | R/W | Color Table Data Register                          |
+        +-------+-----+----------------------------------------------------+
+
+                Bit 15-09 : (unused)
+                Bit 08-06 : Green.
+                Bit 05-03 : Red.
+                Bit 02-00 : Blue.
+
+                            Any data written in this register will immediately
+                            affect the display. But to avoid snow on the
+                            monitor, it's better to wait the vertical sync
+                            before reading or writing to this register.
+
+
+--
+

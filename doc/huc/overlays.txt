@@ -1,0 +1,206 @@
+Overlays FAQ
+------------
+
+The new functionality of overlays is easy to use once you understand it.
+This document is intended to help understand it.
+
+More technical information is shown here than necessary, for the sake of
+the people who want to know it; don't get discouraged if you don't
+understand it all.  Very little of this information is necessary for the
+use of overlays.
+
+
+What is an overlay?
+-------------------
+Strictly speaking, an overlay is a piece of code that gets loaded over top
+of another piece of code to replace it.  That is how the code execution part
+of the functionality works.  But it is also used to describe consecutive
+'pieces' of the PC Engine CDROM binary (the 'ISO file'), whether they are
+code or data.
+
+While this terminology may seem ambiguous or unclear, many of the better terms
+are already in use to describe different features of PC Engine programming,
+and would cause even more confusion (such as bank, segment, etc.)
+
+
+How do I use program overlays?
+------------------------------
+That's easy.
+
+Just write a program as you normally would, with a main() and data and all.
+For the next overlay, do the same.
+
+Each overlay has its own main(), and runs as though it were its own program.
+
+To 'jump' from one to the next, use the cd_execoverlay() function as
+described in the clibref.txt file.
+
+I use the term 'jump', because you cannot use these overlays as though they
+were subroutines, or have any automatic return mechanisms.  So each overlay
+should be a complete logical section of the overall game or demo - mostly
+self-contained, with a clear starting point and a clear ending point to jump
+to the next section.
+
+A great example would be a "introduction cinema" in a game; it comes from the
+title screen, and goes to the first section of the game.  Very simple - one
+way in, and one way out.  You can get a bit fancier than this, but don't get
+carried away.
+
+In order to compile a program as an overlay, use the '-overlay' command-line
+option when invoking huc.  The output filename should have the extension '.ovl'.
+
+NOTE: EACH OVERLAY IN A PROGRAM MUST BE COMPILED WITH THE SAME DEFINITIONS
+      AND OPTIONS AS THE OTHERS, OR THE FINAL BINARY MAY NOT RUN PROPERLY.
+
+A new program called "ISOLINK" is used to assemble the overlays into a single
+binary (or ISO) file.
+
+
+How do I use data overlays (sections)?
+--------------------------------------
+To create a data section, no special treatment of the binary data is necessary.
+Just ensure that it is formatted so that it will be useable directly once it
+is loaded, since the load routines don't manipluate data.
+
+To read data from a data overlay (section), see the usage of the functions:
+cd_loadvram() and cd_loaddata() .
+
+You can index more than one piece of data in each of the data overlays (or
+sections if you prefer that term).  However, each item referenced must be
+sector-aligned; it must start at a multiple of 2048 bytes from the start of
+the data file (but it may be virtually any length).
+
+Keep in mind that there is a limit of 50 overlays for an ISO file, and
+group your data accordingly.
+
+
+How do I use isolink ?
+----------------------
+The command-line execution of isolink is as follows:
+isolink <output_file> <inputfile1> <inputfile2> . . .
+
+The code overlays must be compiled with the same compile options and
+environment variables as each other in order to avoid run-time problems.
+
+Additionally, it is now possible to create a "special" overlay:
+a "CDROM Error" overlay.  This overlay would be optional on a Super CDROM
+overlay game/demo, and executed if the game was booted into a plain CDROM
+system.
+
+To create such a "CDROM Error" overlay, write the program, and compile
+it using the '-cd' and '-overlay' options (it is not necessary to match
+the compile options as in regular overlay situations).  The syntax for
+ISOLINK is then:
+isolink <output_file> <inputfile1> <inputfile2> . . . -cderr <cdromerr>
+
+The precise sequence of the CDROM Error overlay is not important, as long
+as it is preceded by the '-cderr' command-line option, and as long as it
+it not specified as the first overlay.
+
+
+What does isolink really do ?
+-----------------------------
+ISOLINK verifies that all of the files exist, and determines which ones are
+code and which are data by examining their file suffixes.  For this reason,
+it is important to use the suffix '.ovl' for all code overlays, and to use
+other suffixes for data, such as '.bin'.
+
+It then evaluates lengths of all files to determine how many sectors each
+will take up on disc (each file will start at a sector boundary, and ISOLINK
+must fill unused space at the end up to a sector boundary).
+
+The table of "start sector and sector length" will be stored in each code
+overlay (at the beginning of bank #3 in case you're interested), so it can
+determine where the get information from.  All that the programmer needs to
+know is the sequence of these overlays.
+
+(Note: there is currently a maximum of 50 overlay sections for a  program)
+
+It then creates an output file, with the following attributes:
+- First, the IPL.BIN boot loader, with all relevant pieces of data filled in
+- Then it concatenates each of the input files one after another, extending
+  them to ensure sector-alignment where necessary.
+- Data overlays are not changed, but code overlays are altered to place the
+  sector array inside of them for indexing the overlay segments internally.
+- Then finally, it adds enough blank information at the end to make a track
+  that is at least 4 seconds in length (to comply with the CD specifications) 
+
+
+How do I pass data from one overlay to the next ?
+How do I protect data in one overlay from the next ?
+How do I preserve data in one overlay to be used the next time that overlay is run ?
+------------------------------------------------------------------------------------
+Place these variables into a file called "globals.h" in the local directory.
+
+The compiler will automatically include this file as the first #include in
+the program.  DO NOT INCLUDE IT YOURSELF.
+
+Since this file is included as the first file in each overlay, all of the
+locations will match, and each program will have access to this data.
+
+Also, data defined locally in a program (ie. in bss segment) will be located
+after these globals, and they will not interfere.
+
+System initialization happens only at boot time - so when control is passed
+from one overlay to another, there is no further initialization: no change
+to video mode, nothing loaded into VRAM, and nothing initialized in regular
+memory.  So variables retain their data, and your program cannot rely on
+variables being "automatically initialized to 0".
+
+
+
+TECHNICAL SECTION:
+------------------
+
+Significant features:
+---------------------
+Differences between an '-overlay' program and a regular bootable CDROM program
+are as follows:
+- IPL.BIN section is not prepended to overlay
+- a new entry point with minimal initialization has been added for overlay use
+- an empty space array 'ovlarray' with space for 50 entries (of 4 bytes each)
+  has been added to the very beginning of the DATA_SEGMENT.  At compile time,
+  this contains zeores, but the ISOLINK program fills it with proper sector
+  values:
+    LSB/MSB -> sector start address (LBA from base of current data track)
+    LSB/MSB -> sector length of overlay
+- overlay is not padded to a 4-second length of file
+- overlay program has '.ovl' file extension (not '.iso' or '.pce')
+
+
+Bank Usage:
+-----------
+This is the same as a usual CDROM program.  The only new item of note is the
+ovlarray, which is mapped and read whenever an overlay-related CDROM function
+is used.  (This information is used to determine start sector and length for
+the purposes of loading data from CDROM).
+
+
+Boot sequence:
+--------------
+As per usual for a CDROM, the IPL.BIN section is booted, and loads the first
+overlay into memory.
+
+The library section (first 2 banks, or 8 sectors) then relocate if necessary,
+and load the remainder of the program, and jump to the initialization section.
+
+This initialization section does the following:
+- sets the video mode
+- loads the font(s)
+- clears memory where appropriate
+- verifies proper run platform (ie. not CD for SCD programs)
+- relocates to proper memory if necessary
+- sets HuC stack pointer
+- sets Hu6280 stack pointer
+- maps relevant segments
+- sets interrupt handlers
+- run _main routine
+
+When executing an other overlay, the only initialization which takes place is
+as follows:
+- map all relevant segments
+- reset HuC internal stack pointer (ldw  #$4000,<__sp)
+- reset Hu6280 stack pointer (ldx #$FF; txs)
+- run _main routine
+
+

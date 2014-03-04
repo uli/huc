@@ -1,0 +1,1365 @@
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="Clibref_FR_Rev1_fichiers/filelist.xml">
+<link rel=Edit-Time-Data href="Clibref_FR_Rev2_fichiers/editdata.mso">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<title>HuC LibC reference</title>
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:Zoom>90</w:Zoom>
+  <w:HyphenationZone>21</w:HyphenationZone>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h2
+	{mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	mso-outline-level:2;
+	font-size:18.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 70.85pt 70.85pt;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Tableau Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0cm 5.4pt 0cm 5.4pt;
+	mso-para-margin:0cm;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <u1:DocumentProperties>
+  <u1:Author>Windows 2000</u1:Author>
+  <u1:LastAuthor>Windows 2000</u1:LastAuthor>
+  <u1:Revision>18</u1:Revision>
+  <u1:TotalTime>118</u1:TotalTime>
+  <u1:Created>2001-09-06T12:45:00Z</u1:Created>
+  <u1:LastSaved>2001-09-06T18:02:00Z</u1:LastSaved>
+  <u1:Pages>1</u1:Pages>
+  <u1:Words>4204</u1:Words>
+  <u1:Characters>23128</u1:Characters>
+  <u1:Company>Microsoft</u1:Company>
+  <u1:Lines>192</u1:Lines>
+  <u1:Paragraphs>54</u1:Paragraphs>
+  <u1:CharactersWithSpaces>27278</u1:CharactersWithSpaces>
+  <u1:Version>10.2625</u1:Version>
+ </u1:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <u2:WordDocument>
+  <u2:View>Normal</u2:View>
+  <u2:SpellingState>Clean</u2:SpellingState>
+  <u2:GrammarState>Clean</u2:GrammarState>
+  <u2:HyphenationZone>21</u2:HyphenationZone>
+  <u2:BrowserLevel>MicrosoftInternetExplorer4</u2:BrowserLevel>
+ </u2:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <u3:shapedefaults u4:ext="edit" spidmax="3074"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <u5:shapelayout u6:ext="edit">
+  <u5:idmap u6:ext="edit" data="1"/>
+ </u5:shapelayout>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="4098"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white lang=FR link=blue vlink=blue style='tab-interval:35.4pt'>
+
+<div class=Section1>
+
+<p><span style='font-family:Arial'>15.08.2001 (118 fonctions) (version FR html
+rev2)</span></p>
+
+<p><span style='font-family:Arial'>Table des matières:</span></p>
+
+<p><span style='font-family:Arial'>
+<a href="#video">FONCTIONS VIDÉO</a><br>
+<a href="#palette">FONTIONS DE PALETTES</a><br>
+<a href="#font">FONCTIONS DE POLICES</a><br>
+<a href="#text">FONCTIONS AFFICHAGE DE TEXTE</a><br>
+<a href="#tile">FONCTIONS TILES &amp; MAPS</a><br>
+<a href="#graph">FONCTIONS GRAPHIQUES DE PIXELS</a><br>
+<a href="#sprite">FONCTIONS SPRITES</a><br>
+<a href="#joypad">FONCTIONS MANETTE</a><br>
+<a href="#misc">FONCTIONS DIVERSES</a><br>
+<a href="#mouse">FONCTIONS SOURIS</a><br>
+<a href="#backup">FONCTIONS BACKUP RAM</a><br>
+<a href="#chaine">FONCTIONS CHAÎNES</a><br>
+<a href="#cdrom">FONCTIONS CDROM</a><br>
+<a href="#adpcm">FONCTION ADPCM</a><br>
+<a href="#arcade">FONCTION ARCADE CARD</a></span></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<h2><a name=video></a><span style='font-family:Arial'>FONCTIONS VIDÉO (11
+Fonctions)</span><u7:p></u7:p></h2>
+
+<p><b><span style='font-family:Arial'>disp_off</span></b><span
+style='font-family:Arial'>();</span></p>
+
+<p><i><span style='font-family:Arial'>Désactive l'affichage.<br>
+PS: Désactive mais n'efface pas le contenu de la VRAM.</span></i></p>
+
+<p><b><span style='font-family:Arial'>disp_on</span></b><span style='font-family:
+Arial'>();</span></p>
+
+<p><i><span style='font-family:Arial'>Active l'affichage.<br>
+PS: Active/réactive le contenu de la VRAM, trés utile pour afficher une
+ image instantanément.</span></i></p>
+
+<p><b><span style='font-family:Arial'>cls</span></b><span style='font-family:
+Arial'>();<br>
+<b>cls</b>(int val);</span></p>
+
+<p><i><span style='font-family:Arial'>Efface tout l'écran. Sans paramètre,
+l'écran est rempli avec un caractère espace, sinon il est rempli avec la valeur
+bat donnée en argument.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>vsync</span></b><span style='font-family:
+Arial'>();<br>
+<b>vsync</b>(char nb_images);</span></p>
+
+<p><i><span style='font-family:Arial'>Synchronise votre programme à la ligne de
+balayage vertical (VBL), qui est de 1/60ème de seconde. Sans paramètre cette
+fonction retourne dès qu'un signal VBL a été reçu, sinon votre programme sera
+synchronisé au nombre d'image que vous avez demandé. Par exemple pour exécuter
+votre jeu à 20 im/s, il suffit d'utiliser vsync(3) à la fin de votre boucle de
+jeu.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>vreg</span></b><span style='font-family:
+Arial'>(char idx);<br>
+<b>vreg</b>(char idx, int val);</span></p>
+
+<p><i><span style='font-family:Arial'>Cette fonction vous donne un accès direct aux registres du processeur
+vidéo (VDC). La première forme de cette fonction est utilisée pour simplement
+sélectionner un registre VDC (pour des accès personnalisés), et la seconde est
+utilisée pour fixer la valeur d'un registre (cela sélectionne en même temps ce registre).).</span></i></p>
+
+<p><b><span style='font-family:Arial'>vram_addr</span></b><span
+style='font-family:Arial'>(char x, char y);</span></p>
+
+<p><i><span style='font-family:Arial'>Une simple fonction pour renvoyer
+l'adresse écran en mémoire vidéo (VRAM) d'un caractère situé à la position x/y.
+</span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_screen_size</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char taille);</span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Change
+la taille de l'écran virtuelle. Par défaut le code de mise en route initialise
+un écran virtuelle de 64 caractères en largeur et de 32 caractères en hauteur,
+mais d'autres valeurs sont possibles, à savoir: 32x32, 128x32, 32x64, 64x64 ou
+128x64. Plus l'écran virtuel est grand, moins vous avez de mémoire vidéo pour
+vos graphiques (polices, tiles, sprites).</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>load_vram</span></b><span
+style='font-family:Arial'>(int vaddr, int *data, int nb);</span></p>
+
+<p><i><span style='font-family:Arial'>Une fonction générique pour charger toute
+sorte de données (BAT, CG, sprites) en mémoire vidéo, à l'adresse
+&quot;vaddr&quot;. &quot;nb&quot; est le nombre de mots 16 bits à charger.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>load_bat</span></b><span
+style='font-family:Arial'>(int vaddr, int *bat_data, char w, char h);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Charge une table d'attributs de blocs
+(BAT) de largeur &quot;w&quot; et de hauteur &quot;h&quot; en mémoire vidéo, à
+l'adresse &quot;vaddr&quot;.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>load_background</span></b><span
+style='font-family:Arial'>(char *gfx, int *pal, int *bat, char largeur, char
+hauteur);</span></p>
+
+<p><i><span style='font-family:Arial'>Cette fonction est une fonction tout en
+un, elle est utilisée pour afficher une entière image de fond sur l'écran,
+comme une image de titre d'un jeu. Elle chargera les données de tiles, elle
+chargera la palette, et enfin elle chargera le BAT. Utilisez les directives
+#incchr, #incpal et #incbat pour gérer les différent type de données. Les
+données de blocs seront stockées aux adresses de 0x1000 à 0x5000 en mémoire
+vidéo.</span></i><span style='font-family:Arial'> </span></p>
+
+<p><b><span style='font-family:Arial'>set_xres</span></b><span
+style='font-family:Arial'>(int xres); [ 1.5+ ]</span></p>
+
+<p><i><span style='font-family:Arial'>Change la résolution horizontal à
+&quot;xres&quot; (en pixels). Cela change les registres du contrôleur vidéo
+pour afficher davantage de pixels sur l'écran; cela n'affecte pas les calculs
+virtuels. On peut monter jusqu'à 320 (voir 511 mais aucun emulateur ne restitue 
+cette resolution) et descendre jusqu'à 8.<br>
+PS: L'affichage reel sera tjs un multiple de 8 soit un caratere.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=palette></a><b><span style='font-size:18.0pt;font-family:Arial'>FONTIONS
+DE PALETTES (6 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>set_color</span></b><span
+style='font-family:Arial'>(int num, int rgb);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Fixe la couleur indiquée (0-511) à la
+valeur rvb (rouge vert bleu) donnée.<br>
+PS: Avec cette fonction les 32 palettes disponible sont confondues (32*16).<br>
+EX: set_color( 145 , 0x777); = choisi la 2ieme couleur de la 9ieme palette et nouvelle
+ couleur RVB "blanc".</span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_color_rgb</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int num, char r,
+char g, char b);</span><span lang=EN-GB style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fixe la couleur indiquée aux valeurs rvb
+composées données. Cette fonction est plus facile à utiliser que set_color(),
+mais elle est plus lente.<br>
+PS: Avec cette fonction les 32 palettes disponible sont confondues (32*16).<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>get_color</span></b><span
+style='font-family:Arial'>(int num);</span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie la valeur rvb de la couleur
+indiquée.<br>
+PS: Avec cette fonction les 32 palettes disponible sont confondues (32*16).</span></i></p>
+
+<p><b><span style='font-family:Arial'>load_palette</span></b><span
+style='font-family:Arial'>(char pal_num, int *pal, char nb_pal);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Charge un ou plusieurs blocs de palettes
+de 16 couleurs à la fois. &quot;pal_num&quot; est l'index du premier bloc
+(0-31) à charger, et &quot;nb_pal&quot; le nombre de blocs. Cette fonction peut
+être utilisée pour charger une palette définie avec #defpal ou inclue avec la
+directive #incpal.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_sprpal</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char pal_num, int
+*pal);<br>
+<b>set_sprpal</b>(char pal_num, int *pal, int nb_pal);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Exactement la même fonction que
+load_palette(), mais cette fonction offre un accès direct aux blocs de palettes
+de sprites. Les blocs de palettes de sprites sont les numéros de blocs
+standards de 16 à 31, mais avec cette fonction vous pouvez simplement y accéder
+avec des index de 0 à 15. Cette fonction et la fonction set_bgpal() rend plus
+facile la manipulation de sprites et de blocs de palettes de caractères; avec
+eux vous n'avez pas besoin de connaître les index réels de blocs. Sans le
+troisième argument, la fonction ne charge qu'un bloc.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_bgpal</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char pal_num, int
+*pal);<br>
+<b>set_bgpal</b>(char pal_num, int *pal, int nb_pal);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>La même fonction que set_sprpal() mais
+pour les blocs de palettes de caractères.</span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=font></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE POLICES (7 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>set_font_color</span></b><span
+style='font-family:Arial'>(char pp, char ap);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Fixe les couleurs de premier plan et
+d'arrière plan de la police par défaut (les couleurs vont de 0 à 15). Les
+changements ne prendront pas effet immédiatement, vous devez recharger la
+police en appelant load_default_font().<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>set_font_pal</span></b><span
+style='font-family:Arial'>(char pal);</span><u7:p></u7:p></p>
+
+<p style='tab-stops:189.0pt'><i><span style='font-family:Arial'>Fixe la palette (0-15)
+ a utiliser pour la police.<br>
+PS: Cette palette est une des 16 pour les Tiles.<span style='mso-tab-count:1'>          </span></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_font_addr</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int vaddr);</span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fixe l'adresse de la police en mémoire
+vidéo. Utilisez cette fonction pour changer la police actuelle; pour utiliser
+plusieurs polices sur le même écran, ou lorsque vous chargez vous-même une
+police et que vous avez besoin de dire à la bibliothèque où elle est. <u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>get_font_pal</span></b><span
+style='font-family:Arial'>();</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Renvoie l'index de palette de la police
+actuelle.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>get_font_addr</span></b><span
+style='font-family:Arial'>();</span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie l'adresse de la police actuelle
+en mémoire vidéo.</span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>load_default_font</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>();<br>
+<b>load_default_font</b>(char num);<br>
+<b>load_default_font</b>(char num, int vaddr);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Charge une police par défaut en mémoire
+vidéo. Sans paramètres la première police par défaut est chargée juste
+au-dessus du BAT en mémoire vidéo; d'habitude c'est à l'adresse 0x800.
+Autrement vous pouvez sélectionner le numéro de police, et ensuite l'adresse en
+mémoire vidéo. Dans l'implémentation actuelle la bibliothèque ne supporte
+qu'une police par défaut, mais à l'avenir davantage de police pourraient être
+disponible.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>load_font</span></b><span
+style='font-family:Arial'>(char *font, char nb_char);<br>
+<b>load_font</b>(char *font, char nb_char, int vaddr);</span></p>
+
+<p><i><span style='font-family:Arial'>Charge une police personnalisée en
+mémoire vidéo. Utilisée ensemble avec la directive #incchr cela vous permettra
+de charger une police à partir d'un fichier PCX. Il faut noter que les polices
+personnalisées sont des polices colorées, ainsi ils ne seront pas affectés par
+des appels antérieurs à set_font_color(). Le nombre de caractères à charger
+vont de 0 à 224, les caractères ASCII 0 à 31 ne sont jamais utilisés, et ne
+peuvent être définis, vous devez démarrer votre police au caractère espace, qui
+est le code ASCII 32. Si vous ne donnez pas implicitement une adresse en
+mémoire vidéo, la fonction chargera votre police juste au-dessus du BAT
+(d'habitude c'est à l'adress 0x800).<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=text></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+D'AFFICHAGE DE TEXTE (6 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><span style='font-family:Arial'>Toutes les fonctions de sortie de texte ont
+deux formes, une où vous spécifiez directement l'adresse en mémoire vidéo, et
+une autre où vous spécifiez les coordonnées x/y (en unités de caractère). La
+seconde forme est un peu plus lente mais plus facile d'utilisation.<u7:p></u7:p></span></p>
+
+<p><b><span style='font-family:Arial'>put_digit</span></b><span
+style='font-family:Arial'>(char digit, int vaddr);<br>
+<b>put_digit</b>(char digit, char x, char y);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Affiche un caractère de chiffre
+&quot;0&quot; - &quot;9&quot; en donnant sa valeur numérique. Les chiffres hexa
+(&quot;A&quot; - &quot;F&quot;) sont aussi supportés, une valeur de 10
+affichera &quot;A&quot;, une valeur de 11 affichera &quot;B&quot;, et ainsi de
+suite... <u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>put_char</span></b><span
+style='font-family:Arial'>(char c, int vaddr);<br>
+<b>put_char</b>(char c, char x, char y);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Affiche un caractère ASCII.</span></i><u7:p></u7:p></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>put_raw</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int bat_val, int
+vaddr);<br>
+<b>put_raw</b>(int bat_val, char x, char y);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Affiche une valeur bat brute.<br>
+PS: Fonction utilisée pour l'affichage de Tiles 8*8.</span></i></p>
+
+<p><b><span style='font-family:Arial'>put_number</span></b><span
+style='font-family:Arial'>(int nombre, char largeur, int vaddr);<br>
+<b>put_number</b>(int nombre, char largeur, char x, char y);</span></p>
+
+<p><i><span style='font-family:Arial'>Affiche un nombre signé. L’argument
+&quot;largeur&quot; est utilisé pour formater le nombre. Autant que
+&quot;largeur&quot; chiffre(s) seront affichés. Si le nombre a moins de
+&quot;largeur&quot; chiffres, des espaces vides seront ajoutés à sa gauche. Si
+le nombre est négatif, un signe &quot;-&quot; sera ajouté.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>put_hex</span></b><span style='font-family:
+Arial'>(int nombre, char largeur, int vaddr);<br>
+<b>put_hex</b>(int nombre, char largeur, char x, char y);</span></p>
+
+<p><i><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>Affiche
+un nombre hexa.</span></i><span lang=EN-GB style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>put_string</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char *string, int
+vaddr);<br>
+<b>put_string</b>(char *string, char x, char y);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Affiche une chaîne ASCII terminée par nul.</span></i><u7:p></u7:p></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=tile></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE TILES &amp; DE MAPS (8 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_tile_data</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char *tile_data,
+int nb_tile, char *pal_ref);</span><u7:p></u7:p><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Définie un tableau de tiles à être
+utilisé par toutes les fonctions de tiles et de maps. &quot;tile_data&quot; est
+l'adresse des données graphiques de tiles en mémoire, &quot;nb_tile&quot; est
+le nombre de tiles (max. 256), et &quot;pal_ref&quot; est l'adresse d'un
+tableau d'index de palettes à utiliser pour les tiles; chaque tile possède son
+propre index de palette qui lui est attaché (il faut noter que les index de
+palettes doivent être décalé vers la gauche de quatre bits, c.-à-d. 0x40 pour
+l'index de palette 4).<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>load_tile</span></b><span
+style='font-family:Arial'>(int vaddr);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Charge des données graphiques de tiles, à
+l'adresse &quot;vaddr&quot;. Vous devez d'abord avoir défini un tableau de
+tiles avec set_tile_data() avant d'utiliser cette fonction.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>put_tile</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int num, int
+vaddr);<br>
+<b>put_tile</b>(int num, char x, char y);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Met des tiles individuelles sur l'écran,
+soit directement à l'emplacement en mémoire vidéo &quot;vaddr&quot;, soit aux
+coordonnées écran &quot;x/y&quot; (en unité de tile). &quot;num&quot; est un
+index de tiles dans le tableau de tiles définis par l'appel le plus récent à
+set_tile_data().<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>get_tile</span></b><span
+style='font-family:Arial'>(char x, char y);<span style='mso-spacerun:yes'>   
+</span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'><span
+style='mso-spacerun:yes'> </span>Renvoie l'index de tile comme défini dans le
+tableau de tiles utilisé dans le plus récent appel à set_tile_data(). Les
+arguments &quot;x/y&quot; sont en unité de pixel, contrairement aux fonctions
+put_tile et ainsi cette fonction est idéale pour les routines de collision.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_map_data</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char *map, char
+w, char h);</span><span lang=EN-GB style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Définie une map d'index de tiles à être
+utilisée par load_map(). &quot;map&quot; est l'adresse d'une map de largeur
+&quot;w&quot; (max. 256) et de hauteur &quot;h&quot; (max. 256).<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>load_map</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char sx, char sy,
+int mx, int my, char w, char h);</span><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Charge une partie d'une map sur l'écran.
+&quot;sx&quot; et &quot;sy&quot; sont des coordonnées d'écran (en unité de
+tile; 16 pixels), &quot;mx&quot; et &quot;my&quot; sont les positions dans la
+map, et &quot;w&quot; et &quot;h&quot; sont respectivement le nombre d'index de
+tiles à charger horizontalement et verticalement. Cette fonction n'effectue
+aucun clipping, alors vous ne devez pas lui passer des coordonnées écran
+incorrectes ou trop grandes, cela corromprait la mémoire vidéo.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>scroll</span></b><span style='font-family:
+Arial'>(char num, int x, int y, char superieur, char inferieur, char disp);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Défini la fenêtre écran &quot;num&quot;.
+Jusqu'à quatre fenêtres peuvent être définies. &quot;superieur&quot; et
+&quot;inferieur&quot; sont les limites écran supérieur et inférieur de la
+fenêtre (les limites sont inclues dans la zone de la fenêtre). &quot;disp&quot;
+contrôle le type de la fenêtre, si le bit 7 est mis les graphiques d'arrière
+plan seront affiché dans cette fenêtre, et si le bit 6 est mis les sprites
+seront également affichés. Si aucun de ces bits n'est mis la fenêtre restera
+vide. &quot;x&quot; et &quot;y&quot; sont les coordonnées haut-gauche de la
+zone dans l'écran virtuel qui sera affiché dans la fenêtre.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>scroll_disable</span></b><span
+style='font-family:Arial'>(char num);<span style='mso-spacerun:yes'>   
+</span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'><span
+style='mso-spacerun:yes'> </span>Désactive le défilement de la fenêtre écran
+&quot;num&quot;.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<h2><a name=graph></a><span style='font-family:Arial'>FONCTIONS GRAPHIQUES DE
+PIXELS (5 Fonctions)<u7:p></u7:p></span></h2>
+
+<h2><span style='font-size:12.0pt;font-family:Arial'>gfx_setbgpal</span><span
+style='font-size:12.0pt;font-family:Arial;font-weight:normal'>(char
+bgcolor);<span style='mso-spacerun:yes'>    </span>[3.04+]<u7:p></u7:p></span></h2>
+
+<h2><i><span style='font-size:12.0pt;font-family:Arial;font-weight:normal'>Fixe
+le groupe de palette d'arrière plan par défaut. Utilisé par gfx_init().<u7:p></u7:p></span></i></h2>
+
+<h2><i><span style='font-size:12.0pt;font-family:Arial;font-weight:normal'>Exemple:
+gfx_setbgpal(5) avant gfx_init() fera utiliser aux fonctions gfx_*() les
+entrées de palette d'arrière plan de $50 jusqu'à $5F.<u7:p></u7:p></span></i></h2>
+
+<h2><span style='font-size:12.0pt;font-family:Arial'>gfx_init</span><span
+style='font-size:12.0pt;font-family:Arial;font-weight:normal'>(int vaddr);<span
+style='mso-spacerun:yes'>   </span>[3.04+]<u7:p></u7:p></span></h2>
+
+<h2><i><span style='font-size:12.0pt;font-family:Arial;font-weight:normal'>Initialise
+l'écran pour pointer sur des tiles graphiques séquentiels, situés à partir de
+l'adresse &quot;vaddr&quot; en VRAM.<u7:p></u7:p></span></i></h2>
+
+<h2><span style='font-size:12.0pt;font-family:Arial'>gfx_clear</span><span
+style='font-size:12.0pt;font-family:Arial;font-weight:normal'>(int vaddr);<span
+style='mso-spacerun:yes'>    </span>[3.04+]<u7:p></u7:p></span></h2>
+
+<h2><i><span style='font-size:12.0pt;font-family:Arial;font-weight:normal'>Efface
+l'écran graphique. En partant de l'adress &quot;vaddr&quot; en VRAM, cette
+fonction fixes les tiles séquentiels en VRAM sur des zéros, avec une taille basée
+sur le plan virtuel.<u7:p></u7:p></span></i></h2>
+
+<h2><span style='font-size:12.0pt;font-family:Arial'>gfx_plot</span><span
+style='font-size:12.0pt;font-family:Arial;font-weight:normal'>(int x, int y,
+int couleur);<span style='mso-spacerun:yes'>   </span>[3.04+]<u7:p></u7:p></span></h2>
+
+<h2><i><span style='font-size:12.0pt;font-family:Arial;font-weight:normal'>Fixe
+un pixel à (x,y) à la couleur indiquées. &quot;couleur&quot; doit être une
+valeur entre 0 et 15.<u7:p></u7:p></span></i></h2>
+
+<h2><span style='font-size:12.0pt;font-family:Arial'>gfx_point</span><span
+style='font-size:12.0pt;font-family:Arial;font-weight:normal'>(int x, int
+y);<span style='mso-spacerun:yes'>   </span>[3.04+]<u7:p></u7:p></span></h2>
+
+<h2><i><span style='font-size:12.0pt;font-family:Arial;font-weight:normal'>Renvoie
+la couleur du pixel à (x,y).<u7:p></u7:p></span></i></h2>
+
+<h2 align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</h2>
+
+<p><a name=sprite></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE SPRITES (17 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>load_sprites</span></b><span
+style='font-family:Arial'>(int vaddr, int *spr_data, int nb_spr);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Charge des données graphiques de sprites
+en mémoire vidéo, à l'adresse &quot;vaddr&quot;. Cette fonction charge des
+sprites par ensemble de 8 sprites de 16x16 pixels. &quot;nb_spr&quot; est le
+nombre d'ensembles à charger. Si vous avez besoin de charger moins de sprite
+16x16 que les huit contenu dans un ensemble, utilisez plutôt la fonction
+load_vram().<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>init_satb</span></b><span
+style='font-family:Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Initialise la table interne d'attributs
+de sprites. (SATB) utilisée par la bibliothèque pour manipuler les sprites.
+Cette fonction doit être appelée avant que toute autre fonction de sprite soit
+appelée.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>reset_satb</span></b><span
+style='font-family:Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Réinitialise la SATB interne, cela a pour
+effet de désactiver et réinitialiser tous les sprites.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>satb_update</span></b><span
+style='font-family:Arial'>();<br>
+<b>satb_update</b>(char nb);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Copie la table interne d'attributs de
+sprites vers la mémoire vidéo. Cela rafraîchira les sprites sur l'écran.
+Utilisez cette fonction régulièrement pour mettre à jour l'affichage des
+sprites. Le meilleur endroit pour appeler satb_update() est après chaque appel
+à vsync(), mais inutile d'appeler satb_update() si vous n'avez changé aucun
+attribut de sprites. &quot;nb&quot; indique le nombre de sprite à rafraîchir;
+en partant du sprite 0. Par défaut la bibliothèque rafraîchit seulement les
+sprites que vous utilisez, mais si vous avez besoin de rafraîchir implicitement
+un certain nombre de sprites alors vous pouvez utiliser &quot;nb&quot;. <u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>spr_set</span></b><span style='font-family:
+Arial'>(char num);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Sélectionne le sprite &quot;num&quot;
+(0-63) en tant que sprite actuel.</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_x</span></b><span style='font-family:
+Arial'>(int valeur);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Fixe la coordonnée x du sprite actuel.
+Des valeurs négatives fera disparaître le sprite sous le bord gauche, alors que
+des valeur plus grandes que la largeur de l'écran le fera disparaître sous le
+bord droite.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>spr_y</span></b><span style='font-family:
+Arial'>(int valeur);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Fixe la coordonnée y du sprite actuel. </span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_pattern</span></b><span
+style='font-family:Arial'>(int vaddr);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Fixe l'adresse du motif en mémoire vidéo
+du sprite actuel. </span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_ctrl</span></b><span
+style='font-family:Arial'>(char mask, char valeur);</span><u7:p></u7:p></p>
+
+<p><i><span style='font-family:Arial'>Fixe différents attributs du sprite
+actuel. Avec cette fonction vous pouvez changer la taille du sprite (16x16,
+32x32, ...) et l'orientation du sprite (renversement horizontal/vertical). <u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>spr_pal</span></b><span style='font-family:
+Arial'>(char pal);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Défini l'index du bloc de palette (0-15)
+du sprite actuel.</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_pri</span></b><span style='font-family:
+Arial'>(char pri);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Fixe la priorité du sprite actuel.
+&quot;0&quot; le fera apparaître derrière l'arrière plan (à travers la couleur
+0), &quot;1&quot; le fera apparaître devant l'arrière plan.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>spr_get_x</span></b><span
+style='font-family:Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie la coordonnée x du sprite actuel.
+</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_get_y</span></b><span
+style='font-family:Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie la coordonnée y du sprite actuel.</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_get_pal</span></b><span
+style='font-family:Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie l'index du bloc de palette du
+sprite actuel.</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_get_pattern</span></b><span
+style='font-family:Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie l'adresse du motif en mémoire
+vidéo du sprite actuel.</span></i><u7:p></u7:p></p>
+
+<p><b><span style='font-family:Arial'>spr_hide</span></b><span
+style='font-family:Arial'>();<br>
+<b>spr_hide</b>(char num);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Sans paramètres cette fonction cachera le
+sprite actuel. utilisez &quot;num&quot; pour cacher un sprite différent de
+celui qui est actuel.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>spr_show</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>();<br>
+<b>spr_show</b>(char num);</span><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Montre un sprite qui a été caché en
+utilisant la fonction spr_hide().</span></i><u7:p></u7:p></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<h2><a name=joypad></a><span style='font-family:Arial'>FONCTIONS DES MANETTES
+(5 Fonctions)<u7:p></u7:p></span></h2>
+
+<p><b><span style='font-family:Arial'>joy</span></b><span style='font-family:
+Arial'>(char num);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie l'état actuel de la manette
+numéro &quot;num&quot;. Depuis la version 1.5, c'est conforme avec 6 boutons.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>joytrg</span></b><span style='font-family:
+Arial'>(char num);</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie des informations sur les boutons
+et les directions nouvellement appuyés de la manette &quot;num&quot;. Mais
+attention à cette fonction, ces informations sont rafraîchies à chaque images,
+donc si votre boucle de jeu n'est pas assez rapide vous pourriez manquer
+quelques pressions de touches. Dans un tel cas utilisez les fonctions
+joy_events(), elles gardent la trace de toutes les pressions de touches.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>set_joy_callback</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char num, char
+mask, char touches, void (*proc)());</span><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Vous pouvez programmer la bibliothèque
+pour appeler une de vos fonctions lorsqu'une certaine touche a été appuyée. La
+meilleur utilisation de cette fonction est pour gérer le mode pause d'un jeu
+lorsque le joueur appuie sur le bouton START. &quot;num&quot; est le numéro de
+la fonction callback à installer, pour l'instant il n'y a qu'une callback (0),
+mais de futurs versions de la bibliothèque pourrait en avoir davantage.
+&quot;mask&quot; indique quel manette analyser (un bit pour chaque manette,
+avec le bit 0 pour la manette 0, etc...), et &quot;touches&quot; indique quel
+pressions de touches regarder, d'habitude c'est simplement JOY_STRT.
+&quot;proc&quot; est l'adresse de la fonction que vous voulez être appelée par
+la bibliothèque. <u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>get_joy_events</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char num);<br>
+<b>get_joy_events</b>(char num, char rst);</span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie toutes les pressions de touches
+pour la manette &quot;num&quot; qui se sont produites depuis le dernier appel
+de cette fonction. Avec cette fonction vous ne pouvez pas manquer de pressions
+de touches. &quot;rst&quot; dit à la fonction si les événements de pressions de
+touches seront réinitialisés après avoir été lus, par défaut ils sont
+réinitialisés après chaque lecture, mais si &quot;rst&quot; est égal à zéro les
+événements ne seront pas réinitialisés.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>clear_joy_events</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char mask);</span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Réinitialise le(s) liste(s) d'événements
+de pressions de touches de manette. &quot;mask&quot; indique quelle liste
+d'événement de manette vous voulez réinitialiser. Un bit pour chaque manette,
+bit 0 est la manette 0, bit 1 est la manette 1, etc... Toutes les listes
+d'événements peuvent être réinitialisées en fixant &quot;mask&quot; à 0x1F.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=misc></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DIVERSES (7 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>poke</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int offset, char val);<br>
+<b>pokew</b>(int offset, int val);<spanstyle='mso-spacerun:yes'>    </span>[ 3.04 + ]<span lang=EN-GB
+style='mso-ansi-language:EN-GB'><u7:p></u7:p><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Écrit la valeur &quot;val&quot; à
+l'emplacement mémoire &quot;offset&quot;. poke() est un accès de dimension
+char, alors que pokew() est de dimension word. Ces fonctions peuvent être utilisées pour
+accéder aux ports E/S matériels situés de 0x0000 à 0x1FFF. <u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>peek</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int offset);<br>
+<b>peekw</b>(int offset);<spanstyle='mso-spacerun:yes'>    </span>[ 3.04 + ]<u7:p></u7:p></span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Lit le contenu de l'emplacement mémoire
+&quot;offset&quot;. peek() est un accès de dimension char, alors que peekw()
+est de dimension word. <u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>rand</span></b><span style='font-family:
+Arial'>();</span><o:p></o:p></p>
+
+<u7:p></u7:p>
+
+<p><i><span style='font-family:Arial'>Renvoie un nombre 16 bits
+pseudo-aléatoire. Depuis la version 1.5, c'est un algorithme amélioré qui
+fourni une valeur au hasard. <u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>srand</span></b><span style='font-family:
+Arial'>(int racine);<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Change la racine pseudo-aléatoire. Vous
+pouvez utiliser cette fonction pour améliorer l'aspect aléatoire en donnant une
+valeur basée sur le moment où le joueur appuie la première fois sur start par
+exemple.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>random</span></b><span style='font-family:
+Arial'>(char max);<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie une valeur pseudo-aléatoire entre
+0 et max - 1.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=mouse></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE LA SOURIS (5 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>mouse_exists</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Vérifie si une souris est installée.
+renvoie vrai si elle a été détectée pendant l'initialisation.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>mouse_enable</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Active la souris. Renvoie vrai si une
+souris est effectivement présente.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>mouse_disable</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Éteint le support de la souris.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>mouse_x</span></b><span style='font-family:
+Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le delta horizontal de la souris
+depuis le dernier vsync().<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>mouse_y</span></b><span style='font-family:
+Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le delta vertical de la souris
+depuis le dernier vsync().<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=backup></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE LA BACKUP RAM (19 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>bm_check</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie si la backup ram (BRAM) est
+disponible.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_free</span></b><span style='font-family:
+Arial'>();<span style='mso-spacerun:yes'>     </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le nombre d'octets disponibles
+pour les données utilisateurs. La quantité nécessaire pour les données
+d'en-tête et pour la terminaison de 2 octets sont déjà déduites de cette
+quantité. La valeur renvoyée est le nombre d'octets libres pour les données
+utilisateurs.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_size</span></b><span style='font-family:
+Arial'>();<span style='mso-spacerun:yes'>     </span>[ 3.03+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le nombre total d'octets en
+mémoire backup. Cela devrait être 2KO sur des systèmes réels, mais la mémoire
+backup fonctionnera avec une valeur aussi grande que 8KO, au cas où du matériel
+étrange existerait.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_rawread</span></b><span
+style='font-family:Arial'>(int ptr);<span style='mso-spacerun:yes'>    
+</span>[ 3.03+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Similaire à peek(), mais manipule les
+accès à la BRAM. Gère automatiquement l'adressage mémoire et la portée
+d'adressage (c.-à-d. les adresses n'ont pas besoin d'être dans l'intervalle
+$8000-$A000)<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>bm_rawwrite</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int offset, char
+val);<span style='mso-spacerun:yes'>    </span>[ 3.03+ ]<u7:p></u7:p></span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Similaire à poke(), mais manipule les
+accès à la BRAM. Gère automatiquement l'adressage mémoire et la portée
+d'adressage (c.-à-d. les adresses n'ont pas besoin d'être dans l'intervalle
+$8000-$A000)<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_format</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Formate toute la backup ram. Ne formate
+pas si les données sont déjà formatées. En fait, les données ne sont pas
+effacées contrairement à se que rapportent les données d'en-tête. Vous devriez
+pouvoir trouver d'anciennes données dans la BRAM en utilisant des accès en
+lecture brutes dans le banc de backup ram mais pas à travers les fonctions
+habituelles de HuC. Renvoie l'état de la backup ram comme défini dans le
+fichier huc.h<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_exist</span></b><span
+style='font-family:Arial'>(char* nom);<span style='mso-spacerun:yes'>   
+</span>[ 1.5+ / 3.03+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Vérifie si un fichier de backup ram
+existe.<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>Note:<span style='mso-spacerun:yes'> 
+</span>La valeur de retour a changé depuis la version 3.03. Avant la 3.03, elle
+retournait le code de bm_error (0 est OK, != 0 est mauvais), mais cela ne
+correspondait pas au sens du nom de la fonction.<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span
+style='mso-spacerun:yes'> </span>Depuis la 3.03, elle renvoie VRAI (!= 0) si
+c'est bon; FAUX (0) si c'est mauvais. Le type d'erreur peut être retrouvé à
+partir de bm_errno().<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>Note2: La structure du nom n'est pas
+seulement un nom ASCII; il commence avec un &quot;ID d'unicité&quot; de 2
+octets qui est presque toujours 00 00, suivi par 10 octets d'un nom ASCII - qui
+doit être rempli avec des espaces.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_sizeof</span></b><span
+style='font-family:Arial'>(char* nom);<span style='mso-spacerun:yes'>  
+</span>[ 3.03+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>renvoie la taille des données utilisateur
+pour un fichier BRAM avec un nom donnée.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_getptr</span></b><span
+style='font-family:Arial'>(int ptr, char* nom);<span
+style='mso-spacerun:yes'>   </span>[ 3.03+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Utile pour parcourir la liste de fichier
+en BRAM. Utilisez &quot;BRAM_STARTPTR&quot; pour la première itération, et cela
+retournera le nom de cette entrée, et le prochain pointeur dans la liste (pour
+utiliser dans la prochaine itération). Lorsque la valeur retournée est 0, il
+n'y a pas d'entrée sur l'emplacement actuel (c.-à-d. ne vous attendez pas à
+avoir un nom retourné), et pas d'entrée ultérieur.<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>Celle-ci est plus facile à utiliser qu'il
+n'y parait, alors voici un morceau de code:<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>char tampnom[13];<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>int ptrsuiv;<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>int cmpt_ligne;<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>tampnom[12] = 0;<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>ptrsuiv = BRAM_STARTPTR;<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>cmpt_ligne = 5;<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>while (ptrsuiv = bm_getptr(ptrsuiv, tampnom) {<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>          
+</span></span></i><i><span lang=EN-GB style='font-family:Arial;mso-ansi-language:
+EN-GB'>put_string(&amp;tampnom[2], 2, cmpt_ligne);<u7:p></u7:p></span></i><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>           </span>put_number(bm_sizeof(tampnom), 4,
+15, cmpt_ligne);<u7:p></u7:p></span></i><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><o:p></o:p></span></p>
+
+<p><i><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'><span
+style='mso-spacerun:yes'>           </span></span></i><i><span
+style='font-family:Arial'>cmpt_ligne++;<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>       
+</span>}<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_delete</span></b><span
+style='font-family:Arial'>(char* nom);<span style='mso-spacerun:yes'>  
+</span>[ 3.03+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Efface une entrée BRAM avec un nom donnée.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>bm_write</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char *tamp, char
+*nom, int offset, int nb);<span style='mso-spacerun:yes'>   </span>[ 1.5+ ]<u7:p></u7:p></span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Écrit dans le fichier nommé
+&quot;nom&quot;. Les données à écrire sont dans le tampon &quot;tamp&quot; et
+&quot;nb&quot; octets sont écrits depuis l'offset &quot;offset&quot; dans le
+tampon. Renvoie l'état de la backup ram comme défini dans le fichier huc.h.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>bm_read</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char *tamp, char
+*nom, int offset, int nb);<span style='mso-spacerun:yes'>   </span>[ 1.5+ ]<u7:p></u7:p></span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Lit &quot;nb&quot; octets depuis le
+fichier nommé &quot;nom&quot; et le met dans &quot;tamp&quot;. je ne suis pas
+sûr si l'&quot;offset&quot; est relatif au tampon ou au fichier... Renvoie
+l'état de la backup ram comme défini dans le fichier huc.h.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_create</span></b><span
+style='font-family:Arial'>(char *nom, int taille);<span
+style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Crée un nouveau fichier nommée
+&quot;nom&quot; avec une taille de &quot;taille&quot; octets. Renvoie l'état de
+la backup ram comme défini dans le fichier huc.h.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_errno</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie l'état de la backup ram comme
+défini dans le fichier huc.h. L'erreur (ou le succès) est relative à la
+dernière opération sur la backup ram.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_open</span></b><span style='font-family:
+Arial'>(char *nom);<span style='mso-spacerun:yes'>     </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fonction interne, non destinée à une
+utilisation directe.<u7:p></u7:p></span></i><o:p></o:p></p>
+
+<p><b><span style='font-family:Arial'>bm_enable</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fonction interne, non destinée à une
+utilisation directe.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>bm_disable</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fonction interne, non destinée à une
+utilisation directe.<u7:p></u7:p></span></i><o:p></o:p></p>
+
+<p><b><span style='font-family:Arial'>bm_checksum</span></b><span
+style='font-family:Arial'>(char *fcb);<span style='mso-spacerun:yes'>  
+</span>[ 1.5+ ]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fonction interne, non destinée à une
+utilisation directe.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>bm_setup_ptr</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(char *fcb, char
+*tamp, int offset, int nb);<span style='mso-spacerun:yes'>    </span>[ 1.5+ ]<u7:p></u7:p></span><span
+lang=EN-GB style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Fonction interne, non destinée à une
+utilisation directe.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=chaine></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE CHAÎNES (8 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>strcpy</span></b><span style='font-family:
+Arial'>(char *dest, char *src);<u7:p></u7:p></span></p>
+
+<p><b><span style='font-family:Arial'>strncpy</span></b><span style='font-family:
+Arial'>(char *dest, char *src, int max);<u7:p></u7:p></span></p>
+
+<p><b><span style='font-family:Arial'>memcpy</span></b><span style='font-family:
+Arial'>(char *dest, char *src, int nb);<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Copie l'information source vers la zone
+de destination, comme en 'C' ANSI.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>strcat</span></b><span style='font-family:
+Arial'>(char *dest, char *src);<u7:p></u7:p></span></p>
+
+<p><b><span style='font-family:Arial'>strncat</span></b><span style='font-family:
+Arial'>(char *dest, char *src, int max);<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Enchaîne la chaîne source sur la fin de
+la chaîne de destination, comme en 'C' ANSI.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>strcmp</span></b><span style='font-family:
+Arial'>(char *dest, char *src);<u7:p></u7:p></span></p>
+
+<p><b><span style='font-family:Arial'>strncmp</span></b><span style='font-family:
+Arial'>(char *dest, char *src, int max);<u7:p></u7:p></span></p>
+
+<p><b><span style='font-family:Arial'>memcmp</span></b><span style='font-family:
+Arial'>(char *dest, char *src, int nb);<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Compare l'information source à
+l'information destination, comme en 'C' ANSI.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=cdrom></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+CDROM (12 Fonctions)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>cd_reset</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.01+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Réinitialise le lecteur CDROM, et arrête
+le moteur.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_pause</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.01+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Met le lecteur CDROM en pause pendant la
+lecture d'une piste audio. Probablement très utile si le joueur fait une pause
+de jeu en plein milieu d'un niveau qui est synchronisé à la musique.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_unpause</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.02+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Poursuit la piste audio du CDROM après
+une pause.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_playtrk</span></b><span
+style='font-family:Arial'>(int debut, int fin, int mode);<span
+style='mso-spacerun:yes'>  </span>[3.01+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Joue une ou plusieurs piste audio du
+CDROM dans quelques modes différents. Cela ne jouera pas la piste
+&quot;fin&quot;, donc &quot;fin&quot; &gt;= &quot;debut&quot; + 1. Si vous
+souhaitez jouer jusqu'à la fin du disque (ou si la piste &quot;debut&quot; est
+la piste finale), alors fixez &quot;fin&quot; sur la valeur
+&quot;CDPLAY_ENDOFDISC&quot;. Les tentatives de jouer des pistes de données ne
+marcheront pas, et renvoieront un code d'erreur non-zéro.<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>Modes valides<span
+style='mso-spacerun:yes'>          </span>Signification<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>CDPLAY_MUTE<span
+style='mso-spacerun:yes'>        </span>Joue du audio sans son (silencieux)<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>CDPLAY_REPEAT<span
+style='mso-spacerun:yes'>      </span>Joue du audio, en répétant lorsque la
+piste s'achève<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'>CDPLAY_NORMAL<span
+style='mso-spacerun:yes'>      </span>Joue du audio seulement jusqu'à la fin de
+la(des) piste(s)<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_playmsf</span></b><span
+style='font-family:Arial'>(int debut_m, int debut_s, int debut_f, int
+fin_m,<span style='mso-spacerun:yes'>  </span>int fin_s,<span
+style='mso-spacerun:yes'>  </span>int fin_f, int mode);<span
+style='mso-spacerun:yes'>  </span>[3.02+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Joue du audio CDROM dans quelques modes
+différents, comme au dessus. M/S/F = technique d'indexation
+minute/seconde/frame (Note: il y a 75 frames par seconde) (Voir cd_plytrk()
+pour les valeurs valides de &quot;mode&quot;)<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_getver</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.01+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le numéro de version de la carte
+système CDROM en BCD. (c.-à-d. Super System card Japonais = 0x0300, Duo
+Américain = 0x301)<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_numtrk</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.02+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le nombre de pistes sur le CD.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_trktype</span></b><span
+style='font-family:Arial'>(int piste);<span style='mso-spacerun:yes'>  
+</span>[3.02+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie le type de la piste indiquée. Les
+valeurs valides sont:<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>     
+</span>- CDTRK_AUDIO<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>     
+</span>- CDTRK_DATA<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_trkinfo</span></b><span
+style='font-family:Arial'>(int piste, char * min, char * sec, char *
+frame);<span style='mso-spacerun:yes'>   </span>[3.10+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Avec un numéro de piste donné:<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>    
+</span>- renvoie le type de la piste indiquée (voir cd_trktype()).<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>  </span><span
+style='mso-spacerun:yes'>   </span>- Remplie les valeurs min/sec/frame (de
+dimension char, mais doivent être envoyés comme adresses) avec le point de
+départ pour la piste.<u7:p></u7:p></span></i></p>
+
+<p><i><span style='font-family:Arial'><span style='mso-spacerun:yes'>    
+</span>- Si &quot;track&quot; == 0, le type de piste est indéfini mais
+min/sec/frame est la fin de la dernière piste (c.-à-d. la fin du disque). <u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>cd_loaddata</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int ovl_idx, int
+sector_offset, farptr destaddr, int octets);<span style='mso-spacerun:yes'>  
+</span>[3.10+]<u7:p></u7:p></span><span lang=EN-GB style='mso-ansi-language:
+EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Lit les données depuis le CDROM vers la
+zone (ou overlay &quot;const&quot; ou d'autre données) spécifiée par
+&quot;destaddr&quot;, pour une longueur de &quot;octets&quot;. Lisez-le depuis
+le segment overlay spécifié par &quot;ovl_idx&quot;, avec un offset de secteur
+(c.-à-d. des multiples de 2048 octets) de &quot;sector_offset&quot;.Des valeurs
+de retour non-zero indiquent des erreurs.<u7:p></u7:p></span></i></p>
+
+<p><b><span lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>cd_loadvram</span></b><span
+lang=EN-GB style='font-family:Arial;mso-ansi-language:EN-GB'>(int ovl_idx, int
+sector_offset, int vramaddr, int octets); <span
+style='mso-spacerun:yes'>  </span>[3.10+]<u7:p></u7:p></span><span lang=EN-GB
+style='mso-ansi-language:EN-GB'><o:p></o:p></span></p>
+
+<p><i><span style='font-family:Arial'>Lit des données depuis le CDROM
+directement vers la RAM vidéo à l'adresse spécifiée par &quot;destaddr&quot;,
+pour une longueur de &quot;octets&quot;. Il faut noter que 2 octets sont
+nécessaires pour remplir un mot VRAM. Lisez-le depuis le segment overlay
+spécifié par &quot;ovl_idx&quot;, avec un offset de secteur (c.-à-d. des
+multiples de 2048 octets) de &quot;sector_offset&quot;. Des valeurs de retour
+non-zero indiquent des erreurs.<u7:p></u7:p></span></i></p>
+
+<p><b><span style='font-family:Arial'>cd_execoverlay</span></b><span
+style='font-family:Arial'>(int ovl_idx);<span style='mso-spacerun:yes'>  
+</span>[3.10+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Charge un programme overlay spécifié par
+&quot;ovl_idx&quot;, et l'exécute. Si une erreur se produit pendant le
+chargement, le contexte précédent (c.-à-d. l'overlay qui tourne jusqu'à ce
+moment) est rechargé et une valeur d'erreur est renvoyée au programme.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=adpcm></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+ADPCM (1 Fonction)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>ad_reset</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.02+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Réinitialise le matériel ADPCM.<u7:p></u7:p></span></i></p>
+
+<div class=MsoNormal align=center style='text-align:center'>
+
+<hr size=2 width="100%" align=center>
+
+</div>
+
+<p><a name=arcade></a><b><span style='font-size:18.0pt;font-family:Arial'>FONCTIONS
+DE L'ARCADE CARD (1 Fonction)<u7:p></u7:p></span></b></p>
+
+<p><b><span style='font-family:Arial'>ac_exists</span></b><span
+style='font-family:Arial'>();<span style='mso-spacerun:yes'>   </span>[3.02+]<u7:p></u7:p></span></p>
+
+<p><i><span style='font-family:Arial'>Renvoie VRAI (1) si elle est présente;
+FAUX (0) sinon.<u7:p></u7:p></span></i></p>
+
+</div>
+
+</body>
+
+</html>

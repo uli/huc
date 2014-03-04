@@ -1,0 +1,602 @@
+
+ -*[ PCE Support Library v2.51 ]*-
+    ---------------------------
+
+
+        The assembler support library consists of various macros, functions,
+        subroutines, and definitions designed to make it easier to write 
+        programs for the PC-Engine.
+
+        In the current release of the library, the source code has also been
+        commented to aid in understanding.  Feel free to browse the code.
+
+
+    What's included
+    ---------------
+
+        EQU.INC: Definitions
+        --------------------
+
+            A set of symbolic names have been defined for well-known
+            hardware addresses (ie. videoport = $0000).  These are
+            intended to fully replace literal values.
+
+
+        FUNC.INC:  Functions
+        --------------------
+
+            A set of functions are included, to calculate derived
+            values at compile time.  These are intended to be easy to use,
+            and to replace difficult-to-understand literal values.
+
+            For example, to display the character stored at VRAM $1000
+            using palette #4, one would store the value '$4100' in the
+            BAT table.  A function would automatically do the required
+            bit-shifting at compile time.
+
+            A full list of these functions is included.
+
+
+        MACRO.INC:  Macros
+        ------------------
+
+            A set of macros for commonly-used sequences of code 
+            (such as 16-bit operations on this 8-bit CPU).
+
+            A full list of these macros is included.
+
+
+        LIBRARY.INC, SPRITES.INC, VDC.INC:  Macros
+        ------------------------------------------
+
+            Macros used as simple interfaces to common subroutines
+            with multiple parameters.
+
+            A full list of these macros is included.
+
+
+        LIBRARY.ASM:  Subroutines
+        -------------------------
+
+            A set of useful subroutines is included, mostly for
+            manipulation of the hardware.
+
+            A full list of these subroutines is included.
+
+
+        MATH.ASM:  Subroutines
+        ----------------------
+
+            A set of mathematics subroutines. Contains 8, 16 and 32-bit
+            (unsigned) multiplication subroutines and a 24-bit pseudo random
+            number generator.
+
+
+        SCROLL.ASM:  Subroutines
+        ------------------------
+
+
+        SOUND.ASM:  Music player
+        ------------------------
+
+
+        STARTUP.ASM:  Startup code
+        --------------------------
+
+            The initial startup of the program can appear daunting to
+            a first-time PCE programmer.
+
+            The included startup code initializes all necessary hardware,
+            and jumps to the user's "main" label in his program.  It also
+            contains interrupt-handlers and code to poll the joysticks
+            (which is performed at each VSYNC interval).
+
+
+    Functions
+    ---------
+
+        Three functions are defined in 'FUNC.INC':
+
+
+        BATVAL
+        ------
+
+            Create a value for the BAT map, based on a palette index
+            and a VRAM address.
+
+                BATVAL  .func    (\1 << 12) | (\2 >> 4)
+
+            The function takes two arguments, the first argument is the
+            palette index (0-15), and the second argument is the address
+            in VRAM.
+
+            Example:
+
+                        setvwaddr  $0
+                        stw  BATVAL(4,$1000),video_data
+
+
+        CHAR
+        ----
+
+            Same function as BATVAL but create a BAT value for a
+            character defined using '.defchr', or any data that
+            has a palette and VRAM attribute attached to it (using
+            .pal and .vram directives).
+
+                CHAR    .func    (PAL(\1) << 12 | VRAM(\1) >> 4)
+
+            The function takes one argument, the name of a label.
+
+            Example:
+                        setvwaddr  $0110
+                        stw  CHAR(zero),video_data
+
+                zero:   .defchr  $1000,$0,\
+                                 $00111110,\
+                                 $01000011,\
+                                 $01000101,\
+                                 $01001001,\
+                                 $01010001,\
+                                 $01100001,\
+                                 $00111110,\
+                                 $00000000
+
+
+        SPR_VRAM
+        --------
+
+            Return shifted value of VRAM address, main usage is for setting
+            the sprite-pattern address in a SATB entry.
+
+                SPR_VRAM .func   (VRAM(\1) >> 5)
+
+            The function takes one argument, the name of a label.
+
+            Example:
+
+                        spr_set  #0,ram_satb
+                        spr_pattern #SPR_VRAM(zero)
+
+                zero:   .defspr  $5000,$0,\
+                                 $00111110,$00000000,\
+                                 $01000011,$00000000,\
+                                 $01000101,$00000000,\
+                                 $01001001,$00000000,\
+                                 $01010001,$00000000,\
+                                 $01100001,$00000000,\
+                                 $00111110,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000,\
+                                 $00000000,$00000000
+
+
+    Macros
+    ------
+
+        MACRO.INC
+        ---------
+
+            This file contains many useful macros, as well as a complete set
+            of 16-bit macros.
+
+
+            The 'map' macro
+            ---------------
+
+                Useful macro to map a ROM bank into addressable memory.
+                With this macro you don't need to remember in what bank
+                your data are stored, just use 'map label' to map the
+                bank where 'label' has been defined.
+
+                Example:
+
+                                map my_data
+
+                                .bank 4
+                                .org  $8000
+                    my_data:    .dw   $0123,$4567,$89AB,$CDEF
+
+                This example will map bank 4, at address $8000.
+
+
+            16-bit pseudo instructions
+            --------------------------
+
+                'macro.inc' contains a few macros to make 16-bit operations
+                a piece of cake. :) 
+
+                Here's a list of those macros (see directly in 'macro.inc'
+                for the exact syntax):
+
+                    stw     - store a value
+                    addw    - addition
+                    adcw    - addition with carry
+                    subw    - substraction
+                    sbcw    - substraction with carry
+                    cmpw    - comparison
+
+                The macros above accept two arguments, the first argument
+                is the source and can be either an immediate value (ie. #4)
+                or a memory location (ie. <$10, $2500), and the second
+                argument is the destination, this last one can be only
+                a memory location.
+
+                The following macros accept only one argument, a memory
+                location.
+
+                    stwz    - store a zero value
+                    incw    - increment
+                    decw    - decrement
+                    rolw    - left rotation through carry flag
+                    rorw    - right rotation through carry flag
+                    aslw    - arithmetic shift-left
+                    lsrw    - logical shift-right
+                    negw    - negate (2's complement)
+
+
+            8-bit pseudo instructions
+            -------------------------
+
+                Three 8-bit pseudo instructions are defined in 'macro.inc':
+
+                    neg     - negate the accumulator (2's complement)
+
+                    add     - same as the 'adc' instruction, but this
+                              macro takes care to reset the C flag
+                              before doing the addition
+
+                    sub     - same as 'sbc' but set the C flag
+                              prior to doing the substraction
+
+
+            Branch alias macros
+            -------------------
+
+                Rather than using 'bcc' and 'bcs' when checking the result
+                of a comparison, you can use these two macros instead:
+
+                    blo
+                    bhs
+
+                They mean respectively 'Branch if Lower' and 'Branch if
+                Higher or Same'. They are more easy to remember than
+                'bcc' and 'bcs'.
+
+
+            Long branch macros
+            ------------------
+
+                The HuC6280 only supports 8-bit signed offsets in conditionnal
+                branch instructions, in some cases that can be too short. The
+                following macros can be used when a longer branch is needed.
+
+                    lbne
+                    lbeq
+                    lbpl
+                    lbmi
+                    lbcc
+                    lbcs
+                    lblo
+                    lbhs
+
+
+            Special macros
+            --------------
+
+                Some macros have a second form, with an underscore that
+                precedes them. Those macros are the same as the macros
+                without an underscore, the difference is these macros
+                preserve the state of the registers they use (at the
+                expense of speed).
+
+                Here's the list of these macros:
+
+                    _stw
+                    _addw
+                    _adcw
+                    _subw
+                    _sbcw
+                    _cmpw
+                    _incw
+                    _decw
+
+
+        LIBRARY.INC
+        -----------
+
+            This file contains support macros to call library subroutines,
+            see 'Subroutines' paragraph for a description of those macros.
+
+            There are just three macros that are not directly associated
+            with a subroutine:
+
+
+            setcolor
+            --------
+
+                This macro sets individual colors.
+
+                    - setcolor index, r, g, b
+
+                The macro has four arguments, the first argument is the
+                color index in the palette (0-511), and the three following
+                arguments are respectively red, green and blue color
+                components (0-7).
+
+                Example:
+
+                        setcolor #0,#7,#7,#7    ; set the main background
+                                                ; color to white
+
+
+            setmap
+            ------
+
+
+            scroll
+            ------
+
+
+        SPRITES.INC
+        -----------
+
+            See the 'sprites.txt' document for a complete description of all
+            the sprites macros.
+
+
+        VDC.INC
+        -------
+
+            This file contains useful macros to directly program the video
+            controller of the PC Engine.
+
+
+            vreg
+            ----
+
+                This macro selects a video register. It writes the register
+                index in the adequate VDC I/O port, but it also puts a copy
+                of the register index at ZP location $F7, to remember which
+                VDC register is currently selected.
+
+                Example:
+                                vreg #2
+                                stw  #$0123,video_data
+
+
+            setvinc
+            -------
+
+
+    Subroutines
+    -----------
+
+        All the subroutines take their arguments from pseudo registers
+        placed in ZP. There are six 16-bit registers, _ax, _bx, _cx, _dx,
+        _si and _di. The first four registers can also be used as pair
+        of 8-bit registers, _ax is split into _al and _ah, _bx into
+        _bl and _bh, etc...
+
+        Those registers are defined in the 'EQU.INC' include file.
+
+
+        set_read
+        --------
+
+            Set the VDC VRAM read pointer and select VDC register 2
+            (VRR) to directly read data.
+
+            Takes one argument:
+
+                _di, the VRAM address
+
+            Associated macro is: 
+
+                - setvraddr addr
+
+
+        set_write
+        ---------
+
+            Subroutine similar to 'set_read' but for the VRAM write
+            pointer of the VDC.
+
+            Takes one argument:
+
+                _di, the VRAM address
+
+            Associated macro is: 
+
+                - setvwaddr addr
+
+
+        load_palette
+        -----------
+
+            Set the palette by block of 16 colors. You cannot change
+            individual colors with this subroutine, use the 'set_color'
+            macro to set individual colors.
+
+            The PC-Engine has 32 blocks of 16 colors that can be used,
+            the first 16 blocks are used for background CG, and
+            the 16 others for sprites.
+
+            The subroutine takes four arguments:
+
+                _al, the palette block index (0-31)
+                _bl, the bank index of the color data
+                _si, the memory address of the color data
+                _cl, the number of palette block to set
+
+            Two macros are associated with this subroutine:
+
+                - set_bgpal  index, data [, nb]
+                - set_sprpal index, data [, nb]
+
+            The first macro is used to set the background CG palette,
+            and the second macro to set the sprite palette. Both
+            macros use palette block indexes that range from 0 to 15,
+            'set_sprpal' will internally add 16 to the index before
+            calling 'set_palette'. 
+
+            The third argument is optional, if omitted, 1 will be used
+            by default.
+
+
+        load_vram
+        ---------
+
+            Transfer a memory region to VRAM. This subroutine takes four
+            arguments:
+
+                _di = destination address in VRAM
+                _bl = source bank index
+                _si = source memory address
+                _cx = number of 16-bit words to copy
+
+            One macro is associated to this subroutine:
+
+                - vload [vram,] data, size
+
+            The first argument is the destination address, if it is omitted
+            the macro will assume that you want to transfer a graphic
+            object defined using .defchr or .defspr, and thus will use
+            the default VRAM address of the graphic objet.
+
+            The second argument is the source address and the third argument
+            the number of 16-bit words to copy.
+
+            Example:
+
+                        vload $0100,text,#4
+                        vload zero,#16
+
+                text:   .dw $0123,$4567,$89AB,$CDEF
+                zero:   .defchr  $1000,$0,\
+                                 $00111110,\
+                                 $01000011,\
+                                 $01000101,\
+                                 $01001001,\
+                                 $01010001,\
+                                 $01100001,\
+                                 $00111110,\
+                                 $00000000
+
+
+        load_bat
+        --------
+
+            Transfer a background attribute table (BAT) from memory to VRAM.
+            This subroutine takes five arguments:
+
+                _di = the destination base address in VRAM
+                _bl = source bank index
+                _si = source memory address
+                _cl = the number of character column to transfer
+                _ch = the number of row to transfer
+
+            Associated macro is:
+
+                - batcpy vram, data, w, h
+
+            See the slideshow demo (SLIDSHOW.ASM) for an example of how
+            to use this subroutine.
+
+
+        load_font
+        ---------
+
+            Transfer a 8x8 monochrome font in VRAM. You can freely select
+            the character foreground and background color.
+
+            The subroutine takes six arguments:
+
+                _di = VRAM destination address
+                _bl = font bank index
+                _si = font memory address
+                _al = foreground (0-15)
+                _ah = background (0-15)
+                _cl = number of characters to copy
+
+            Associated macro is:
+
+                - fntcpy vram, font, color, nb
+
+            Example:
+
+                        fntcpy $1000,font,#1,#10
+
+                font:   .db $00,$38,$4c,$c6,$c6,$c6,$64,$38     ;0
+                        .db $00,$18,$78,$18,$18,$18,$18,$7e     ;1
+                        .db $00,$7c,$c6,$0e,$3c,$78,$e0,$fe     ;2
+                        .db $00,$fe,$0c,$18,$7c,$06,$c6,$7c     ;3
+                        .db $00,$3c,$6c,$cc,$cc,$cc,$fe,$0c     ;4
+                        .db $00,$fe,$c0,$fc,$06,$06,$c6,$7c     ;5
+                        .db $00,$3c,$60,$c0,$fc,$c6,$c6,$7c     ;6
+                        .db $00,$fe,$c6,$0c,$18,$30,$30,$30     ;7
+                        .db $00,$7c,$c6,$c6,$7c,$c6,$c6,$7c     ;8
+                        .db $00,$7c,$c6,$c6,$7e,$06,$0c,$78     ;9
+
+
+        load_map
+        --------
+
+            ...
+
+            Associated macro is: 
+
+                - mapcpy vram, x, y, w, h
+
+            Example:
+
+
+        calc_vram_addr
+        --------------
+
+
+        set_bat_size
+        ------------
+
+            ...
+
+            Associated macro is: 
+
+                - setbgmap size
+
+            Example:
+
+
+        init_vdc
+        --------
+
+            Initialize the video controller:
+
+                - set the screen resolution to 256x224
+                - disable background layer and sprites
+                - enable vertical and horizontal sync interrupts
+                - set the BG map size to 64x32 (512x256)
+                - set the SATB to $7F00
+                - clear the video RAM
+
+            This subroutine will be called automatically if you use
+            the standard startup code (STARTUP.ASM).
+
+
+        init_psg
+        --------
+
+            This subroutine initialize the sound generator. Stop all
+            the channel and set all the volume to zero. If you use the
+            default startup code (STARTUP.ASM), this subroutine will be
+            called automaticaly at initialization time.
+
+
+--
+

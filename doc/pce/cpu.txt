@@ -1,0 +1,135 @@
+
+                              "PC Engine CPU"
+                              ===============
+
+
+
+        The HuC6280 is a 8-bit microprocessor similar to the popular 6502 and
+        65C02 CPU's. It contains a 65C02 core to which have been added several
+        new instructions, and a few internal peripheral functions such as
+        an interrupt controller, a MMU, a TIMER, a 8-bit parallel I/O port,
+        and a PSG. 
+
+
+        Memory Mapping
+        --------------
+
+        The HuC6280 has a 64 KB logical address space and a 2 MB physical
+        address space. To access this entire memory space, the HuC6280
+        uses a MMU (Memory Managment Unit) that splits the memory space
+        in segment of 8 KB. The logical address space is splitted as follow : 
+
+
+            page 0 -> $0000-$1FFF
+            page 1 -> $2000-$3FFF
+            page 2 -> $4000-$5FFF
+            page 3 -> $6000-$7FFF
+            page 4 -> $8000-$9FFF
+            page 5 -> $A000-$BFFF
+            page 6 -> $C000-$DFFF
+            page 7 -> $E000-$FFFF
+
+        Each logical 8 KB segment (or page) is associated to a 8-bit
+        register (MPR0-7) that contains the index of the 8 KB segment
+        (or bank) in physical memory to map in this page.
+
+        Two special instructions are used to access these registers : 
+
+            TAMi, transfer the content of the accumulator (A) into
+                  a MPR register (0-7).
+
+            TMAi, transfer a MPR register into the accumulator.
+
+
+        Bank map
+        --------
+
+            $00-$7F ROM
+            $F7     battery backed RAM
+            $F8     RAM
+            $FF     I/O page
+
+        You are free to map banks anywhere into the 8 pages, but a sort
+        of standard has been defined, all the games seem to use it,
+        so it was used in all the MagicKit's tools too.
+        Here's how banks are mapped by default : 
+
+            page 0 -> bank $FF (I/O)
+            page 1 -> bank $F8 (RAM)
+            page 2 ->  |
+            page 3 ->  | user
+            page 4 ->  | definable
+            page 5 ->  |
+            page 6 ->  |
+            page 7 -> bank $00
+
+        NOTE : After a RESET page 7 is mapped to bank $00.
+
+
+        TIMER
+        -----
+
+            The timer frequency is 6.992KHz.
+
+            $0C00 R/W - bit 7   : (unused)
+                        bit 0-6 : 7-bit down counter
+
+                        An interrupt is raised when the counter generates
+                        a carry, in other words, when the counter is to be
+                        decremented and its value is zero.
+
+            $0C01  /W - bit 7-1: (unused)
+                        bit 0  : start/stop bit (0 = off, 1 = on)
+
+
+        Gamepad
+        -------
+
+            $1000  /W - bit 7-2: (unused)
+                        bit 1  : gamepad CLR line
+                        bit 0  : gamepad SEL line
+
+
+            $1000 R/  - bit 7  : (unused)
+                        bit 6  : country bit (1 = JPN, 0 = USA)
+                        bit 5-4: (unused)
+                        bit 0-3: gamepad 4-bit data
+
+
+        Interrupts
+        ----------
+
+            $1402 R/W - interrupt disable register, set a bit to 1
+                        to disable the corresponding interrupt, 0 to
+                        enable it.
+
+                        bit 7-3: (unused)
+                        bit 2  : TIMER
+                        bit 1  : IRQ1 (VDC)
+                        bit 0  : IRQ2
+
+            $1403 R/  - interrupt status register, bit set to 1 when
+                        an interrupt is pending.
+
+                        bit 7-3: (unused)
+                        bit 2  : TIMER
+                        bit 1  : IRQ1 (VDC)
+                        bit 0  : IRQ2
+
+            $1403  /W - a write to $1403 will acknowledge the TIMER
+                        interrupt (must be done from inside the TIMER
+                        interrupt handler to allow further interrupts).
+
+
+        Interrupt vectors
+        -----------------
+
+            $FFF6   IRQ2   (BRK and external IRQ)
+            $FFF8   IRQ1   (VDC)
+            $FFFA   TIMER
+            $FFFC   NMI
+            $FFFE   RESET
+
+
+--
+

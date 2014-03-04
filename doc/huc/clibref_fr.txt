@@ -1,0 +1,896 @@
+      HuC v3.10 Référence de la bibliothèque C, 2001.08.15
+
+
+** FONCTIONS VIDÉO ** (11 Fcts)
+---------------------
+
+  disp_off();
+
+      Désactive l'affichage.
+      PS: Désactive mais n'efface pas le contenu de la VRAM.
+
+
+  disp_on();
+
+      Active l'affichage.
+      PS: Active/réactive le contenu de la VRAM, trés utile pour afficher
+          une image instantanément 
+
+  cls();
+  cls(int val);
+
+      Efface tout l'écran. Sans paramètre, l'écran est rempli avec un caractère
+      espace, sinon il est rempli avec la valeur bat donnée en argument.
+
+
+  vsync();
+  vsync(char nb_images);
+
+      Synchronise votre programme à la ligne de balayage vertical (VBL), qui est
+      de 1/60ème de seconde. Sans paramètre cette fonction retourne dès qu'un
+      signal VBL a été reçu, sinon votre programme sera synchronisé au nombre
+      d'image que vous avez demandé. Par exemple pour exécuter votre jeu à
+      20 im/s, il suffit d'utiliser vsync(3) à la fin de votre boucle de jeu.
+
+
+  vreg(char idx);
+  vreg(char idx, int val);
+
+      Cette fonction vous donne un accès direct aux registres du processeur
+      vidéo (VDC). La première forme de cette fonction est utilisée pour      
+      simplement sélectionner un registre VDC (pour des accès personnalisés), et la
+      seconde est utilisée pour fixer la valeur d'un registre (cela sélectionne
+      en même temps ce registre).
+
+
+  vram_addr(char x, char y);
+
+      Une simple fonction qui sert à renvoyer l'adresse écran en mémoire vidéo (VRAM)
+      d'un caractère situé à la position x/y.
+
+
+  set_screen_size(char taille);
+
+      Change la taille de l'écran virtuelle. Par défaut le code de mise en route
+      initialise un écran virtuelle de 64 caractères en largeur et de
+      32 caractères en hauteur, mais d'autres valeurs sont possibles,
+      à savoir: 32x32, 128x32, 32x64, 64x64 ou 128x64.
+      Plus l'écran virtuel est grand, moins vous avez de mémoire vidéo pour
+      vos graphiques (polices, tiles, sprites).
+
+
+  load_vram(int vaddr, int *data, int nb);
+
+      Une fonction générique pour charger toute sorte de données (BAT, CG, sprites)
+      en mémoire vidéo, à l'adresse "vaddr". "nb" est le nombre de mots 16 bits
+      à charger.
+
+
+  load_bat(int vaddr, int *bat_data, char w, char h);
+
+      Charge une table d'attributs de blocs (BAT) de largeur "w" et de hauteur "h"
+      en mémoire vidéo, à l'adresse "vaddr".
+
+
+  load_background(char *gfx, int *pal, int *bat, char largeur, char hauteur);
+
+      Cette fonction est une fonction tout en un, elle est utilisée pour
+      afficher une entière image de fond sur l'écran, comme une image de titre
+      d'un jeu. Elle chargera les données de tiles, elle chargera la
+      palette, et enfin elle chargera le BAT. Utilisez les directives
+      #incchr, #incpal et #incbat pour gérer les différent type de données. Les
+      données de blocs seront stockées aux adresses de 0x1000 à 0x5000
+      en mémoire vidéo.
+
+
+   set_xres(int xres);    [ 1.5+ ]
+
+      Change la résolution horizontal à "xres" (en pixels). Cela change les
+      registres du contrôleur vidéo pour afficher davantage de pixels sur
+      l'écran; cela n'affecte pas les calculs virtuels.
+      On peut monter jusqu'à 320 (voir 511 mais aucun emulateur ne restitue
+      cette resolution) et descendre jusqu'a 8.
+      PS: L'affichage reel sera tjs un multiple de 8 soit un caratere.
+
+
+** FONTIONS DE PALETTES ** (6 Fcts)
+--------------------------
+
+  set_color(int num, int rvb);
+
+      Fixe la couleur indiquée (0-511) à la valeur rvb (rouge vert bleu) donnée.
+      PS: Avec cette fonction les 32 palettes disponible sont confondues (32*16).
+      EX:	set_color(145,0x777);
+		           |     L-> nouvelle couleur RVB "blanc"
+		           L-------> choisi la 2ieme couleur de la 9ieme palette
+
+  set_color_rgb(int num, char r, char v, char b);
+
+      Fixe la couleur indiquée aux valeurs rvb composées données. Cette fonction
+      est plus facile à utiliser que set_color(), mais elle est plus lente.
+      PS: Avec cette fonction les 32 palettes disponible sont confondues (32*16).
+
+
+  get_color(int num);
+
+      Renvoie la valeur rvb de la couleur indiquée.
+      PS: Avec cette fonction les 32 palettes disponible sont confondues (32*16).
+
+
+  load_palette(char pal_num, int *pal, char nb_pal);
+
+      Charge un ou plusieurs blocs de palettes de 16 couleurs à la fois.
+      "pal_num" est l'index du premier bloc (0-31) à charger, et "nb_pal" le
+      nombre de blocs. Cette fonction peut être utilisée pour charger une
+      palette définie avec #defpal ou inclue avec la directive #incpal.
+
+
+  set_sprpal(char pal_num, int *pal);
+  set_sprpal(char pal_num, int *pal, int nb_pal);
+
+      Exactement la même fonction que load_palette(), mais cette fonction offre
+      un accès direct aux blocs de palettes de sprites. Les blocs de palettes de
+      sprites sont les numéros de blocs standards de 16 à 31, mais avec cette
+      fonction vous pouvez simplement y accéder avec des index de 0 à 15. Cette
+      fonction et la fonction set_bgpal() rend plus facile la manipulation de
+      sprites et de blocs de palettes de caractères; avec eux vous n'avez pas
+      besoin de connaître les index réels de blocs. Sans le troisième argument,
+      la fonction ne charge qu'un bloc.
+
+
+  set_bgpal(char pal_num, int *pal);
+  set_bgpal(char pal_num, int *pal, int nb_pal);
+
+      La même fonction que set_sprpal() mais pour les blocs de palettes de
+      caractères.
+
+
+** FONCTIONS DE POLICES ** (7 Fcts)
+--------------------------
+
+  set_font_color(char pp, char ap);
+
+      Fixe les couleurs de premier plan et d'arrière plan de la police par
+      défaut (les couleurs vont de 0 à 15). Les changements ne prendront pas
+      effet immédiatement, vous devez recharger la police en appelant
+      load_default_font().
+
+
+  set_font_pal(char pal);
+
+      Fixe la palette (0-15) a utiliser pour la police.
+      PS: Cette palette est une des 16 pour les Tiles.
+
+
+  set_font_addr(int vaddr);
+
+      Fixe l'adresse de la police en mémoire vidéo. Utilisez cette fonction pour
+      changer la police actuelle; pour utiliser plusieurs polices sur le même
+      écran, ou lorsque vous chargez vous-même une police et que vous avez
+      besoin de dire à la bibliothèque où elle est.
+
+
+  get_font_pal();
+
+      Renvoie l'index de palette de la police actuelle.
+
+
+  get_font_addr();
+
+      Renvoie l'adresse de la police actuelle en mémoire vidéo.
+
+
+  load_default_font();
+  load_default_font(char num);
+  load_default_font(char num, int vaddr);
+
+      Charge une police par défaut en mémoire vidéo. Sans paramètres la première
+      police par défaut est chargée juste au-dessus du BAT en mémoire vidéo;
+      d'habitude c'est à l'adresse 0x800. Autrement vous pouvez sélectionner le
+      numéro de police, et ensuite l'adresse en mémoire vidéo. Dans
+      l'implémentation actuelle la bibliothèque ne supporte qu'une police par
+      défaut, mais à l'avenir davantage de police pourraient être disponible.
+
+
+  load_font(char *police, char nb_char);
+  load_font(char *police, char nb_char, int vaddr);
+
+      Charge une police personnalisée en mémoire vidéo. Utilisée ensemble avec la
+      directive #incchr cela vous permettra de charger une police à partir d'un
+      fichier PCX. Il faut noter que les polices personnalisées sont des polices
+      colorées, ainsi ils ne seront pas affectés par des appels antérieurs à
+      set_font_color(). Le nombre de caractères à charger vont de 0 à 224, les
+      caractères ASCII 0 à 31 ne sont jamais utilisés, et ne peuvent être définis,
+      vous devez démarrer votre police au caractère espace, qui est le code
+      ASCII 32. Si vous ne donnez pas implicitement une adresse en mémoire vidéo,
+      la fonction chargera votre police juste au-dessus du BAT (d'habitude c'est
+      à l'adress 0x800).
+
+
+** FONCTIONS D'AFFICHAGE DE TEXTE ** (6 Fcts)
+------------------------------------
+
+      Toutes les fonctions de sortie de texte ont deux formes, une où vous
+      spécifiez directement l'adresse en mémoire vidéo, et une autre où vous
+      spécifiez les coordonnées x/y (en unités de caractère). La seconde forme
+      est un peu plus lente mais plus facile d'utilisation.
+
+
+  put_digit(char chiffre, int vaddr);
+  put_digit(char chiffre, char x, char y);
+
+      Affiche un caractère de chiffre "0" - "9" en donnant sa valeur numérique.
+      Les chiffres hexa ("A" - "F") sont aussi supportés, une valeur de 10
+      affichera "A", une valeur de 11 affichera "B", et ainsi de suite...
+
+
+  put_char(char c, int vaddr);
+  put_char(char c, char x, char y);
+
+      Affiche un caractère ASCII.
+
+
+  put_raw(int bat_val, int vaddr);
+  put_raw(int bat_val, char x, char y);
+
+      Affiche une valeur bat brute.
+      PS: Fonction utilisée pour l'affichage de Tiles 8*8.
+
+
+  put_number(int nombre, char largeur, int vaddr);
+  put_number(int nombre, char largeur, char x, char y);
+
+      Affiche un nombre signé. l'argument "largeur" est utilisée pour formater
+      le nombre. Autant que "largeur" chiffre(s) seront affichés. Si le nombre a
+      moins de "largeur" chiffres, des espaces vides seront ajouté à sa gauche.
+      Si le nombre est négatif, un signe "-" sera ajouté.
+
+
+  put_hex(int nombre, char largeur, int vaddr);
+  put_hex(int nombre, char largeur, char x, char y);
+
+      Affiche un nombre hexa.
+
+
+  put_string(char *chaine, int vaddr);
+  put_string(char *chaine, char x, char y);
+
+      Affiche une chaîne ASCII terminée par nul.
+
+ 
+** FONCTIONS DE TILES & DE MAPS ** (8 Fcts)
+------------------------------------
+
+  set_tile_data(char *tile_data, int nb_tile, char *pal_ref);
+
+      Définie un tableau de tiles à être utilisé par toutes les fonctions de
+      tiles et de maps. "tile_data" est l'adresse des données graphiques de
+      tiles en mémoire, "nb_tile" est le nombre de tiles (max. 256), et
+      "pal_ref" est l'adresse d'un tableau d'index de palettes à utiliser pour
+      les tiles; chaque tile possède son propre index de palette qui lui est
+      attaché (il faut noter que les index de palettes doivent être décalé vers
+      la gauche de quatre bits, c.-à-d. 0x40 pour l'index de palette 4).
+
+
+  load_tile(int vaddr);
+
+      Charge des données graphiques de tiles, à l'adresse "vaddr". Vous devez
+      d'abord avoir défini un tableau de tiles avec set_tile_data() avant
+      d'utiliser cette fonction.
+
+
+  put_tile(int num, int vaddr);
+  put_tile(int num, char x, char y);
+
+      Met des tiles individuels sur l'écran, soit directement à l'emplacement en
+      mémoire vidéo "vaddr", soit aux coordonnées écran "x/y" (en unité de
+      tile). "num" est un index de tile dans le tableau de tiles définis par
+      l'appel le plus récent à set_tile_data().
+
+
+  get_tile(char x, char y);    [ 1.5+ ]
+
+      Renvoie l'index de tile comme défini dans le tableau de tiles utilisé dans
+      le plus récent appel à set_tile_data(). les arguments "x/y" sont en
+      unité de pixel, contrairement aux fonctions put_tile et ainsi cette
+      fonction est idéale pour les routines de collision.
+
+
+  set_map_data(char *map, char w, char h);
+
+      Définie une map d'index de tiles à être utilisée par load_map(). "map" est
+      l'adresse d'une map de largeur "w" (max. 256) et de hauteur "h" (max. 256).
+
+
+  load_map(char sx, char sy, int mx, int my, char w, char h);
+
+      Charge une partie d'une map sur l'écran. "sx" et "sy" sont des coordonnées
+      d'écran (en unité de tile; 16 pixels), "mx" et "my" sont les positions
+      dans la map, et "w" et "h" sont respectivement le nombre d'index de tiles
+      à charger horizontalement et verticalement. Cette fonction n'effectue
+      aucun clipping, alors vous ne devez pas lui passer des coordonnées écran
+      incorrectes ou trop grandes, cela corromprait la mémoire vidéo.
+
+
+  scroll(char num, int x, int y, char superieur, char inferieur, char disp);
+
+      Défini la fenêtre écran "num". Jusqu'à quatre fenêtres peuvent être
+      définies. "superieur" et "inferieur" sont les limites écran supérieur et
+      inférieur de la fenêtre (les limites sont inclues dans la zone de la
+      fenêtre). "disp" contrôle le type de la fenêtre, si le bit 7 est mis les
+      graphiques d'arrière plan seront affiché dans cette fenêtre, et si le
+      bit 6 est mis les sprites seront également affichés. si aucun de ces bits
+      n'est mis la fenêtre restera vide. "x" et "y" sont les coordonnées
+      haut-gauche de la zone dans l'écran virtuel qui sera affiché dans la
+      fenêtre.
+   
+     
+  scroll_disable(char num);    [ 1.5+ ]
+
+     Désactive le défilement de la fenêtre écran "num".
+
+
+** FONCTIONS GRAPHIQUES DE PIXELS ** (5 Fcts)
+------------------------------------
+
+  gfx_setbgpal(char bgcolor);    [3.04+]
+
+     Fixe le groupe de palette d'arrière plan par défaut. Utilisé par gfx_init().
+
+     Exemple: gfx_setbgpal(5) avant gfx_init() fera utiliser aux fonctions
+              gfx_*() les entrées de palette d'arrière plan de $50 jusqu'à $5F.
+
+
+  gfx_init(int vaddr);   [3.04+]
+
+     Initialise l'écran pour pointer sur des tiles graphiques séquentiels,
+     situés à partir de l'adresse "vaddr" en VRAM.
+
+
+  gfx_clear(int vaddr);    [3.04+]
+
+     Efface l'écran graphique.
+     En partant de l'adress "vaddr" en VRAM, cette fonction fixes les tiles
+     séquentiels en VRAM sur des zéros, avec une taille basée sur le plan virtuel.
+
+
+  gfx_plot(int x, int y, int couleur);   [3.04+]
+
+     Fixe un pixel à (x,y) à la couleur indiquées.
+     "couleur" doit être une valeur entre 0 et 15.
+
+
+  gfx_point(int x, int y);   [3.04+]
+
+     Renvoie la couleur du pixel à (x,y).
+
+
+** FONCTIONS DE SPRITES ** (17 Fcts)
+--------------------------
+
+  load_sprites(int vaddr, int *spr_data, int nb_spr);
+
+      Charge des données graphiques de sprites en mémoire vidéo, à l'adresse
+      "vaddr". Cette fonction charge des sprites par ensemble de 8 sprites
+      de 16x16 pixels. "nb_spr" est le nombre d'ensembles à charger.
+      Si vous avez besoin de charger moins de sprite 16x16 que les huit
+      contenu dans un ensemble, utilisez plutôt la fonction load_vram().
+
+
+  init_satb();
+
+      Initialise la table interne d'attributs de sprites.
+      (SATB) utilisé par la bibliothèque pour manipuler les sprites.
+      Cette fonction doit être appelée avant que toute autre fonction de sprite
+      soit appelée.
+
+
+  reset_satb();
+
+      Réinitialise le SATB interne, cela a pour effet de désactiver et
+      réinitialiser tous les sprites.
+
+
+  satb_update();
+  satb_update(char nb);
+
+      Copie la table interne d'attributs de sprites vers la mémoire vidéo. Cela
+      rafraîchira les sprites sur l'écran. utilisez cette fonction régulièrement
+      pour mettre à jour l'affichage des sprites. Le meilleur endroit pour
+      appeler satb_update() est après chaque appel à vsync(), mais inutile
+      d'appeler satb_update() si vous n'avez changé aucun attribut de sprites.
+      "nb" indique le nombre de sprite à rafraîchir; en partant du sprite 0.
+      Par défaut la bibliothèque rafraîchit seulement les sprites que vous
+      utilisez, mais si vous avez besoin de rafraîchir implicitement un certain
+      nombre de sprites alors vous pouvez utiliser "nb".
+
+
+  spr_set(char num);
+
+      Sélectionne le sprite "num" (0-63) en tant que sprite actuel.
+
+
+  spr_x(int valeur);
+
+      Fixe la coordonnée x du sprite actuel. Des valeurs négatives fera
+      disparaître le sprite sous le bord gauche, alors que des valeur plus
+      grandes que la largeur de l'écran le fera disparaître sous le bord droite.
+
+
+  spr_y(int valeur);
+
+      Fixe la coordonnée y du sprite actuel.
+
+
+  spr_pattern(int vaddr);
+
+      Fixe l'adresse du motif en mémoire vidéo du sprite actuel.
+
+
+  spr_ctrl(char mask, char valeur);
+
+      Fixe différents attributs du sprite actuel. Avec cette fonction vous
+      pouvez changer la taille du sprite (16x16, 32x32, ...) et l'orientation
+      du sprite (renversement horizontal/vertical).
+
+
+  spr_pal(char pal);
+
+      Défini l'index du bloc de palette (0-15) du sprite actuel.
+
+
+  spr_pri(char pri);
+
+      Fixe la priorité du sprite actuel. "0" le fera apparaître derrière
+      l'arrière plan (à travers la couleur 0), "1" le fera apparaître devant
+      l'arrière plan.
+
+
+  spr_get_x();
+
+      Renvoie la coordonnée x du sprite actuel.
+
+
+  spr_get_y();
+
+      Renvoie la coordonnée y du sprite actuel.
+
+
+  spr_get_pal();
+
+      renvoie l'index du bloc de palette du sprite actuel.
+
+
+  spr_get_pattern();
+
+      renvoie l'adresse du motif en mémoire vidéo du sprite actuel.
+
+
+  spr_hide();
+  spr_hide(char num);
+
+      Sans paramètres cette fonction cachera le sprite actuel. utilisez "num"
+      pour cacher un sprite différent de celui qui est actuel.
+
+
+  spr_show();
+  spr_show(char num);
+
+      Montre un sprite qui a été caché en utilisant la fonction spr_hide().
+
+
+** FONCTIONS DES MANETTES ** (5 Fcts)
+----------------------------
+
+  joy(char num);
+
+      Renvoie l'état actuel de la manette numéro "num".
+      Depuis la version 1.5, c'est conforme avec 6 boutons.
+
+
+  joytrg(char num);
+
+      Renvoie des informations sur les boutons et les directions nouvellement
+      appuyés de la manette "num". Mais attention à cette fonction, ces
+      informations sont rafraîchies à chaque images, donc si votre boucle de jeu
+      n'est pas assez rapide vous pourriez manquer quelques pressions de
+      touches. Dans un tel cas utilisez les fonctions joy_events(), elles
+      gardent la trace de toutes les pressions de touches.
+
+
+  set_joy_callback(char num, char mask, char touches, void (*proc)());
+
+      Vous pouvez programmer la bibliothèque pour appeler une de vos fonctions
+      lorsqu'une certaine touche a été appuyée. La meilleur utilisation de cette
+      fonction est pour gérer le mode pause d'un jeu lorsque le joueur appuie
+      sur le bouton START. "num" est le numéro de la fonction callback à
+      installer, pour l'instant il n'y a qu'une callback (0), mais de futurs
+      versions de la bibliothèque pourrait en avoir davantage. "mask" indique
+      quel manette analyser (un bit pour chaque manette, avec le bit 0 pour la
+      manette 0, etc...), et "touches" indique quel pressions de touches regarder,
+      d'habitude c'est simplement JOY_STRT. "proc" est l'adresse de la fonction
+      que vous voulez être appelée par la bibliothèque.
+
+
+  get_joy_events(char num);
+  get_joy_events(char num, char rst);
+
+      Renvoie toutes les pressions de touches pour la manette "num" qui se sont
+      produites depuis le dernier appel de cette fonction. Avec cette fonction
+      vous ne pouvez pas manquer de pressions de touches. "rst" dit à la
+      fonction si les événements de pressions de touches seront réinitialisés
+      après avoir été lus, par défaut ils sont réinitialisés après chaque
+      lecture, mais si "rst" est égal à zéro les événements ne seront pas
+      réinitialisés.
+
+
+  clear_joy_events(char mask);
+
+      Réinitialise le(s) liste(s) d'événements de pressions de touches de manette.
+      "mask" indique quelle liste d'événement de manette vous voulez
+      réinitialiser. Un bit pour chaque manette, bit 0 est la manette 0, bit 1
+      est la manette 1, etc... Toutes les listes d'événements peuvent être
+      réinitialisées en fixant "mask" à 0x1F.
+
+
+** FONCTIONS DIVERSES ** (7 Fcts)
+------------------------
+
+  poke(int offset, char val);
+  pokew(int offset, int val);    [ 3.04 + ]
+
+     Écrit la valeur "val" à l'emplacement mémoire "offset".
+     poke() est un accès de dimension char, alors que pokew() est de dimension word.
+
+     Ces fonctions peuvent être utilisées pour accéder au ports
+     E/S matériels situés de 0x0000 à 0x1FFF.
+
+
+  peek(int offset);
+  peekw(int offset);    [ 3.04 + ]
+
+     Lit le contenu de l'emplacement mémoire "offset".
+     peek() est un accès de dimension char, alors que peekw() est de dimension word.
+
+
+  rand();
+
+     renvoie un nombre 16 bits pseudo-aléatoire. Depuis la version 1.5, c'est un
+     algorithme amélioré qui fourni une valeur au hasard.
+
+
+  srand(int racine);    [ 1.5+ ]
+
+     Change la racine pseudo-aléatoire. Vous pouvez utiliser cette fonction pour
+     améliorer l'aspect aléatoire en donnant une valeur basée sur le moment où
+     le joueur appuie la première fois sur start par exemple.
+
+  random(char max);    [ 1.5+ ]
+
+     Renvoie une valeur pseudo-aléatoire entre 0 et max - 1;
+
+
+** FONCTIONS DE LA SOURIS ** (5 Fcts)
+----------------------------
+
+  mouse_exists();    [ 1.5+ ]
+  
+     Vérifie si une souris est installée. renvoie vrai si elle a été détectée
+     pendant l'initialisation.
+
+
+  mouse_enable();    [ 1.5+ ]
+
+     Active la souris. Renvoie vrai si une souris est effectivement présente.
+
+
+  mouse_disable();   [ 1.5+ ]
+
+    Éteint le support de la souris.
+   
+     
+  mouse_x();    [ 1.5+ ]
+  
+      Renvoie le delta horizontal de la souris depuis le dernier vsync().
+ 
+     
+  mouse_y();    [ 1.5+ ]
+  
+      Renvoie le delta vertical de la souris depuis le dernier vsync().
+
+
+** FONCTIONS DE LA BACKUP RAM ** (19 Fcts)
+--------------------------------
+
+  bm_check();    [ 1.5+ ]
+
+     Renvoie si la backup ram (BRAM) est disponible.
+
+
+  bm_free();     [ 1.5+ ]
+
+     Renvoie le nombre d'octets disponibles pour les données utilisateurs.
+     La quantité nécessaire pour les données d'en-tête et pour la terminaison
+     de 2 octets sont déjà déduites de cette quantité. La valeur renvoyée est
+     le nombre d'octets libres pour les données utilisateurs.
+
+
+  bm_size();     [ 3.03+ ]
+
+     Renvoie le nombre total d'octets en mémoire backup.
+     Cela devrait être 2KO sur des systèmes réels, mais la mémoire backup
+     fonctionnera avec une valeur aussi grande que 8KO, au cas où du matériel
+     étrange existerait.
+
+
+  bm_rawread(int ptr);     [ 3.03+ ]
+
+     Similaire à peek(), mais manipule les accès à la BRAM.
+     Gère automatiquement l'adressage mémoire et la portée d'adressage
+     (c.-à-d. les adresses n'ont pas besoin d'être dans l'intervalle $8000-$A000)
+
+
+  bm_rawwrite(int offset, char val);    [ 3.03+ ]
+
+     Similaire à poke(), mais manipule les accès à la BRAM.
+     Gère automatiquement l'adressage mémoire et la portée d'adressage
+     (c.-à-d. les adresses n'ont pas besoin d'être dans l'intervalle $8000-$A000)
+
+
+  bm_format();   [ 1.5+ ]
+
+     Formate toute la backup ram. Ne formate pas si les données sont déjà formatées.
+
+     En fait, les données ne sont pas effacées contrairement à se que rapportent les
+     données d'en-tête. Vous devriez pouvoir trouver d'anciennes données dans la BRAM
+     en utilisant des accès en lecture brutes dans le banc de backup ram mais pas
+     à travers les fonctions habituelles de HuC.
+
+     renvoie l'état de la backup ram comme défini dans le fichier huc.h
+
+
+  bm_exist(char* nom);    [ 1.5+ / 3.03+ ]
+
+     Vérifie si un fichier de backup ram existe.
+
+     Note:  La valeur de retour a changé depuis la version 3.03.
+
+            Avant la 3.03, elle retournait le code de bm_error (0 est OK, != 0 est mauvais),
+            mais cela ne correspondait pas au sens du nom de la fonction.
+
+            Depuis la 3.03, elle renvoie VRAI (!= 0) si c'est bon; FAUX (0) si c'est mauvais.
+            Le type d'erreur peut être retrouvé à partir de bm_errno().
+
+     Note2: La structure du nom n'est pas seulement un nom ASCII; il commence avec un
+            "ID d'unicité" de 2 octets qui est presque toujours 00 00, suivi par 10 octets
+            d'un nom ASCII - qui doit être rempli avec des espaces.
+
+
+  bm_sizeof(char* nom);   [ 3.03+ ]
+
+     renvoie la taille des données utilisateur pour un fichier BRAM avec un nom donnée.
+
+
+  bm_getptr(int ptr, char* nom);   [ 3.03+ ]
+
+     Utile pour parcourir la liste de fichier en BRAM.
+     Utilisez "BRAM_STARTPTR" pour la première itération, et cela retournera le nom de
+     cette entrée, et le prochain pointeur dans la liste (pour utiliser dans la prochaine
+     itération). Lorsque la valeur retournée est 0, il n'y a pas d'entrée sur
+     l'emplacement actuel (c.-à-d. ne vous attendez pas à avoir un nom retourné), et pas
+     d'entrée ultérieur.
+
+     Celle-ci est plus facile à utiliser qu'il n'y parait, alors voici un morceau de code:
+        char tampnom[13];
+        int ptrsuiv;
+        int cmpt_ligne;
+
+        tampnom[12] = 0;
+        ptrsuiv = BRAM_STARTPTR;
+        cmpt_ligne = 5;
+
+        while (ptrsuiv = bm_getptr(ptrsuiv, tampnom) {
+           put_string(&tampnom[2], 2, cmpt_ligne);
+           put_number(bm_sizeof(tampnom), 4, 15, cmpt_ligne);
+           cmpt_ligne++;
+        }
+
+
+  bm_delete(char* nom);   [ 3.03+ ]
+
+     Efface une entrée BRAM avec un nom donnée.
+
+
+  bm_write(char *tamp, char *nom, int offset, int nb);   [ 1.5+ ]
+
+     Écrit dans le fichier nommé "nom". Les données à écrire sont dans le tampon "tamp"
+     et "nb" octets sont écrits depuis l'offset "offset" dans le tampon.
+     Renvoie l'état de la backup ram comme défini dans le fichier huc.h.
+
+
+  bm_read(char *tamp, char *nom, int offset, int nb);   [ 1.5+ ]
+
+     Lit "nb" octets depuis le fichier nommé "nom" et le met dans "tamp". je ne suis
+     pas sûr si l'"offset" est relatif au tampon ou au fichier...
+     Renvoie l'état de la backup ram comme défini dans le fichier huc.h.
+
+
+  bm_create(char *nom, int taille);    [ 1.5+ ]
+
+     Crée un nouveau fichier nommée "nom" avec une taille de "taille" octets.
+     Renvoie l'état de la backup ram comme défini dans le fichier huc.h.
+
+
+  bm_errno();    [ 1.5+ ]
+
+     renvoie l'état de la backup ram comme défini dans le fichier huc.h.
+     L'erreur (ou le succès) est relatif à la dernière opération sur la backup ram.
+
+
+  bm_open(char *nom);     [ 1.5+ ]
+
+     Fonction interne, non destinée à une utilisation directe.
+
+  bm_enable();    [ 1.5+ ]
+
+     Fonction interne, non destinée à une utilisation directe.
+
+  bm_disable();   [ 1.5+ ]
+
+     Fonction interne, non destinée à une utilisation directe.
+
+  bm_checksum(char *fcb);   [ 1.5+ ]
+
+     Fonction interne, non destinée à une utilisation directe.
+
+  bm_setup_ptr(char *fcb, char *tamp, int offset, int nb);    [ 1.5+ ]
+
+     Fonction interne, non destinée à une utilisation directe.
+
+
+** FONCTIONS DE CHAÎNES ** (8 Fcts)
+--------------------------
+
+  strcpy(char *dest, char *src);
+  strncpy(char *dest, char *src, int max);
+  memcpy(char *dest, char *src, int nb);
+
+     Copie l'information source vers la zone de destination, comme en 'C' ANSI.
+
+
+  strcat(char *dest, char *src);
+  strncat(char *dest, char *src, int max);
+
+     Enchaîne la chaîne source sur la fin de la chaîne de destination, comme en 'C' ANSI.
+
+
+  strcmp(char *dest, char *src);
+  strncmp(char *dest, char *src, int max);
+  memcmp(char *dest, char *src, int nb);
+
+     Compare l'information source à l'information destination, comme en 'C' ANSI.
+
+
+** FONCTIONS CDROM ** (12 Fcts)
+---------------------
+
+  cd_reset();   [3.01+]
+
+     Réinitialise le lecteur CDROM, et arrête le moteur.
+
+
+  cd_pause();   [3.01+]
+
+     Met le lecteur CDROM en pause pendant la lecture d'une piste audio.
+     Probablement très utile si le joueur fait une pause de jeu en plein
+     milieu d'un niveau qui est synchronisé à la musique.
+
+
+  cd_unpause();   [3.02+]
+
+     Poursuit la piste audio du CDROM après une pause.
+
+
+  cd_playtrk(int debut, int fin, int mode);  [3.01+]
+
+     Joue une ou plusieurs piste audio du CDROM dans quelques modes différents.
+     Cela ne jouera pas la piste "fin", donc "fin" >= "debut" + 1. Si vous souhaitez
+     jouer jusqu'à la fin du disque (ou si la piste "debut" est la piste finale), alors
+     fixez "fin" sur la valeur "CDPLAY_ENDOFDISC".
+     Les tentatives de jouer des pistes de données ne marcheront pas, et renvoieront un
+     code d'erreur non-zéro.
+
+      Modes valides          Signification
+      -------------          -------------
+      CDPLAY_MUTE        Joue du audio sans son (silencieux)
+      CDPLAY_REPEAT      Joue du audio, en répétant lorsque la piste s'achève
+      CDPLAY_NORMAL      Joue du audio seulement jusqu'à la fin de la(des) piste(s)
+
+
+  cd_playmsf(int debut_m, int debut_s, int debut_f,
+             int fin_m,  int fin_s,  int fin_f, int mode);  [3.02+]
+
+     Joue du audio CDROM dans quelques modes différents, comme au dessus.
+     M/S/F = technique d'indexation minute/seconde/frame
+     (Note: il y a 75 frames par seconde)
+
+     (Voir cd_plytrk() pour les valeurs valides de "mode")
+
+
+  cd_getver();   [3.01+]
+
+     Renvoie le numéro de version de la carte système CDROM en BCD.
+     (c.-à-d. Super System card Japonais = 0x0300, Duo Américain = 0x301)
+
+
+  cd_numtrk();   [3.02+]
+
+     renvoie le nombre de pistes sur le CD.
+
+
+  cd_trktype(int piste);   [3.02+]
+
+     renvoie le type de la piste indiquée.
+     Les valeurs valides sont:
+      - CDTRK_AUDIO
+      - CDTRK_DATA
+
+
+  cd_trkinfo(int piste, char * min, char * sec, char * frame);   [3.10+]
+
+     Avec un numéro de piste donné:
+     - renvoie le type de la piste indiquée (voir cd_trktype()).
+     - Remplie les valeurs min/sec/frame (de dimension char, mais doivent être envoyés
+       comme adresses) avec le point de départ pour la piste.
+     - Si "track" == 0, le type de piste est indéfini mais min/sec/frame est
+       la fin de la dernière piste (c.-à-d. la fin du disque). 
+
+
+  cd_loaddata(int ovl_idx, int sector_offset, farptr destaddr, int octets);   [3.10+]
+
+     Lit les données depuis le CDROM vers la zone (ou overlay "const" ou d'autre données)
+     spécifiée par "destaddr", pour une longueur de "octets".
+
+     Lisez-le depuis le segment overlay spécifié par "ovl_idx", avec un offset
+     de secteur (c.-à-d. des multiples de 2048 octets) de "sector_offset".
+
+     Des valeurs de retour non-zero indiquent des erreurs.
+
+
+  cd_loadvram(int ovl_idx, int sector_offset, int vramaddr, int octets);   [3.10+]
+
+     Lit des données depuis le CDROM directement vers la RAM vidéo à l'adresse
+     spécifiée par "destaddr", pour une longueur de "octets". Il faut noter que
+     2 octets sont nécessaires pour remplir un mot VRAM.
+
+     Lisez-le depuis le segment overlay spécifié par "ovl_idx", avec un offset
+     de secteur (c.-à-d. des multiples de 2048 octets) de "sector_offset".
+
+     Des valeurs de retour non-zero indiquent des erreurs.
+
+
+  cd_execoverlay(int ovl_idx);   [3.10+]
+
+     Charge un programme overlay spécifié par "ovl_idx", et l'exécute.
+
+     Si une erreur se produit pendant le chargement, le contexte précédent (c.-à-d.
+     l'overlay qui tourne jusqu'à ce moment) est rechargé et une valeur d'erreur est
+     renvoyée au programme.
+
+
+** FONCTIONS ADPCM ** (1 Fct)
+---------------------
+
+  ad_reset();   [3.02+]
+
+     réinitialise le matériel ADPCM.
+
+
+** FONCTIONS DE L'ARCADE CARD ** (1 Fct)
+--------------------------------
+
+  ac_exists();   [3.02+]
+
+     renvoie VRAI (1) si elle est présente; FAUX (0) sinon.
+
+
