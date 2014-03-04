@@ -1024,7 +1024,7 @@ do_incchr(int *ip)
 {
 	unsigned char buffer[32];
 	unsigned int i, j;
-	unsigned int x, y, w, h;
+	int x, y, w, h;
 	unsigned int tx, ty;
 	int total = 0;
 	int size;

@@ -53,8 +53,8 @@ unsigned int  op_stack[64] = { OP_START };	/* operator stack */
 unsigned int val_stack[64];	/* value stack */
 int op_idx, val_idx;	/* index in the operator and value stacks */
 int need_operator;		/* when set await an operator, else await a value */
-unsigned char *expr;	/* pointer to the expression string */
-unsigned char *expr_stack[16];	/* expression stack */
+char *expr;	/* pointer to the expression string */
+char *expr_stack[16];	/* expression stack */
 struct t_symbol *expr_lablptr;	/* pointer to the lastest label */
 int expr_lablcnt;		/* number of label seen in an expression */
 char *keyword[8] = {	/* predefined functions */

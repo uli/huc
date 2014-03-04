@@ -529,7 +529,7 @@ void
 pce_incbat(int *ip)
 {
 	unsigned char *ptr, ref;
-	unsigned int i, j, k, l, x, y, w, h;
+	int i, j, k, l, x, y, w, h;
 	unsigned int base, index, flag;
 	unsigned int temp;
 
@@ -662,7 +662,7 @@ void
 pce_incspr(int *ip)
 {
 	unsigned int i, j;
-	unsigned int x, y, w, h;
+	int x, y, w, h;
 	unsigned int sx, sy;
 	unsigned int size;
 
@@ -710,7 +710,7 @@ void
 pce_inctile(int *ip)
 {
 	unsigned int i, j;
-	unsigned int x, y, w, h;
+	int x, y, w, h;
 	unsigned int tx, ty;
 	int nb_tile = 0;
 	int size = 0;
@@ -769,7 +769,7 @@ void
 pce_incmap(int *ip)
 {
 	unsigned int i, j;
-	unsigned int x, y, w, h;
+	int x, y, w, h;
 	unsigned int tx, ty;
 	int tile, size;
 	int err = 0;

@@ -18,7 +18,7 @@ int
 pce_load_map(char *fname, int mode)
 {
 	FILE *fp;
-	unsigned char header[16];
+	char header[16];
 	int fsize;
 	int size;
 	int nb;

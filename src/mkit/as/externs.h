@@ -29,7 +29,7 @@ extern int pcx_nb_args;		/* number of argument */
 extern unsigned int   pcx_arg[8];	/* PCX args array */
 extern unsigned char *pcx_buf;	/* pointer to the PCX buffer */
 extern unsigned char  pcx_pal[256][3];	/* palette */
-extern unsigned char *expr;	/* expression string pointer */
+extern char *expr;	/* expression string pointer */
 extern int  mopt;
 extern int  in_macro;
 extern int  expand_macro;
