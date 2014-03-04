@@ -97,6 +97,11 @@ void newfunc (void)
 		} else if (amatch("int", 3)) {
 			getarg(CINT, ANSI);
 			nbarg++;
+		} else if (amatch("void", 4)) {
+			if (match(")"))
+				break;
+			getarg(CVOID, ANSI);
+			nbarg++;
 		} else {
 			/* no valid type, assuming K&R argument */
 			if (symname (n)) {
@@ -211,6 +216,12 @@ void getarg (long t, int syntax)
 			j = POINTER;
 		else
 			j = VARIABLE;
+
+		if (t == CVOID && j != POINTER)
+			error("illegal argument type \"void\"");
+		else
+			t = CINT;
+
 		if (!(legalname = symname (n)))
 			illname ();
 		if (match ("[")) {

@@ -180,6 +180,7 @@
 
 #define	CCHAR	1
 #define	CINT	2
+#define CVOID	3
 
 /* possible entries for storage */
 
