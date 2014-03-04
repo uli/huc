@@ -42,7 +42,7 @@ declglb (long typ, long stor)
 				multidef (sname);
 			if (match ("[")) {
 				if((id == POINTER) && (stor != CONST))
-					error ("array of pointers not supported");
+					error ("array of variable pointers not supported");
 				k = array_initializer(typ, id, stor);
 				if (k == -1)
 					return (1);
@@ -63,7 +63,7 @@ declglb (long typ, long stor)
 			} else {
 				if (stor == CONST) {
 					stor  = PUBLIC;
-					error ("const variable not supported");
+					error ("const scalar not supported");
 				}
 			}
 			if (stor != CONST)
