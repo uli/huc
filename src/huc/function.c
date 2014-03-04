@@ -80,6 +80,7 @@ void newfunc (const char *sname)
 	}
 	locptr = STARTLOC;
 	argstk = 0;
+	argtop = 0;
 	nbarg = 0;
 	memset(fixup, 0, sizeof(fixup));
 	while (!match (")")) {
