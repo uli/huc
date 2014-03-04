@@ -60,6 +60,11 @@ void newfunc (void)
 
 	fexitlab = getlabel();
 
+	/* allow (and ignore) return type */
+	if (amatch("char", 4) || amatch("int", 3) || amatch("void", 4)) {
+		match("*");
+	}
+
 	if (!symname (n) ) {
 		error ("illegal function or declaration");
 		kill ();
