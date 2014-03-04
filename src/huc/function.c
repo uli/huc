@@ -38,6 +38,13 @@ void arg_flush(long arg, long adj);
 void arg_to_fptr(struct fastcall *fast, long i, long arg, long adj);
 void arg_to_dword(struct fastcall *fast, long i, long arg, long adj);
 
+/* function declaration styles */
+#define KR 0
+#define ANSI 1
+
+/* argument address pointers for ANSI arguments */
+char *fixup[32];
+
 /*
  *	begin a function
  *
@@ -77,18 +84,42 @@ void newfunc (void)
 	locptr = STARTLOC;
 	argstk = 0;
 	nbarg = 0;
+	memset(fixup, 0, sizeof(fixup));
 	while (!match (")")) {
-		if (symname (n)) {
-			if (findloc (n))
-				multidef (n);
-			else {
-				addloc (n, 0, 0, argstk, AUTO);
-				argstk = argstk + INTSIZE;
+		/* check if we have an ANSI argument */
+		if (amatch("register", 8)) {
+			if (amatch("char", 4)) {
+				getarg(CCHAR, ANSI);
 				nbarg++;
 			}
+			else if (amatch ("int", 3)) {
+				getarg(CINT, ANSI);
+				nbarg++;
+			}
+			else {
+				getarg(CINT, ANSI);
+				nbarg++;
+			}
+		} else if (amatch("char", 4)) {
+			getarg(CCHAR, ANSI);
+			nbarg++;
+		} else if (amatch("int", 3)) {
+			getarg(CINT, ANSI);
+			nbarg++;
 		} else {
-			error ("illegal argument name");
-			junk ();
+			/* no valid type, assuming K&R argument */
+			if (symname (n)) {
+				if (findloc (n))
+					multidef (n);
+				else {
+					addloc (n, 0, 0, argstk, AUTO);
+					argstk = argstk + INTSIZE;
+					nbarg++;
+				}
+			} else {
+				error ("illegal argument name");
+				junk ();
+			}
 		}
 		blanks ();
 		if (!streq (line + lptr, ")")) {
@@ -101,23 +132,34 @@ void newfunc (void)
 	stkp = 0;
 	argtop = argstk;
 	while (argstk) {
-		if (amatch ("register", 8)) {
-			if (amatch("char", 4)) 
-				getarg(CCHAR);
-			else if (amatch ("int", 3))
-				getarg(CINT);
-			else
-				getarg(CINT);
-			ns();
-		} else if (amatch ("char", 4)) {
-			getarg (CCHAR);
-			ns ();
-		} else if (amatch ("int", 3)) {
-			getarg (CINT);
-			ns ();
+		/* We only know the final argument offset once we have parsed
+		   all of them. That means that for ANSI arguments we have
+		   to fix up the addresses for the locations generated in
+		   getarg() here. */
+		if (fixup[argstk/INTSIZE - 1]) {
+			argstk -= INTSIZE;
+			if ((unsigned char)fixup[argstk/INTSIZE][0] + argtop > 255)
+				fixup[argstk/INTSIZE][1]++;
+			fixup[argstk/INTSIZE][0] += argtop;
 		} else {
-			error ("wrong number args");
-			break;
+			if (amatch ("register", 8)) {
+				if (amatch("char", 4)) 
+					getarg(CCHAR, KR);
+				else if (amatch ("int", 3))
+					getarg(CINT, KR);
+				else
+					getarg(CINT, KR);
+				ns();
+			} else if (amatch ("char", 4)) {
+				getarg (CCHAR, KR);
+				ns ();
+			} else if (amatch ("int", 3)) {
+				getarg (CINT, KR);
+				ns ();
+			} else {
+				error ("wrong number args");
+				break;
+			}
 		}
 	}
 	if (nbarg)      /* David, arg optimization */
@@ -141,14 +183,14 @@ void newfunc (void)
  *	completely rewritten version.  p.l. woods
  *
  */
-void getarg (long t)
+void getarg (long t, int syntax)
 {
 	long	j, legalname, address;
 	char	n[NAMESIZE], *argptr;
 /*	char	c; */
 
 	FOREVER {
-		if (argstk == 0)
+		if (syntax == KR && argstk == 0)
 			return;
 		if (match ("*"))
 			j = POINTER;
@@ -163,6 +205,14 @@ void getarg (long t)
 			j = POINTER;
 		}
 		if (legalname) {
+			if (syntax == ANSI) {
+				if (findloc (n))
+					multidef (n);
+				else {
+					addloc (n, 0, 0, argstk, AUTO);
+					argstk = argstk + INTSIZE;
+				}
+			}
 			if ( (argptr = findloc (n)) ) {
 				argptr[IDENT] = j;
 				argptr[TYPE] = t;
@@ -171,14 +221,24 @@ void getarg (long t)
 					address = address + BYTEOFF;
 				argptr[OFFSET] = (address) & 0xff;
 				argptr[OFFSET + 1] = (address >> 8) & 0xff;
+				if (syntax == ANSI)
+					fixup[argstk/INTSIZE - 1] = &argptr[OFFSET];
 			} else
 				error ("expecting argument name");
 		}
-		argstk = argstk - INTSIZE;
-		if (endst ())
-			return;
-		if (!match (","))
-			error ("expected comma");
+		if (syntax == KR) {
+			argstk = argstk - INTSIZE;
+			if (endst ())
+				return;
+			if (!match (","))
+				error ("expected comma");
+		}
+		else {
+			if (streq(line + lptr, ")") || streq(line + lptr, ","))
+				return;
+			else
+				error ("expected comma or closing bracket");
+		}
 	}
 }
 

@@ -7,7 +7,7 @@
 #define _FUNCTION_H
 
 void newfunc (void);
-void getarg (long t);
+void getarg (long t, int syntax);
 void callfunction (char *ptr);
 void arg_stack(long arg);
 void arg_push_ins(INS *ptr);
