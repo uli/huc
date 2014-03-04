@@ -15,7 +15,7 @@
 #include "primary.h"
 #include "pragma.h"
 #include "sym.h"
-
+#include "function.h"
 
 /*
  *	declare a static variable
@@ -38,6 +38,10 @@ declglb (long typ, long stor)
 				id = VARIABLE;
 			if(!symname (sname))
 				illname ();
+			if (match("(")) {
+				newfunc(sname);
+				return 2;
+			}
 			if (findglb (sname))
 				multidef (sname);
 			if (match ("[")) {

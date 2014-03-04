@@ -53,25 +53,31 @@ char *fixup[32];
  *	modified version.  p.l. woods
  *
  */
-void newfunc (void)
+void newfunc (const char *sname)
 {
 	char n[NAMESIZE], *ptr;
 	char fn[NAMESIZE];
 	long  nbarg;
 
-	/* allow (and ignore) return type */
-	if (amatch("char", 4) || amatch("int", 3) || amatch("void", 4)) {
-		match("*");
+	if (sname) {
+		strcpy(fn, sname);
+		strcpy(n, sname);
 	}
+	else {
+		/* allow (and ignore) return type */
+		if (amatch("char", 4) || amatch("int", 3) || amatch("void", 4)) {
+			match("*");
+		}
 
-	if (!symname (n) ) {
-		error ("illegal function or declaration");
-		kill ();
-		return;
+		if (!symname (n) ) {
+			error ("illegal function or declaration");
+			kill ();
+			return;
+		}
+		strcpy(fn, n);
+		if (!match ("("))
+			error ("missing open paren");
 	}
-	strcpy(fn, n);
-	if (!match ("("))
-		error ("missing open paren");
 	locptr = STARTLOC;
 	argstk = 0;
 	nbarg = 0;

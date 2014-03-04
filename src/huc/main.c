@@ -362,7 +362,7 @@ void parse (void )
 				unget_line();
 				incl_globals();
 			} else {
-				newfunc ();
+				newfunc (NULL);
 			}
 		}
 		blanks ();
@@ -388,7 +388,10 @@ long dodcls(long stclass)
 		return(0);
 	else
 		err = declglb(CINT, stclass);
-	if (err)
+
+	if (err == 2) /* function */
+		return 1;
+	else if (err)
 		kill ();
 	else
 		ns ();

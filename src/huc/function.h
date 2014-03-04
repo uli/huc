@@ -6,7 +6,7 @@
 #ifndef _FUNCTION_H
 #define _FUNCTION_H
 
-void newfunc (void);
+void newfunc (const char *sname);
 void getarg (long t, int syntax);
 void callfunction (char *ptr);
 void arg_stack(long arg);
