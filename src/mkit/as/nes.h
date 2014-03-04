@@ -24,6 +24,17 @@ struct t_opcode nes_pseudo[11] = {
 	{NULL, NULL, NULL, 0, 0, 0}
 };
 
+char *defdirs_nes[] = {
+	"/usr/local/lib/huc/include/nes",
+	"/usr/local/huc/include/nes",
+	"/usr/local/share/huc/include/nes",
+	"/usr/local/include/nes",
+	"/usr/lib/huc/include/nes",
+	"/usr/share/huc/include/nes",
+	"/usr/include/nes",
+	NULL
+};
+
 /* NES machine description */
 struct t_machine nes = {
 	MACHINE_NES,   /* type */
@@ -31,6 +42,7 @@ struct t_machine nes = {
 	NES_ASM_VERSION, /* asm_title */
 	".nes",  /* rom_ext */
 	"NES_INCLUDE", /* include_env */
+	defdirs_nes, /* default_dirs */
 	0x100,  /* zp_limit */
 	0x800,  /* ram_limit */
 	0,      /* ram_base */

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "defs.h"
 #include "data.h"
 #include "error.h"
@@ -34,13 +35,35 @@ static char incpath[10][256];
 void
 init_path(void)
 {
-	char *p,*pl;
+	const char *p,*pl;
 	long	  i, l;
 
 	p = getenv("PCE_INCLUDE");
 
-	if (p == NULL)
-		return;
+	if (p == NULL) {
+		int i;
+		struct stat st;
+		const char *default_dirs[] = {
+			"/usr/local/lib/huc/include/pce",
+			"/usr/local/huc/include/pce",
+			"/usr/local/share/huc/include/pce",
+			"/usr/local/include/pce",
+			"/usr/lib/huc/include/pce",
+			"/usr/share/huc/include/pce",
+			"/usr/include/pce",
+			NULL
+		};
+		for (i = 0; default_dirs[i]; i++) {
+			if (!stat(default_dirs[i], &st)) {
+				p = default_dirs[i];
+				break;
+			}
+		}
+		
+		if (!p)
+			return;
+	}
+
 	for (i = 0; i < 10; i++) {
 		pl = strchr(p, ';');
 

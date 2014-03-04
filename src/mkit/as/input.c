@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/stat.h>
 #include "defs.h"
 #include "externs.h"
 #include "protos.h"
@@ -26,8 +27,18 @@ init_path(void)
 
 	p = getenv(machine->include_env);
 
-	if (p == NULL)
-		return;
+	if (p == NULL) {
+		int i;
+		struct stat st;
+		for (i = 0; machine->default_dirs[i]; i++) {
+			if (!stat(machine->default_dirs[i], &st)) {
+				p = machine->default_dirs[i];
+				break;
+			}
+		}
+		if (!p)
+			return;
+	}
 
 	for (i = 0; i < 10; i++) {
 

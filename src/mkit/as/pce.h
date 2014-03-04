@@ -136,6 +136,17 @@ struct t_opcode pce_pseudo[23] = {
 	{NULL, NULL, NULL, 0, 0, 0}
 };
 
+char *defdirs_pce[] = {
+	"/usr/local/lib/huc/include/pce",
+	"/usr/local/huc/include/pce",
+	"/usr/local/share/huc/include/pce",
+	"/usr/local/include/pce",
+	"/usr/lib/huc/include/pce",
+	"/usr/share/huc/include/pce",
+	"/usr/include/pce",
+	NULL
+};
+
 /* PCE machine description */
 struct t_machine pce = {
 	MACHINE_PCE,   /* type */
@@ -143,6 +154,7 @@ struct t_machine pce = {
 	PCE_ASM_VERSION, /* asm_title */
 	".pce",  /* rom_ext */
 	"PCE_INCLUDE", /* include_env */
+	defdirs_pce, /* default_dirs */
 	0xD8,    /* zp_limit */
 	0x2000,  /* ram_limit */
 	0x2000,  /* ram_base */

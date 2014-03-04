@@ -220,6 +220,7 @@ typedef struct t_machine {
 	char *asm_title;
 	char *rom_ext;
 	char *include_env;
+	char **default_dirs;
 	unsigned int zp_limit;
 	unsigned int ram_limit;
 	unsigned int ram_base;
