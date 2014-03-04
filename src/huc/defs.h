@@ -266,11 +266,11 @@
 /* pseudo instruction structure */
 
 typedef struct {
-	int   code;
-	int   type;
-	int   data;
-	int   imm;
-	int   arg[3];
+	long   code;
+	long   type;
+	long   data;
+	long   imm;
+	long   arg[3];
 	char *sym;
 } INS;
 
@@ -282,9 +282,9 @@ typedef struct {
 
 struct const_array {
 	char *sym;
-	int   typ;
-	int   size;
-	int   data;
+	long   typ;
+	long   size;
+	long   data;
 };
 
 /* fastcall func struct */
@@ -292,9 +292,9 @@ struct const_array {
 struct fastcall {
 	struct fastcall *next;
 	char   fname[NAMESIZE];
-	int    nargs;
-	int    argsize;
-	int    flags;
+	long    nargs;
+	long    argsize;
+	long    flags;
 	char   argtype[8];
 	char   argname[8][NAMESIZE];
 };

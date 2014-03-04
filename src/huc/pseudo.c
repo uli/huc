@@ -18,16 +18,16 @@
 
 /* local array to store internal strings */
 static char str_buf[0x10000];
-static int  str_idx;
+static long  str_idx;
 
 /* protos */
-char *new_string(int und, char *a);
-void  do_inc_ex(int type);
+char *new_string(long und, char *a);
+void  do_inc_ex(long type);
 
 /* extern protos */
 void add_buffer(char *p, char c);
 void new_const(void);
-void add_const(int typ);
+void add_const(long typ);
 
 
 /*
@@ -37,8 +37,8 @@ void add_const(int typ);
 
 void dopsdinc(void)
 {
- int dummy; /* Used in the qstr function, I don't know its utility yet */
- int numericarg = 0; /* Number of numeric arg to test validity */
+ long dummy; /* Used in the qstr function, I don't know its utility yet */
+ long numericarg = 0; /* Number of numeric arg to test validity */
 
  if (amatch("pal",3))
    {
@@ -405,10 +405,10 @@ void dopsdinc(void)
 
 void dopsddef(void)
 {
-  int numericarg = 0;
-  int dummy;
-  int dummy_array[16];
-  int i;
+  long numericarg = 0;
+  long dummy;
+  long dummy_array[16];
+  long i;
 
   if (amatch("pal",3))
    {
@@ -612,7 +612,7 @@ void dopsddef(void)
  }
 
 
-int outcomma(void)
+long outcomma(void)
 {
 
    if (!match(","))
@@ -628,7 +628,7 @@ int outcomma(void)
 
  }
 
-int outnameunderline(void)
+long outnameunderline(void)
 {
   char	n[NAMESIZE];
 
@@ -646,10 +646,10 @@ int outnameunderline(void)
 
  }
 
-int outconst(void)
+long outconst(void)
 {
 
-  int dummy;
+  long dummy;
 
   number(&dummy);
   outbyte('#');
@@ -778,7 +778,7 @@ void doload_backgroundstatement(void)
  }
 
 void
-do_asm_func(int type)
+do_asm_func(long type)
 {	/* syntax is
 	   name of the data : identifier
 	 */
@@ -800,16 +800,16 @@ do_asm_func(int type)
 
 	/* gen code */
 	if (ptr)
-		out_ins(I_LDWI, type, (int)ptr);
+		out_ins(I_LDWI, type, (long)ptr);
 	else
 		error("out of memory");
 }
 
 char *
-new_string(int und, char *a)
+new_string(long und, char *a)
 {
-	int len;
-	int tmp;
+	long len;
+	long tmp;
 
 	if (a == NULL)
 		return (NULL);
@@ -826,19 +826,19 @@ new_string(int und, char *a)
 }
 
 void
-do_inc_ex(int type)
+do_inc_ex(long type)
 {
-	int end;
-	int i;
-	int j;
-	int num;
+	long end;
+	long i;
+	long j;
+	long num;
 	int nb_tile;
 	char label[NAMESIZE];
 	char label2[NAMESIZE];
 	char str[NAMESIZE+32];
 	struct {
 		char fname[FILENAMESIZE];
-		int  arg[5];
+		long  arg[5];
 	} tiles[16];
 
 	if(!match("(")) {
@@ -930,7 +930,7 @@ do_inc_ex(int type)
 	add_buffer(str, '(');
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile size */
-	sprintf(str, "%i", type);
+	sprintf(str, "%i", (int)type);
 	add_buffer(str, '(');
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile bank */

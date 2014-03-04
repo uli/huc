@@ -7,10 +7,10 @@
 #define _CONST_H
 
 void new_const(void );
-void add_const(int typ);
-int array_initializer(int typ, int id, int stor);
-int get_string_ptr(int typ);
-int get_raw_value(void );
+void add_const(long typ);
+long array_initializer(long typ, long id, long stor);
+long get_string_ptr(long typ);
+long get_raw_value(void );
 void add_buffer (char *p, char c);
 void dump_const (void );
 

@@ -139,7 +139,7 @@ static char *pragma_init[] = {
 };
 
 /* protos */
-int fastcall_look(char *fname, int nargs, struct fastcall **p);
+long fastcall_look(char *fname, long nargs, struct fastcall **p);
 
 
 /* ----
@@ -150,7 +150,7 @@ int fastcall_look(char *fname, int nargs, struct fastcall **p);
  */
 void dopragma(void )
 {
-	int i;
+	long i;
 
 	/* make a local copy of the pragma command line */
 	for (i = 0;; i++) {
@@ -172,7 +172,7 @@ void dopragma(void )
  */
 void defpragma(void )
 {
-	int i;
+	long i;
 
 	for (i = 0;; i++) {
 		if (pragma_init[i] == NULL)
@@ -225,9 +225,9 @@ void new_fastcall(void )
 	struct fastcall *ptr;
 	char   fname[NAMESIZE];
 	char   sname[NAMESIZE];
-	int    hash;
-	int    cnt;
-	int    i;
+	long    hash;
+	long    cnt;
+	long    i;
 
 	ptr = &ftemp;
 	cnt = 0;
@@ -411,13 +411,13 @@ void new_fastcall(void )
  * search a fastcall function
  *
  */
-int
-fastcall_look(char *fname, int nargs, struct fastcall **p)
+long
+fastcall_look(char *fname, long nargs, struct fastcall **p)
 {
 	struct fastcall *ptr;
 	struct fastcall *ref;
-	int hash;
-	int nb;
+	long hash;
+	long nb;
 
 	/* search */
 	hash = symhash(fname);
@@ -453,12 +453,12 @@ fastcall_look(char *fname, int nargs, struct fastcall **p)
  *
  */
 
-int
+long
 symhash(char *sym)
 {
-	int  i;
+	long  i;
 	char c;
-	int  hash = 0;
+	long  hash = 0;
 
 	/* calc hash value */
 	for (i = 0;; i++) {
@@ -480,10 +480,10 @@ symhash(char *sym)
  * extract a symbol name
  *
  */
-int
+long
 symget(char *sname)
 {
-	int	i;
+	long	i;
 
 	skip_blanks();
 
@@ -510,10 +510,10 @@ symget(char *sname)
  * test if next input string is legal symbol name
  *
  */
-int
+long
 strmatch(char *lit)
 {
-	int	i;
+	long	i;
 
 	skip_blanks();
 

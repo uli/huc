@@ -10,38 +10,38 @@
 
 struct const_array *const_ptr;
 struct const_array  const_var[MAX_CONST];
-int  const_val[MAX_CONST_VALUE];
+long  const_val[MAX_CONST_VALUE];
 char const_data[MAX_CONST_DATA];
-int  const_val_start;
-int  const_val_idx;
-int  const_data_start;
-int  const_data_idx;
-int  const_size;
-int  const_nb;
+long  const_val_start;
+long  const_val_idx;
+long  const_data_start;
+long  const_data_idx;
+long  const_size;
+long  const_nb;
 
 /* storage words */
 
 char symtab[SYMTBSZ];
 char *glbptr, *rglbptr, *locptr;
-int  ws[WSTABSZ];
-int  *wsptr;
-int   swstcase[SWSTSZ];
-int   swstlab[SWSTSZ];
-int   swstp;
+long  ws[WSTABSZ];
+long  *wsptr;
+long   swstcase[SWSTSZ];
+long   swstlab[SWSTSZ];
+long   swstp;
 char  litq[LITABSZ];
 char  litq2[LITABSZ];
-int   litptr;
+long   litptr;
 char  macq[MACQSIZE];
-int   macptr;
+long   macptr;
 char  line[LINESIZE];
 char  mline[LINESIZE];
-int   lptr, mptr;
+long   lptr, mptr;
 
 char  asmdefs[LITABSZ];
 
 /* miscellaneous storage */
 
-int	nxtlab,
+long	nxtlab,
 	litlab,
 	stkp,
 	zpstkp,
@@ -62,20 +62,20 @@ FILE	*inclstk[INCLSIZ];
 
 char    inclstk_name[INCLSIZ][FILENAMESIZE];
 char    fname_copy[FILENAMESIZE];
-int     inclstk_line[INCLSIZ];
-int     line_number;
+long     inclstk_line[INCLSIZ];
+long     line_number;
 
-int		inclsp;
+long		inclsp;
 char	fname[FILENAMESIZE];
 
 char	quote[2];
 char	*cptr;
-int	*iptr;
-int	fexitlab;
-int	iflevel, skiplevel;
-int	errfile;
-int	sflag;
-int	cdflag;
-int	verboseflag;
-int	startup_incl;
-int	errs;
+long	*iptr;
+long	fexitlab;
+long	iflevel, skiplevel;
+long	errfile;
+long	sflag;
+long	cdflag;
+long	verboseflag;
+long	startup_incl;
+long	errs;

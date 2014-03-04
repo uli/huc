@@ -28,7 +28,7 @@ void error (char *ptr)
 
 void doerror(char* ptr)
 {
-	int k;
+	long k;
         comment ();
         outstr(" ERROR: ");
         if (inclsp)

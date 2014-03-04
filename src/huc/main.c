@@ -34,7 +34,7 @@ int main (int argc,char* argv[])
 {
 	char	*p,*bp;
 	char** oldargv = argv;
-	int smacptr;
+	long smacptr;
 	macptr = 0;
 	ctext = 0;
 	argc--; argv++;
@@ -375,9 +375,9 @@ void parse (void )
  *		parse top level declarations
  */
 
-int dodcls(int stclass)
+long dodcls(long stclass)
 {
-	int err;
+	long err;
 
 	blanks();
 	if (amatch("char", 4))
@@ -401,7 +401,7 @@ int dodcls(int stclass)
  */
 void dumplits (void )
 {
-	int	j, k;
+	long	j, k;
 
 	if ((litptr == 0) && (const_nb == 0))
 		return;
@@ -433,8 +433,8 @@ void dumplits (void )
  */
 void dumpglbs (void )
 {
-	int i = 1;
-	int	j;
+	long i = 1;
+	long	j;
 
 	if (glbflag) {
 		cptr = rglbptr;
@@ -516,13 +516,13 @@ char extension(char *s)
 	return(' ');
 }
 
-int assemble(char *s)
+long assemble(char *s)
 {
 	char buf[100];
 	char *exe;
 	char *opts[10];
-	int i;
-//	int j;
+	long i;
+//	long j;
 
 	i = 0;
 

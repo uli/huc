@@ -35,7 +35,7 @@ void
 init_path(void)
 {
 	char *p,*pl;
-	int	  i, l;
+	long	  i, l;
 
 	p = getenv("PCE_INCLUDE");
 
@@ -70,7 +70,7 @@ file_open(char *name, char *mode)
 {
 	FILE *fp = NULL;
 	char  testname[256];
-	int	  i;
+	long	  i;
 
 	for (i = 0; i < 10; i++) {
 		if (strlen(incpath[i])) {
@@ -210,7 +210,7 @@ void doasmdef (void)
 {
 char sname[100];
 char sval[100];
-int i = 0;
+long i = 0;
 
 	symname(sname);
 	while ( (ch () == ' ') || (ch () == 9) )
@@ -235,7 +235,7 @@ void dodefine (void)
 
 void doundef (void)
 {
-	int	mp;
+	long	mp;
 	char	sname[NAMESIZE];
 
 	if (!symname(sname)) {
@@ -256,10 +256,10 @@ void preprocess (void)
 	while (cpp());
 }
 
-void doifdef (int ifdef)
+void doifdef (long ifdef)
 {
 	char sname[NAMESIZE];
-	int k;
+	long k;
 
 	blanks();
 	++iflevel;
@@ -268,7 +268,7 @@ void doifdef (int ifdef)
 	if (k != ifdef) skiplevel = iflevel;
 }
 
-int ifline(void)
+long ifline(void)
 {
 	FOREVER {
 		readline();
@@ -311,12 +311,12 @@ void noiferr(void)
 }
 
 
-int cpp (void)
+long cpp (void)
 {
-	int	k;
+	long	k;
 	char	c, sname[NAMESIZE];
-	int	tog;
-	int	cpped;		/* non-zero if something expanded */
+	long	tog;
+	long	cpped;		/* non-zero if something expanded */
 
 	cpped = 0;
 	/* don't expand lines with preprocessor commands in them */
@@ -413,7 +413,7 @@ int cpp (void)
 	return(cpped);
 }
 
-int keepch (char c)
+long keepch (char c)
 {
 	mline[mptr] = c;
 	if (mptr < MPMAX)
@@ -431,8 +431,8 @@ void defmac(char* s)
 void addmac (void)
 {
 	char	sname[NAMESIZE];
-	int	k;
-	int	mp;
+	long	k;
+	long	mp;
 
 	if (!symname (sname)) {
 		illname ();
@@ -456,14 +456,14 @@ void addmac (void)
 		error ("macro table full");
 }
 
-void delmac(int mp)
+void delmac(long mp)
 {
 	--mp; --mp;	/* step over previous null */
 	while (mp >= 0 && macq[mp]) macq[mp--] = '%';
 }
 	
 
-int putmac (char c)
+long putmac (char c)
 {
 	macq[macptr] = c;
 	if (macptr < MACMAX)
@@ -471,9 +471,9 @@ int putmac (char c)
 	return (c);
 }
 
-int findmac (char* sname)
+long findmac (char* sname)
 {
-	int	k;
+	long	k;
 
 	k = 0;
 	while (k < macptr) {
@@ -487,7 +487,7 @@ int findmac (char* sname)
 	return (0);
 }
 
-void toggle (char name, int onoff)
+void toggle (char name, long onoff)
 {
 	switch (name) {
 	case 'C':

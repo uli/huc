@@ -15,14 +15,14 @@
 /*
  *	open input file
  * Input : char* p
- * Output : int error code
+ * Output : long error code
  * 
  * Try to open the file whose filename is p, return YES if opened, else NO
  * Updates fname with the actual opened name
  * input is the handle of the opened file
  * 
  */
-int openin (char *p)
+long openin (char *p)
 {
 	strcpy(fname, p);
         strcpy(fname_copy, fname);
@@ -47,7 +47,7 @@ int openin (char *p)
  * else returns NO
  * 
  */
-int openout (void)
+long openout (void)
 {
    outfname (fname);
    if ((output = fopen (fname, "w")) == NULL) {
@@ -94,13 +94,13 @@ void fixname (char *s)
 /*
  *	check that filename is "*.c"
  * Input : char* s
- * Output : int
+ * Output : long
  * 
  * verify that the 2 last letter of s are ".c", returns YES in this case,
  * else NO
  * 
  */
-int checkname (char *s)
+long checkname (char *s)
 {
 	while (*s)
 		s++;
@@ -142,7 +142,7 @@ void kill (void )
 
 void unget_line (void)
 {
-	int i;
+	long i;
 
 	i = strlen(line);
 	if (i > 0) {
@@ -166,7 +166,7 @@ void unget_line (void)
 
 void readline (void)
 {
-	int	k;
+	long	k;
 	FILE	*unit;
 
 	FOREVER {
@@ -210,14 +210,14 @@ void readline (void)
 /*
  *              inbyte
  * Input : nothing
- * Output : int, (actualy char)
+ * Output : long, (actualy char)
  * 
  * Uses the preprocessor as much as possible to get readable data
  * then read the next char and make lptr points to the next one
  * 
  */
 
-int inbyte (void )
+long inbyte (void )
 {
 	while (ch () == 0) {
 		if (feof (input))
@@ -230,13 +230,13 @@ int inbyte (void )
 /*
  *               inchar
  * Input : nothing
- * Output : int, (actualy char)
+ * Output : long, (actualy char)
  * 
  * Returns the current char, making lptr points to the next one
  * If the buffer if empty, fill it with next line from input
  * 
  */
-int inchar (void )
+long inchar (void )
 {
 	if (ch () == 0)
 		readline ();
@@ -248,14 +248,14 @@ int inchar (void )
 /*
  *              gch
  * Input : nothing
- * Output : int, (actualy char)
+ * Output : long, (actualy char)
  * 
  * If the pointed char (by line and lptr) is 0, return this value
  * else return the current pointed char and advance the lptr to point
  * on the following char
  * 
  */
-int gch (void )
+long gch (void )
 {
 	if (ch () == 0)
 		return (0);
@@ -266,14 +266,14 @@ int gch (void )
 /*
  *                 nch
  * Input : nothing
- * Output : int, (actualy char)
+ * Output : long, (actualy char)
  * 
  * If called when the pointed char is at the end of the line, return 0
  * else return the following char
  * Doesn't change line nor lptr variable
  * 
  */
-int nch (void )
+long nch (void )
 {
 	if (ch () == 0)
 		return (0);
@@ -285,7 +285,7 @@ int nch (void )
  *           ch
  * 
  * Input : nothing but use global line and lptr variables
- * Output : int, (actually char), corresponding to the current pointed char
+ * Output : long, (actually char), corresponding to the current pointed char
  *    during the parsing
  * 
  * Appears to be the major function used during the parsing.
@@ -293,7 +293,7 @@ int nch (void )
  *
  */
 
-int ch (void )
+long ch (void )
 {
 	return (line[lptr] & 127);
 }
@@ -305,7 +305,7 @@ int ch (void )
 void pl (char *str)
 /*char	*str; */
 {
-	int	k;
+	long	k;
 
 	k = 0;
 	putchar (EOL);
@@ -329,8 +329,8 @@ void glabel (char *lab)
 /*
  *	gnlabel - generate numeric label
  */
-void gnlabel (int nlab)
-/*int	nlab; */
+void gnlabel (long nlab)
+/*long	nlab; */
 {
 	flush_ins(); /* David - optimize.c related */
 	outlabel (nlab);
@@ -452,7 +452,7 @@ void outsymbol (char *ptr)
 /*
  *	print specified number as label
  */
-void outlabel (int label)
+void outlabel (long label)
 {
 	olprfix ();
 	outdec (label);
@@ -462,9 +462,9 @@ void outlabel (int label)
  *  Output a decimal number to the assembler file
  */
 /*
-void outdec (int number)
+void outdec (long number)
 {
-	int	k, zs;
+	long	k, zs;
 	char	c;
 
 	if (number == -32768) {
@@ -490,12 +490,12 @@ void outdec (int number)
 */
 
 /* Newer version, shorter and certainly faster */
-void outdec(int number)
+void outdec(long number)
 {
  char s[10];
  int i = 0;
 
- sprintf(s,"%d",number);
+ sprintf(s,"%d",(int)number);
 
  while (s[i])
    outbyte(s[i++]);
@@ -507,9 +507,9 @@ void outdec(int number)
  */
 
 /*
-void outhex (int number)
+void outhex (long number)
 {
-	int	k, zs;
+	long	k, zs;
 	char	c;
 
 	zs = 0;
@@ -533,14 +533,14 @@ void outhex (int number)
 */
 
 /* Newer version, shorter and certainly faster */
-void outhex (int number)
+void outhex (long number)
 {
 	int	i = 0;
 	char	s[10];
 
         outbyte('$');
 
-        sprintf(s,"%0X",number);
+        sprintf(s,"%0X",(int)number);
 
         while (s[i])
           outbyte(s[i++]);
@@ -550,7 +550,7 @@ void outhex (int number)
 /*
  * Output an hexadecimal number with a certain number of digits
  */
-void outhexfix (int number, int length)
+void outhexfix (long number, long length)
 {
 	int	i = 0;
 	char	s[10];
@@ -558,7 +558,7 @@ void outhexfix (int number, int length)
 
         outbyte('$');
 
-        sprintf(format,"%%0%dX", length);
+        sprintf(format,"%%0%dX", (int)length);
 
         sprintf(s,format,number);
 
@@ -597,7 +597,7 @@ char outbyte (char c)
 void outstr (char *ptr)
 /*char	ptr[];*/
 {
-	int	k;
+	long	k;
 
 	k = 0;
 	while (outbyte (ptr[k++]));

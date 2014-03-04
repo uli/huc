@@ -6,7 +6,7 @@
 #ifndef _CODE_H
 #define _CODE_H
 
-extern int segment;
+extern long segment;
 
 void gdata (void );
 void gtext (void );
@@ -16,9 +16,9 @@ void asmdefines(void );
 void defbyte (void );
 void defstorage (void );
 void defword (void );
-void out_ins(int code, int type, int data);
-void out_ins_ex(int code, int type, int data, int imm);
-void out_ins_sym(int code, int type, int data, char *sym);
+void out_ins(long code, long type, long data);
+void out_ins_ex(long code, long type, long data, long imm);
+void out_ins_sym(long code, long type, long data, char *sym);
 void gen_ins(INS *tmp);
 void gen_code(INS *tmp);
 

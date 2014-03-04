@@ -7,11 +7,11 @@
 #ifndef _STMT_H
 #define _STMT_H
 
-int statement (int func);
-int stdecl (void);
-int doldcls(int stclass);
+long statement (long func);
+long stdecl (void);
+long doldcls(long stclass);
 void stst (void );
-void compound (int func);
+void compound (long func);
 void doif (void );
 void dowhile (void );
 void dodo (void );
@@ -22,8 +22,8 @@ void dodefault (void );
 void doreturn (void );
 void dobreak (void );
 void docont (void );
-void dumpsw (int *ws);
-void test (int label, int ft);
+void dumpsw (long *ws);
+void test (long label, long ft);
 
 #endif
 

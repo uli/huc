@@ -18,12 +18,12 @@
 void FEvers(void );
 void usage(char* exename);
 void parse (void );
-int dodcls(int stclass);
+long dodcls(long stclass);
 void dumplits (void );
 void dumpglbs (void );
 void errorsummary (void );
 char extension(char *s);
-int assemble(char *s);
+long assemble(char *s);
 
 #endif
 

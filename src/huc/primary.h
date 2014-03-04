@@ -6,16 +6,16 @@
 #ifndef _PRIMARY_H
 #define _PRIMARY_H
 
-int primary (int* lval);
-int dbltest (int val1[],int val2[]);
-void result (int lval[],int lval2[]);
-int constant (int val[]);
-int number (int val[]);
-int pstr (int val[]);
-int qstr (int val[]);
-int readqstr (void );
-int readstr (void );
-int spechar(void );
+long primary (long* lval);
+long dbltest (long val1[],long val2[]);
+void result (long lval[],long lval2[]);
+long constant (long val[]);
+long number (long val[]);
+long pstr (long val[]);
+long qstr (long val[]);
+long readqstr (void );
+long readstr (void );
+long spechar(void );
 
 #endif
 

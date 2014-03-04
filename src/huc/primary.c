@@ -15,11 +15,11 @@
 #include "primary.h"
 #include "sym.h"
 
-int primary (int* lval)
+long primary (long* lval)
 {
 	char	*ptr, sname[NAMESIZE];
-	int	num[1];
-	int	k;
+	long	num[1];
+	long	k;
 
 	lval[2] = 0;  /* clear pointer/array type */
 	lval[3] = 0;
@@ -62,7 +62,7 @@ int primary (int* lval)
 			/* David, patched to support
 			 *        local 'static' variables
 			 */
-			lval[0] = (int)ptr;
+			lval[0] = (long)ptr;
 			lval[1] = ptr[TYPE];
 			if (ptr[IDENT] == POINTER) {
 				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
@@ -89,7 +89,7 @@ int primary (int* lval)
 		ptr = findglb (sname);
 		if (ptr) {
 			if (ptr[IDENT] != FUNCTION) {
-				lval[0] = (int)ptr;
+				lval[0] = (long)ptr;
 				lval[1] = 0;
 				if (ptr[IDENT] != ARRAY) {
 					if (ptr[IDENT] == POINTER)
@@ -97,7 +97,7 @@ int primary (int* lval)
 					return (1);
 				}
 				if (!ptr[FAR])
-					immed (T_SYMBOL, (int)ptr);
+					immed (T_SYMBOL, (long)ptr);
 				else {
 					/* special variables */
 					blanks ();
@@ -110,7 +110,7 @@ int primary (int* lval)
 								error ("can't access vram this way");
 						}
 						/* others */
-						immed (T_SYMBOL, (int)ptr);
+						immed (T_SYMBOL, (long)ptr);
 //						error ("can't access far array");
 					}
 				}
@@ -122,7 +122,7 @@ int primary (int* lval)
 		blanks ();
 		if (ch() != '(') {
 			if (ptr && (ptr[IDENT] == FUNCTION)) {
-				lval[0] = (int)ptr;
+				lval[0] = (long)ptr;
 				lval[1] = 0;
 				return (0);
 			}
@@ -130,7 +130,7 @@ int primary (int* lval)
 		}
 		ptr = addglb (sname, FUNCTION, CINT, 0, PUBLIC);
 		indflg = 0;
-		lval[0] = (int)ptr;
+		lval[0] = (long)ptr;
 		lval[1] = 0;
 		return (0);
 	}
@@ -148,9 +148,9 @@ int primary (int* lval)
 }
 
 /*
- *	true if val1 -> int pointer or int array and val2 not pointer or array
+ *	true if val1 -> long pointer or long array and val2 not pointer or array
  */
-int dbltest (int val1[],int val2[])
+long dbltest (long val1[],long val2[])
 {
 	if (val1 == NULL)
 		return (FALSE);
@@ -164,7 +164,7 @@ int dbltest (int val1[],int val2[])
 /*
  *	determine type of binary operation
  */
-void result (int lval[],int lval2[])
+void result (long lval[],long lval2[])
 {
 	if (lval[2] && lval2[2])
 		lval[2] = 0;
@@ -175,7 +175,7 @@ void result (int lval[],int lval2[])
 	}
 }
 
-int constant (int val[])
+long constant (long val[])
 {
 	if (number (val))
 		immed (T_VALUE,  val[0]);
@@ -188,9 +188,9 @@ int constant (int val[])
 	return (1);
 }
 
-int number (int val[])
+long number (long val[])
 {
-	int	k, minus, base;
+	long	k, minus, base;
 	char	c;
 
 	k = minus = 1;
@@ -231,9 +231,9 @@ int number (int val[])
  * pstr parses a character than can eventually be 'double' i.e. like 'a9'
  * returns 0 in case of failure else 1
  */
-int pstr (int val[])
+long pstr (long val[])
 {
-	int	k;
+	long	k;
 	char	c;
 
 	k = 0;
@@ -252,7 +252,7 @@ int pstr (int val[])
  * qstr parses a double quoted string into litq
  * return 0 in case of failure and 1 else
  */
-int qstr (int val[])
+long qstr (long val[])
 {
 	char	c;
 
@@ -284,10 +284,10 @@ int qstr (int val[])
  * Zeograd: this function don't dump the result of the reading in the literal
  * pool, it is rather intended for use in pseudo code
  */
-int readqstr (void )
+long readqstr (void )
 {
 	char	c;
-        int	posptr = 0;
+        long	posptr = 0;
 
 	if (!match (quote))
 		return (0);
@@ -317,10 +317,10 @@ int readqstr (void )
  * Zeograd: this function don't dump the result of the reading in the literal
  * pool, it is rather intended for use in pseudo code
  */
-int readstr (void )
+long readstr (void )
 {
 	char	c;
-        int	posptr = 0;
+        long	posptr = 0;
 
 	while (an(ch ()) || (ch()=='_') ) {
 		if (ch () == 0)
@@ -340,7 +340,7 @@ int readstr (void )
 /*
  *	decode special characters (preceeded by back slashes)
  */
-int spechar(void )
+long spechar(void )
 {
 	char c;
 	c = ch();

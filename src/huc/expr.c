@@ -23,9 +23,9 @@
  *	lval[2] - type pointer or array, else 0
  */
 
-void expression (int comma)
+void expression (long comma)
 {
-	int	lval[4];
+	long	lval[4];
 
 	do {
 		if (heir1 (lval))
@@ -35,10 +35,10 @@ void expression (int comma)
 	} while (match (","));
 }
 
-int heir1 (int * lval)
-/*int	lval[]; */
+long heir1 (long * lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 	char	fc;
 
 	k = heir1a (lval);
@@ -107,10 +107,10 @@ int heir1 (int * lval)
 	}
 }
 
-int heir1a (int *lval)
-/* int	lval[]; */
+long heir1a (long *lval)
+/* long	lval[]; */
 {
-	int	k, lval2[4], lab1, lab2;
+	long	k, lval2[4], lab1, lab2;
 
 	k = heir1b (lval);
 	blanks ();
@@ -137,10 +137,10 @@ int heir1a (int *lval)
 			return (0);
 }
 
-int heir1b (int *lval)
-/*int	lval[]; */
+long heir1b (long *lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4], lab;
+	long	k, lval2[4], lab;
 
 	k = heir1c (lval);
 	blanks ();
@@ -159,10 +159,10 @@ int heir1b (int *lval)
 			return (0);
 }
 
-int heir1c (int *lval)
-/*int	lval[]; */
+long heir1c (long *lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4], lab;
+	long	k, lval2[4], lab;
 
 	k = heir2 (lval);
 	blanks ();
@@ -181,10 +181,10 @@ int heir1c (int *lval)
 			return (0);
 }
 
-int heir2 (int *lval)
-/*int	lval[]; */
+long heir2 (long *lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir3 (lval);
 	blanks ();
@@ -205,10 +205,10 @@ int heir2 (int *lval)
 	}
 }
 
-int heir3 (int *lval)
-/* int	lval[]; */
+long heir3 (long *lval)
+/* long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir4 (lval);
 	blanks ();
@@ -229,10 +229,10 @@ int heir3 (int *lval)
 	}
 }
 
-int heir4 (int *lval)
-/* int	lval[]; */
+long heir4 (long *lval)
+/* long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir5 (lval);
 	blanks ();
@@ -253,10 +253,10 @@ int heir4 (int *lval)
 	}
 }
 
-int heir5 (int *lval)
-/*int	lval[]; */
+long heir5 (long *lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir6 (lval);
 	blanks ();
@@ -281,10 +281,10 @@ int heir5 (int *lval)
 	}
 }
 
-int heir6 (int *lval)
-/* int	lval[]; */
+long heir6 (long *lval)
+/* long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir7 (lval);
 	blanks ();
@@ -344,10 +344,10 @@ int heir6 (int *lval)
 	}
 }
 
-int heir7 (int *lval)
-/*int	lval[]; */
+long heir7 (long *lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir8 (lval);
 	blanks ();
@@ -375,10 +375,10 @@ int heir7 (int *lval)
 	}
 }
 
-int heir8 (int *lval)
-/*int	lval[]; */
+long heir8 (long *lval)
+/*long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir9 (lval);
 	blanks ();
@@ -391,19 +391,19 @@ int heir8 (int *lval)
 			gpush ();
 			if (heir9 (lval2))
 				rvalue (lval2);
-			/* if left is pointer and right is int, scale right */
+			/* if left is pointer and right is long, scale right */
 			if (dbltest (lval, lval2))
 				gaslint ();
-			/* will scale left if right int pointer and left int */
+			/* will scale left if right long pointer and left long */
 			gadd (lval,lval2);
 			result (lval, lval2);
 		} else if (match ("-")) {
 			gpush ();
 			if (heir9 (lval2))
 				rvalue (lval2);
-			/* if dbl, can only be: pointer - int, or
+			/* if dbl, can only be: pointer - long, or
 						pointer - pointer, thus,
-				in first case, int is scaled up,
+				in first case, long is scaled up,
 				in second, result is scaled down. */
 			if (dbltest (lval, lval2))
 				gaslint ();
@@ -418,10 +418,10 @@ int heir8 (int *lval)
 	}
 }
 
-int heir9 (int *lval)
-/* int	lval[]; */
+long heir9 (long *lval)
+/* long	lval[]; */
 {
-	int	k, lval2[4];
+	long	k, lval2[4];
 
 	k = heir10 (lval);
 	blanks ();
@@ -451,10 +451,10 @@ int heir9 (int *lval)
 	}
 }
 
-int heir10 (int *lval)
-/* int	lval[]; */
+long heir10 (long *lval)
+/* long	lval[]; */
 {
-	int	k;
+	long	k;
 	char	*ptr;
 
 	if (match ("++")) {
@@ -537,7 +537,7 @@ int heir10 (int *lval)
 			return (0);
 		/* global and non-array */
 		ptr = (char*)lval[0];
-		immed (T_SYMBOL, (int)ptr);
+		immed (T_SYMBOL, (long)ptr);
 		lval[1] = ptr[TYPE];
 		return (0);
 	} else {
@@ -580,10 +580,10 @@ int heir10 (int *lval)
 	}
 }
 
-int heir11 (int *lval)
-/*int	*lval; */
+long heir11 (long *lval)
+/*long	*lval; */
 {
-	int	k;
+	long	k;
 	char	*ptr;
 
 	k = primary (lval);
@@ -615,7 +615,7 @@ int heir11 (int *lval)
 				lval[0] = 0;
 				lval[1] = ptr[TYPE];
 				lval[2] = 0;//VARIABLE; /* David, bug patch ?? */
-				lval[3] = ptr[FAR] ? (int)ptr : (int)NULL;
+				lval[3] = ptr[FAR] ? (long)ptr : (long)NULL;
 				k = 1;
 			}
 			else if (match ("(")) {
@@ -628,7 +628,7 @@ int heir11 (int *lval)
 						callfunction (ptr);
 					else {
 						if (ptr[FAR]) {
-							lval[3] = (int)ptr;
+							lval[3] = (long)ptr;
 							immed (T_VALUE, 0);
 						}
 						rvalue (lval);
@@ -645,14 +645,14 @@ int heir11 (int *lval)
 	if (ptr == 0)
 		return (k);
 	if (ptr[IDENT] == FUNCTION) {
-		immed (T_SYMBOL, (int)ptr);
+		immed (T_SYMBOL, (long)ptr);
 		return (0);
 	}
 	return (k);
 }
 
-void store (int *lval)
-/* int	*lval; */
+void store (long *lval)
+/* long	*lval; */
 {
 	if (lval[3]) {
 		/* far arrays (or special arrays) */
@@ -671,19 +671,19 @@ void store (int *lval)
 			putstk (lval[1]);
 		else {
 			if (strcmp((char *)lval[0], "vram") == 0)
-				out_ins(I_VPUTW, (int)NULL, (int)NULL);
+				out_ins(I_VPUTW, (long)NULL, (long)NULL);
 			else
 				putmem ((char *)lval[0]);
 		}
 	}
 }
 
-void rvalue (int *lval)
-/* int	*lval; */
+void rvalue (long *lval)
+/* long	*lval; */
 {
 	if ((lval[0] != 0) && (lval[1] == 0)) {
 		if (strcmp((char *)lval[0], "vram") == 0)
-			out_ins(I_VGETW, (int)NULL, (int)NULL);
+			out_ins(I_VGETW, (long)NULL, (long)NULL);
 		else
 			getmem ((char *)lval[0]);
 	}

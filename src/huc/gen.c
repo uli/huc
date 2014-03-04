@@ -24,10 +24,10 @@ static char *needargs[] = {
  *	gen arg count
  *
  */
-void gnargs (char *name, int nb)
+void gnargs (char *name, long nb)
 {
 	char *ptr;
-	int   i;
+	long   i;
 
 	if (name == NULL)
 		return;
@@ -47,7 +47,7 @@ void gnargs (char *name, int nb)
  *	return next available internal label number
  *
  */
-int getlabel (void )
+long getlabel (void )
 {
 	return (nxtlab++);
 }
@@ -61,12 +61,12 @@ void getmem (char *sym)
 		if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
 			out_ins(I_LDB, T_LABEL, glint(sym));
 		else
-			out_ins(I_LDB, T_SYMBOL, (int)(sym + NAME));
+			out_ins(I_LDB, T_SYMBOL, (long)(sym + NAME));
 	} else {
 		if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
 			out_ins(I_LDW, T_LABEL, glint(sym));
 		else
-			out_ins(I_LDW, T_SYMBOL, (int)(sym + NAME));
+			out_ins(I_LDW, T_SYMBOL, (long)(sym + NAME));
 	}
 }
 
@@ -75,11 +75,11 @@ void getmem (char *sym)
  */
 void getio (char *sym)
 {
-	out_ins(I_CALL, T_LIB, (int)"getvdc");
+	out_ins(I_CALL, T_LIB, (long)"getvdc");
 }
 void getvram (char *sym)
 {
-	out_ins(I_CALL, T_LIB, (int)"readvram");
+	out_ins(I_CALL, T_LIB, (long)"readvram");
 }
 
 /*
@@ -88,7 +88,7 @@ void getvram (char *sym)
  */
 void getloc (char *sym)
 {
-	int value;
+	long value;
 
 	if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
 		out_ins(I_LDWI, T_LABEL, glint(sym));
@@ -110,7 +110,7 @@ void getloc (char *sym)
  */
 void putmem (char *sym)
 {
-	int code;
+	long code;
 
 	if ((sym[IDENT] != POINTER) & (sym[TYPE] == CCHAR))
 		code = I_STB;
@@ -120,7 +120,7 @@ void putmem (char *sym)
 	if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
 		out_ins(code, T_LABEL, glint(sym));
 	else
-		out_ins(code, T_SYMBOL, (int)(sym + NAME));
+		out_ins(code, T_SYMBOL, (long)(sym + NAME));
 }
 
 /*
@@ -131,9 +131,9 @@ void putmem (char *sym)
 void putstk (char typeobj)
 {
 	if (typeobj == CCHAR)
-		out_ins(I_STBPS, (int)NULL, (int)NULL);
+		out_ins(I_STBPS, (long)NULL, (long)NULL);
 	else
-		out_ins(I_STWPS, (int)NULL, (int)NULL);
+		out_ins(I_STWPS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -144,12 +144,12 @@ void putstk (char typeobj)
  */
 void putio (char *sym)
 {
-	out_ins(I_JSR, T_LIB, (int)"setvdc");
+	out_ins(I_JSR, T_LIB, (long)"setvdc");
 	stkp = stkp + INTSIZE;
 }
 void putvram (char *sym)
 {
-	out_ins(I_JSR, T_LIB, (int)"writevram");
+	out_ins(I_JSR, T_LIB, (long)"writevram");
 	stkp = stkp + INTSIZE;
 }
 
@@ -160,20 +160,20 @@ void putvram (char *sym)
  */
 void indirect (char typeobj)
 {
-	out_ins(I_STW, T_PTR, (int)NULL);
+	out_ins(I_STW, T_PTR, (long)NULL);
 	if (typeobj == CCHAR)
-		out_ins(I_LDBP, T_PTR, (int)NULL);
+		out_ins(I_LDBP, T_PTR, (long)NULL);
 	else {
-		out_ins(I_LDWP, T_PTR, (int)NULL);
+		out_ins(I_LDWP, T_PTR, (long)NULL);
 	}
 }
 
 void farpeek(char *ptr)
 {
 	if (ptr[TYPE] == CCHAR)
-		out_ins(I_FGETB, T_SYMBOL, (int)ptr);
+		out_ins(I_FGETB, T_SYMBOL, (long)ptr);
 	else
-		out_ins(I_FGETW, T_SYMBOL, (int)ptr);
+		out_ins(I_FGETW, T_SYMBOL, (long)ptr);
 }
 
 /*
@@ -181,7 +181,7 @@ void farpeek(char *ptr)
  *	the primary register
  *
  */
-void immed (int type, int data)
+void immed (long type, long data)
 {
 	out_ins(I_LDWI, type, data);
 }
@@ -203,7 +203,7 @@ void gpush (void )
  *	push the primary register onto the stack
  *
  */
-void gpusharg (int size)
+void gpusharg (long size)
 {
 	out_ins(I_PUSHW, T_SIZE, size);
 	stkp = stkp - size;
@@ -215,7 +215,7 @@ void gpusharg (int size)
  */
 void gpop (void )
 {
-	out_ins(I_POPW, (int)NULL, (int)NULL);
+	out_ins(I_POPW, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -225,16 +225,16 @@ void gpop (void )
  */
 void swapstk (void )
 {
-	out_ins(I_SWAPW, (int)NULL, (int)NULL);
+	out_ins(I_SWAPW, (long)NULL, (long)NULL);
 }
 
 /*
  *	call the specified subroutine name
  *
  */
-void gcall (char *sname, int nargs)
+void gcall (char *sname, long nargs)
 {
-	out_ins_ex(I_CALL, T_SYMBOL, (int)sname, nargs);
+	out_ins_ex(I_CALL, T_SYMBOL, (long)sname, nargs);
 }
 
 /*
@@ -253,14 +253,14 @@ void gbank(unsigned char bank, unsigned short offset)
  */
 void gret (void )
 {
-	out_ins(I_RTS, (int)NULL, (int)NULL);
+	out_ins(I_RTS, (long)NULL, (long)NULL);
 }
 
 /*
  *	perform subroutine call to value on top of stack
  *
  */
-void callstk (int nargs)
+void callstk (long nargs)
 {
 	if (nargs <= INTSIZE)
 		out_ins(I_CALLS, T_STACK, 0);
@@ -274,7 +274,7 @@ void callstk (int nargs)
  *	jump to specified internal label number
  *
  */
-void jump (int label)
+void jump (long label)
 {
 	out_ins(I_LBRA, T_LABEL, label);
 }
@@ -283,9 +283,9 @@ void jump (int label)
  *	test the primary register and jump if false to label
  *
  */
-void testjump (int label, int ft)
+void testjump (long label, long ft)
 {
-	out_ins(I_TSTW, (int)NULL, (int)NULL);
+	out_ins(I_TSTW, (long)NULL, (long)NULL);
 	if (ft)
 		out_ins(I_LBNE, T_LABEL, label);
 	else
@@ -296,9 +296,9 @@ void testjump (int label, int ft)
  *	modify the stack pointer to the new value indicated
  *      Is it there that we decrease the value of the stack to add local vars ?
  */
-int modstk (int newstkp)
+long modstk (long newstkp)
 {
-	int	k;
+	long	k;
 
 //	k = galign(newstkp - stkp);
 	k = newstkp - stkp;
@@ -314,7 +314,7 @@ int modstk (int newstkp)
  */
 void gaslint (void )
 {
-	out_ins(I_ASLW, (int)NULL, (int)NULL);
+	out_ins(I_ASLW, (long)NULL, (long)NULL);
 }
 
 /*
@@ -322,7 +322,7 @@ void gaslint (void )
  */
 void gasrint(void )
 {
-	out_ins(I_ASRW, (int)NULL, (int)NULL);
+	out_ins(I_ASRW, (long)NULL, (long)NULL);
 }
 
 /*
@@ -330,19 +330,19 @@ void gasrint(void )
  */
 void gjcase(void )
 {
-	out_ins(I_JMP, T_SYMBOL, (int)"__case");
+	out_ins(I_JMP, T_SYMBOL, (long)"__case");
 }
 
 /*
  *	add the primary and secondary registers
- *	if lval2 is int pointer and lval is int, scale lval
+ *	if lval2 is long pointer and lval is long, scale lval
  */
-void gadd (int *lval, int *lval2)
+void gadd (long *lval, long *lval2)
 {
 	if (dbltest (lval2, lval)) {
-		out_ins(I_ASLWS, (int)NULL, (int)NULL);
+		out_ins(I_ASLWS, (long)NULL, (long)NULL);
 	}
-	out_ins(I_ADDWS, (int)NULL, (int)NULL);
+	out_ins(I_ADDWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -352,7 +352,7 @@ void gadd (int *lval, int *lval2)
  */
 void gsub (void )
 {
-	out_ins(I_SUBWS, (int)NULL, (int)NULL);
+	out_ins(I_SUBWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -363,7 +363,7 @@ void gsub (void )
  */
 void gmult (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"smul");
+	out_ins(I_JSR, T_LIB, (long)"smul");
 	stkp = stkp + INTSIZE;
 }
 
@@ -374,7 +374,7 @@ void gmult (void )
  */
 void gdiv (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"sdiv");
+	out_ins(I_JSR, T_LIB, (long)"sdiv");
 	stkp = stkp + INTSIZE;
 }
 
@@ -386,7 +386,7 @@ void gdiv (void )
  */
 void gmod (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"smod");
+	out_ins(I_JSR, T_LIB, (long)"smod");
 	stkp = stkp + INTSIZE;
 }
 
@@ -396,7 +396,7 @@ void gmod (void )
  */
 void gor (void )
 {
-	out_ins(I_ORWS, (int)NULL, (int)NULL);
+	out_ins(I_ORWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -406,7 +406,7 @@ void gor (void )
  */
 void gxor (void )
 {
-	out_ins(I_EORWS, (int)NULL, (int)NULL);
+	out_ins(I_EORWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -416,7 +416,7 @@ void gxor (void )
  */
 void gand (void )
 {
-	out_ins(I_ANDWS, (int)NULL, (int)NULL);
+	out_ins(I_ANDWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
@@ -428,7 +428,7 @@ void gand (void )
  */
 void gasr (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"asr");
+	out_ins(I_JSR, T_LIB, (long)"asr");
 	stkp = stkp + INTSIZE;
 }
 
@@ -440,7 +440,7 @@ void gasr (void )
  */
 void gasl (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"asl");
+	out_ins(I_JSR, T_LIB, (long)"asl");
 	stkp = stkp + INTSIZE;
 }
 
@@ -450,7 +450,7 @@ void gasl (void )
  */
 void gneg (void )
 {
-	out_ins(I_NEGW, (int)NULL, (int)NULL);
+	out_ins(I_NEGW, (long)NULL, (long)NULL);
 }
 
 /*
@@ -459,7 +459,7 @@ void gneg (void )
  */
 void gcom (void )
 {
-	out_ins(I_COMW, (int)NULL, (int)NULL);
+	out_ins(I_COMW, (long)NULL, (long)NULL);
 }
 
 /*
@@ -468,7 +468,7 @@ void gcom (void )
  */
 void gbool (void )
 {
-	out_ins(I_BOOLW, (int)NULL, (int)NULL);
+	out_ins(I_BOOLW, (long)NULL, (long)NULL);
 }
 
 /*
@@ -477,15 +477,15 @@ void gbool (void )
  */
 void glneg (void )
 {
-	out_ins(I_NOTW, (int)NULL, (int)NULL);
+	out_ins(I_NOTW, (long)NULL, (long)NULL);
 }
 
 /*
  *	increment the primary register by 1 if char, INTSIZE if
- *      int
+ *      long
  */
-void ginc (int * lval)
-/* int lval[]; */
+void ginc (long * lval)
+/* long lval[]; */
 {
 	if (lval[2] == CINT)
 		out_ins(I_ADDWI, T_VALUE, 2);
@@ -495,10 +495,10 @@ void ginc (int * lval)
 
 /*
  *	decrement the primary register by one if char, INTSIZE if
- *	int
+ *	long
  */
-void gdec (int *lval)
-/* int lval[]; */
+void gdec (long *lval)
+/* long lval[]; */
 {
 	if (lval[2] == CINT)
 		out_ins(I_SUBWI, T_VALUE, 2);
@@ -520,7 +520,7 @@ void gdec (int *lval)
  */
 void geq (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"eq");
+	out_ins(I_JSR, T_LIB, (long)"eq");
 	stkp = stkp + INTSIZE;
 }
 
@@ -530,7 +530,7 @@ void geq (void )
  */
 void gne (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"ne");
+	out_ins(I_JSR, T_LIB, (long)"ne");
 	stkp = stkp + INTSIZE;
 }
 
@@ -538,10 +538,10 @@ void gne (void )
  *	less than (signed)
  *
  */
-/*void glt (int lvl) */
+/*void glt (long lvl) */
 void glt (void)
 {
-	out_ins(I_JSR,  T_LIB, (int)"lt");
+	out_ins(I_JSR,  T_LIB, (long)"lt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -551,7 +551,7 @@ void glt (void)
  */
 void gle (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"le");
+	out_ins(I_JSR, T_LIB, (long)"le");
 	stkp = stkp + INTSIZE;
 }
 
@@ -561,7 +561,7 @@ void gle (void )
  */
 void ggt (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"gt");
+	out_ins(I_JSR, T_LIB, (long)"gt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -571,7 +571,7 @@ void ggt (void )
  */
 void gge (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"ge");
+	out_ins(I_JSR, T_LIB, (long)"ge");
 	stkp = stkp + INTSIZE;
 }
 
@@ -579,10 +579,10 @@ void gge (void )
  *	less than (unsigned)
  *
  */
-/*void gult (int lvl)*/
+/*void gult (long lvl)*/
 void gult (void)
 {
-	out_ins(I_JSR, T_LIB, (int)"ult");
+	out_ins(I_JSR, T_LIB, (long)"ult");
 	stkp = stkp + INTSIZE;
 }
 
@@ -592,7 +592,7 @@ void gult (void)
  */
 void gule (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"ule");
+	out_ins(I_JSR, T_LIB, (long)"ule");
 	stkp = stkp + INTSIZE;
 }
 
@@ -602,7 +602,7 @@ void gule (void )
  */
 void gugt (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"ugt");
+	out_ins(I_JSR, T_LIB, (long)"ugt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -612,6 +612,6 @@ void gugt (void )
  */
 void guge (void )
 {
-	out_ins(I_JSR, T_LIB, (int)"uge");
+	out_ins(I_JSR, T_LIB, (long)"uge");
 	stkp = stkp + INTSIZE;
 }

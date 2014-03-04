@@ -16,10 +16,10 @@
 #include "optimize.h"
 
 /* locals */
-int segment;
+long segment;
 
 /* externs */
-extern int arg_stack_flag;
+extern long arg_stack_flag;
 
 /*
  *	print all assembler info before any code is generated
@@ -111,7 +111,7 @@ void defword (void )
  *	output instructions
  *
  */
-void out_ins(int code, int type, int data)
+void out_ins(long code, long type, long data)
 {
 	INS tmp;
 
@@ -121,7 +121,7 @@ void out_ins(int code, int type, int data)
 	gen_ins(&tmp);
 }
 
-void out_ins_ex(int code, int type, int data, int imm)
+void out_ins_ex(long code, long type, long data, long imm)
 {
 	INS tmp;
 
@@ -132,7 +132,7 @@ void out_ins_ex(int code, int type, int data, int imm)
 	gen_ins(&tmp);
 }
 
-void out_ins_sym(int code, int type, int data, char *sym)
+void out_ins_sym(long code, long type, long data, char *sym)
 {
 	INS tmp;
 
@@ -161,10 +161,10 @@ void gen_ins(INS *tmp)
  */
 void gen_code(INS *tmp)
 {
-	int code;
-	int type;
-	int data;
-	int imm;
+	long code;
+	long type;
+	long data;
+	long imm;
 
 	code = tmp->code;
 	type = tmp->type;

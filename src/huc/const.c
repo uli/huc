@@ -34,7 +34,7 @@ void new_const(void )
  *	add a const array
  *
  */
-void add_const(int typ)
+void add_const(long typ)
 {
 	if((const_data_idx >= MAX_CONST_DATA) || (const_val_idx >= MAX_CONST_VALUE))
 		error("too much constant data (> 8KB)");
@@ -56,11 +56,11 @@ void add_const(int typ)
  *	array initializer
  *
  */
-int array_initializer(int typ, int id, int stor)
+long array_initializer(long typ, long id, long stor)
 {
-	int nb;
-	int k;
-	int i;
+	long nb;
+	long k;
+	long i;
 
 	nb = 0;
 	k  = needsub ();
@@ -123,9 +123,9 @@ int array_initializer(int typ, int id, int stor)
  *  add a string to the literal pool and return a pointer (index) to it
  *
  */
-int get_string_ptr(int typ)
+long get_string_ptr(long typ)
 {
-	int  num[1];
+	long  num[1];
 
 	if (typ == CINT)
 		error("incompatible pointer type");
@@ -140,14 +140,14 @@ int get_string_ptr(int typ)
  *  get value raw text
  *
  */
-int get_raw_value(void )
+long get_raw_value(void )
 {
 	char  c;
 	char  tmp[LINESIZE+1];
 	char *ptr;
-	int   level;
-	int   flag;
-	int   start;
+	long   level;
+	long   flag;
+	long   start;
 
 	flag  = 0;
 	level = 0;
@@ -258,9 +258,9 @@ void add_buffer (char *p, char c)
  */
 void dump_const (void )
 {
-	int	i, j, k;
-	int size;
-/*	int c; */
+	long	i, j, k;
+	long size;
+/*	long c; */
 
 	if (const_nb) {
 		const_ptr = const_var;

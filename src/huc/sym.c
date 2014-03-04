@@ -23,10 +23,10 @@
  *  David, added support for const arrays and improved error detection
  *
  */
-int
-declglb (int typ, int stor)
+long
+declglb (long typ, long stor)
 {
-	int	 k, id;
+	long	 k, id;
 	char sname[NAMESIZE];
 
 	for (;;) {
@@ -92,11 +92,11 @@ declglb (int typ, int stor)
  *
  *  zeo : added "totalk" stuff and global stack modification (00/04/12)
  */
-void declloc (int typ, int stclass)
+void declloc (long typ, long stclass)
 {
-	int  k, j;
+	long  k, j;
 	char sname[NAMESIZE];
-	int  totalk = 0;
+	long  totalk = 0;
 
 	for (;;) {
 		for (;;) {
@@ -151,9 +151,9 @@ void declloc (int typ, int stclass)
 /*
  *	get required array size
  */
-int needsub (void)
+long needsub (void)
 {
-	int	num[1];
+	long	num[1];
 
 	if (match ("]"))
 		return (0);
@@ -195,7 +195,7 @@ char* findloc (char *sname)
 	return NULL;
 }
 
-char *addglb (char* sname,char id,char typ,int value,int stor)
+char *addglb (char* sname,char id,char typ,long value,long stor)
 {
 	char	*ptr;
 
@@ -228,10 +228,10 @@ char *addglb_far (char* sname, char typ)
 }
 
 
-char *addloc (char* sname,char id,char typ,int value,int stclass)
+char *addloc (char* sname,char id,char typ,long value,long stclass)
 {
 	char	*ptr;
-	int	k;
+	long	k;
 
 	cptr = findloc (sname);
 	if (cptr)
@@ -267,9 +267,9 @@ char *addloc (char* sname,char id,char typ,int value,int stclass)
  *	test if next input string is legal symbol name
  *
  */
-int symname (char* sname)
+long symname (char* sname)
 {
-	int	k;
+	long	k;
 /*	char	c; */
 
 	blanks ();
@@ -295,9 +295,9 @@ void multidef (char* sname)
 	nl ();
 }
 
-int glint(char* sym)
+long glint(char* sym)
 {
-	int l,u,r;
+	long l,u,r;
 	l = sym[OFFSET];
 	u = sym[OFFSET+1];
 	r = (l & 0xff) + ((u << 8) & ~0x00ff);

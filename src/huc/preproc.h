@@ -19,26 +19,26 @@ void doundef (void);
 
 void preprocess (void);
 
-void doifdef (int ifdef);
+void doifdef (long ifdef);
 
-int ifline(void);
+long ifline(void);
 
 void noiferr(void);
 
-int cpp (void);
+long cpp (void);
 
-int keepch (char c);
+long keepch (char c);
 
 void defmac(char* s);
 
 void addmac (void);
 
-void delmac(int mp);
+void delmac(long mp);
 
-int putmac (char c);
+long putmac (char c);
 
-int findmac (char* sname);
+long findmac (char* sname);
 
-void toggle (char name, int onoff);
+void toggle (char name, long onoff);
 
 #endif

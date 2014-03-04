@@ -13,25 +13,25 @@
 #endif
 
 
-int openin (char *p);
-int openout (void);
+long openin (char *p);
+long openout (void);
 void outfname (char *s);
 void fixname (char *s);
-int checkname (char *s);
+long checkname (char *s);
 void kill (void );
 void unget_line (void);
 void readline (void);
 
 /* could otherwise be char */
-int inbyte (void );
-int inchar (void );
-int gch (void );
-int nch (void );
-int ch (void );
+long inbyte (void );
+long inchar (void );
+long gch (void );
+long nch (void );
+long ch (void );
 
 void pl (char *str);
 void glabel (char *lab);
-void gnlabel (int nlab);
+void gnlabel (long nlab);
 void olprfix(void );
 void col (void );
 void comment (void );
@@ -41,10 +41,10 @@ void ol (char *ptr);
 void ot (char *ptr);
 void nl (void );
 void outsymbol (char *ptr);
-void outlabel (int label);
-void outdec(int number);
-void outhex (int number);
-void outhexfix (int number, int length);
+void outlabel (long label);
+void outdec(long number);
+void outhex (long number);
+void outhexfix (long number, long length);
 char outbyte (char c);
 void outstr (char *ptr);
 

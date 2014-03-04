@@ -37,7 +37,7 @@ void junk (void )
 	blanks ();
 }
 
-int endst (void )
+long endst (void )
 {
 	blanks ();
 	return ((streq (line + lptr, ";") | (ch () == 0)));
@@ -57,7 +57,7 @@ void needbrack (char *str)
  *	test if given character is alpha
  *
  */
-int alpha (char c)
+long alpha (char c)
 {
 	c = c & 127;
 	return (((c >= 'a') && (c <= 'z')) |
@@ -69,7 +69,7 @@ int alpha (char c)
  *	test if given character is numeric
  *
  */
-int numeric (char c)
+long numeric (char c)
 {
 	c = c & 127;
 	return ((c >= '0') && (c <= '9'));
@@ -79,19 +79,19 @@ int numeric (char c)
  *	test if given character is alphanumeric
  *
  */
-int an (char c)
+long an (char c)
 {
 	return ((alpha (c)) | (numeric (c)));
 }
 
-int sstreq (char* str1)
+long sstreq (char* str1)
 {
 	return (streq(line + lptr, str1));
 }
 
-int streq (char* str1, char* str2)
+long streq (char* str1, char* str2)
 {
-	int	k;
+	long	k;
 
 	k = 0;
 	while (str2[k]) {
@@ -102,9 +102,9 @@ int streq (char* str1, char* str2)
 	return (k);
 }
 
-int astreq (char* str1, char* str2, int len)
+long astreq (char* str1, char* str2, long len)
 {
-	int	k;
+	long	k;
 
 	k = 0;
 	while (k < len) {
@@ -123,9 +123,9 @@ int astreq (char* str1, char* str2, int len)
 	return (k);
 }
 
-int match (char* lit)
+long match (char* lit)
 {
-	int	k;
+	long	k;
 
 	blanks ();
 	k = streq (line + lptr, lit);
@@ -136,9 +136,9 @@ int match (char* lit)
 	return (0);
 }
 
-int amatch (char* lit, int len)
+long amatch (char* lit, long len)
 {
-	int	k;
+	long	k;
 
 	blanks ();
 	k = astreq (line + lptr, lit, len);

@@ -22,21 +22,21 @@
 
 /* locals */
 static INS  ins_stack[1024];
-static int  ins_stack_idx;
+static long  ins_stack_idx;
 /* static char ins_stack_fname[NAMESIZE]; */
-static int  arg_list[32][2];
-/* static int  arg_list_idx; */
-static int  arg_idx;
-static int  func_call_stack;
+static long  arg_list[32][2];
+/* static long  arg_list_idx; */
+static long  arg_idx;
+static long  func_call_stack;
 
 /* globals */
-int arg_stack_flag;
-int argtop;
+long arg_stack_flag;
+long argtop;
 
 /* protos */
-void arg_flush(int arg, int adj);
-void arg_to_fptr(struct fastcall *fast, int i, int arg, int adj);
-void arg_to_dword(struct fastcall *fast, int i, int arg, int adj);
+void arg_flush(long arg, long adj);
+void arg_to_fptr(struct fastcall *fast, long i, long arg, long adj);
+void arg_to_dword(struct fastcall *fast, long i, long arg, long adj);
 
 /*
  *	begin a function
@@ -49,7 +49,7 @@ void arg_to_dword(struct fastcall *fast, int i, int arg, int adj);
 void newfunc (void)
 {
 	char n[NAMESIZE], *ptr;
-	int  nbarg;
+	long  nbarg;
 
 	fexitlab = getlabel();
 
@@ -141,9 +141,9 @@ void newfunc (void)
  *	completely rewritten version.  p.l. woods
  *
  */
-void getarg (int t)
+void getarg (long t)
 {
-	int	j, legalname, address;
+	long	j, legalname, address;
 	char	n[NAMESIZE], *argptr;
 /*	char	c; */
 
@@ -192,15 +192,15 @@ void getarg (int t)
  */
 void callfunction (char *ptr)
 {
-	extern char *new_string(int, char *);
+	extern char *new_string(long, char *);
 	struct fastcall *fast;
-	int call_stack_ref;
-	int i, j;
-	int nb;
-	int adj;
-	int idx;
-	int	nargs;
-	int cnt;
+	long call_stack_ref;
+	long i, j;
+	long nb;
+	long adj;
+	long idx;
+	long	nargs;
+	long cnt;
 
 	cnt = 0;
 	nargs = 0;
@@ -302,10 +302,10 @@ void callfunction (char *ptr)
 				/* store arg */
 				switch (fast->argtype[j]) {
 				case 0x01: /* byte */
-					out_ins(I_STB, T_SYMBOL, (int)fast->argname[j]);
+					out_ins(I_STB, T_SYMBOL, (long)fast->argname[j]);
 					break;
 				case 0x02: /* word */
-					out_ins(I_STW, T_SYMBOL, (int)fast->argname[j]);
+					out_ins(I_STW, T_SYMBOL, (long)fast->argname[j]);
 					break;
 				case 0x03: /* farptr */
 					arg_to_fptr(fast, j,  arg_idx + i, adj);
@@ -383,7 +383,7 @@ l1:
  * start arg instruction stacking
  *
  */
-void arg_stack(int arg)
+void arg_stack(long arg)
 {
 	if (arg > 31)
 		error("too many args");
@@ -421,12 +421,12 @@ void arg_push_ins(INS *ptr)
  *
  */
 void
-arg_flush(int arg, int adj)
+arg_flush(long arg, long adj)
 {
 	INS *ins;
-	int  idx;
-	int  nb;
-	int  i;
+	long  idx;
+	long  nb;
+	long  i;
 
 	if (arg > 31)
 		return;
@@ -470,13 +470,13 @@ arg_flush(int arg, int adj)
 }
 
 void
-arg_to_fptr(struct fastcall *fast, int i, int arg, int adj)
+arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 {
 	INS  *ins, tmp;
 	char *sym;
-	int   idx;
-	int   err;
-	int   nb;
+	long   idx;
+	long   err;
+	long   nb;
 
 	if (arg > 31)
 		return;
@@ -516,8 +516,8 @@ arg_to_fptr(struct fastcall *fast, int i, int arg, int adj)
 	/* ok */	
 	if (nb == 1) {
 		ins->code   = I_FARPTR;
-		ins->arg[0] = (int)fast->argname[i];
-		ins->arg[1] = (int)fast->argname[i+1];
+		ins->arg[0] = (long)fast->argname[i];
+		ins->arg[1] = (long)fast->argname[i+1];
 		gen_ins(ins);
 	}
 	else {
@@ -528,8 +528,8 @@ arg_to_fptr(struct fastcall *fast, int i, int arg, int adj)
 			tmp.code = I_FARPTR_I;
 			tmp.type = T_SYMBOL;
 			tmp.data = ins->data;
-			tmp.arg[0] = (int)fast->argname[i];
-			tmp.arg[1] = (int)fast->argname[i+1];
+			tmp.arg[0] = (long)fast->argname[i];
+			tmp.arg[1] = (long)fast->argname[i+1];
 			ins->type = T_VALUE;
 			ins->data = 0;
 		}
@@ -539,10 +539,10 @@ arg_to_fptr(struct fastcall *fast, int i, int arg, int adj)
 				(sym[TYPE]  == CINT))
 			{
 				tmp.code = I_FARPTR_GET;
-				tmp.type = (int)NULL;
-				tmp.data = (int)NULL;
-				tmp.arg[0] = (int)fast->argname[i];
-				tmp.arg[1] = (int)fast->argname[i+1];
+				tmp.type = (long)NULL;
+				tmp.data = (long)NULL;
+				tmp.arg[0] = (long)fast->argname[i];
+				tmp.arg[1] = (long)fast->argname[i+1];
 			}
 			else {
 				error("can't get farptr");
@@ -555,14 +555,14 @@ arg_to_fptr(struct fastcall *fast, int i, int arg, int adj)
 }
 
 void
-arg_to_dword(struct fastcall *fast, int i, int arg, int adj)
+arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 {
 	INS  *ins, *ptr, tmp;
 	char *sym;
-	int   idx;
-	int   gen;
-	int   err;
-	int   nb;
+	long   idx;
+	long   gen;
+	long   err;
+	long   nb;
 
 	if (arg > 31)
 		return;
@@ -578,8 +578,8 @@ arg_to_dword(struct fastcall *fast, int i, int arg, int adj)
 		/* immediate value */
 		if((ins->code == I_LDWI) && (ins->type == T_VALUE)) {
 			ins->code = X_LDD_I;
-			ins->arg[0] = (int)fast->argname[i+1];
-			ins->arg[1] = (int)fast->argname[i+2];
+			ins->arg[0] = (long)fast->argname[i+1];
+			ins->arg[1] = (long)fast->argname[i+2];
 			gen = 1;
 		}
 
@@ -606,9 +606,9 @@ arg_to_dword(struct fastcall *fast, int i, int arg, int adj)
 					ins->code  = X_LDD_B;
 
 				ins->type   = T_SYMBOL;
-				ins->data   = (int)sym;
-				ins->arg[0] = (int)fast->argname[i+1];
-				ins->arg[1] = (int)fast->argname[i+2];
+				ins->data   = (long)sym;
+				ins->arg[0] = (long)fast->argname[i+1];
+				ins->arg[1] = (long)fast->argname[i+2];
 				gen = 1;
 			}
 		}
@@ -629,8 +629,8 @@ arg_to_dword(struct fastcall *fast, int i, int arg, int adj)
 						ins->code  = X_LDD_S_B;
 	
 					ins->data  -= adj;
-					ins->arg[0] = (int)fast->argname[i+1];
-					ins->arg[1] = (int)fast->argname[i+2];
+					ins->arg[0] = (long)fast->argname[i+1];
+					ins->arg[1] = (long)fast->argname[i+2];
 					gen = 1;
 				}
 			}
@@ -683,7 +683,7 @@ arg_to_dword(struct fastcall *fast, int i, int arg, int adj)
 		if (strcmp(fast->argname[i], "#acc") != 0) {
 			tmp.code = I_STW;
 			tmp.type = T_SYMBOL;
-			tmp.data = (int)fast->argname[i];
+			tmp.data = (long)fast->argname[i];
 			gen_ins(&tmp);
 		}
 	}

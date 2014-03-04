@@ -16,15 +16,15 @@
 
 /* locals */
 static INS q_ins[Q_SIZE];
-static int q_rd;
-static int q_wr;
-static int q_nb;
+static long q_rd;
+static long q_wr;
+static long q_nb;
 
 /* externs */
-extern int arg_stack_flag;
+extern long arg_stack_flag;
 
 
-int cmp_operands(INS *p1,INS *p2)
+long cmp_operands(INS *p1,INS *p2)
 {
 	if (p1->type != p2->type)
 		return(0);
@@ -84,8 +84,8 @@ void push_ins(INS *ins)
 	if (optimize >= 1)
 	{
 		INS *p[Q_SIZE];
-		int  i, j;
-		int  nb;
+		long  i, j;
+		long  nb;
 
 	lv1_loop:
 		/* precalculate pointers to instructions */
@@ -786,46 +786,46 @@ void push_ins(INS *ins)
 				/* replace code */
 				p[2]->code = I_STW;
 				p[2]->type = T_SYMBOL;
-				p[2]->data = (int) "_temp";
+				p[2]->data = (long) "_temp";
 				if (strcmp((char *)p[0]->data, "eq") == 0)
 				{
-					p[0]->data = (int) "eqzp";
+					p[0]->data = (long) "eqzp";
 				}
 				else if (strcmp((char *)p[0]->data, "ne") == 0)
 				{
-					p[0]->data = (int) "nezp";
+					p[0]->data = (long) "nezp";
 				}
 				else if (strcmp((char *)p[0]->data, "lt") == 0)
 				{
-					p[0]->data = (int) "ltzp";
+					p[0]->data = (long) "ltzp";
 				}
 				else if (strcmp((char *)p[0]->data, "ult") == 0)
 				{
-					p[0]->data = (int) "ultzp";
+					p[0]->data = (long) "ultzp";
 				}
 				else if (strcmp((char *)p[0]->data, "gt") == 0)
 				{
-					p[0]->data = (int) "gtzp";
+					p[0]->data = (long) "gtzp";
 				}
 				else if (strcmp((char *)p[0]->data, "ugt") == 0)
 				{
-					p[0]->data = (int) "ugtzp";
+					p[0]->data = (long) "ugtzp";
 				}
 				else if (strcmp((char *)p[0]->data, "le") == 0)
 				{
-					p[0]->data = (int) "lezp";
+					p[0]->data = (long) "lezp";
 				}
 				else if (strcmp((char *)p[0]->data, "ule") == 0)
 				{
-					p[0]->data = (int) "ulezp";
+					p[0]->data = (long) "ulezp";
 				}
 				else if (strcmp((char *)p[0]->data, "ge") == 0)
 				{
-					p[0]->data = (int) "gezp";
+					p[0]->data = (long) "gezp";
 				}
 				else if (strcmp((char *)p[0]->data, "uge") == 0)
 				{
-					p[0]->data = (int) "ugezp";
+					p[0]->data = (long) "ugezp";
 				}
 				/* loop */
 				goto lv1_loop;
@@ -964,7 +964,7 @@ void push_ins(INS *ins)
 				(p[3]->code == I_PUSHW) &&
 				(p[4]->code == I_LDWI))
 			{
-				int tempdata;
+				long tempdata;
 
 				tempdata = p[2]->data;
 
@@ -1000,7 +1000,7 @@ void push_ins(INS *ins)
 				(p[3]->code == I_PUSHW) &&
 				(p[4]->code == I_LDWI))
 			{
-				int tempdata, temptype;
+				long tempdata, temptype;
 				char * tempsym;
 
 				tempdata = p[2]->data;
@@ -1056,10 +1056,10 @@ level_2:
 	 */
 	if (optimize >= 2)
 	{
-		int  offset;
-		int  i, j;
-		int  flag;
-		int  t;
+		long  offset;
+		long  i, j;
+		long  flag;
+		long  t;
 
 		/* check last instruction */
 		if ((q_nb > 1) &&

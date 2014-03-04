@@ -6,23 +6,23 @@
 #ifndef _EXPR_H
 #define _EXPR_H
 
-void expression (int comma);
-int heir1 (int * lval);
-int heir1a (int *lval);
-int heir1b (int *lval);
-int heir1c (int *lval);
-int heir2 (int *lval);
-int heir3 (int *lval);
-int heir4 (int *lval);
-int heir5 (int *lval);
-int heir6 (int *lval);
-int heir7 (int *lval);
-int heir8 (int *lval);
-int heir9 (int *lval);
-int heir10 (int *lval);
-int heir11 (int *lval);
-void store (int *lval);
-void rvalue (int *lval);
+void expression (long comma);
+long heir1 (long * lval);
+long heir1a (long *lval);
+long heir1b (long *lval);
+long heir1c (long *lval);
+long heir2 (long *lval);
+long heir3 (long *lval);
+long heir4 (long *lval);
+long heir5 (long *lval);
+long heir6 (long *lval);
+long heir7 (long *lval);
+long heir8 (long *lval);
+long heir9 (long *lval);
+long heir10 (long *lval);
+long heir11 (long *lval);
+void store (long *lval);
+void rvalue (long *lval);
 void needlval (void );
 
 #endif

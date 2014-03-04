@@ -29,7 +29,7 @@
  *	"declaration_list" is omitted)
  */
 
-int statement (int func)
+long statement (long func)
 {
 	if ((ch () == 0) & feof (input))
 		return (0);
@@ -52,7 +52,7 @@ int statement (int func)
 /*
  *	declaration
  */
-int stdecl (void)
+long stdecl (void)
 {
 	if (amatch("register", 8))
 		doldcls(DEFAUTO);
@@ -66,7 +66,7 @@ int stdecl (void)
 	return (YES);
 }
 
-int doldcls(int stclass)
+long doldcls(long stclass)
 {
 	blanks();
 	if (amatch("char", 4))
@@ -148,9 +148,9 @@ void stst (void )
  *	'func' is true if we are in a "function_statement", which
  *	must contain "statement_list"
  */
-void compound (int func)
+void compound (long func)
 {
-	int	decls;
+	long	decls;
 
 	decls = YES;
 	ncmp++;
@@ -173,7 +173,7 @@ void compound (int func)
  */
 void doif (void )
 {
-	int	fstkp, flab1, flab2;
+	long	fstkp, flab1, flab2;
 	char	*flev;
 
 	flev = locptr;
@@ -200,9 +200,9 @@ void doif (void )
  */
 void dowhile (void )
 {
-	int	ws[7];
+	long	ws[7];
 
-	ws[WSSYM] = (int)locptr;
+	ws[WSSYM] = (long)locptr;
 	ws[WSSP] = stkp;
 	ws[WSTYP] = WSWHILE;
 	ws[WSTEST] = getlabel ();
@@ -223,9 +223,9 @@ void dowhile (void )
  */
 void dodo (void )
 {
-	int	ws[7];
+	long	ws[7];
 
-	ws[WSSYM] = (int)locptr;
+	ws[WSSYM] = (long)locptr;
 	ws[WSSP] = stkp;
 	ws[WSTYP] = WSDO;
 	ws[WSBODY] = getlabel ();
@@ -251,10 +251,10 @@ void dodo (void )
  */
 void dofor (void )
 {
-	int	ws[7],
+	long	ws[7],
 		*pws;
 
-	ws[WSSYM] = (int)locptr;
+	ws[WSSYM] = (long)locptr;
 	ws[WSSP] = stkp;
 	ws[WSTYP] = WSFOR;
 	ws[WSTEST] = getlabel ();
@@ -297,10 +297,10 @@ void dofor (void )
  */
 void doswitch (void )
 {
-	int	ws[7];
-	int	*ptr;
+	long	ws[7];
+	long	*ptr;
 
-	ws[WSSYM] = (int)locptr;
+	ws[WSSYM] = (long)locptr;
 	ws[WSSP] = stkp;
 	ws[WSTYP] = WSSWITCH;
 	ws[WSCASEP] = swstp;
@@ -330,7 +330,7 @@ void doswitch (void )
  */
 void docase (void )
 {
-	int	val;
+	long	val;
 
 	val = 0;
 	if (readswitch ()) {
@@ -349,7 +349,7 @@ void docase (void )
  */
 void dodefault (void )
 {
-	int	*ptr,
+	long	*ptr,
 		lab;
 
 	ptr = readswitch ();
@@ -377,7 +377,7 @@ void doreturn (void )
  */
 void dobreak (void )
 {
-	int	*ptr;
+	long	*ptr;
 
 	if ((ptr = readwhile ()) == 0)
 		return;
@@ -390,7 +390,7 @@ void dobreak (void )
  */
 void docont (void )
 {
-	int	*ptr;
+	long	*ptr;
 
 	if ((ptr = findwhile ()) == 0)
 		return;
@@ -404,10 +404,10 @@ void docont (void )
 /*
  *	dump switch table
  */
-void dumpsw (int *ws)
-/*int	ws[];*/
+void dumpsw (long *ws)
+/*long	ws[];*/
 {
-	int	i,j;
+	long	i,j;
 
 //	gdata ();
 	gnlabel (ws[WSTAB]);
@@ -435,8 +435,8 @@ void dumpsw (int *ws)
 //	gtext ();
 }
 
-void test (int label, int ft)
-/* int	label,
+void test (long label, long ft)
+/* long	label,
 	ft; */
 {
 	needbrack ("(");

@@ -10,10 +10,10 @@ void dopragma(void );
 void defpragma(void );
 void parse_pragma(void );
 void new_fastcall(void );
-int fastcall_look(char *fname, int nargs, struct fastcall **p);
-int symhash(char *sym);
-int symget(char *sname);
-int strmatch(char *lit);
+long fastcall_look(char *fname, long nargs, struct fastcall **p);
+long symhash(char *sym);
+long symget(char *sname);
+long strmatch(char *lit);
 void skip_blanks(void );
 
 #endif
