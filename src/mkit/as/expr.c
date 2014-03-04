@@ -350,7 +350,7 @@ cont:
 	}
 
 	/* convert back the pointer to an array index */
-   *ip = (int)expr - (int)prlnbuf;
+	*ip = expr - prlnbuf;
 
 	/* ok */
 	return (1);
