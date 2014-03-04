@@ -383,6 +383,12 @@ long cpp (void)
 				}
 			inchar ();
 			inchar ();
+		} else if (ch() == '/' && nch() == '/') {
+			while (ch())
+				inchar();
+			readline();
+			if (feof(input))
+				break;
 		} else if (an (ch ())) {
 			k = 0;
 			while (an (ch ())) {
