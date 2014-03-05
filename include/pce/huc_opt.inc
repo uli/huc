@@ -126,9 +126,9 @@
 	 lda	[__sp],Y
 	 tax
 	 cla
-;	 bpl	.x_\@	; signed
-;	 dec	A
-;.x_\@:
+	 bpl	.x_\@	; signed
+	 dec	A
+.x_\@:
 	.else
 	 ; long index  (bytes : 20, cycles : 37/41)
 
@@ -136,9 +136,9 @@
 	 lda	[__ptr]
 	 tax
 	 cla
-;	 bpl	.x_\@	; signed
-;	 dec	A
-;.x_\@:
+	 bpl	.x_\@	; signed
+	 dec	A
+.x_\@:
 	.endif
 	.endm
 
@@ -151,9 +151,9 @@
 	 lda	[__ptr]
 	 tax
 	 cla
-;	 bpl	.x_\@	; signed
-;	 dec	A
-;.x_\@:
+	 bpl	.x_\@	; signed
+	 dec	A
+.x_\@:
 	.endm
 
 ; ldw_s
