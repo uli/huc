@@ -38,20 +38,30 @@
  */
 
 #define	JOY_A		0x01
+#define	JOY_I		0x01
 #define	JOY_B		0x02
+#define	JOY_II		0x02
 #define	JOY_SLCT	0x04
+#define	JOY_SEL		0x04
 #define	JOY_STRT	0x08
+#define	JOY_RUN		0x08
 #define	JOY_UP		0x10
 #define	JOY_RGHT	0x20
+#define	JOY_RIGHT	0x20
 #define	JOY_DOWN	0x40
 #define	JOY_LEFT	0x80
 
 #define	JOY_C		0x0100
+#define	JOY_III		0x0100
 #define	JOY_D		0x0200
+#define	JOY_IV		0x0200
 #define	JOY_E		0x0400
+#define	JOY_V		0x0400
 #define	JOY_F		0x0800
+#define	JOY_VI		0x0800
 
 #define JOY_SIXBUT	0x5000
+#define JOY_TYPE6	0x5000
 
 
 /*
