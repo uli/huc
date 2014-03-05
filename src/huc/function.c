@@ -224,10 +224,12 @@ void getarg (long t, int syntax)
 		else
 			j = VARIABLE;
 
-		if (t == CVOID && j != POINTER)
-			error("illegal argument type \"void\"");
-		else
-			t = CINT;
+		if (t == CVOID) {
+			if (j != POINTER)
+				error("illegal argument type \"void\"");
+			else
+				t = CINT;
+		}
 
 		if (!(legalname = symname (n)))
 			illname ();
