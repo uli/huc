@@ -35,6 +35,15 @@ void expression (long comma)
 	} while (match (","));
 }
 
+static int is_unsigned(long *lval)
+{
+	if (!lval[0])
+		return 0;
+	if (((char *)lval[0])[TYPE] & CUNSIGNED)
+		return 1;
+	return 0;
+}
+
 long heir1 (long * lval)
 /*long	lval[]; */
 {
@@ -91,10 +100,10 @@ long heir1 (long * lval)
 					result(lval,lval2);
 					break;
 				}
-				case '*':	gmult (); break;
-				case '/':	gdiv (); break;
-				case '%':	gmod (); break;
-				case '>':	gasr (); break;
+				case '*':	gmult (is_unsigned(lval) || is_unsigned(lval2)); break;
+				case '/':	gdiv (is_unsigned(lval) || is_unsigned(lval2)); break;
+				case '%':	gmod (is_unsigned(lval) || is_unsigned(lval2)); break;
+				case '>':	gasr (is_unsigned(lval)); break;
 				case '<':	gasl (); break;
 				case '&':	gand (); break;
 				case '^':	gxor (); break;
@@ -294,15 +303,6 @@ long heir5 (long *lval)
 	}
 }
 
-static int is_unsigned(long *lval)
-{
-	if (!lval[0])
-		return 0;
-	if (((char *)lval[0])[TYPE] & CUNSIGNED)
-		return 1;
-	return 0;
-}
-
 long heir6 (long *lval)
 /* long	lval[]; */
 {
@@ -396,7 +396,7 @@ long heir7 (long *lval)
 			gpush ();
 			if (heir8 (lval2))
 				rvalue (lval2);
-			gasr ();
+			gasr (is_unsigned(lval));
 		} else if (sstreq("<<") && ! sstreq("<<=")) {
 			inbyte(); inbyte();
 			gpush ();
@@ -469,17 +469,17 @@ long heir9 (long *lval)
 			gpush ();
 			if (heir10 (lval2))
 				rvalue (lval2);
-			gmult ();
+			gmult (is_unsigned(lval) || is_unsigned(lval2));
 		} else if (match ("/")) {
 			gpush ();
 			if (heir10 (lval2))
 				rvalue (lval2);
-			gdiv ();
+			gdiv (is_unsigned(lval) || is_unsigned(lval2));
 		} else if (match ("%")) {
 			gpush ();
 			if (heir10 (lval2))
 				rvalue (lval2);
-			gmod ();
+			gmod (is_unsigned(lval) || is_unsigned(lval2));
 		} else
 			return (0);
 	}

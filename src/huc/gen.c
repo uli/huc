@@ -368,9 +368,12 @@ void gsub (void )
  *	(result in primary)
  *
  */
-void gmult (void )
+void gmult (int is_unsigned)
 {
-	out_ins(I_JSR, T_LIB, (long)"smul");
+	if (is_unsigned)
+		out_ins(I_JSR, T_LIB, (long)"umul");
+	else
+		out_ins(I_JSR, T_LIB, (long)"smul");
 	stkp = stkp + INTSIZE;
 }
 
@@ -379,9 +382,12 @@ void gmult (void )
  *	(quotient in primary, remainder in secondary)
  *
  */
-void gdiv (void )
+void gdiv (int is_unsigned)
 {
-	out_ins(I_JSR, T_LIB, (long)"sdiv");
+	if (is_unsigned)
+		out_ins(I_JSR, T_LIB, (long)"udiv");
+	else
+		out_ins(I_JSR, T_LIB, (long)"sdiv");
 	stkp = stkp + INTSIZE;
 }
 
@@ -391,9 +397,12 @@ void gdiv (void )
  *	(remainder in primary, quotient in secondary)
  *
  */
-void gmod (void )
+void gmod (int is_unsigned)
 {
-	out_ins(I_JSR, T_LIB, (long)"smod");
+	if (is_unsigned)
+		out_ins(I_JSR, T_LIB, (long)"umod");
+	else
+		out_ins(I_JSR, T_LIB, (long)"smod");
 	stkp = stkp + INTSIZE;
 }
 
@@ -433,9 +442,12 @@ void gand (void )
  *	(results in primary register)
  *
  */
-void gasr (void )
+void gasr (int is_unsigned)
 {
-	out_ins(I_JSR, T_LIB, (long)"asr");
+	if (is_unsigned)
+		out_ins(I_JSR, T_LIB, (long)"lsr");
+	else
+		out_ins(I_JSR, T_LIB, (long)"asr");
 	stkp = stkp + INTSIZE;
 }
 
