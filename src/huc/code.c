@@ -218,6 +218,13 @@ void gen_code(INS *tmp)
 		ol("__fgetb");
 		break;
 
+	case I_FGETUB:
+		ot("__farptr_i\t");
+		outsymbol((char *)data);
+		nl();
+		ol("__fgetub");
+		break;
+
 	case I_FGETW:
 		ot("__farptr_i\t");
 		outsymbol((char *)data);
@@ -253,8 +260,26 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_LDUB:
+		ot("__ldub\t");
+
+		switch (type) {
+		case T_LABEL:
+			outlabel(data);
+			break;
+		default:
+			outsymbol((char *)data);
+			break;
+		}
+		nl();
+		break;
+
 	case I_LDBP:
 		ol("__ldbp\t__ptr");
+		break;
+
+	case I_LDUBP:
+		ol("__ldubp\t__ptr");
 		break;
 
 	case I_LDW:
