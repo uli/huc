@@ -127,7 +127,7 @@ long get_string_ptr(long typ)
 {
 	long  num[1];
 
-	if (typ == CINT)
+	if (typ == CINT || typ == CUINT)
 		error("incompatible pointer type");
 	if (qstr(num))
 		return (-(num[0] + 1024));
@@ -278,7 +278,7 @@ void dump_const (void )
 			while (size) {
 				k = const_val[j++];
 
-				if (cptr[TYPE] == CCHAR) {
+				if (cptr[TYPE] == CCHAR || cptr[TYPE] == CUCHAR) {
 					defbyte ();
 					const_size += 1;
 				} else {

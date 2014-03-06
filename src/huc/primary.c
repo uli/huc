@@ -42,7 +42,7 @@ long primary (long* lval)
 				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
 					error("sizeof local static");
 				k = glint(ptr);
-				if ((ptr[TYPE] == CINT) ||
+				if ((ptr[TYPE] == CINT) || ptr[TYPE] == CUINT ||
 					(ptr[IDENT] == POINTER))
 					k *= INTSIZE;
 				immed (T_VALUE, k);
@@ -154,7 +154,7 @@ long dbltest (long val1[],long val2[])
 {
 	if (val1 == NULL)
 		return (FALSE);
-	if (val1[2] != CINT)
+	if (val1[2] != CINT && val1[2] != CUINT)
 		return (FALSE);
 	if (val2[2])
 		return (FALSE);

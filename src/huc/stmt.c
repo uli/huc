@@ -68,13 +68,16 @@ long stdecl (void)
 
 long doldcls(long stclass)
 {
+        int sign = CSIGNED;
 	blanks();
+	if (amatch("unsigned", 8))
+	        sign = CUNSIGNED;
 	if (amatch("char", 4))
-		declloc(CCHAR, stclass);
+		declloc(CCHAR | sign, stclass);
 	else if (amatch("int", 3))
-		declloc(CINT, stclass);
+		declloc(CINT | sign, stclass);
 	else if (stclass == LSTATIC || stclass == DEFAUTO)
-		declloc(CINT, stclass);
+		declloc(CINT | sign, stclass);
 	else
 		return(0);
 	ns();

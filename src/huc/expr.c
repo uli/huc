@@ -281,6 +281,15 @@ long heir5 (long *lval)
 	}
 }
 
+static int is_unsigned(long *lval)
+{
+	if (!lval[0])
+		return 0;
+	if (((char *)lval[0])[TYPE] & CUNSIGNED)
+		return 1;
+	return 0;
+}
+
 long heir6 (long *lval)
 /* long	lval[]; */
 {
@@ -302,7 +311,10 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2]) {
+			if (lval[2] || lval2[2] ||
+			    is_unsigned(lval) ||
+			    is_unsigned(lval2)
+			   ) {
 				gule ();
 				continue;
 			}
@@ -311,7 +323,10 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2]) {
+			if (lval[2] || lval2[2] ||
+			    is_unsigned(lval) ||
+			    is_unsigned(lval2)
+			   ) {
 				guge ();
 				continue;
 			}
@@ -322,7 +337,10 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2]) {
+			if (lval[2] || lval2[2] ||
+			    is_unsigned(lval) ||
+			    is_unsigned(lval2)
+			   ) {
 				gult ();
 				continue;
 			}
@@ -333,7 +351,10 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2]) {
+			if (lval[2] || lval2[2] ||
+			    is_unsigned(lval) ||
+			    is_unsigned(lval2)
+			   ) {
 				gugt ();
 				continue;
 			}
@@ -608,7 +629,7 @@ long heir11 (long *lval)
 					gpush ();
 				expression (YES);
 				needbrack ("]");
-				if (ptr[TYPE] == CINT)
+				if (ptr[TYPE] == CINT || ptr[TYPE] == CUINT)
 					gaslint ();
 				if (!ptr[FAR])
 					gadd (NULL,NULL);

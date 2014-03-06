@@ -121,14 +121,14 @@ void declloc (long typ, long stclass)
 				k = needsub ();
 				if (k) {
 					j = ARRAY;
-					if (typ == CINT)
+					if (typ == CINT || typ == CUINT)
 						k = k * INTSIZE;
 				} else {
 					j = POINTER;
 					k = INTSIZE;
 				}
 			} else {
-				if ((typ == CCHAR) & (j != POINTER))
+				if ((typ == CCHAR || typ == CUCHAR) & (j != POINTER))
 					k = 1;
 				else
 					k = INTSIZE;

@@ -84,25 +84,30 @@ void newfunc (const char *sname)
 	nbarg = 0;
 	memset(fixup, 0, sizeof(fixup));
 	while (!match (")")) {
+		int sign = CSIGNED;
+		if (amatch("unsigned", 8))
+			sign = CUNSIGNED;
 		/* check if we have an ANSI argument */
 		if (amatch("register", 8)) {
+			if (amatch("unsigned", 8))
+				sign = CUNSIGNED;
 			if (amatch("char", 4)) {
-				getarg(CCHAR, ANSI);
+				getarg(CCHAR | sign, ANSI);
 				nbarg++;
 			}
 			else if (amatch ("int", 3)) {
-				getarg(CINT, ANSI);
+				getarg(CINT | sign, ANSI);
 				nbarg++;
 			}
 			else {
-				getarg(CINT, ANSI);
+				getarg(CINT | sign, ANSI);
 				nbarg++;
 			}
 		} else if (amatch("char", 4)) {
-			getarg(CCHAR, ANSI);
+			getarg(CCHAR | sign, ANSI);
 			nbarg++;
 		} else if (amatch("int", 3)) {
-			getarg(CINT, ANSI);
+			getarg(CINT | sign, ANSI);
 			nbarg++;
 		} else if (amatch("void", 4)) {
 			if (match(")"))
@@ -150,19 +155,24 @@ void newfunc (const char *sname)
 				fixup[argstk/INTSIZE][1]++;
 			fixup[argstk/INTSIZE][0] += argtop;
 		} else {
+			int sign = CSIGNED;
+			if (amatch("unsigned", 8))
+				sign = CUNSIGNED;
 			if (amatch ("register", 8)) {
+				if (amatch("unsigned", 8))
+					sign = CUNSIGNED;
 				if (amatch("char", 4)) 
-					getarg(CCHAR, KR);
+					getarg(CCHAR | sign, KR);
 				else if (amatch ("int", 3))
-					getarg(CINT, KR);
+					getarg(CINT | sign, KR);
 				else
-					getarg(CINT, KR);
+					getarg(CINT | sign, KR);
 				ns();
 			} else if (amatch ("char", 4)) {
-				getarg (CCHAR, KR);
+				getarg (CCHAR | sign, KR);
 				ns ();
 			} else if (amatch ("int", 3)) {
-				getarg (CINT, KR);
+				getarg (CINT | sign, KR);
 				ns ();
 			} else {
 				error ("wrong number args");
@@ -252,7 +262,7 @@ void getarg (long t, int syntax)
 				argptr[IDENT] = j;
 				argptr[TYPE] = t;
 				address = argtop - glint(argptr) - 2;
-				if (t == CCHAR && j == VARIABLE)
+				if ((t == CCHAR || t == CUCHAR) && j == VARIABLE)
 					address = address + BYTEOFF;
 				argptr[OFFSET] = (address) & 0xff;
 				argptr[OFFSET + 1] = (address >> 8) & 0xff;
@@ -632,7 +642,7 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 		else {
 			if(((sym[IDENT] == ARRAY) ||
 				(sym[IDENT] == POINTER)) &&
-				(sym[TYPE]  == CINT))
+				(sym[TYPE]  == CINT || sym[TYPE] == CUINT))
 			{
 				tmp.code = I_FARPTR_GET;
 				tmp.type = (long)NULL;

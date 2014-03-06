@@ -57,11 +57,14 @@ long getlabel (void )
  */
 void getmem (char *sym)
 {
-	if ((sym[IDENT] != POINTER) & (sym[TYPE] == CCHAR)) {
+	if ((sym[IDENT] != POINTER) && (sym[TYPE] == CCHAR || sym[TYPE] == CUCHAR)) {
+		int op = I_LDB;
+		if (sym[TYPE] & CUNSIGNED)
+			op = I_LDUB;
 		if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
-			out_ins(I_LDB, T_LABEL, glint(sym));
+			out_ins(op, T_LABEL, glint(sym));
 		else
-			out_ins(I_LDB, T_SYMBOL, (long)(sym + NAME));
+			out_ins(op, T_SYMBOL, (long)(sym + NAME));
 	} else {
 		if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
 			out_ins(I_LDW, T_LABEL, glint(sym));
@@ -112,7 +115,7 @@ void putmem (char *sym)
 {
 	long code;
 
-	if ((sym[IDENT] != POINTER) & (sym[TYPE] == CCHAR))
+	if ((sym[IDENT] != POINTER) & (sym[TYPE] == CCHAR || sym[TYPE] == CUCHAR))
 		code = I_STB;
 	else
 		code = I_STW;
@@ -130,7 +133,7 @@ void putmem (char *sym)
  */
 void putstk (char typeobj)
 {
-	if (typeobj == CCHAR)
+	if (typeobj == CCHAR || typeobj == CUCHAR)
 		out_ins(I_STBPS, (long)NULL, (long)NULL);
 	else
 		out_ins(I_STWPS, (long)NULL, (long)NULL);
@@ -163,6 +166,8 @@ void indirect (char typeobj)
 	out_ins(I_STW, T_PTR, (long)NULL);
 	if (typeobj == CCHAR)
 		out_ins(I_LDBP, T_PTR, (long)NULL);
+	else if (typeobj == CUCHAR)
+		out_ins(I_LDUBP, T_PTR, (long)NULL);
 	else {
 		out_ins(I_LDWP, T_PTR, (long)NULL);
 	}
@@ -172,6 +177,8 @@ void farpeek(char *ptr)
 {
 	if (ptr[TYPE] == CCHAR)
 		out_ins(I_FGETB, T_SYMBOL, (long)ptr);
+	else if (ptr[TYPE] == CUCHAR)
+		out_ins(I_FGETUB, T_SYMBOL, (long)ptr);
 	else
 		out_ins(I_FGETW, T_SYMBOL, (long)ptr);
 }
@@ -487,7 +494,7 @@ void glneg (void )
 void ginc (long * lval)
 /* long lval[]; */
 {
-	if (lval[2] == CINT)
+	if (lval[2] == CINT || lval[2] == CUINT)
 		out_ins(I_ADDWI, T_VALUE, 2);
 	else
 		out_ins(I_ADDWI, T_VALUE, 1);
@@ -500,7 +507,7 @@ void ginc (long * lval)
 void gdec (long *lval)
 /* long lval[]; */
 {
-	if (lval[2] == CINT)
+	if (lval[2] == CINT || lval[2] == CUINT)
 		out_ins(I_SUBWI, T_VALUE, 2);
 	else
 		out_ins(I_SUBWI, T_VALUE, 1);

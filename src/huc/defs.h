@@ -187,6 +187,10 @@
 #define	CCHAR	1
 #define	CINT	2
 #define CVOID	3
+#define CSIGNED 0
+#define CUNSIGNED 8
+#define CUINT (CINT | CUNSIGNED)
+#define CUCHAR (CCHAR | CUNSIGNED)
 
 /* possible entries for storage */
 

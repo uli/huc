@@ -378,16 +378,23 @@ void parse (void )
 long dodcls(long stclass)
 {
 	long err;
+	int sign = CSIGNED;
 
 	blanks();
+
+	if (amatch("unsigned", 8)) {
+		sign = CUNSIGNED;
+		blanks();	/* XXX: necessary? */
+	}
+
 	if (amatch("char", 4))
-		err = declglb(CCHAR, stclass);
+		err = declglb(CCHAR | sign, stclass);
 	else if (amatch("int", 3))
-		err = declglb(CINT, stclass);
+		err = declglb(CINT | sign, stclass);
 	else if (stclass == PUBLIC)
 		return(0);
 	else
-		err = declglb(CINT, stclass);
+		err = declglb(CINT | sign, stclass);
 
 	if (err == 2) /* function */
 		return 1;
@@ -456,7 +463,7 @@ void dumpglbs (void )
 						outstr (":\t");
 						defstorage ();
 						j = glint(cptr);
-						if ((cptr[TYPE] == CINT) ||
+						if ((cptr[TYPE] == CINT) || cptr[TYPE] == CUINT ||
 								(cptr[IDENT] == POINTER))
 							j = j * INTSIZE;
 						outdec (j);
