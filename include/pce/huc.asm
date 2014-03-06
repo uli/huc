@@ -57,6 +57,22 @@ eq:
    clx
    rts
 
+eqb:
+   txa
+   clx
+   cmp [__stack]
+   bne .eq_endno
+
+.eq_endyes:
+   addw	#2,<__stack   ; don't push A/X; they are thrown away
+   lda	#$FF        ; A=255 -> true
+   rts
+
+.eq_endno:
+   addw	#2,<__stack
+   lda	#0
+   rts
+
 ; streamlined version MACRO - uses zp ( <__temp ) instead of stack
 ; returns A:X = 0 if false, FF00 if true
 ; 15 bytes, best = 12 cycles; worst = 23
@@ -75,6 +91,16 @@ eqzp:
 	clx
 	rts
 
+eqbzp:
+	txa
+	clx
+	cmp   <__temp
+	bne   .x_ne
+	lda   #$ff
+	rts
+.x_ne:
+	lda   #0
+	rts
 
 ; ----
 ; lt
@@ -88,6 +114,7 @@ eqzp:
 ;       the word in A:X else nul
 ; ----
 
+ltb:
 lt:     ; signed version
    ldy #1
    cmp #$80
@@ -147,6 +174,19 @@ ult_y1: ; same thing but Y is assumed to be egal to 1
    clx
    rts
 
+ublt:    ; unsigned version
+   txa
+   cmp [__stack]
+   beq .lt_end
+   bcs cmp_ok        ; set result to true
+                     ; lobyte of the reg var < lobyte of the pushed var
+
+.lt_end:
+   addw      #2,<__stack
+   lda	#0
+   clx
+   rts
+
 
 
 ; ----
@@ -161,6 +201,7 @@ ult_y1: ; same thing but Y is assumed to be egal to 1
 ;       the word in A:X else nul
 ; ----
 
+gtb:
 gt:     ; signed version of >
    ldy #1
    cmp #$80
@@ -219,11 +260,24 @@ ugt_y1: ; unsigned version of >, assuming Y = 1
    clx
    rts
 
+ubgt:    ; unsigned byte version of >
+   txa
+   clx
+   cmp [__stack]
+   lda	#$ff
+   bcc .gt_end       ; lobyte of the reg var < lobyte of the pushed var
+   lda	#0
+
+.gt_end:
+   addw      #2,<__stack
+   rts
+
 
 ; ----
 ; zero page versions of lt/gt/ult/ugt:
 ; ----
 
+ltbzp:
 ltzp:	; signed, zero page
 	sta	<__temp+2
 	eor	<__temp+1
@@ -253,7 +307,20 @@ ultzp:	cmp	<__temp+1
 .false:	lda	#0
 	clx
 	rts
+
+ubltzp:
+	txa
+	clx
+	cmp	<__temp
+	beq	.false
+	bcc	.false
+	lda	#$ff
+	rts
+.false:	lda	#0
+	rts
+
 ; ----
+gtbzp:
 gtzp:	; signed, zero page
 	sta	<__temp+2
 	eor	<__temp+1
@@ -285,6 +352,17 @@ ugtzp:
 	clx
 	rts
 
+ubgtzp:
+	txa
+	clx
+	cmp	<__temp
+	beq	.false
+	bcs	.false
+	lda	#$ff
+	rts
+.false:	lda	#0
+	rts
+
 
 ; ----
 ; ge
@@ -303,7 +381,16 @@ ge:     ; signed version of >
     inc A   ; assuming that true is represented by A = 255
     rts
 
+geb:     ; signed byte version of >
+    jsr ltb
+    inc A   ; assuming that true is represented by A = 255
+    rts
+
 gezp:	jsr	ltzp
+	eor	#$ff
+	rts
+
+gebzp:	jsr	ltbzp
 	eor	#$ff
 	rts
 
@@ -324,7 +411,16 @@ uge:    ; unsigned version of >
     inc A   ; assuming that true is represented by A = 255
     rts
 
+ubge:    ; unsigned byte version of >
+    jsr ublt
+    inc A   ; assuming that true is represented by A = 255
+    rts
+
 ugezp:	jsr	ultzp
+	eor	#$ff
+	rts
+
+ubgezp:	jsr	ubltzp
 	eor	#$ff
 	rts
 
@@ -368,6 +464,22 @@ ne:
    clx
    rts
 
+neb:
+   txa
+   clx
+   cmp [__stack]
+   bne .ne_endne
+
+.ne_endeq:
+   addw	#2,<__stack   ; don't push A/X; they are thrown away
+   lda	#0
+   rts
+
+.ne_endne:
+   addw	#2,<__stack
+   lda	#$ff
+   rts
+
 ; streamlined version MACRO - uses zp ( <__temp ) instead of stack
 ; returns A:X = 0 if false, FF00 if true
 ; 15 bytes, best = 12 cycles; worst = 23
@@ -384,6 +496,17 @@ nezp:
 	lda   #$ff   	; ensure Z flag not set
 .x1_eq:
 	clx
+	rts
+
+nebzp:
+	txa
+	clx
+	cmp   <__temp
+	bne   .x_ne
+	lda   #0	; ensure Z flag set
+	rts
+.x_ne:
+	lda   #$ff   	; ensure Z flag not set
 	rts
 
 ; ----
@@ -403,7 +526,16 @@ le:     ; signed version
     inc A       ; assuming that A=255 if true
     rts
 
+leb:     ; signed version
+    jsr gtb
+    inc A       ; assuming that A=255 if true
+    rts
+
 lezp:	jsr	gtzp
+	eor	#$ff
+	rts
+
+lebzp:	jsr	gtbzp
 	eor	#$ff
 	rts
 
@@ -424,10 +556,18 @@ ule:    ; unsigned version
     inc A       ; assuming that A=255 if true
     rts
 
+uble:    ; unsigned byte version
+    jsr ubgt
+    inc A       ; assuming that A=255 if true
+    rts
+
 ulezp:	jsr	ugtzp
 	eor	#$ff
 	rts
 
+ublezp:	jsr	ubgtzp
+	eor	#$ff
+	rts
 
 ; ----
 ; asl
