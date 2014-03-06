@@ -238,7 +238,7 @@ void getarg (long t, int syntax)
 			if (j != POINTER)
 				error("illegal argument type \"void\"");
 			else
-				t = CINT;
+				t = CUINT;
 		}
 
 		if (!(legalname = symname (n)))

@@ -68,7 +68,7 @@ long primary (long* lval)
 				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
 					lval[1] = 0;
 				else {
-					lval[1] = CINT;
+					lval[1] = CUINT;
 					getloc (ptr);
 				}
 				lval[2] = ptr[TYPE];
