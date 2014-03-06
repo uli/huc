@@ -412,19 +412,19 @@ long heir8 (long *lval)
 			gpush ();
 			if (heir9 (lval2))
 				rvalue (lval2);
-			/* if left is pointer and right is long, scale right */
+			/* if left is pointer and right is int, scale right */
 			if (dbltest (lval, lval2))
 				gaslint ();
-			/* will scale left if right long pointer and left long */
+			/* will scale left if right int pointer and left int */
 			gadd (lval,lval2);
 			result (lval, lval2);
 		} else if (match ("-")) {
 			gpush ();
 			if (heir9 (lval2))
 				rvalue (lval2);
-			/* if dbl, can only be: pointer - long, or
+			/* if dbl, can only be: pointer - int, or
 						pointer - pointer, thus,
-				in first case, long is scaled up,
+				in first case, int is scaled up,
 				in second, result is scaled down. */
 			if (dbltest (lval, lval2))
 				gaslint ();

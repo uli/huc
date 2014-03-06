@@ -148,7 +148,7 @@ long primary (long* lval)
 }
 
 /*
- *	true if val1 -> long pointer or long array and val2 not pointer or array
+ *	true if val1 -> int pointer or int array and val2 not pointer or array
  */
 long dbltest (long val1[],long val2[])
 {

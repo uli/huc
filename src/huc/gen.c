@@ -342,7 +342,7 @@ void gjcase(void )
 
 /*
  *	add the primary and secondary registers
- *	if lval2 is long pointer and lval is long, scale lval
+ *	if lval2 is int pointer and lval is int, scale lval
  */
 void gadd (long *lval, long *lval2)
 {
