@@ -84,6 +84,9 @@
 #define I_ORWI       52
 #define I_ADDW       53
 #define I_SUBW       54
+#define I_LDUB       55
+#define I_LDUBP	     56
+#define I_FGETUB     57
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
@@ -107,6 +110,9 @@
 #define X_ADDW_S	0x10091
 #define X_INCW_S	0x100A1
 #define X_DECW_S	0x100B1
+#define X_LDUB		0x10003
+#define X_LDUB_S	0x10004
+#define X_LDUB_P	0x10005
 
 
 #define	FOREVER	for(;;)
