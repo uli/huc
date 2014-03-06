@@ -109,6 +109,12 @@ __ldbp	.macro
        __extw
 	.endm
 
+__ldubp	.macro
+	 lda	[\1]
+	 tax
+	 cla
+	.endm
+
 __stbps	.macro
        __stw	<__temp
        __ldwp	 __stack
