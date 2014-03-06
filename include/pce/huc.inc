@@ -73,6 +73,19 @@ __expr     .ds 2
 	 sta	<__fptr+1
 	 lda	[__fptr]
 	 tax
+	 bpl	.x_\@
+	 dec	A
+.x_\@:
+	.endm
+
+	.macro __fgetub
+	 tam	#3
+	 txa
+	 and	#$1F
+	 ora	#$60
+	 sta	<__fptr+1
+	 lda	[__fptr]
+	 tax
 	 cla
 	.endm
 
