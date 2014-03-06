@@ -253,6 +253,19 @@ long heir4 (long *lval)
 	}
 }
 
+static int is_byte(long *lval)
+{
+	if (!lval[0]) {
+		if (lval[4] < 0x80)
+			return 1;
+		else
+			return 0;
+	}
+	if (((char *)lval[0])[TYPE] == CCHAR || ((char *)lval[0])[TYPE] == CUCHAR)
+		return 1;
+	return 0;
+}
+
 long heir5 (long *lval)
 /*long	lval[]; */
 {
@@ -270,12 +283,12 @@ long heir5 (long *lval)
 			gpush ();
 			if (heir6 (lval2))
 				rvalue (lval2);
-			geq ();
+			geq (is_byte(lval) && is_byte(lval2));
 		} else if (match ("!=")) {
 			gpush ();
 			if (heir6 (lval2))
 				rvalue (lval2);
-			gne ();
+			gne (is_byte(lval) && is_byte(lval2));
 		} else
 			return (0);
 	}
@@ -315,10 +328,10 @@ long heir6 (long *lval)
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
-				gule ();
+				gule (is_byte(lval) && is_byte(lval2));
 				continue;
 			}
-			gle ();
+			gle (is_byte(lval) && is_byte(lval2));
 		} else if (match (">=")) {
 			gpush ();
 			if (heir7 (lval2))
@@ -327,10 +340,10 @@ long heir6 (long *lval)
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
-				guge ();
+				guge (is_byte(lval) && is_byte(lval2));
 				continue;
 			}
-			gge ();
+			gge (is_byte(lval) && is_byte(lval2));
 		} else if ((sstreq ("<")) &&
 			   !sstreq ("<<")) {
 			inbyte ();
@@ -341,10 +354,10 @@ long heir6 (long *lval)
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
-				gult ();
+				gult (is_byte(lval) && is_byte(lval2));
 				continue;
 			}
-			glt ();
+			glt (is_byte(lval) && is_byte(lval2));
 		} else if ((sstreq (">")) &&
 			   !sstreq (">>")) {
 			inbyte ();
@@ -355,10 +368,10 @@ long heir6 (long *lval)
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
-				gugt ();
+				gugt (is_byte(lval) && is_byte(lval2));
 				continue;
 			}
-			ggt ();
+			ggt (is_byte(lval) && is_byte(lval2));
 		} else
 			return (0);
 		blanks ();

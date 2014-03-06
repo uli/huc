@@ -525,9 +525,12 @@ void gdec (long *lval)
  *	equal
  *
  */
-void geq (void )
+void geq (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"eq");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"eqb");
+	else
+		out_ins(I_JSR, T_LIB, (long)"eq");
 	stkp = stkp + INTSIZE;
 }
 
@@ -535,9 +538,12 @@ void geq (void )
  *	not equal
  *
  */
-void gne (void )
+void gne (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"ne");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"neb");
+	else
+		out_ins(I_JSR, T_LIB, (long)"ne");
 	stkp = stkp + INTSIZE;
 }
 
@@ -546,9 +552,12 @@ void gne (void )
  *
  */
 /*void glt (long lvl) */
-void glt (void)
+void glt (int is_byte)
 {
-	out_ins(I_JSR,  T_LIB, (long)"lt");
+	if (is_byte)
+		out_ins(I_JSR,  T_LIB, (long)"ltb");
+	else
+		out_ins(I_JSR,  T_LIB, (long)"lt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -556,9 +565,12 @@ void glt (void)
  *	less than or equal (signed)
  *
  */
-void gle (void )
+void gle (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"le");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"leb");
+	else
+		out_ins(I_JSR, T_LIB, (long)"le");
 	stkp = stkp + INTSIZE;
 }
 
@@ -566,9 +578,12 @@ void gle (void )
  *	greater than (signed)
  *
  */
-void ggt (void )
+void ggt (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"gt");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"gtb");
+	else
+		out_ins(I_JSR, T_LIB, (long)"gt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -576,9 +591,12 @@ void ggt (void )
  *	greater than or equal (signed)
  *
  */
-void gge (void )
+void gge (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"ge");
+	if (is_byte) 
+		out_ins(I_JSR, T_LIB, (long)"geb");
+	else
+		out_ins(I_JSR, T_LIB, (long)"ge");
 	stkp = stkp + INTSIZE;
 }
 
@@ -587,9 +605,12 @@ void gge (void )
  *
  */
 /*void gult (long lvl)*/
-void gult (void)
+void gult (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"ult");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"ublt");
+	else
+		out_ins(I_JSR, T_LIB, (long)"ult");
 	stkp = stkp + INTSIZE;
 }
 
@@ -597,9 +618,12 @@ void gult (void)
  *	less than or equal (unsigned)
  *
  */
-void gule (void )
+void gule (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"ule");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"uble");
+	else
+		out_ins(I_JSR, T_LIB, (long)"ule");
 	stkp = stkp + INTSIZE;
 }
 
@@ -607,9 +631,12 @@ void gule (void )
  *	greater than (unsigned)
  *
  */
-void gugt (void )
+void gugt (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"ugt");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"ubgt");
+	else
+		out_ins(I_JSR, T_LIB, (long)"ugt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -617,8 +644,11 @@ void gugt (void )
  *	greater than or equal (unsigned)
  *
  */
-void guge (void )
+void guge (int is_byte)
 {
-	out_ins(I_JSR, T_LIB, (long)"uge");
+	if (is_byte)
+		out_ins(I_JSR, T_LIB, (long)"ubge");
+	else
+		out_ins(I_JSR, T_LIB, (long)"uge");
 	stkp = stkp + INTSIZE;
 }

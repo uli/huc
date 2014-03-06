@@ -45,16 +45,16 @@ void gbool (void );
 void glneg (void );
 void ginc (long * lval);
 void gdec (long *lval);
-void geq (void );
-void gne (void );
-void glt (void);
-void gle (void );
-void ggt (void );
-void gge (void );
-void gult (void );
-void gule (void );
-void gugt (void );
-void guge (void );
+void geq (int is_byte );
+void gne (int is_byte);
+void glt (int is_byte);
+void gle (int is_byte);
+void ggt (int is_byte);
+void gge (int is_byte);
+void gult (int is_byte);
+void gule (int is_byte);
+void gugt (int is_byte);
+void guge (int is_byte);
 
 #endif
 
