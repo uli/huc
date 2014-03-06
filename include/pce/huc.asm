@@ -644,6 +644,27 @@ asr:
    tya
    rts
 
+lsr:
+   stx <__temp
+   __ldwp __stack
+   ldy <__temp
+   beq .lsr_end
+   sta <__temp
+   sax
+
+.lsr_begin
+   lsr <__temp
+   ror a
+   dey
+   bne .lsr_begin
+
+   sax
+   lda <__temp
+.lsr_end
+   tay
+   addw #2,<__stack
+   tya
+   rts
 
 ; ----
 ; smul
