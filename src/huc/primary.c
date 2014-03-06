@@ -136,6 +136,7 @@ long primary (long* lval)
 	}
 	if (constant (num)) {
 		indflg = 0;
+		lval[4] = num[0];
 		return (lval[0] = lval[1] = 0);
 	}
 	else {
