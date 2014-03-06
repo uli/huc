@@ -491,25 +491,45 @@ void push_ins(INS *ins)
 				((p[0]->code == I_TSTW) &&
 				 (p[1]->code == I_JSR) &&
 				 ((strcmp((char*)p[1]->data, "eq") == 0) ||
+				  (strcmp((char*)p[1]->data, "eqb") == 0) ||
 				  (strcmp((char*)p[1]->data, "ne") == 0) ||
+				  (strcmp((char*)p[1]->data, "neb") == 0) ||
 				  (strcmp((char*)p[1]->data, "ge") == 0) ||
+				  (strcmp((char*)p[1]->data, "geb") == 0) ||
 				  (strcmp((char*)p[1]->data, "uge") == 0) ||
+				  (strcmp((char*)p[1]->data, "ubge") == 0) ||
 				  (strcmp((char*)p[1]->data, "gt") == 0) ||
+				  (strcmp((char*)p[1]->data, "gtb") == 0) ||
 				  (strcmp((char*)p[1]->data, "ugt") == 0) ||
+				  (strcmp((char*)p[1]->data, "ubgt") == 0) ||
 				  (strcmp((char*)p[1]->data, "le") == 0) ||
+				  (strcmp((char*)p[1]->data, "leb") == 0) ||
 				  (strcmp((char*)p[1]->data, "ule") == 0) ||
+				  (strcmp((char*)p[1]->data, "uble") == 0) ||
 				  (strcmp((char*)p[1]->data, "lt") == 0) ||
+				  (strcmp((char*)p[1]->data, "ltb") == 0) ||
 				  (strcmp((char*)p[1]->data, "ult") == 0) ||
+				  (strcmp((char*)p[1]->data, "ublt") == 0) ||
 				  (strcmp((char*)p[1]->data, "eqzp") == 0) ||
+				  (strcmp((char*)p[1]->data, "eqbzp") == 0) ||
 				  (strcmp((char*)p[1]->data, "nezp") == 0) ||
+				  (strcmp((char*)p[1]->data, "nebzp") == 0) ||
 				  (strcmp((char*)p[1]->data, "gezp") == 0) ||
+				  (strcmp((char*)p[1]->data, "gebzp") == 0) ||
 				  (strcmp((char*)p[1]->data, "ugezp") == 0) ||
+				  (strcmp((char*)p[1]->data, "ubgezp") == 0) ||
 				  (strcmp((char*)p[1]->data, "gtzp") == 0) ||
+				  (strcmp((char*)p[1]->data, "gtbzp") == 0) ||
 				  (strcmp((char*)p[1]->data, "ugtzp") == 0) ||
+				  (strcmp((char*)p[1]->data, "ubgtzp") == 0) ||
 				  (strcmp((char*)p[1]->data, "lezp") == 0) ||
+				  (strcmp((char*)p[1]->data, "lebzp") == 0) ||
 				  (strcmp((char*)p[1]->data, "ulezp") == 0) ||
+				  (strcmp((char*)p[1]->data, "ublezp") == 0) ||
 				  (strcmp((char*)p[1]->data, "ltzp") == 0) ||
-				  (strcmp((char*)p[1]->data, "ultzp") == 0)) )
+				  (strcmp((char*)p[1]->data, "ltbzp") == 0) ||
+				  (strcmp((char*)p[1]->data, "ultzp") == 0) ||
+				  (strcmp((char*)p[1]->data, "ubltzp") == 0)) )
 			{
 				nb = 1;
 			}
@@ -805,15 +825,25 @@ void push_ins(INS *ins)
 			 	 ((p[1]->code == I_LDWI) || (p[1]->code == I_LDW)) &&
 				 (p[2]->code == I_PUSHW) &&
 				 ((strcmp((char*)p[0]->data, "eq") == 0) ||
+				  (strcmp((char*)p[0]->data, "eqb") == 0) ||
 				  (strcmp((char*)p[0]->data, "ne") == 0) ||
+				  (strcmp((char*)p[0]->data, "neb") == 0) ||
 				  (strcmp((char*)p[0]->data, "lt") == 0) ||
+				  (strcmp((char*)p[0]->data, "ltb") == 0) ||
 				  (strcmp((char*)p[0]->data, "ult") == 0) ||
+				  (strcmp((char*)p[0]->data, "ublt") == 0) ||
 				  (strcmp((char*)p[0]->data, "gt") == 0) ||
+				  (strcmp((char*)p[0]->data, "gtb") == 0) ||
 				  (strcmp((char*)p[0]->data, "ugt") == 0) ||
+				  (strcmp((char*)p[0]->data, "ubgt") == 0) ||
 				  (strcmp((char*)p[0]->data, "ge") == 0) ||
+				  (strcmp((char*)p[0]->data, "geb") == 0) ||
 				  (strcmp((char*)p[0]->data, "uge") == 0) ||
+				  (strcmp((char*)p[0]->data, "ubge") == 0) ||
 				  (strcmp((char*)p[0]->data, "le") == 0) ||
-				  (strcmp((char*)p[0]->data, "ule") == 0)) )
+				  (strcmp((char*)p[0]->data, "leb") == 0) ||
+				  (strcmp((char*)p[0]->data, "ule") == 0) ||
+				  (strcmp((char*)p[0]->data, "uble") == 0)) )
 			{
 				/* replace code */
 				p[2]->code = I_STW;
@@ -823,41 +853,81 @@ void push_ins(INS *ins)
 				{
 					p[0]->data = (long) "eqzp";
 				}
+				else if (strcmp((char *)p[0]->data, "eqb") == 0)
+				{
+					p[0]->data = (long) "eqbzp";
+				}
 				else if (strcmp((char *)p[0]->data, "ne") == 0)
 				{
 					p[0]->data = (long) "nezp";
+				}
+				else if (strcmp((char *)p[0]->data, "neb") == 0)
+				{
+					p[0]->data = (long) "nebzp";
 				}
 				else if (strcmp((char *)p[0]->data, "lt") == 0)
 				{
 					p[0]->data = (long) "ltzp";
 				}
+				else if (strcmp((char *)p[0]->data, "ltb") == 0)
+				{
+					p[0]->data = (long) "ltbzp";
+				}
 				else if (strcmp((char *)p[0]->data, "ult") == 0)
 				{
 					p[0]->data = (long) "ultzp";
+				}
+				else if (strcmp((char *)p[0]->data, "ublt") == 0)
+				{
+					p[0]->data = (long) "ubltzp";
 				}
 				else if (strcmp((char *)p[0]->data, "gt") == 0)
 				{
 					p[0]->data = (long) "gtzp";
 				}
+				else if (strcmp((char *)p[0]->data, "gtb") == 0)
+				{
+					p[0]->data = (long) "gtbzp";
+				}
 				else if (strcmp((char *)p[0]->data, "ugt") == 0)
 				{
 					p[0]->data = (long) "ugtzp";
+				}
+				else if (strcmp((char *)p[0]->data, "ubgt") == 0)
+				{
+					p[0]->data = (long) "ubgtzp";
 				}
 				else if (strcmp((char *)p[0]->data, "le") == 0)
 				{
 					p[0]->data = (long) "lezp";
 				}
+				else if (strcmp((char *)p[0]->data, "leb") == 0)
+				{
+					p[0]->data = (long) "lebzp";
+				}
 				else if (strcmp((char *)p[0]->data, "ule") == 0)
 				{
 					p[0]->data = (long) "ulezp";
+				}
+				else if (strcmp((char *)p[0]->data, "uble") == 0)
+				{
+					p[0]->data = (long) "ublezp";
 				}
 				else if (strcmp((char *)p[0]->data, "ge") == 0)
 				{
 					p[0]->data = (long) "gezp";
 				}
+				else if (strcmp((char *)p[0]->data, "geb") == 0)
+				{
+					p[0]->data = (long) "gebzp";
+				}
 				else if (strcmp((char *)p[0]->data, "uge") == 0)
 				{
 					p[0]->data = (long) "ugezp";
+				}
+				else if (strcmp((char *)p[0]->data, "ubge") == 0)
+				{
+					p[0]->data = (long) "ubgezp";
 				}
 				/* loop */
 				goto lv1_loop;
