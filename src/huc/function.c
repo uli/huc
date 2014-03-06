@@ -545,6 +545,7 @@ arg_flush(long arg, long adj)
 			case X_LEA_S:
 			case X_PEA_S:
 			case X_LDB_S:
+			case X_LDUB_S:
 			case X_LDW_S:
 			case X_LDD_S_B:
 			case X_LDD_S_W:
@@ -679,7 +680,7 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 		}
 
 		/* var/ptr */
-		else if(  (((ins->code == I_LDW) || (ins->code == I_LDB))
+		else if(  (((ins->code == I_LDW) || (ins->code == I_LDB) || (ins->code == I_LDUB))
 			 && (ins->type == T_SYMBOL)) || (ins->type == T_LABEL) )
 		{
 			/* check special cases */
@@ -709,7 +710,7 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 		}
 
 		/* var/ptr */
-		else if ((ins->code == X_LDW_S) || (ins->code == X_LDB_S)) {
+		else if ((ins->code == X_LDW_S) || (ins->code == X_LDB_S) || ins->code == X_LDUB_S) {
 			/* get symbol */
 			sym = ins->sym;
 
