@@ -142,6 +142,26 @@
 	.endif
 	.endm
 
+; ldub_s
+;
+	.macro __ldub_s
+	.if (\1 < 256)
+	 ; short index (bytes :  9, cycles : 13/17)
+
+	 ldy	#\1
+	 lda	[__sp],Y
+	 tax
+	 cla
+	.else
+	 ; long index  (bytes : 20, cycles : 37/41)
+
+	 addw	#\1,<__sp,<__ptr	; 13,26
+	 lda	[__ptr]
+	 tax
+	 cla
+	.endif
+	.endm
+
 ; ldb_p
 ;
 	.macro __ldb_p
@@ -154,6 +174,17 @@
 	 bpl	.x_\@	; signed
 	 dec	A
 .x_\@:
+	.endm
+
+; ldub_p
+;
+	.macro __ldub_p
+	 ; (bytes : 11, cycles : 19/23)
+	 stx	<__ptr
+	 sta	<__ptr+1
+	 lda	[__ptr]
+	 tax
+	 cla
 	.endm
 
 ; ldw_s
