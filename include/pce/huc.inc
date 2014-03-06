@@ -236,12 +236,11 @@ __asrw	.macro
 	.endm
 
 __extw	.macro
-;	 txa	; signed
-;	 cla
-;	 bpl	.x_\@
-;	 dec	A
-;.x_\@:
-	 cla	; unsigned
+	 txa	; signed
+	 cla
+	 bpl	.x_\@
+	 dec	A
+.x_\@:
 	.endm
 
 __comw	.macro
