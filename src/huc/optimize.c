@@ -362,7 +362,7 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-			   ((p[0]->code == X_LDB_S) &&
+			   ((p[0]->code == X_LDB_S || p[0]->code == X_LDUB_S) &&
 				(p[1]->code == X_STB_S) &&
 				
 				(p[0]->data == p[1]->data))
@@ -406,6 +406,16 @@ void push_ins(INS *ins)
 				p[1]->code = X_LDB_P;
 				nb = 1;
 			}
+			else if
+			   ((p[0]->code == I_LDUBP) &&
+				(p[1]->code == I_STW) &&
+	
+				(p[1]->type == T_PTR))
+			{
+				/* replace code */
+				p[1]->code = X_LDUB_P;
+				nb = 1;
+			}
 
 			/*  @_lea_s i                   --> @_ldb_s i
 			 *  @_ldb_p
@@ -421,6 +431,14 @@ void push_ins(INS *ins)
 			{
 				/* replace code */
 				p[1]->code = X_LDB_S;
+				nb = 1;
+			}
+			else if
+			   ((p[0]->code == X_LDUB_P) &&
+				(p[1]->code == X_LEA_S))
+			{
+				/* replace code */
+				p[1]->code = X_LDUB_S;
 				nb = 1;
 			}
 
@@ -440,6 +458,20 @@ void push_ins(INS *ins)
 			{
 				/* replace code */
 				p[0]->code = X_LDB_S;
+				p[0]->data = p[1]->data + 2;
+				p[0]->sym  = p[1]->sym;
+
+				/* loop */
+				goto lv1_loop;
+			}
+			else if
+			   ((p[0]->code == X_LDUB_P) &&
+				(p[1]->code == X_PEA_S) &&
+				
+				(optimize >= 2))
+			{
+				/* replace code */
+				p[0]->code = X_LDUB_S;
 				p[0]->data = p[1]->data + 2;
 				p[0]->sym  = p[1]->sym;
 
@@ -1159,6 +1191,7 @@ level_2:
 						case X_LEA_S:
 						case X_PEA_S:
 						case X_LDB_S:
+						case X_LDUB_S:
 						case X_LDW_S:
 						case X_LDD_S_B:
 						case X_LDD_S_W:
@@ -1248,8 +1281,18 @@ void gen_asm(INS *inst)
 		ol("__ldb_p");
 		break;
 
+	case X_LDUB_P:
+		ol("__ldub_p");
+		break;
+
 	case X_LDB_S:
 		ot("__ldb_s\t");
+		outdec(inst->data);
+		nl();
+		break;
+
+	case X_LDUB_S:
+		ot("__ldub_s\t");
 		outdec(inst->data);
 		nl();
 		break;
