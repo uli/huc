@@ -664,3 +664,17 @@ void guge (int is_byte)
 		out_ins(I_JSR, T_LIB, (long)"uge");
 	stkp = stkp + INTSIZE;
 }
+
+void scale_const(int type, int otag, long *size) {
+    switch (type) {
+        case CINT:
+        case CUINT:
+            *size += *size;
+            break;
+        case CSTRUCT:
+            *size *= tag_table[otag].size;
+            break;
+        default:
+            break;
+    }
+}

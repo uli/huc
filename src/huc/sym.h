@@ -1,8 +1,8 @@
 #ifndef _SYM_H
 #define _SYM_H
 
-long declglb (long typ, long stor);
-void declloc (long typ, long stclass);
+long declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct);
+void declloc (long typ, long stclass, int otag);
 long needsub (void);
 char* findglb (char *sname);
 char* findloc (char *sname);

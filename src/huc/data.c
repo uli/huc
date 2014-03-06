@@ -37,6 +37,12 @@ char  line[LINESIZE];
 char  mline[LINESIZE];
 long   lptr, mptr;
 
+TAG_SYMBOL  tag_table[NUMTAG]; // start of structure tag table
+int         tag_table_index; // ptr to next entry
+
+SYMBOL	member_table[NUMMEMB];	// structure member table
+int	member_table_index;	// ptr to next member
+
 char  asmdefs[LITABSZ];
 
 /* miscellaneous storage */

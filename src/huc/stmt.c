@@ -17,6 +17,7 @@
 #include "stmt.h"
 #include "sym.h"
 #include "while.h"
+#include "struct.h"
 
 /*
  *	statement parser
@@ -68,16 +69,28 @@ long stdecl (void)
 
 long doldcls(long stclass)
 {
+        int otag;
+        int sflag;
+        char sname[NAMESIZE];
         int sign = CSIGNED;
 	blanks();
 	if (amatch("unsigned", 8))
 	        sign = CUNSIGNED;
-	if (amatch("char", 4))
-		declloc(CCHAR | sign, stclass);
+        if ((sflag=amatch("struct", 6)) || amatch("union", 5)) {
+            if (symname(sname) == 0) { // legal name ?
+                illname();
+            }
+            if ((otag=find_tag(sname)) == -1) { // structure not previously defined
+                otag = define_struct(sname, stclass, sflag);
+            }
+            declloc(CSTRUCT, stclass, otag);
+        }
+	else if (amatch("char", 4))
+		declloc(CCHAR | sign, stclass, -1);
 	else if (amatch("int", 3))
-		declloc(CINT | sign, stclass);
+		declloc(CINT | sign, stclass, -1);
 	else if (stclass == LSTATIC || stclass == DEFAUTO)
-		declloc(CINT | sign, stclass);
+		declloc(CINT | sign, stclass, -1);
 	else
 		return(0);
 	ns();

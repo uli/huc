@@ -15,7 +15,7 @@
 #include "io.h"
 #include "lex.h"
 #include "primary.h"
-
+#include "sym.h"
 
 /*
  *	lval[0] - symbol table address, else 0 for constant
@@ -617,64 +617,98 @@ long heir10 (long *lval)
 long heir11 (long *lval)
 /*long	*lval; */
 {
-	long	k;
+	long	direct,k;
 	char	*ptr;
+	char    sname[NAMESIZE];
 
 	k = primary (lval);
 	ptr = (char*)lval[0];
 	blanks ();
-	if ((ch () == '[') || (ch () == '(')) {
-		for (;;) {
-			if (match ("[")) {
-				if (ptr == 0) {
-					error ("can't subscript");
-					junk ();
-					needbrack ("]");
-					return (0);
-				}
-				else if (ptr[IDENT] == POINTER)
-					rvalue (lval);
-				else if (ptr[IDENT] != ARRAY) {
-					error ("can't subscript");
-					k = 0;
-				}
-				if (!ptr[FAR])
-					gpush ();
-				expression (YES);
+	for (;;) {
+		if (match ("[")) {
+			if (ptr == 0) {
+				error ("can't subscript");
+				junk ();
 				needbrack ("]");
-				if (ptr[TYPE] == CINT || ptr[TYPE] == CUINT)
-					gaslint ();
-				if (!ptr[FAR])
-					gadd (NULL,NULL);
-				lval[0] = 0;
-				lval[1] = ptr[TYPE];
-				lval[2] = 0;//VARIABLE; /* David, bug patch ?? */
-				lval[3] = ptr[FAR] ? (long)ptr : (long)NULL;
-				k = 1;
+				return (0);
 			}
-			else if (match ("(")) {
-				if (ptr == 0) {
-					error("invalid or unsupported function call");
+			else if (ptr[IDENT] == POINTER)
+				rvalue (lval);
+			else if (ptr[IDENT] != ARRAY) {
+				error ("can't subscript");
+				k = 0;
+			}
+			if (!ptr[FAR])
+				gpush ();
+			expression (YES);
+			needbrack ("]");
+			if (ptr[TYPE] == CINT || ptr[TYPE] == CUINT)
+				gaslint ();
+			if (!ptr[FAR])
+				gadd (NULL,NULL);
+			lval[0] = 0;
+			lval[1] = ptr[TYPE];
+			lval[2] = 0;//VARIABLE; /* David, bug patch ?? */
+			lval[3] = ptr[FAR] ? (long)ptr : (long)NULL;
+			k = 1;
+		}
+		else if (match ("(")) {
+			if (ptr == 0) {
+				error("invalid or unsupported function call");
+				callfunction (0);
+			}
+			else if (ptr[IDENT] != FUNCTION) {
+				if (strcmp(ptr, "vram") == 0)
+					callfunction (ptr);
+				else {
+					if (ptr[FAR]) {
+						lval[3] = (long)ptr;
+						immed (T_VALUE, 0);
+					}
+					rvalue (lval);
 					callfunction (0);
 				}
-				else if (ptr[IDENT] != FUNCTION) {
-					if (strcmp(ptr, "vram") == 0)
-						callfunction (ptr);
-					else {
-						if (ptr[FAR]) {
-							lval[3] = (long)ptr;
-							immed (T_VALUE, 0);
-						}
-						rvalue (lval);
-						callfunction (0);
-					}
-				} else
-					callfunction (ptr);
-				k = lval[0] = 0;
+			} else
+				callfunction (ptr);
+			k = lval[0] = 0;
+		} else if ((direct=match(".")) || match("->")) {
+			if (lval[5] == 0) {
+			    error("can't take member") ;
+			    junk() ;
+			    return 0 ;
 			}
-			else
-				return (k);
+			if (symname(sname) == 0 ||
+			   ((ptr=(char *)find_member((TAG_SYMBOL *)lval[5], sname)) == 0)) {
+			    error("unknown member") ;
+			    junk() ;
+			    return 0 ;
+			}
+			if (k && direct == 0)
+			    rvalue(lval);
+			out_ins(I_ADDWI, T_VALUE, ptr[OFFSET] | (ptr[OFFSET+1] << 8));
+			//add_offset(ptr[OFFSET] | (ptr[OFFSET+1] << 8)); // move pointer from struct begin to struct member
+			lval[0] = (long)ptr;
+			lval[1] = ptr[TYPE]; // lval->indirect = lval->val_type = ptr->type
+			lval[2] = 0;
+			lval[5] = (long)NULL_TAG;
+			if (ptr[TYPE] == CSTRUCT)
+			    lval[5] = (long)&tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
+			if (ptr[IDENT] == POINTER) {
+			    lval[1] = CINT;
+			    lval[2] = ptr[TYPE];
+			    //lval->val_type = CINT;
+			}
+			if (ptr[IDENT]==ARRAY ||
+			    (ptr[TYPE]==CSTRUCT && ptr[IDENT]==VARIABLE)) {
+			    // array or struct
+			    lval[2] = ptr[TYPE];
+			    //lval->val_type = CINT;
+			    k = 0;
+			}
+			else k = 1;
 		}
+		else
+			return (k);
 	}
 	if (ptr == 0)
 		return (k);

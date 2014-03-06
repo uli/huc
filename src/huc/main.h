@@ -18,7 +18,7 @@
 void FEvers(void );
 void usage(char* exename);
 void parse (void );
-long dodcls(long stclass);
+long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct);
 void dumplits (void );
 void dumpglbs (void );
 void errorsummary (void );

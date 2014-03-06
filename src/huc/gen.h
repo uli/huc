@@ -56,5 +56,7 @@ void gule (int is_byte);
 void gugt (int is_byte);
 void guge (int is_byte);
 
+void scale_const(int type, int otag, long *size);
+
 #endif
 

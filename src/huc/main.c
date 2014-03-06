@@ -29,6 +29,7 @@
 #include "preproc.h"
 #include "pseudo.h"
 #include "sym.h"
+#include "struct.h"
 
 int main (int argc,char* argv[])
 {
@@ -283,7 +284,7 @@ void parse (void )
 				unget_line();
 				incl_globals();
 			} else {
-				dodcls(EXTERN);
+				dodcls(EXTERN, NULL_TAG, 0);
 			}
 		}
 		else if (amatch ("static",6))
@@ -293,7 +294,7 @@ void parse (void )
 				unget_line();
 				incl_globals();
 			} else {
-				dodcls(STATIC);
+				dodcls(STATIC, NULL_TAG, 0);
 			}
 		}
 		else if (amatch ("const",5))
@@ -303,10 +304,10 @@ void parse (void )
 				unget_line();
 				incl_globals();
 			} else {
-				dodcls(CONST);
+				dodcls(CONST, NULL_TAG, 0);
 			}
 		}
-		else if (dodcls(PUBLIC)) ;
+		else if (dodcls(PUBLIC, NULL_TAG, 0)) ;
 		else if (match ("#asmdef"))
 			doasmdef ();
 		else if (match ("#asm"))
@@ -375,26 +376,40 @@ void parse (void )
  *		parse top level declarations
  */
 
-long dodcls(long stclass)
+long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 {
 	long err;
+	int otag;
+	int sflag;
+	char sname[NAMESIZE];
 	int sign = CSIGNED;
 
 	blanks();
 
-	if (amatch("unsigned", 8)) {
-		sign = CUNSIGNED;
-		blanks();	/* XXX: necessary? */
+	if ((sflag=amatch("struct", 6)) || amatch("union", 5)) {
+		if (symname(sname) == 0) { // legal name ?
+			illname();
+		}
+		if ((otag=find_tag(sname)) == -1) { // structure not previously defined
+			otag = define_struct(sname, stclass, sflag);
+		}
+		err = declglb(CSTRUCT, stclass, mtag, otag, is_struct);
 	}
+	else {
+		if (amatch("unsigned", 8)) {
+			sign = CUNSIGNED;
+			blanks();	/* XXX: necessary? */
+		}
 
-	if (amatch("char", 4))
-		err = declglb(CCHAR | sign, stclass);
-	else if (amatch("int", 3))
-		err = declglb(CINT | sign, stclass);
-	else if (stclass == PUBLIC)
-		return(0);
-	else
-		err = declglb(CINT | sign, stclass);
+		if (amatch("char", 4))
+			err = declglb(CCHAR | sign, stclass, mtag, NULL_TAG, is_struct);
+		else if (amatch("int", 3))
+			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
+		else if (stclass == PUBLIC)
+			return(0);
+		else
+			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
+	}
 
 	if (err == 2) /* function */
 		return 1;

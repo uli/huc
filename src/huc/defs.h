@@ -139,7 +139,7 @@
  * #define	SYMTBSZ	32768
  * #define	NUMGLBS	1500
  */
-#define SYMSIZ	32
+#define SYMSIZ	34
 #define SYMTBSZ	131072
 #define NUMGLBS	2048
 
@@ -164,6 +164,7 @@
 #define STORAGE 28
 #define FAR     29
 #define OFFSET  30
+#define TAGIDX	32
 
 /* system-wide name size (for symbols) */
 
@@ -174,6 +175,33 @@
 
 #define NAMESIZE	26
 #define NAMEMAX	25
+
+struct symbol {
+	char name[NAMESIZE];
+	char ident;
+	char type;
+	char storage;
+	char far;
+	short offset;
+	short tagidx;
+};
+
+typedef struct symbol SYMBOL;
+
+#define NUMTAG	10
+
+struct tag_symbol {
+	char name[NAMESIZE];    // structure tag name
+	int size;               // size of struct in bytes
+    int member_idx;         // index of first member
+    int number_of_members;  // number of tag members
+};
+#define TAG_SYMBOL struct tag_symbol
+
+#define NULL_TAG 0
+
+// Define the structure member table parameters
+#define NUMMEMB		30
 
 /* possible entries for "ident" */
 
@@ -187,6 +215,7 @@
 #define	CCHAR	1
 #define	CINT	2
 #define CVOID	3
+#define CSTRUCT	4
 #define CSIGNED 0
 #define CUNSIGNED 8
 #define CUINT (CINT | CUNSIGNED)
@@ -309,5 +338,7 @@ struct fastcall {
 	char   argtype[8];
 	char   argname[8][NAMESIZE];
 };
+
+SYMBOL *find_member(TAG_SYMBOL *tag, char *sname);
 
 #endif

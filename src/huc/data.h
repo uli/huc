@@ -34,6 +34,12 @@ extern	char  line[];
 extern	char  mline[];
 extern	long   lptr, mptr;
 
+extern TAG_SYMBOL  tag_table[NUMTAG]; // start of structure tag table
+extern int	   tag_table_index;   // ptr to next entry
+
+extern SYMBOL	member_table[NUMMEMB];	// structure member table
+extern int	member_table_index;	// ptr to next member<
+
 extern  char  asmdefs[];
 
 /* miscellaneous storage */

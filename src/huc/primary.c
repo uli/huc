@@ -45,6 +45,8 @@ long primary (long* lval)
 				if ((ptr[TYPE] == CINT) || ptr[TYPE] == CUINT ||
 					(ptr[IDENT] == POINTER))
 					k *= INTSIZE;
+                                else if (ptr[TYPE] == CSTRUCT)
+                                        k *= tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)].size;
 				immed (T_VALUE, k);
 			} else {
 				error("sizeof undeclared variable");
@@ -74,7 +76,10 @@ long primary (long* lval)
 				lval[2] = ptr[TYPE];
 				return (1);
 			}
-			if (ptr[IDENT] == ARRAY) {
+			if (ptr[TYPE] == CSTRUCT)
+			        lval[5] = (long)&tag_table[ptr[TAGIDX] + (ptr[TAGIDX+1] << 8)];
+			if (ptr[IDENT] == ARRAY ||
+			    (ptr[IDENT] == VARIABLE && ptr[TYPE] == CSTRUCT)) {
 				getloc (ptr);
 				lval[2] = ptr[TYPE];
 //				lval[2] = 0;
@@ -91,7 +96,10 @@ long primary (long* lval)
 			if (ptr[IDENT] != FUNCTION) {
 				lval[0] = (long)ptr;
 				lval[1] = 0;
-				if (ptr[IDENT] != ARRAY) {
+				if (ptr[TYPE] == CSTRUCT)
+				        lval[5] = (long)&tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
+				if (ptr[IDENT] != ARRAY &&
+				    (ptr[IDENT] != VARIABLE || ptr[TYPE] != CSTRUCT)) {
 					if (ptr[IDENT] == POINTER)
 						lval[2] = ptr[TYPE];
 					return (1);

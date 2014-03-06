@@ -16,6 +16,7 @@
 #include "pragma.h"
 #include "sym.h"
 #include "function.h"
+#include "struct.h"
 
 /*
  *	declare a static variable
@@ -24,13 +25,15 @@
  *
  */
 long
-declglb (long typ, long stor)
+declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 {
 	long	 k, id;
 	char sname[NAMESIZE];
 
 	for (;;) {
 		for (;;) {
+			if (endst())
+				return 0;
 			k = 1;
 			if (match ("*"))
 				id = POINTER;
@@ -70,11 +73,32 @@ declglb (long typ, long stor)
 					error ("const scalar not supported");
 				}
 			}
-			if (stor != CONST)
-				addglb (sname, id, typ, k, stor);
+			if (mtag == 0) {
+				if (stor != CONST)
+					addglb (sname, id, typ, k, stor);
+				else {
+					if (addglb (sname, id, typ, k, STATIC))
+						add_const(typ);
+				}
+				if (typ == CSTRUCT) {
+					cptr[TAGIDX] = otag & 0xff;
+					cptr[TAGIDX+1] = otag >> 8;
+				}
+			}
+			else if (is_struct) {
+				add_member(sname, id, typ, mtag->size, stor);
+				if (id == POINTER)
+					typ = CUINT;
+				scale_const(typ, otag, &k);
+				mtag->size += k;
+			}
 			else {
-				if (addglb (sname, id, typ, k, STATIC))
-					add_const(typ);
+				add_member(sname, id, typ, 0, stor);
+				if (id == POINTER)
+					typ = CUINT;
+				scale_const(typ, otag, &k);
+				if (mtag->size < k)
+					mtag->size = k;
 			}
 			break;
 		}
@@ -96,7 +120,7 @@ declglb (long typ, long stor)
  *
  *  zeo : added "totalk" stuff and global stack modification (00/04/12)
  */
-void declloc (long typ, long stclass)
+void declloc (long typ, long stclass, int otag)
 {
 	long  k, j;
 	char sname[NAMESIZE];
@@ -123,6 +147,8 @@ void declloc (long typ, long stclass)
 					j = ARRAY;
 					if (typ == CINT || typ == CUINT)
 						k = k * INTSIZE;
+				} else if (typ == CSTRUCT) {
+					k *= tag_table[otag].size;
 				} else {
 					j = POINTER;
 					k = INTSIZE;
@@ -130,6 +156,8 @@ void declloc (long typ, long stclass)
 			} else {
 				if ((typ == CCHAR || typ == CUCHAR) & (j != POINTER))
 					k = 1;
+				else if (typ == CSTRUCT)
+					k = tag_table[otag].size;
 				else
 					k = INTSIZE;
 			}
