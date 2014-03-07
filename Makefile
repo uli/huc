@@ -14,6 +14,10 @@ $(SUBDIRS):
 	@echo " -----> make $(COMMAND) in $@"
 	$(MAKE) --directory=$@ $(COMMAND)
 
+install:
+	cp -p bin/* /usr/local/bin
+	cp -p include/pce/* /usr/include/pce/
+
 package:
 	$(MAKE) clean
 	rm -f huc.zip
