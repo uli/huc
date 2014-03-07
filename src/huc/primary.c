@@ -66,6 +66,7 @@ long primary (long* lval)
 			 */
 			lval[0] = (long)ptr;
 			lval[1] = ptr[TYPE];
+			lval[5] = 0;
 			if (ptr[IDENT] == POINTER) {
 				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
 					lval[1] = 0;
@@ -96,6 +97,7 @@ long primary (long* lval)
 			if (ptr[IDENT] != FUNCTION) {
 				lval[0] = (long)ptr;
 				lval[1] = 0;
+				lval[5] = 0;
 				if (ptr[TYPE] == CSTRUCT)
 				        lval[5] = (long)&tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
 				if (ptr[IDENT] != ARRAY &&
