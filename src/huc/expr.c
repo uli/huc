@@ -44,6 +44,21 @@ static int is_unsigned(long *lval)
 	return 0;
 }
 
+static void gen_scale_right(long *lval, long *lval2)
+{
+	if (dbltest (lval, lval2)) {
+		if (lval[5]) {
+			TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
+			if (tag->size == 2)
+				gaslint();
+			else if (tag->size > 1)
+				gmult_imm(tag->size);
+		}
+		else
+			gaslint ();
+	}
+}
+
 long heir1 (long * lval)
 /*long	lval[]; */
 {
@@ -87,15 +102,13 @@ long heir1 (long * lval)
 				rvalue (lval2);
 			switch (fc) {
 				case '-':	{
-					if (dbltest(lval,lval2))
-						gaslint();
+					gen_scale_right(lval, lval2);
 					gsub();
 					result (lval, lval2);
 					break;
 				}
 				case '+':	{
-					if (dbltest(lval,lval2))
-						gaslint();
+					gen_scale_right(lval, lval2);
 					gadd (lval,lval2);
 					result(lval,lval2);
 					break;
@@ -426,17 +439,7 @@ long heir8 (long *lval)
 			if (heir9 (lval2))
 				rvalue (lval2);
 			/* if left is pointer and right is int, scale right */
-			if (dbltest (lval, lval2)) {
-				if (lval[5]) {
-					TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
-					if (tag->size == 2)
-						gaslint();
-					else if (tag->size > 1)
-						gmult_imm(tag->size);
-				}
-				else
-					gaslint ();
-			}
+			gen_scale_right(lval, lval2);
 			/* will scale left if right int pointer and left int */
 			gadd (lval,lval2);
 			result (lval, lval2);
@@ -448,17 +451,7 @@ long heir8 (long *lval)
 						pointer - pointer, thus,
 				in first case, int is scaled up,
 				in second, result is scaled down. */
-			if (dbltest (lval, lval2)) {
-				if (lval[5]) {
-					TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
-					if (tag->size == 2)
-						gaslint();
-					else if (tag->size > 1)
-						gmult_imm(tag->size);
-				}
-				else
-					gaslint ();
-			}
+			gen_scale_right(lval, lval2);
 			gsub ();
 			/* if both pointers, scale result */
 			/* XXX: structs? */

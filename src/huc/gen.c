@@ -515,6 +515,10 @@ void ginc (long * lval)
 {
 	if (lval[2] == CINT || lval[2] == CUINT)
 		out_ins(I_ADDWI, T_VALUE, 2);
+	else if (lval[2] == CSTRUCT) {
+		TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
+		out_ins(I_ADDWI, T_VALUE, tag->size);
+        }
 	else
 		out_ins(I_ADDWI, T_VALUE, 1);
 }
@@ -528,6 +532,10 @@ void gdec (long *lval)
 {
 	if (lval[2] == CINT || lval[2] == CUINT)
 		out_ins(I_SUBWI, T_VALUE, 2);
+	else if (lval[2] == CSTRUCT) {
+		TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
+		out_ins(I_SUBWI, T_VALUE, tag->size);
+        }
 	else
 		out_ins(I_SUBWI, T_VALUE, 1);
 }
