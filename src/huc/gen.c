@@ -377,6 +377,13 @@ void gmult (int is_unsigned)
 	stkp = stkp + INTSIZE;
 }
 
+void gmult_imm (int value)
+{
+    gpush();
+    immed(T_VALUE, value);
+    gmult(1);
+}
+
 /*
  *	divide the secondary register by the primary
  *	(quotient in primary, remainder in secondary)

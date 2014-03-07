@@ -32,6 +32,7 @@ void gjcase(void );
 void gadd (long *lval, long *lval2);
 void gsub (void );
 void gmult (int is_unsigned);
+void gmult_imm (int value);
 void gdiv (int is_unsigned);
 void gmod (int is_unsigned);
 void gor (void );

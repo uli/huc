@@ -426,8 +426,17 @@ long heir8 (long *lval)
 			if (heir9 (lval2))
 				rvalue (lval2);
 			/* if left is pointer and right is int, scale right */
-			if (dbltest (lval, lval2))
-				gaslint ();
+			if (dbltest (lval, lval2)) {
+				if (lval[5]) {
+					TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
+					if (tag->size == 2)
+						gaslint();
+					else if (tag->size > 1)
+						gmult_imm(tag->size);
+				}
+				else
+					gaslint ();
+			}
 			/* will scale left if right int pointer and left int */
 			gadd (lval,lval2);
 			result (lval, lval2);
@@ -439,10 +448,20 @@ long heir8 (long *lval)
 						pointer - pointer, thus,
 				in first case, int is scaled up,
 				in second, result is scaled down. */
-			if (dbltest (lval, lval2))
-				gaslint ();
+			if (dbltest (lval, lval2)) {
+				if (lval[5]) {
+					TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
+					if (tag->size == 2)
+						gaslint();
+					else if (tag->size > 1)
+						gmult_imm(tag->size);
+				}
+				else
+					gaslint ();
+			}
 			gsub ();
 			/* if both pointers, scale result */
+			/* XXX: structs? */
 			if ((lval[2] == CINT) && (lval2[2] == CINT)) {
 				gasrint(); /* divide by intsize */
 			}
@@ -644,6 +663,14 @@ long heir11 (long *lval)
 			needbrack ("]");
 			if (ptr[TYPE] == CINT || ptr[TYPE] == CUINT)
 				gaslint ();
+			else if (ptr[TYPE] == CSTRUCT) {
+				int tagidx = ptr[TAGIDX] | (ptr[TAGIDX+1] << 8);
+				int size = tag_table[tagidx].size;
+				if (size == 2)
+					gaslint();
+				else if (size > 1)
+					gmult_imm(size);
+			}
 			if (!ptr[FAR])
 				gadd (NULL,NULL);
 			lval[0] = 0;
