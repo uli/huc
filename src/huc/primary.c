@@ -169,9 +169,9 @@ long primary (long* lval)
  */
 long dbltest (long val1[],long val2[])
 {
-	if (val1 == NULL)
+	if (val1 == NULL || !val1[2])
 		return (FALSE);
-	if (val1[2] != CINT && val1[2] != CUINT)
+	if (val1[2] == CCHAR || val1[2] == CUCHAR)
 		return (FALSE);
 	if (val2[2])
 		return (FALSE);
