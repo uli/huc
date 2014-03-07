@@ -74,15 +74,21 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				}
 			}
 			if (mtag == 0) {
+				if (typ == CSTRUCT) {
+					cptr[TAGIDX] = otag & 0xff;
+					cptr[TAGIDX+1] = otag >> 8;
+					if (id == VARIABLE)
+						k = tag_table[otag].size;
+					else if (id == POINTER)
+						k = INTSIZE;
+					else if (id == ARRAY)
+						k *= tag_table[otag].size;
+				}
 				if (stor != CONST)
 					addglb (sname, id, typ, k, stor);
 				else {
 					if (addglb (sname, id, typ, k, STATIC))
 						add_const(typ);
-				}
-				if (typ == CSTRUCT) {
-					cptr[TAGIDX] = otag & 0xff;
-					cptr[TAGIDX+1] = otag >> 8;
 				}
 			}
 			else if (is_struct) {
