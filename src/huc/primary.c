@@ -84,7 +84,10 @@ long primary (long* lval)
 				getloc (ptr);
 				lval[2] = ptr[TYPE];
 //				lval[2] = 0;
-				return (0);
+                                if (ptr[TYPE] == CSTRUCT)
+                                        return 1;
+                                else
+				        return 0;
 			}
 			if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
 				lval[1] = 0;
@@ -126,7 +129,10 @@ long primary (long* lval)
 				}
 				lval[1] = lval[2] = ptr[TYPE];
 //				lval[2] = 0;
-				return (0);
+                                if (ptr[IDENT] == VARIABLE && ptr[TYPE] == CSTRUCT)
+                                        return 1;
+                                else
+        				return (0);
 			}
 		}
 		blanks ();
