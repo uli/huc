@@ -25,7 +25,7 @@
 
 void expression (long comma)
 {
-	long	lval[5];
+	long	lval[6];
 
 	do {
 		if (heir1 (lval))
@@ -47,7 +47,7 @@ static int is_unsigned(long *lval)
 long heir1 (long * lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 	char	fc;
 
 	k = heir1a (lval);
@@ -119,7 +119,7 @@ long heir1 (long * lval)
 long heir1a (long *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[5], lab1, lab2;
+	long	k, lval2[6], lab1, lab2;
 
 	k = heir1b (lval);
 	blanks ();
@@ -149,7 +149,7 @@ long heir1a (long *lval)
 long heir1b (long *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5], lab;
+	long	k, lval2[6], lab;
 
 	k = heir1c (lval);
 	blanks ();
@@ -171,7 +171,7 @@ long heir1b (long *lval)
 long heir1c (long *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5], lab;
+	long	k, lval2[6], lab;
 
 	k = heir2 (lval);
 	blanks ();
@@ -193,7 +193,7 @@ long heir1c (long *lval)
 long heir2 (long *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir3 (lval);
 	blanks ();
@@ -217,7 +217,7 @@ long heir2 (long *lval)
 long heir3 (long *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir4 (lval);
 	blanks ();
@@ -241,7 +241,7 @@ long heir3 (long *lval)
 long heir4 (long *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir5 (lval);
 	blanks ();
@@ -278,7 +278,7 @@ static int is_byte(long *lval)
 long heir5 (long *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir6 (lval);
 	blanks ();
@@ -306,7 +306,7 @@ long heir5 (long *lval)
 long heir6 (long *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir7 (lval);
 	blanks ();
@@ -381,7 +381,7 @@ long heir6 (long *lval)
 long heir7 (long *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir8 (lval);
 	blanks ();
@@ -412,7 +412,7 @@ long heir7 (long *lval)
 long heir8 (long *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir9 (lval);
 	blanks ();
@@ -455,7 +455,7 @@ long heir8 (long *lval)
 long heir9 (long *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[5];
+	long	k, lval2[6];
 
 	k = heir10 (lval);
 	blanks ();
