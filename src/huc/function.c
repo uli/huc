@@ -19,6 +19,7 @@
 #include "pseudo.h"
 #include "stmt.h"
 #include "sym.h"
+#include "struct.h"
 
 /* locals */
 static INS  ins_stack[1024];
@@ -84,49 +85,56 @@ void newfunc (const char *sname)
 	nbarg = 0;
 	memset(fixup, 0, sizeof(fixup));
 	while (!match (")")) {
-		int sign = CSIGNED;
-		if (amatch("unsigned", 8))
-			sign = CUNSIGNED;
 		/* check if we have an ANSI argument */
+		int sign = CSIGNED;
 		if (amatch("register", 8)) {
+			/* ignore */
+		}
+		if (amatch("struct", 6)) {
+			if (symname(n)) {
+				int otag = find_tag(n);
+				if (otag < 0) {
+					error("unknown struct name");
+					junk();
+				}
+				else {
+					getarg(CSTRUCT, ANSI, otag);
+					nbarg++;
+				}
+			}
+			else {
+				error("illegal struct name");
+				junk();
+			}
+		}
+		else {
 			if (amatch("unsigned", 8))
 				sign = CUNSIGNED;
 			if (amatch("char", 4)) {
-				getarg(CCHAR | sign, ANSI);
+				getarg(CCHAR | sign, ANSI, 0);
 				nbarg++;
-			}
-			else if (amatch ("int", 3)) {
-				getarg(CINT | sign, ANSI);
+			} else if (amatch("int", 3)) {
+				getarg(CINT | sign, ANSI, 0);
 				nbarg++;
-			}
-			else {
-				getarg(CINT | sign, ANSI);
+			} else if (amatch("void", 4)) {
+				if (match(")"))
+					break;
+				getarg(CVOID, ANSI, 0);
 				nbarg++;
-			}
-		} else if (amatch("char", 4)) {
-			getarg(CCHAR | sign, ANSI);
-			nbarg++;
-		} else if (amatch("int", 3)) {
-			getarg(CINT | sign, ANSI);
-			nbarg++;
-		} else if (amatch("void", 4)) {
-			if (match(")"))
-				break;
-			getarg(CVOID, ANSI);
-			nbarg++;
-		} else {
-			/* no valid type, assuming K&R argument */
-			if (symname (n)) {
-				if (findloc (n))
-					multidef (n);
-				else {
-					addloc (n, 0, 0, argstk, AUTO);
-					argstk = argstk + INTSIZE;
-					nbarg++;
-				}
 			} else {
-				error ("illegal argument name");
-				junk ();
+				/* no valid type, assuming K&R argument */
+				if (symname (n)) {
+					if (findloc (n))
+						multidef (n);
+					else {
+						addloc (n, 0, 0, argstk, AUTO);
+						argstk = argstk + INTSIZE;
+						nbarg++;
+					}
+				} else {
+					error ("illegal argument name");
+					junk ();
+				}
 			}
 		}
 		blanks ();
@@ -156,27 +164,38 @@ void newfunc (const char *sname)
 			fixup[argstk/INTSIZE][0] += argtop;
 		} else {
 			int sign = CSIGNED;
-			if (amatch("unsigned", 8))
-				sign = CUNSIGNED;
-			if (amatch ("register", 8)) {
+			if (amatch("register", 8)) {
+				/* ignore */
+			}
+			if (amatch("struct", 6)) {
+				if (symname(n)) {
+					int otag = find_tag(n);
+					if (otag < 0) {
+						error("unknown struct name");
+						junk();
+					}
+					else {
+						getarg(CSTRUCT, KR, otag);
+					}
+				}
+				else {
+					error("illegal struct name");
+					junk();
+				}
+			}
+			else {
 				if (amatch("unsigned", 8))
 					sign = CUNSIGNED;
-				if (amatch("char", 4)) 
-					getarg(CCHAR | sign, KR);
-				else if (amatch ("int", 3))
-					getarg(CINT | sign, KR);
-				else
-					getarg(CINT | sign, KR);
-				ns();
-			} else if (amatch ("char", 4)) {
-				getarg (CCHAR | sign, KR);
-				ns ();
-			} else if (amatch ("int", 3)) {
-				getarg (CINT | sign, KR);
-				ns ();
-			} else {
-				error ("wrong number args");
-				break;
+				if (amatch ("char", 4)) {
+					getarg (CCHAR | sign, KR, 0);
+					ns ();
+				} else if (amatch ("int", 3)) {
+					getarg (CINT | sign, KR, 0);
+					ns ();
+				} else {
+					error ("wrong number args");
+					break;
+				}
 			}
 		}
 	}
@@ -220,7 +239,7 @@ void newfunc (const char *sname)
  *	completely rewritten version.  p.l. woods
  *
  */
-void getarg (long t, int syntax)
+void getarg (long t, int syntax, int otag)
 {
 	long	j, legalname, address;
 	char	n[NAMESIZE], *argptr;
@@ -266,6 +285,8 @@ void getarg (long t, int syntax)
 					address = address + BYTEOFF;
 				argptr[OFFSET] = (address) & 0xff;
 				argptr[OFFSET + 1] = (address >> 8) & 0xff;
+				argptr[TAGIDX] = otag & 0xff;
+				argptr[TAGIDX+1] = otag >> 8;
 				if (syntax == ANSI)
 					fixup[argstk/INTSIZE - 1] = &argptr[OFFSET];
 			} else
