@@ -1029,6 +1029,20 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
+			/*  @_ldwi  i                  --> @_ldwi   i * j
+			 *  __pushw
+			 *  __ldwi  j
+			 *  jsr     umul
+			 */
+			if ((p[0]->code == I_JSR && p[0]->type == T_LIB && !strcmp((char*)p[0]->data, "umul")) &&
+				(p[1]->code == I_LDWI && p[1]->type == T_VALUE) &&
+				(p[2]->code == I_PUSHW) &&
+				(p[3]->code == I_LDWI && p[3]->type == T_VALUE))
+			{
+				p[3]->data *= p[1]->data;
+				nb = 3;
+			}
+
 			/* flush queue */
 			if (nb)
 			{
