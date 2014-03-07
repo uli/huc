@@ -44,7 +44,7 @@ void arg_to_dword(struct fastcall *fast, long i, long arg, long adj);
 #define ANSI 1
 
 /* argument address pointers for ANSI arguments */
-char *fixup[32];
+short *fixup[32];
 
 /*
  *	begin a function
@@ -56,7 +56,8 @@ char *fixup[32];
  */
 void newfunc (const char *sname)
 {
-	char n[NAMESIZE], *ptr;
+	char n[NAMESIZE];
+	SYMBOL *ptr;
 	char fn[NAMESIZE];
 	long  nbarg;
 
@@ -159,9 +160,7 @@ void newfunc (const char *sname)
 		   getarg() here. */
 		if (fixup[argstk/INTSIZE - 1]) {
 			argstk -= INTSIZE;
-			if ((unsigned char)fixup[argstk/INTSIZE][0] + argtop > 255)
-				fixup[argstk/INTSIZE][1]++;
-			fixup[argstk/INTSIZE][0] += argtop;
+			*fixup[argstk/INTSIZE] += argtop;
 		} else {
 			int sign = CSIGNED;
 			if (amatch("register", 8)) {
@@ -203,12 +202,12 @@ void newfunc (const char *sname)
 	fexitlab = getlabel();
 
 	if ( (ptr = findglb (fn)) ) {
-		if (ptr[IDENT] != FUNCTION)
+		if (ptr->ident != FUNCTION)
 			multidef (fn);
-		else if (ptr[OFFSET] == FUNCTION)
+		else if (ptr->offset == FUNCTION)
 			multidef (fn);
 		else
-			ptr[OFFSET] = FUNCTION;
+			ptr->offset = FUNCTION;
 	} else
 		addglb (fn, FUNCTION, CINT, FUNCTION, PUBLIC);
 
@@ -242,7 +241,8 @@ void newfunc (const char *sname)
 void getarg (long t, int syntax, int otag)
 {
 	long	j, legalname, address;
-	char	n[NAMESIZE], *argptr;
+	char	n[NAMESIZE];
+	SYMBOL	*argptr;
 /*	char	c; */
 
 	FOREVER {
@@ -278,17 +278,15 @@ void getarg (long t, int syntax, int otag)
 				}
 			}
 			if ( (argptr = findloc (n)) ) {
-				argptr[IDENT] = j;
-				argptr[TYPE] = t;
+				argptr->ident = j;
+				argptr->type = t;
 				address = argtop - glint(argptr) - 2;
 				if ((t == CCHAR || t == CUCHAR) && j == VARIABLE)
 					address = address + BYTEOFF;
-				argptr[OFFSET] = (address) & 0xff;
-				argptr[OFFSET + 1] = (address >> 8) & 0xff;
-				argptr[TAGIDX] = otag & 0xff;
-				argptr[TAGIDX+1] = otag >> 8;
+				argptr->offset = address;
+				argptr->tagidx = otag;
 				if (syntax == ANSI)
-					fixup[argstk/INTSIZE - 1] = &argptr[OFFSET];
+					fixup[argstk/INTSIZE - 1] = &argptr->offset;
 			} else
 				error ("expecting argument name");
 		}
@@ -600,7 +598,7 @@ void
 arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 {
 	INS  *ins, tmp;
-	char *sym;
+	SYMBOL *sym;
 	long   idx;
 	long   err;
 	long   nb;
@@ -622,15 +620,15 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 		if((ins->code != I_LDWI) && (ins->code != I_LDW))
 			err = 1;
 		else {
-			sym = (char *)ins->data;
+			sym = (SYMBOL *)ins->data;
 
 			/* check symbol type */
 			if (ins->code == I_LDW) {
-				if((nb < 2) || (sym[IDENT] == VARIABLE) || (sym[IDENT] == ARRAY))
+				if((nb < 2) || (sym->ident == VARIABLE) || (sym->ident == ARRAY))
 					err = 1;
 			}
 			else {
-				if((sym[IDENT] == POINTER) || (sym[IDENT] == VARIABLE))
+				if((sym->ident == POINTER) || (sym->ident == VARIABLE))
 					err = 1;
 			}
 		}
@@ -648,10 +646,10 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 		gen_ins(ins);
 	}
 	else {
-		sym = (char *)ins->data;
+		sym = (SYMBOL *)ins->data;
 
 		/* check symbol type */
-		if (sym[FAR]) {
+		if (sym->far) {
 			tmp.code = I_FARPTR_I;
 			tmp.type = T_SYMBOL;
 			tmp.data = ins->data;
@@ -661,9 +659,9 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 			ins->data = 0;
 		}
 		else {
-			if(((sym[IDENT] == ARRAY) ||
-				(sym[IDENT] == POINTER)) &&
-				(sym[TYPE]  == CINT || sym[TYPE] == CUINT))
+			if(((sym->ident == ARRAY) ||
+				(sym->ident == POINTER)) &&
+				(sym->type  == CINT || sym->type == CUINT))
 			{
 				tmp.code = I_FARPTR_GET;
 				tmp.type = (long)NULL;
@@ -685,7 +683,7 @@ void
 arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 {
 	INS  *ins, *ptr, tmp;
-	char *sym;
+	SYMBOL *sym;
 	long   idx;
 	long   gen;
 	long   err;
@@ -721,12 +719,12 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 			}
 
 			/* get symbol */
-			sym = (char *)ins->data;
+			sym = (SYMBOL *)ins->data;
 
 			/* check type */
-			if (sym[IDENT] == POINTER)
+			if (sym->ident == POINTER)
 				gen = 1;
-			else if (sym[IDENT] == VARIABLE) {
+			else if (sym->ident == VARIABLE) {
 				if (ins->code == I_LDW)
 					ins->code  = X_LDD_W;
 				else
@@ -747,9 +745,9 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 
 			/* check type */
 			if (sym) {
-				if (sym[IDENT] == POINTER)
+				if (sym->ident == POINTER)
 					gen = 1;
-				else if (sym[IDENT] == VARIABLE) {
+				else if (sym->ident == VARIABLE) {
 					if (ins->code == X_LDW_S)
 						ins->code  = X_LDD_S_W;
 					else
@@ -767,7 +765,7 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 		else if (ins->code == X_LEA_S) {
 			sym = ins->sym;
 
-			if (sym && (sym[IDENT] == ARRAY)) {
+			if (sym && (sym->ident == ARRAY)) {
 				ins->data -= adj;
 				gen = 1;
 			}
@@ -776,10 +774,10 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 		/* array */
 		else if((ins->code == I_LDWI) && (ins->type == T_SYMBOL)) {
 			/* get symbol */
-			sym = (char *)ins->data;
+			sym = (SYMBOL *)ins->data;
 
 			/* check type */
-			if (sym[IDENT] == ARRAY)
+			if (sym->ident == ARRAY)
 				gen = 1;
 		}
 	}
@@ -787,10 +785,10 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 		/* array */
 		if((ins->code == I_LDWI) && (ins->type == T_SYMBOL)) {
 			/* get symbol */
-			sym = (char *)ins->data;
+			sym = (SYMBOL *)ins->data;
 
 			/* check type */
-			if (sym[IDENT] == ARRAY) {
+			if (sym->ident == ARRAY) {
 				ptr =  ins;
 				ins = &ins_stack[idx+1];
 

@@ -18,8 +18,8 @@ extern long  const_nb;
 
 /* storage words */
 
-extern	char  symtab[];
-extern	char *glbptr, *rglbptr, *locptr;
+extern	SYMBOL symtab[];
+extern	SYMBOL *glbptr, *rglbptr, *locptr;
 extern	long   ws[];
 extern	long  *wsptr;
 extern	long   swstcase[];
@@ -72,7 +72,7 @@ extern	long		inclsp;
 extern	char	fname[];
 
 extern	char	quote[];
-extern	char	*cptr;
+extern	SYMBOL	*cptr;
 extern	long	*iptr;
 extern	long	fexitlab;
 extern	long	iflevel, skiplevel;

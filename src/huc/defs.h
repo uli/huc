@@ -139,39 +139,15 @@
  * #define	SYMTBSZ	32768
  * #define	NUMGLBS	1500
  */
-#define SYMSIZ	34
-#define SYMTBSZ	131072
+#define SYMTBSZ	4096
 #define NUMGLBS	2048
 
 #define	STARTGLB	symtab
-#define	ENDGLB	(STARTGLB+NUMGLBS*SYMSIZ)
-#define	STARTLOC	(ENDGLB+SYMSIZ)
-#define	ENDLOC	(symtab+SYMTBSZ-SYMSIZ)
+#define	ENDGLB	(STARTGLB+NUMGLBS)
+#define	STARTLOC	(ENDGLB+1)
+#define	ENDLOC	(symtab+SYMTBSZ-1)
 
 /* symbol table entry format */
-
-/* old values, too restrictive
- * #define	NAME	0
- * #define	IDENT	9
- * #define	TYPE	10
- * #define	STORAGE	11
- * #define	OFFSET	12
- */
-
-#define NAME    0
-#define IDENT   26
-#define TYPE    27
-#define STORAGE 28
-#define FAR     29
-#define OFFSET  30
-#define TAGIDX	32
-
-/* system-wide name size (for symbols) */
-
-/* old values, too restrictive
- * #define	NAMESIZE	9
- * #define	NAMEMAX	8
- */
 
 #define NAMESIZE	26
 #define NAMEMAX	25
@@ -311,7 +287,7 @@ typedef struct {
 	long   data;
 	long   imm;
 	long   arg[3];
-	char *sym;
+	SYMBOL *sym;
 } INS;
 
 /* constant array struct */
@@ -321,7 +297,7 @@ typedef struct {
 #define MAX_CONST_DATA  65536
 
 struct const_array {
-	char *sym;
+	SYMBOL *sym;
 	long   typ;
 	long   size;
 	long   data;

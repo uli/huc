@@ -464,32 +464,32 @@ void dumpglbs (void )
 	if (glbflag) {
 		cptr = rglbptr;
 		while (cptr < glbptr) {
-			if (cptr[IDENT] != FUNCTION) {
+			if (cptr->ident != FUNCTION) {
 //				ppubext(cptr);
-				if ((cptr[STORAGE] & WRITTEN) == 0) { /* Not yet written to file */
-					if (cptr[STORAGE] != EXTERN) {
+				if ((cptr->storage & WRITTEN) == 0) { /* Not yet written to file */
+					if (cptr->storage != EXTERN) {
 						if (i) {
 							i = 0;
 							nl();
 							gdata();
 						}
 						prefix ();
-						outstr (cptr);
+						outstr (cptr->name);
 						outstr (":\t");
 						defstorage ();
 						j = glint(cptr);
-						if ((cptr[TYPE] == CINT) || cptr[TYPE] == CUINT ||
-								(cptr[IDENT] == POINTER))
+						if ((cptr->type == CINT) || cptr->type == CUINT ||
+								(cptr->ident == POINTER))
 							j = j * INTSIZE;
 						outdec (j);
 						nl ();
-						cptr[STORAGE] |= WRITTEN;
+						cptr->storage |= WRITTEN;
 					}
 				}
 			} else {
 //				fpubext(cptr);
 			}
-			cptr = cptr + SYMSIZ;
+			cptr++;
 		}
 	}
 	if (i) {

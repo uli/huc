@@ -268,9 +268,9 @@ void dump_const (void )
 		for (i = 0; i < const_nb; i++) {
 			size = const_ptr->size;
 			cptr = const_ptr->sym;
-			cptr[STORAGE] = EXTERN;
+			cptr->storage = EXTERN;
 			prefix ();
-			outstr (cptr);
+			outstr (cptr->name);
 			outstr (":");
 			nl();
 			j = const_ptr->data;
@@ -278,7 +278,7 @@ void dump_const (void )
 			while (size) {
 				k = const_val[j++];
 
-				if (cptr[TYPE] == CCHAR || cptr[TYPE] == CUCHAR) {
+				if (cptr->type == CCHAR || cptr->type == CUCHAR) {
 					defbyte ();
 					const_size += 1;
 				} else {

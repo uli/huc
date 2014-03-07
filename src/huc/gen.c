@@ -10,6 +10,7 @@
 #include "code.h"
 #include "primary.h"
 #include "sym.h"
+#include "gen.h"
 
 static char *needargs[] = {
 	"vreg",
@@ -55,32 +56,32 @@ long getlabel (void )
 /*
  *	fetch a static memory cell into the primary register
  */
-void getmem (char *sym)
+void getmem (SYMBOL *sym)
 {
-	if ((sym[IDENT] != POINTER) && (sym[TYPE] == CCHAR || sym[TYPE] == CUCHAR)) {
+	if ((sym->ident != POINTER) && (sym->type == CCHAR || sym->type == CUCHAR)) {
 		int op = I_LDB;
-		if (sym[TYPE] & CUNSIGNED)
+		if (sym->type & CUNSIGNED)
 			op = I_LDUB;
-		if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
+		if ((sym->storage & ~WRITTEN) == LSTATIC)
 			out_ins(op, T_LABEL, glint(sym));
 		else
-			out_ins(op, T_SYMBOL, (long)(sym + NAME));
+			out_ins(op, T_SYMBOL, (long)(sym->name));
 	} else {
-		if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
+		if ((sym->storage & ~WRITTEN) == LSTATIC)
 			out_ins(I_LDW, T_LABEL, glint(sym));
 		else
-			out_ins(I_LDW, T_SYMBOL, (long)(sym + NAME));
+			out_ins(I_LDW, T_SYMBOL, (long)(sym->name));
 	}
 }
 
 /*
  *	fetch a hardware register into the primary register
  */
-void getio (char *sym)
+void getio (SYMBOL *sym)
 {
 	out_ins(I_CALL, T_LIB, (long)"getvdc");
 }
-void getvram (char *sym)
+void getvram (SYMBOL *sym)
 {
 	out_ins(I_CALL, T_LIB, (long)"readvram");
 }
@@ -89,11 +90,11 @@ void getvram (char *sym)
  *	fetch the address of the specified symbol into the primary register
  *
  */
-void getloc (char *sym)
+void getloc (SYMBOL *sym)
 {
 	long value;
 
-	if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
+	if ((sym->storage & ~WRITTEN) == LSTATIC)
 		out_ins(I_LDWI, T_LABEL, glint(sym));
 	else {
 		value = glint(sym) - stkp;
@@ -111,19 +112,20 @@ void getloc (char *sym)
  *	store the primary register into the specified static memory cell
  *
  */
-void putmem (char *sym)
+void putmem (SYMBOL *sym)
 {
 	long code;
 
-	if ((sym[IDENT] != POINTER) & (sym[TYPE] == CCHAR || sym[TYPE] == CUCHAR))
+	/* XXX: What about 1-byte structs? */
+	if ((sym->ident != POINTER) & (sym->type == CCHAR || sym->type == CUCHAR))
 		code = I_STB;
 	else
 		code = I_STW;
 
-	if ((sym[STORAGE] & ~WRITTEN) == LSTATIC)
+	if ((sym->storage & ~WRITTEN) == LSTATIC)
 		out_ins(code, T_LABEL, glint(sym));
 	else
-		out_ins(code, T_SYMBOL, (long)(sym + NAME));
+		out_ins(code, T_SYMBOL, (long)(sym->name));
 }
 
 /*
@@ -145,12 +147,12 @@ void putstk (char typeobj)
  *	at the address on the top of the stack
  *
  */
-void putio (char *sym)
+void putio (SYMBOL *sym)
 {
 	out_ins(I_JSR, T_LIB, (long)"setvdc");
 	stkp = stkp + INTSIZE;
 }
-void putvram (char *sym)
+void putvram (SYMBOL *sym)
 {
 	out_ins(I_JSR, T_LIB, (long)"writevram");
 	stkp = stkp + INTSIZE;
@@ -173,11 +175,11 @@ void indirect (char typeobj)
 	}
 }
 
-void farpeek(char *ptr)
+void farpeek(SYMBOL *ptr)
 {
-	if (ptr[TYPE] == CCHAR)
+	if (ptr->type == CCHAR)
 		out_ins(I_FGETB, T_SYMBOL, (long)ptr);
-	else if (ptr[TYPE] == CUCHAR)
+	else if (ptr->type == CUCHAR)
 		out_ins(I_FGETUB, T_SYMBOL, (long)ptr);
 	else
 		out_ins(I_FGETW, T_SYMBOL, (long)ptr);

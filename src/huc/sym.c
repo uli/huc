@@ -75,8 +75,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 			}
 			if (mtag == 0) {
 				if (typ == CSTRUCT) {
-					cptr[TAGIDX] = otag & 0xff;
-					cptr[TAGIDX+1] = otag >> 8;
+					cptr->tagidx = otag;
 					if (id == VARIABLE)
 						k = tag_table[otag].size;
 					else if (id == POINTER)
@@ -207,33 +206,33 @@ long needsub (void)
 	return (num[0]);
 }
 
-char* findglb (char *sname)
+SYMBOL* findglb (char *sname)
 {
-	char	*ptr;
+	SYMBOL	*ptr;
 
 	ptr = STARTGLB;
 	while (ptr != glbptr) {
-		if (astreq (sname, ptr, NAMEMAX))
+		if (astreq (sname, ptr->name, NAMEMAX))
 			return (ptr);
-		ptr = ptr + SYMSIZ;
+		ptr++;
 	}
 	return NULL;
 }
 
-char* findloc (char *sname)
+SYMBOL* findloc (char *sname)
 {
-	char	*ptr;
+	SYMBOL	*ptr;
 
 	ptr = locptr;
 	while (ptr != STARTLOC) {
-		ptr = ptr - SYMSIZ;
-		if (astreq (sname, ptr, NAMEMAX))
+		ptr--;
+		if (astreq (sname, ptr->name, NAMEMAX))
 			return (ptr);
 	}
 	return NULL;
 }
 
-char *addglb (char* sname,char id,char typ,long value,long stor)
+SYMBOL *addglb (char* sname,char id,char typ,long value,long stor)
 {
 	char	*ptr;
 
@@ -244,29 +243,29 @@ char *addglb (char* sname,char id,char typ,long value,long stor)
 		error ("global symbol table overflow");
 		return NULL;
 	}
-	cptr = ptr = glbptr;
+	cptr = glbptr;
+	ptr = glbptr->name;
 	while (an (*ptr++ = *sname++));
-	cptr[IDENT] = id;
-	cptr[TYPE] = typ;
-	cptr[STORAGE] = stor;
-	cptr[OFFSET] = value & 0xff;	
-	cptr[OFFSET+1] = (value >> 8) & 0xff;
-	glbptr = glbptr + SYMSIZ;
+	cptr->ident = id;
+	cptr->type = typ;
+	cptr->storage = stor;
+	cptr->offset = value;
+	glbptr++;
 	return (cptr);
 }
 
-char *addglb_far (char* sname, char typ)
+SYMBOL *addglb_far (char* sname, char typ)
 {
-	char *ptr;
+	SYMBOL *ptr;
 
 	ptr = addglb(sname, ARRAY, typ, 0, EXTERN);
 	if (ptr)
-		ptr[FAR] = 1;
+		ptr->far = 1;
 	return (ptr);
 }
 
 
-char *addloc (char* sname,char id,char typ,long value,long stclass)
+SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass)
 {
 	char	*ptr;
 	long	k;
@@ -278,11 +277,12 @@ char *addloc (char* sname,char id,char typ,long value,long stclass)
 		error ("local symbol table overflow");
 		return NULL;
 	}
-	cptr = ptr = locptr;
+	cptr = locptr;
+	ptr = locptr->name;
 	while (an (*ptr++ = *sname++));
-	cptr[IDENT] = id;
-	cptr[TYPE] = typ;
-	cptr[STORAGE] = stclass;
+	cptr->ident = id;
+	cptr->type = typ;
+	cptr->storage = stclass;
 	if (stclass == LSTATIC) {
 		gdata();
 		ol(".bss");
@@ -295,9 +295,8 @@ char *addloc (char* sname,char id,char typ,long value,long stclass)
 	}
 //	else
 //		value = galign(value);
-	cptr[OFFSET] = value & 0xff;
-	cptr[OFFSET+1] = (value >> 8) & 0xff;
-	locptr = locptr + SYMSIZ;
+	cptr->offset = value;
+	locptr++;
 	return (cptr);
 }
 
@@ -333,11 +332,7 @@ void multidef (char* sname)
 	nl ();
 }
 
-long glint(char* sym)
+long glint(SYMBOL* sym)
 {
-	long l,u,r;
-	l = sym[OFFSET];
-	u = sym[OFFSET+1];
-	r = (l & 0xff) + ((u << 8) & ~0x00ff);
-	return (r);
+	return sym->offset;
 }

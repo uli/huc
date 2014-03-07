@@ -1103,7 +1103,7 @@ void push_ins(INS *ins)
 				(p[4]->code == I_LDWI))
 			{
 				long tempdata, temptype;
-				char * tempsym;
+				SYMBOL * tempsym;
 
 				tempdata = p[2]->data;
 				tempsym  = p[2]->sym;

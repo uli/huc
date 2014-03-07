@@ -4,16 +4,16 @@
 
 void gnargs (char *name, long nb);
 long getlabel (void );
-void getmem (char *sym);
-void getio (char *sym);
-void getvram (char *sym);
-void getloc (char *sym);
-void putmem (char *sym);
+void getmem (SYMBOL *sym);
+void getio (SYMBOL *sym);
+void getvram (SYMBOL *sym);
+void getloc (SYMBOL *sym);
+void putmem (SYMBOL *sym);
 void putstk (char typeobj);
-void putio (char *sym);
-void putvram (char *sym);
+void putio (SYMBOL *sym);
+void putvram (SYMBOL *sym);
 void indirect (char typeobj);
-void farpeek(char *ptr);
+void farpeek(SYMBOL *ptr);
 void immed (long type, long data);
 void gpush (void );
 void gpusharg (long size);

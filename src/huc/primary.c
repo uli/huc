@@ -17,7 +17,8 @@
 
 long primary (LVALUE* lval)
 {
-	char	*ptr, sname[NAMESIZE];
+	SYMBOL	*ptr;
+	char	sname[NAMESIZE];
 	long	num[1];
 	long	k;
 
@@ -39,14 +40,14 @@ long primary (LVALUE* lval)
 		else if (symname(sname)) {
 			if ((ptr = findloc(sname)) ||
 				(ptr = findglb(sname))) {
-				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
+				if ((ptr->storage & ~WRITTEN) == LSTATIC)
 					error("sizeof local static");
 				k = glint(ptr);
-				if ((ptr[TYPE] == CINT) || ptr[TYPE] == CUINT ||
-					(ptr[IDENT] == POINTER))
+				if ((ptr->type == CINT) || ptr->type == CUINT ||
+					(ptr->ident == POINTER))
 					k *= INTSIZE;
-                                else if (ptr[TYPE] == CSTRUCT)
-                                        k *= tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)].size;
+                                else if (ptr->type == CSTRUCT)
+                                        k *= tag_table[ptr->tagidx].size;
 				immed (T_VALUE, k);
 			} else {
 				error("sizeof undeclared variable");
@@ -67,31 +68,31 @@ long primary (LVALUE* lval)
 			 *        local 'static' variables
 			 */
 			lval->symbol = (SYMBOL *)ptr;
-			lval->indirect = ptr[TYPE];
+			lval->indirect = ptr->type;
 			lval->tagsym = 0;
-			if (ptr[TYPE] == CSTRUCT)
-			        lval->tagsym = &tag_table[ptr[TAGIDX] + (ptr[TAGIDX+1] << 8)];
-			if (ptr[IDENT] == POINTER) {
-				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
+			if (ptr->type == CSTRUCT)
+			        lval->tagsym = &tag_table[ptr->tagidx];
+			if (ptr->ident == POINTER) {
+				if ((ptr->storage & ~WRITTEN) == LSTATIC)
 					lval->indirect = 0;
 				else {
 					lval->indirect = CUINT;
 					getloc (ptr);
 				}
-				lval->ptr_type = ptr[TYPE];
+				lval->ptr_type = ptr->type;
 				return (1);
 			}
-			if (ptr[IDENT] == ARRAY ||
-			    (ptr[IDENT] == VARIABLE && ptr[TYPE] == CSTRUCT)) {
+			if (ptr->ident == ARRAY ||
+			    (ptr->ident == VARIABLE && ptr->type == CSTRUCT)) {
 				getloc (ptr);
-				lval->ptr_type = ptr[TYPE];
+				lval->ptr_type = ptr->type;
 //				lval->ptr_type = 0;
-                                if (ptr[TYPE] == CSTRUCT)
+                                if (ptr->type == CSTRUCT)
                                         return 1;
                                 else
 				        return 0;
 			}
-			if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
+			if ((ptr->storage & ~WRITTEN) == LSTATIC)
 				lval->indirect = 0;
 			else
 				getloc (ptr);
@@ -99,26 +100,26 @@ long primary (LVALUE* lval)
 		}
 		ptr = findglb (sname);
 		if (ptr) {
-			if (ptr[IDENT] != FUNCTION) {
+			if (ptr->ident != FUNCTION) {
 				lval->symbol = (SYMBOL *)ptr;
 				lval->indirect = 0;
 				lval->tagsym = 0;
-				if (ptr[TYPE] == CSTRUCT)
-				        lval->tagsym = &tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
-				if (ptr[IDENT] != ARRAY &&
-				    (ptr[IDENT] != VARIABLE || ptr[TYPE] != CSTRUCT)) {
-					if (ptr[IDENT] == POINTER)
-						lval->ptr_type = ptr[TYPE];
+				if (ptr->type == CSTRUCT)
+				        lval->tagsym = &tag_table[ptr->tagidx];
+				if (ptr->ident != ARRAY &&
+				    (ptr->ident != VARIABLE || ptr->type != CSTRUCT)) {
+					if (ptr->ident == POINTER)
+						lval->ptr_type = ptr->type;
 					return (1);
 				}
-				if (!ptr[FAR])
+				if (!ptr->far)
 					immed (T_SYMBOL, (long)ptr);
 				else {
 					/* special variables */
 					blanks ();
 					if ((ch() != '[') && (ch() != '(')) {
 						/* vram */
-						if (strcmp(ptr, "vram") == 0) {
+						if (strcmp(ptr->name, "vram") == 0) {
 							if (indflg)
 								return (1);
 							else
@@ -129,9 +130,9 @@ long primary (LVALUE* lval)
 //						error ("can't access far array");
 					}
 				}
-				lval->indirect = lval->ptr_type = ptr[TYPE];
+				lval->indirect = lval->ptr_type = ptr->type;
 //				lval->ptr_type = 0;
-                                if (ptr[IDENT] == VARIABLE && ptr[TYPE] == CSTRUCT)
+                                if (ptr->ident == VARIABLE && ptr->type == CSTRUCT)
                                         return 1;
                                 else
         				return (0);
@@ -139,7 +140,7 @@ long primary (LVALUE* lval)
 		}
 		blanks ();
 		if (ch() != '(') {
-			if (ptr && (ptr[IDENT] == FUNCTION)) {
+			if (ptr && (ptr->ident == FUNCTION)) {
 				lval->symbol = (SYMBOL *)ptr;
 				lval->indirect = 0;
 				return (0);

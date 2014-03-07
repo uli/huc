@@ -190,7 +190,7 @@ void compound (long func)
 void doif (void )
 {
 	long	fstkp, flab1, flab2;
-	char	*flev;
+	SYMBOL	*flev;
 
 	flev = locptr;
 	fstkp = stkp;
@@ -229,7 +229,7 @@ void dowhile (void )
 	statement (NO);
 	jump (ws[WSTEST]);
 	gnlabel (ws[WSEXIT]);
-	locptr = (char*)ws[WSSYM];
+	locptr = (SYMBOL*)ws[WSSYM];
 	stkp = modstk (ws[WSSP]);
 	delwhile ();
 }
@@ -257,7 +257,7 @@ void dodo (void )
 	gnlabel (ws[WSTEST]);
 	test (ws[WSBODY], TRUE);
 	gnlabel (ws[WSEXIT]);
-	locptr = (char*)ws[WSSYM];
+	locptr = (SYMBOL*)ws[WSSYM];
 	stkp = modstk (ws[WSSP]);
 	delwhile ();
 }
@@ -303,7 +303,7 @@ void dofor (void )
 	statement (NO);
 	jump (pws[WSINCR]);
 	gnlabel (pws[WSEXIT]);
-	locptr = (char*)pws[WSSYM];
+	locptr = (SYMBOL*)pws[WSSYM];
 	stkp = modstk (pws[WSSP]);
 	delwhile ();
 }
@@ -335,7 +335,7 @@ void doswitch (void )
 	jump (ptr[WSEXIT]);
 	dumpsw (ptr);
 	gnlabel (ptr[WSEXIT]);
-	locptr = (char*)ptr[WSSYM];
+	locptr = (SYMBOL*)ptr[WSSYM];
 	stkp = modstk (ptr[WSSP]);
 	swstp = ptr[WSCASEP];
 	delwhile ();

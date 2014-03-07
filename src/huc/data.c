@@ -21,8 +21,8 @@ long  const_nb;
 
 /* storage words */
 
-char symtab[SYMTBSZ];
-char *glbptr, *rglbptr, *locptr;
+SYMBOL symtab[SYMTBSZ];
+SYMBOL *glbptr, *rglbptr, *locptr;
 long  ws[WSTABSZ];
 long  *wsptr;
 long   swstcase[SWSTSZ];

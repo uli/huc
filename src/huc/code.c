@@ -132,7 +132,7 @@ void out_ins_ex(long code, long type, long data, long imm)
 	gen_ins(&tmp);
 }
 
-void out_ins_sym(long code, long type, long data, char *sym)
+void out_ins_sym(long code, long type, long data, SYMBOL *sym)
 {
 	INS tmp;
 

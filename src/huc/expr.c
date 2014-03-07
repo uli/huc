@@ -39,7 +39,7 @@ static int is_unsigned(LVALUE *lval)
 {
 	if (!lval->symbol)
 		return 0;
-	if (((char *)lval->symbol)[TYPE] & CUNSIGNED)
+	if (lval->symbol->type & CUNSIGNED)
 		return 1;
 	return 0;
 }
@@ -289,7 +289,7 @@ static int is_byte(LVALUE *lval)
 		else
 			return 0;
 	}
-	if (((char *)lval->symbol)[TYPE] == CCHAR || ((char *)lval->symbol)[TYPE] == CUCHAR)
+	if (lval->symbol->type == CCHAR || lval->symbol->type == CUCHAR)
 		return 1;
 	return 0;
 }
@@ -512,7 +512,7 @@ long heir10 (LVALUE *lval)
 /* long	lval[]; */
 {
 	long	k;
-	char	*ptr;
+	SYMBOL	*ptr;
 
 	if (match ("++")) {
 		indflg = 0;
@@ -564,16 +564,16 @@ long heir10 (LVALUE *lval)
 		indflg = 1;
 		k = heir10 (lval);
 		indflg = 0;
-		ptr = (char*)lval->symbol;
+		ptr = lval->symbol;
 		/* vram */
-		if (ptr && !strcmp(ptr, "vram")) {
+		if (ptr && !strcmp(ptr->name, "vram")) {
 			lval->ptr_type = 0;
 			return (1);
 		}
 		if (k)
 			rvalue (lval);
-		if ( (ptr = (char*)lval->symbol) )
-			lval->indirect = ptr[TYPE];
+		if ( (ptr = lval->symbol) )
+			lval->indirect = ptr->type;
 		else
 			lval->indirect = CINT;
 		lval->ptr_type = 0;  /* flag as not pointer or array */
@@ -587,26 +587,26 @@ long heir10 (LVALUE *lval)
 			return (0);
 		}
 		if (lval->symbol) {
-			ptr = (char*)lval->symbol;
-			lval->ptr_type = ptr[TYPE];
+			ptr = lval->symbol;
+			lval->ptr_type = ptr->type;
 		}
 		if (lval->indirect)
 			return (0);
 		/* global and non-array */
-		ptr = (char*)lval->symbol;
+		ptr = lval->symbol;
 		immed (T_SYMBOL, (long)ptr);
-		lval->indirect = ptr[TYPE];
+		lval->indirect = ptr->type;
 		return (0);
 	} else {
 		k = heir11 (lval);
-		ptr = (char*)lval->symbol;
+		ptr = lval->symbol;
 		if (match ("++")) {
 			if (k == 0) {
 				needlval ();
 				return (0);
 			}
 			/* vram */
-			if (ptr && !strcmp(ptr, "vram"))
+			if (ptr && !strcmp(ptr->name, "vram"))
 				return (0);
 			if (lval->indirect)
 				gpush ();
@@ -621,7 +621,7 @@ long heir10 (LVALUE *lval)
 				return (0);
 			}
 			/* vram */
-			if (ptr && !strcmp(ptr, "vram")) {
+			if (ptr && !strcmp(ptr->name, "vram")) {
 				error("can't decrement vram pointer");
 				return (0);
 			}
@@ -641,11 +641,11 @@ long heir11 (LVALUE *lval)
 /*long	*lval; */
 {
 	long	direct,k;
-	char	*ptr;
+	SYMBOL	*ptr;
 	char    sname[NAMESIZE];
 
 	k = primary (lval);
-	ptr = (char*)lval->symbol;
+	ptr = lval->symbol;
 	blanks ();
 	for (;;) {
 		if (match ("[")) {
@@ -655,32 +655,31 @@ long heir11 (LVALUE *lval)
 				needbrack ("]");
 				return (0);
 			}
-			else if (ptr[IDENT] == POINTER)
+			else if (ptr->ident == POINTER)
 				rvalue (lval);
-			else if (ptr[IDENT] != ARRAY) {
+			else if (ptr->ident != ARRAY) {
 				error ("can't subscript");
 				k = 0;
 			}
-			if (!ptr[FAR])
+			if (!ptr->far)
 				gpush ();
 			expression (YES);
 			needbrack ("]");
-			if (ptr[TYPE] == CINT || ptr[TYPE] == CUINT)
+			if (ptr->type == CINT || ptr->type == CUINT)
 				gaslint ();
-			else if (ptr[TYPE] == CSTRUCT) {
-				int tagidx = ptr[TAGIDX] | (ptr[TAGIDX+1] << 8);
-				int size = tag_table[tagidx].size;
+			else if (ptr->type == CSTRUCT) {
+				int size = tag_table[ptr->tagidx].size;
 				if (size == 2)
 					gaslint();
 				else if (size > 1)
 					gmult_imm(size);
 			}
-			if (!ptr[FAR])
+			if (!ptr->far)
 				gadd (NULL,NULL);
 			lval->symbol = 0;
-			lval->indirect = ptr[TYPE];
+			lval->indirect = ptr->type;
 			lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
-			lval->symbol2 = ptr[FAR] ? (SYMBOL *)ptr : (SYMBOL *)NULL;
+			lval->symbol2 = ptr->far ? (SYMBOL *)ptr : (SYMBOL *)NULL;
 			k = 1;
 		}
 		else if (match ("(")) {
@@ -688,11 +687,11 @@ long heir11 (LVALUE *lval)
 				error("invalid or unsupported function call");
 				callfunction (0);
 			}
-			else if (ptr[IDENT] != FUNCTION) {
-				if (strcmp(ptr, "vram") == 0)
-					callfunction (ptr);
+			else if (ptr->ident != FUNCTION) {
+				if (strcmp(ptr->name, "vram") == 0)
+					callfunction (ptr->name);
 				else {
-					if (ptr[FAR]) {
+					if (ptr->far) {
 						lval->symbol2 = (SYMBOL *)ptr;
 						immed (T_VALUE, 0);
 					}
@@ -700,7 +699,7 @@ long heir11 (LVALUE *lval)
 					callfunction (0);
 				}
 			} else
-				callfunction (ptr);
+				callfunction (ptr->name);
 			k = 0;
 			lval->symbol = 0;
 		} else if ((direct=match(".")) || match("->")) {
@@ -710,30 +709,29 @@ long heir11 (LVALUE *lval)
 			    return 0 ;
 			}
 			if (symname(sname) == 0 ||
-			   ((ptr=(char *)find_member((TAG_SYMBOL *)lval->tagsym, sname)) == 0)) {
+			   ((ptr=find_member(lval->tagsym, sname)) == 0)) {
 			    error("unknown member") ;
 			    junk() ;
 			    return 0 ;
 			}
 			if (k && direct == 0)
 			    rvalue(lval);
-			out_ins(I_ADDWI, T_VALUE, ptr[OFFSET] | (ptr[OFFSET+1] << 8));
-			//add_offset(ptr[OFFSET] | (ptr[OFFSET+1] << 8)); // move pointer from struct begin to struct member
+			out_ins(I_ADDWI, T_VALUE, ptr->offset); // move pointer from struct begin to struct member
 			lval->symbol = (SYMBOL *)ptr;
-			lval->indirect = ptr[TYPE]; // lval->indirect = lval->val_type = ptr->type
+			lval->indirect = ptr->type; // lval->indirect = lval->val_type = ptr->type
 			lval->ptr_type = 0;
 			lval->tagsym = (long)NULL_TAG;
-			if (ptr[TYPE] == CSTRUCT)
-			    lval->tagsym = &tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
-			if (ptr[IDENT] == POINTER) {
+			if (ptr->type == CSTRUCT)
+			    lval->tagsym = &tag_table[ptr->tagidx];
+			if (ptr->ident == POINTER) {
 			    lval->indirect = CINT;
-			    lval->ptr_type = ptr[TYPE];
+			    lval->ptr_type = ptr->type;
 			    //lval->val_type = CINT;
 			}
-			if (ptr[IDENT]==ARRAY ||
-			    (ptr[TYPE]==CSTRUCT && ptr[IDENT]==VARIABLE)) {
+			if (ptr->ident==ARRAY ||
+			    (ptr->type==CSTRUCT && ptr->ident==VARIABLE)) {
 			    // array or struct
-			    lval->ptr_type = ptr[TYPE];
+			    lval->ptr_type = ptr->type;
 			    //lval->val_type = CINT;
 			    k = 0;
 			}
@@ -744,7 +742,7 @@ long heir11 (LVALUE *lval)
 	}
 	if (ptr == 0)
 		return (k);
-	if (ptr[IDENT] == FUNCTION) {
+	if (ptr->ident == FUNCTION) {
 		immed (T_SYMBOL, (long)ptr);
 		return (0);
 	}
@@ -756,10 +754,10 @@ void store (LVALUE *lval)
 {
 	if (lval->symbol2) {
 		/* far arrays (or special arrays) */
-		if (!strcmp ((char *)lval->symbol2, "vdc"))
-			putio ((char *)lval->symbol2);
-		else if (!strcmp ((char *)lval->symbol2, "vram"))
-			putvram ((char *)lval->symbol2);
+		if (!strcmp (lval->symbol2->name, "vdc"))
+			putio (lval->symbol2);
+		else if (!strcmp (lval->symbol2->name, "vram"))
+			putvram (lval->symbol2);
 		else {
 			error ("const arrays can't be written");
 			gpop ();
@@ -770,10 +768,10 @@ void store (LVALUE *lval)
 		if (lval->indirect != 0)
 			putstk (lval->indirect);
 		else {
-			if (strcmp((char *)lval->symbol, "vram") == 0)
+			if (strcmp(lval->symbol->name, "vram") == 0)
 				out_ins(I_VPUTW, (long)NULL, (long)NULL);
 			else
-				putmem ((char *)lval->symbol);
+				putmem (lval->symbol);
 		}
 	}
 }
@@ -782,22 +780,22 @@ void rvalue (LVALUE *lval)
 /* long	*lval; */
 {
 	if ((lval->symbol != 0) && (lval->indirect == 0)) {
-		if (strcmp((char *)lval->symbol, "vram") == 0)
+		if (strcmp(lval->symbol->name, "vram") == 0)
 			out_ins(I_VGETW, (long)NULL, (long)NULL);
 		else
-			getmem ((char *)lval->symbol);
+			getmem (lval->symbol);
 	}
 	else {
 		if (lval->symbol2 == 0)
 			indirect (lval->indirect);
 		else {
 			/* far arrays (or special arrays) */
-			if (!strcmp ((char *)lval->symbol2, "vdc"))
-				getio ((char *)lval->symbol2);
-			else if (!strcmp ((char *)lval->symbol2, "vram"))
-				getvram ((char *)lval->symbol2);
+			if (!strcmp (lval->symbol2->name, "vdc"))
+				getio (lval->symbol2);
+			else if (!strcmp (lval->symbol2->name, "vram"))
+				getvram (lval->symbol2);
 			else
-				farpeek ((char *)lval->symbol2);
+				farpeek (lval->symbol2);
 		}
 	}
 }
