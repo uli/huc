@@ -15,14 +15,14 @@
 #include "primary.h"
 #include "sym.h"
 
-long primary (long* lval)
+long primary (LVALUE* lval)
 {
 	char	*ptr, sname[NAMESIZE];
 	long	num[1];
 	long	k;
 
-	lval[2] = 0;  /* clear pointer/array type */
-	lval[3] = 0;
+	lval->ptr_type = 0;  /* clear pointer/array type */
+	lval->symbol2 = 0;
 	if (match ("(")) {
 		indflg = 0;
 		k = heir1 (lval);
@@ -56,7 +56,9 @@ long primary (long* lval)
 			error("sizeof only on type or variable");
 		}
 		needbrack(")");
-		return(lval[0] = lval[1] = 0);
+		lval->symbol = 0;
+		lval->indirect = 0;
+		return 0;
 	}
 	if (symname (sname)) {
 		ptr = findloc (sname);
@@ -64,33 +66,33 @@ long primary (long* lval)
 			/* David, patched to support
 			 *        local 'static' variables
 			 */
-			lval[0] = (long)ptr;
-			lval[1] = ptr[TYPE];
-			lval[5] = 0;
+			lval->symbol = (SYMBOL *)ptr;
+			lval->indirect = ptr[TYPE];
+			lval->tagsym = 0;
 			if (ptr[TYPE] == CSTRUCT)
-			        lval[5] = (long)&tag_table[ptr[TAGIDX] + (ptr[TAGIDX+1] << 8)];
+			        lval->tagsym = &tag_table[ptr[TAGIDX] + (ptr[TAGIDX+1] << 8)];
 			if (ptr[IDENT] == POINTER) {
 				if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
-					lval[1] = 0;
+					lval->indirect = 0;
 				else {
-					lval[1] = CUINT;
+					lval->indirect = CUINT;
 					getloc (ptr);
 				}
-				lval[2] = ptr[TYPE];
+				lval->ptr_type = ptr[TYPE];
 				return (1);
 			}
 			if (ptr[IDENT] == ARRAY ||
 			    (ptr[IDENT] == VARIABLE && ptr[TYPE] == CSTRUCT)) {
 				getloc (ptr);
-				lval[2] = ptr[TYPE];
-//				lval[2] = 0;
+				lval->ptr_type = ptr[TYPE];
+//				lval->ptr_type = 0;
                                 if (ptr[TYPE] == CSTRUCT)
                                         return 1;
                                 else
 				        return 0;
 			}
 			if ((ptr[STORAGE] & ~WRITTEN) == LSTATIC)
-				lval[1] = 0;
+				lval->indirect = 0;
 			else
 				getloc (ptr);
 			return (1);
@@ -98,15 +100,15 @@ long primary (long* lval)
 		ptr = findglb (sname);
 		if (ptr) {
 			if (ptr[IDENT] != FUNCTION) {
-				lval[0] = (long)ptr;
-				lval[1] = 0;
-				lval[5] = 0;
+				lval->symbol = (SYMBOL *)ptr;
+				lval->indirect = 0;
+				lval->tagsym = 0;
 				if (ptr[TYPE] == CSTRUCT)
-				        lval[5] = (long)&tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
+				        lval->tagsym = &tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
 				if (ptr[IDENT] != ARRAY &&
 				    (ptr[IDENT] != VARIABLE || ptr[TYPE] != CSTRUCT)) {
 					if (ptr[IDENT] == POINTER)
-						lval[2] = ptr[TYPE];
+						lval->ptr_type = ptr[TYPE];
 					return (1);
 				}
 				if (!ptr[FAR])
@@ -127,8 +129,8 @@ long primary (long* lval)
 //						error ("can't access far array");
 					}
 				}
-				lval[1] = lval[2] = ptr[TYPE];
-//				lval[2] = 0;
+				lval->indirect = lval->ptr_type = ptr[TYPE];
+//				lval->ptr_type = 0;
                                 if (ptr[IDENT] == VARIABLE && ptr[TYPE] == CSTRUCT)
                                         return 1;
                                 else
@@ -138,22 +140,24 @@ long primary (long* lval)
 		blanks ();
 		if (ch() != '(') {
 			if (ptr && (ptr[IDENT] == FUNCTION)) {
-				lval[0] = (long)ptr;
-				lval[1] = 0;
+				lval->symbol = (SYMBOL *)ptr;
+				lval->indirect = 0;
 				return (0);
 			}
 			error("undeclared variable");
 		}
 		ptr = addglb (sname, FUNCTION, CINT, 0, PUBLIC);
 		indflg = 0;
-		lval[0] = (long)ptr;
-		lval[1] = 0;
+		lval->symbol = (SYMBOL *)ptr;
+		lval->indirect = 0;
 		return (0);
 	}
 	if (constant (num)) {
 		indflg = 0;
-		lval[4] = num[0];
-		return (lval[0] = lval[1] = 0);
+		lval->value = num[0];
+		lval->symbol = 0;
+		lval->indirect = 0;
+		return 0;
 	}
 	else {
 		indflg = 0;
@@ -167,13 +171,13 @@ long primary (long* lval)
 /*
  *	true if val1 -> int pointer or int array and val2 not pointer or array
  */
-long dbltest (long val1[],long val2[])
+long dbltest (LVALUE val1[],LVALUE val2[])
 {
-	if (val1 == NULL || !val1[2])
+	if (val1 == NULL || !val1->ptr_type)
 		return (FALSE);
-	if (val1[2] == CCHAR || val1[2] == CUCHAR)
+	if (val1->ptr_type == CCHAR || val1->ptr_type == CUCHAR)
 		return (FALSE);
-	if (val2[2])
+	if (val2->ptr_type)
 		return (FALSE);
 	return (TRUE);
 }
@@ -181,14 +185,14 @@ long dbltest (long val1[],long val2[])
 /*
  *	determine type of binary operation
  */
-void result (long lval[],long lval2[])
+void result (LVALUE lval[],LVALUE lval2[])
 {
-	if (lval[2] && lval2[2])
-		lval[2] = 0;
-	else if (lval2[2]) {
-		lval[0] = lval2[0];
-		lval[1] = lval2[1];
-		lval[2] = lval2[2];
+	if (lval->ptr_type && lval2->ptr_type)
+		lval->ptr_type = 0;
+	else if (lval2->ptr_type) {
+		lval->symbol = lval2->symbol;
+		lval->indirect = lval2->indirect;
+		lval->ptr_type = lval2->ptr_type;
 	}
 }
 

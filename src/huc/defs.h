@@ -341,4 +341,14 @@ struct fastcall {
 
 SYMBOL *find_member(TAG_SYMBOL *tag, char *sname);
 
+struct lvalue {
+	SYMBOL *symbol;
+	long indirect;
+	long ptr_type;
+	SYMBOL *symbol2;
+	long value;
+	TAG_SYMBOL *tagsym;
+};
+#define LVALUE struct lvalue
+
 #endif

@@ -18,14 +18,14 @@
 #include "sym.h"
 
 /*
- *	lval[0] - symbol table address, else 0 for constant
- *	lval[1] - type indirect object to fetch, else 0 for static object
- *	lval[2] - type pointer or array, else 0
+ *	lval->symbol - symbol table address, else 0 for constant
+ *	lval->indirect - type indirect object to fetch, else 0 for static object
+ *	lval->ptr_type - type pointer or array, else 0
  */
 
 void expression (long comma)
 {
-	long	lval[6];
+	LVALUE lval[1];
 
 	do {
 		if (heir1 (lval))
@@ -35,20 +35,20 @@ void expression (long comma)
 	} while (match (","));
 }
 
-static int is_unsigned(long *lval)
+static int is_unsigned(LVALUE *lval)
 {
-	if (!lval[0])
+	if (!lval->symbol)
 		return 0;
-	if (((char *)lval[0])[TYPE] & CUNSIGNED)
+	if (((char *)lval->symbol)[TYPE] & CUNSIGNED)
 		return 1;
 	return 0;
 }
 
-static void gen_scale_right(long *lval, long *lval2)
+static void gen_scale_right(LVALUE *lval, LVALUE *lval2)
 {
 	if (dbltest (lval, lval2)) {
-		if (lval[5]) {
-			TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
+		if (lval->tagsym) {
+			TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval->tagsym);
 			if (tag->size == 2)
 				gaslint();
 			else if (tag->size > 1)
@@ -59,10 +59,10 @@ static void gen_scale_right(long *lval, long *lval2)
 	}
 }
 
-long heir1 (long * lval)
-/*long	lval[]; */
+long heir1 (LVALUE *lval)
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 	char	fc;
 
 	k = heir1a (lval);
@@ -71,7 +71,7 @@ long heir1 (long * lval)
 			needlval ();
 			return (0);
 		}
-		if (lval[1])
+		if (lval->indirect)
 			gpush ();
 		if (heir1 (lval2))
 			rvalue (lval2);
@@ -94,7 +94,7 @@ long heir1 (long * lval)
 				needlval ();
 				return (0);
 			}
-			if (lval[1])
+			if (lval->indirect)
 				gpush ();
 			rvalue (lval);
 			gpush ();
@@ -129,10 +129,11 @@ long heir1 (long * lval)
 	}
 }
 
-long heir1a (long *lval)
+long heir1a (LVALUE *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[6], lab1, lab2;
+	long	k, lab1, lab2;
+	LVALUE	lval2[1];
 
 	k = heir1b (lval);
 	blanks ();
@@ -159,10 +160,11 @@ long heir1a (long *lval)
 			return (0);
 }
 
-long heir1b (long *lval)
+long heir1b (LVALUE *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[6], lab;
+	long	k, lab;
+	LVALUE	lval2[1];
 
 	k = heir1c (lval);
 	blanks ();
@@ -181,10 +183,11 @@ long heir1b (long *lval)
 			return (0);
 }
 
-long heir1c (long *lval)
+long heir1c (LVALUE *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[6], lab;
+	long	k, lab;
+	LVALUE	lval2[1];
 
 	k = heir2 (lval);
 	blanks ();
@@ -203,10 +206,11 @@ long heir1c (long *lval)
 			return (0);
 }
 
-long heir2 (long *lval)
+long heir2 (LVALUE *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir3 (lval);
 	blanks ();
@@ -227,10 +231,11 @@ long heir2 (long *lval)
 	}
 }
 
-long heir3 (long *lval)
+long heir3 (LVALUE *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE lval2[1];
 
 	k = heir4 (lval);
 	blanks ();
@@ -251,10 +256,11 @@ long heir3 (long *lval)
 	}
 }
 
-long heir4 (long *lval)
+long heir4 (LVALUE *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir5 (lval);
 	blanks ();
@@ -275,23 +281,24 @@ long heir4 (long *lval)
 	}
 }
 
-static int is_byte(long *lval)
+static int is_byte(LVALUE *lval)
 {
-	if (!lval[0]) {
-		if (lval[4] < 0x80)
+	if (!lval->symbol) {
+		if (lval->value < 0x80)
 			return 1;
 		else
 			return 0;
 	}
-	if (((char *)lval[0])[TYPE] == CCHAR || ((char *)lval[0])[TYPE] == CUCHAR)
+	if (((char *)lval->symbol)[TYPE] == CCHAR || ((char *)lval->symbol)[TYPE] == CUCHAR)
 		return 1;
 	return 0;
 }
 
-long heir5 (long *lval)
+long heir5 (LVALUE *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir6 (lval);
 	blanks ();
@@ -316,10 +323,11 @@ long heir5 (long *lval)
 	}
 }
 
-long heir6 (long *lval)
+long heir6 (LVALUE *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir7 (lval);
 	blanks ();
@@ -337,7 +345,7 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2] ||
+			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
@@ -349,7 +357,7 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2] ||
+			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
@@ -363,7 +371,7 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2] ||
+			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
@@ -377,7 +385,7 @@ long heir6 (long *lval)
 			gpush ();
 			if (heir7 (lval2))
 				rvalue (lval2);
-			if (lval[2] || lval2[2] ||
+			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
 			    is_unsigned(lval2)
 			   ) {
@@ -391,10 +399,11 @@ long heir6 (long *lval)
 	}
 }
 
-long heir7 (long *lval)
+long heir7 (LVALUE *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir8 (lval);
 	blanks ();
@@ -422,10 +431,11 @@ long heir7 (long *lval)
 	}
 }
 
-long heir8 (long *lval)
+long heir8 (LVALUE *lval)
 /*long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir9 (lval);
 	blanks ();
@@ -455,7 +465,7 @@ long heir8 (long *lval)
 			gsub ();
 			/* if both pointers, scale result */
 			/* XXX: structs? */
-			if ((lval[2] == CINT) && (lval2[2] == CINT)) {
+			if ((lval->ptr_type == CINT) && (lval2->ptr_type == CINT)) {
 				gasrint(); /* divide by intsize */
 			}
 			result (lval, lval2);
@@ -464,10 +474,11 @@ long heir8 (long *lval)
 	}
 }
 
-long heir9 (long *lval)
+long heir9 (LVALUE *lval)
 /* long	lval[]; */
 {
-	long	k, lval2[6];
+	long	k;
+	LVALUE	lval2[1];
 
 	k = heir10 (lval);
 	blanks ();
@@ -497,7 +508,7 @@ long heir9 (long *lval)
 	}
 }
 
-long heir10 (long *lval)
+long heir10 (LVALUE *lval)
 /* long	lval[]; */
 {
 	long	k;
@@ -509,7 +520,7 @@ long heir10 (long *lval)
 			needlval ();
 			return (0);
 		}
-		if (lval[1])
+		if (lval->indirect)
 			gpush ();
 		rvalue (lval);
 		ginc (lval);
@@ -521,7 +532,7 @@ long heir10 (long *lval)
 			needlval ();
 			return (0);
 		}
-		if (lval[1])
+		if (lval->indirect)
 			gpush ();
 		rvalue (lval);
 		gdec (lval);
@@ -553,19 +564,19 @@ long heir10 (long *lval)
 		indflg = 1;
 		k = heir10 (lval);
 		indflg = 0;
-		ptr = (char*)lval[0];
+		ptr = (char*)lval->symbol;
 		/* vram */
 		if (ptr && !strcmp(ptr, "vram")) {
-			lval[2] = 0;
+			lval->ptr_type = 0;
 			return (1);
 		}
 		if (k)
 			rvalue (lval);
-		if ( (ptr = (char*)lval[0]) )
-			lval[1] = ptr[TYPE];
+		if ( (ptr = (char*)lval->symbol) )
+			lval->indirect = ptr[TYPE];
 		else
-			lval[1] = CINT;
-		lval[2] = 0;  /* flag as not pointer or array */
+			lval->indirect = CINT;
+		lval->ptr_type = 0;  /* flag as not pointer or array */
 		return (1);
 	} else if (ch()=='&' && nch()!='&' && nch()!='=') {
 		indflg = 0;
@@ -575,20 +586,20 @@ long heir10 (long *lval)
 			error ("illegal address");
 			return (0);
 		}
-		if (lval[0]) {
-			ptr = (char*)lval[0];
-			lval[2] = ptr[TYPE];
+		if (lval->symbol) {
+			ptr = (char*)lval->symbol;
+			lval->ptr_type = ptr[TYPE];
 		}
-		if (lval[1])
+		if (lval->indirect)
 			return (0);
 		/* global and non-array */
-		ptr = (char*)lval[0];
+		ptr = (char*)lval->symbol;
 		immed (T_SYMBOL, (long)ptr);
-		lval[1] = ptr[TYPE];
+		lval->indirect = ptr[TYPE];
 		return (0);
 	} else {
 		k = heir11 (lval);
-		ptr = (char*)lval[0];
+		ptr = (char*)lval->symbol;
 		if (match ("++")) {
 			if (k == 0) {
 				needlval ();
@@ -597,7 +608,7 @@ long heir10 (long *lval)
 			/* vram */
 			if (ptr && !strcmp(ptr, "vram"))
 				return (0);
-			if (lval[1])
+			if (lval->indirect)
 				gpush ();
 			rvalue (lval);
 			ginc (lval);
@@ -614,7 +625,7 @@ long heir10 (long *lval)
 				error("can't decrement vram pointer");
 				return (0);
 			}
-			if (lval[1])
+			if (lval->indirect)
 				gpush ();
 			rvalue (lval);
 			gdec (lval);
@@ -626,7 +637,7 @@ long heir10 (long *lval)
 	}
 }
 
-long heir11 (long *lval)
+long heir11 (LVALUE *lval)
 /*long	*lval; */
 {
 	long	direct,k;
@@ -634,7 +645,7 @@ long heir11 (long *lval)
 	char    sname[NAMESIZE];
 
 	k = primary (lval);
-	ptr = (char*)lval[0];
+	ptr = (char*)lval->symbol;
 	blanks ();
 	for (;;) {
 		if (match ("[")) {
@@ -666,10 +677,10 @@ long heir11 (long *lval)
 			}
 			if (!ptr[FAR])
 				gadd (NULL,NULL);
-			lval[0] = 0;
-			lval[1] = ptr[TYPE];
-			lval[2] = 0;//VARIABLE; /* David, bug patch ?? */
-			lval[3] = ptr[FAR] ? (long)ptr : (long)NULL;
+			lval->symbol = 0;
+			lval->indirect = ptr[TYPE];
+			lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
+			lval->symbol2 = ptr[FAR] ? (SYMBOL *)ptr : (SYMBOL *)NULL;
 			k = 1;
 		}
 		else if (match ("(")) {
@@ -682,7 +693,7 @@ long heir11 (long *lval)
 					callfunction (ptr);
 				else {
 					if (ptr[FAR]) {
-						lval[3] = (long)ptr;
+						lval->symbol2 = (SYMBOL *)ptr;
 						immed (T_VALUE, 0);
 					}
 					rvalue (lval);
@@ -690,15 +701,16 @@ long heir11 (long *lval)
 				}
 			} else
 				callfunction (ptr);
-			k = lval[0] = 0;
+			k = 0;
+			lval->symbol = 0;
 		} else if ((direct=match(".")) || match("->")) {
-			if (lval[5] == 0) {
+			if (lval->tagsym == 0) {
 			    error("can't take member") ;
 			    junk() ;
 			    return 0 ;
 			}
 			if (symname(sname) == 0 ||
-			   ((ptr=(char *)find_member((TAG_SYMBOL *)lval[5], sname)) == 0)) {
+			   ((ptr=(char *)find_member((TAG_SYMBOL *)lval->tagsym, sname)) == 0)) {
 			    error("unknown member") ;
 			    junk() ;
 			    return 0 ;
@@ -707,21 +719,21 @@ long heir11 (long *lval)
 			    rvalue(lval);
 			out_ins(I_ADDWI, T_VALUE, ptr[OFFSET] | (ptr[OFFSET+1] << 8));
 			//add_offset(ptr[OFFSET] | (ptr[OFFSET+1] << 8)); // move pointer from struct begin to struct member
-			lval[0] = (long)ptr;
-			lval[1] = ptr[TYPE]; // lval->indirect = lval->val_type = ptr->type
-			lval[2] = 0;
-			lval[5] = (long)NULL_TAG;
+			lval->symbol = (SYMBOL *)ptr;
+			lval->indirect = ptr[TYPE]; // lval->indirect = lval->val_type = ptr->type
+			lval->ptr_type = 0;
+			lval->tagsym = (long)NULL_TAG;
 			if (ptr[TYPE] == CSTRUCT)
-			    lval[5] = (long)&tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
+			    lval->tagsym = &tag_table[ptr[TAGIDX] | (ptr[TAGIDX+1] << 8)];
 			if (ptr[IDENT] == POINTER) {
-			    lval[1] = CINT;
-			    lval[2] = ptr[TYPE];
+			    lval->indirect = CINT;
+			    lval->ptr_type = ptr[TYPE];
 			    //lval->val_type = CINT;
 			}
 			if (ptr[IDENT]==ARRAY ||
 			    (ptr[TYPE]==CSTRUCT && ptr[IDENT]==VARIABLE)) {
 			    // array or struct
-			    lval[2] = ptr[TYPE];
+			    lval->ptr_type = ptr[TYPE];
 			    //lval->val_type = CINT;
 			    k = 0;
 			}
@@ -739,15 +751,15 @@ long heir11 (long *lval)
 	return (k);
 }
 
-void store (long *lval)
+void store (LVALUE *lval)
 /* long	*lval; */
 {
-	if (lval[3]) {
+	if (lval->symbol2) {
 		/* far arrays (or special arrays) */
-		if (!strcmp ((char *)lval[3], "vdc"))
-			putio ((char *)lval[3]);
-		else if (!strcmp ((char *)lval[3], "vram"))
-			putvram ((char *)lval[3]);
+		if (!strcmp ((char *)lval->symbol2, "vdc"))
+			putio ((char *)lval->symbol2);
+		else if (!strcmp ((char *)lval->symbol2, "vram"))
+			putvram ((char *)lval->symbol2);
 		else {
 			error ("const arrays can't be written");
 			gpop ();
@@ -755,37 +767,37 @@ void store (long *lval)
 	}
 	else {
 		/* other */
-		if (lval[1] != 0)
-			putstk (lval[1]);
+		if (lval->indirect != 0)
+			putstk (lval->indirect);
 		else {
-			if (strcmp((char *)lval[0], "vram") == 0)
+			if (strcmp((char *)lval->symbol, "vram") == 0)
 				out_ins(I_VPUTW, (long)NULL, (long)NULL);
 			else
-				putmem ((char *)lval[0]);
+				putmem ((char *)lval->symbol);
 		}
 	}
 }
 
-void rvalue (long *lval)
+void rvalue (LVALUE *lval)
 /* long	*lval; */
 {
-	if ((lval[0] != 0) && (lval[1] == 0)) {
-		if (strcmp((char *)lval[0], "vram") == 0)
+	if ((lval->symbol != 0) && (lval->indirect == 0)) {
+		if (strcmp((char *)lval->symbol, "vram") == 0)
 			out_ins(I_VGETW, (long)NULL, (long)NULL);
 		else
-			getmem ((char *)lval[0]);
+			getmem ((char *)lval->symbol);
 	}
 	else {
-		if (lval[3] == 0)
-			indirect (lval[1]);
+		if (lval->symbol2 == 0)
+			indirect (lval->indirect);
 		else {
 			/* far arrays (or special arrays) */
-			if (!strcmp ((char *)lval[3], "vdc"))
-				getio ((char *)lval[3]);
-			else if (!strcmp ((char *)lval[3], "vram"))
-				getvram ((char *)lval[3]);
+			if (!strcmp ((char *)lval->symbol2, "vdc"))
+				getio ((char *)lval->symbol2);
+			else if (!strcmp ((char *)lval->symbol2, "vram"))
+				getvram ((char *)lval->symbol2);
 			else
-				farpeek ((char *)lval[3]);
+				farpeek ((char *)lval->symbol2);
 		}
 	}
 }

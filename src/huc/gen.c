@@ -344,7 +344,7 @@ void gjcase(void )
  *	add the primary and secondary registers
  *	if lval2 is int pointer and lval is int, scale lval
  */
-void gadd (long *lval, long *lval2)
+void gadd (LVALUE *lval, LVALUE *lval2)
 {
 	if (dbltest (lval2, lval)) {
 		out_ins(I_ASLWS, (long)NULL, (long)NULL);
@@ -510,14 +510,12 @@ void glneg (void )
  *	increment the primary register by 1 if char, INTSIZE if
  *      long
  */
-void ginc (long * lval)
-/* long lval[]; */
+void ginc (LVALUE *lval)
 {
-	if (lval[2] == CINT || lval[2] == CUINT)
+	if (lval->ptr_type == CINT || lval->ptr_type == CUINT)
 		out_ins(I_ADDWI, T_VALUE, 2);
-	else if (lval[2] == CSTRUCT) {
-		TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
-		out_ins(I_ADDWI, T_VALUE, tag->size);
+	else if (lval->ptr_type == CSTRUCT) {
+		out_ins(I_ADDWI, T_VALUE, lval->tagsym->size);
         }
 	else
 		out_ins(I_ADDWI, T_VALUE, 1);
@@ -527,14 +525,12 @@ void ginc (long * lval)
  *	decrement the primary register by one if char, INTSIZE if
  *	long
  */
-void gdec (long *lval)
-/* long lval[]; */
+void gdec (LVALUE *lval)
 {
-	if (lval[2] == CINT || lval[2] == CUINT)
+	if (lval->ptr_type == CINT || lval->ptr_type == CUINT)
 		out_ins(I_SUBWI, T_VALUE, 2);
-	else if (lval[2] == CSTRUCT) {
-		TAG_SYMBOL *tag = (TAG_SYMBOL *)(lval[5]);
-		out_ins(I_SUBWI, T_VALUE, tag->size);
+	else if (lval->ptr_type == CSTRUCT) {
+		out_ins(I_SUBWI, T_VALUE, lval->tagsym->size);
         }
 	else
 		out_ins(I_SUBWI, T_VALUE, 1);

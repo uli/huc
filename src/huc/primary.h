@@ -6,9 +6,9 @@
 #ifndef _PRIMARY_H
 #define _PRIMARY_H
 
-long primary (long* lval);
-long dbltest (long val1[],long val2[]);
-void result (long lval[],long lval2[]);
+long primary (LVALUE* lval);
+long dbltest (LVALUE val1[],LVALUE val2[]);
+void result (LVALUE lval[],LVALUE lval2[]);
 long constant (long val[]);
 long number (long val[]);
 long pstr (long val[]);
