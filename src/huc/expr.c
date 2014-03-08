@@ -281,7 +281,7 @@ long heir4 (LVALUE *lval)
 	}
 }
 
-static int is_byte(LVALUE *lval)
+int is_byte(LVALUE *lval)
 {
 	if (!lval->symbol) {
 		if (lval->value < 0x80 && lval->value >= 0)

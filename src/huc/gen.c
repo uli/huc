@@ -11,6 +11,7 @@
 #include "primary.h"
 #include "sym.h"
 #include "gen.h"
+#include "expr.h"
 
 static char *needargs[] = {
 	"vreg",
@@ -348,10 +349,15 @@ void gjcase(void )
  */
 void gadd (LVALUE *lval, LVALUE *lval2)
 {
+        /* XXX: isn't this done in expr.c already? */
 	if (dbltest (lval2, lval)) {
 		out_ins(I_ASLWS, (long)NULL, (long)NULL);
 	}
-	out_ins(I_ADDWS, (long)NULL, (long)NULL);
+	if (lval && lval2 && is_byte(lval) && is_byte(lval2)) {
+		out_ins(I_ADDBS, (long)NULL, (long)NULL);
+        }
+        else
+		out_ins(I_ADDWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
 
