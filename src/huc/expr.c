@@ -465,7 +465,8 @@ long heir8 (LVALUE *lval)
 			gsub ();
 			/* if both pointers, scale result */
 			/* XXX: structs? */
-			if ((lval->ptr_type == CINT) && (lval2->ptr_type == CINT)) {
+			if ((lval->ptr_type == CINT || lval->ptr_type == CUINT) &&
+			    (lval2->ptr_type == CINT || lval->ptr_type == CUINT)) {
 				gasrint(); /* divide by intsize */
 			}
 			result (lval, lval2);
