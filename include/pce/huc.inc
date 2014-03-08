@@ -313,6 +313,14 @@ __addwi	.macro
 	 adc	#high(\1)
 	.endm	
 
+__addbi	.macro
+	 clc
+	 txa
+	 adc	#low(\1)
+	 tax
+	 cla
+	.endm	
+
 __addmi	.macro
 	 pha
 	 clc
@@ -360,6 +368,15 @@ __addws	.macro
 	 sax
 	 ldy	#1
 	 adc	[__stack],Y
+       __addmi 2, __stack
+	.endm
+
+__addbs	.macro
+	 txa
+	 clc
+	 adc	[__stack]
+	 tax
+	 cla
        __addmi 2, __stack
 	.endm
 

@@ -397,7 +397,11 @@ void gen_code(INS *tmp)
 		break;
 
 	case I_ADDWI:
-		ot("__addwi\t");
+	case I_ADDBI:
+		if (code == I_ADDBI)
+			ot("__addbi\t");
+		else
+			ot("__addwi\t");
 
 		switch (type) {
 		case T_VALUE:
@@ -435,6 +439,10 @@ void gen_code(INS *tmp)
 
 	case I_ADDWS:
 		ol("__addws");
+		break;
+
+	case I_ADDBS:
+		ol("__addbs");
 		break;
 
 	case I_ADDMI:
