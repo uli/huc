@@ -75,7 +75,6 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 			}
 			if (mtag == 0) {
 				if (typ == CSTRUCT) {
-					cptr->tagidx = otag;
 					if (id == VARIABLE)
 						k = tag_table[otag].size;
 					else if (id == POINTER)
@@ -83,11 +82,18 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 					else if (id == ARRAY)
 						k *= tag_table[otag].size;
 				}
-				if (stor != CONST)
-					addglb (sname, id, typ, k, stor);
+				if (stor != CONST) {
+					SYMBOL *c = addglb (sname, id, typ, k, stor);
+					if (typ == CSTRUCT)
+						c->tagidx = otag;
+				}
 				else {
-					if (addglb (sname, id, typ, k, STATIC))
+					SYMBOL *c = addglb (sname, id, typ, k, STATIC);
+					if (c) {
 						add_const(typ);
+						if (typ == CSTRUCT)
+							c->tagidx = otag;
+					}
 				}
 			}
 			else if (is_struct) {
@@ -166,14 +172,20 @@ void declloc (long typ, long stclass, int otag)
 				else
 					k = INTSIZE;
 			}
-			if (stclass == LSTATIC)
-				addloc( sname, j, typ, k, LSTATIC);
+			if (stclass == LSTATIC) {
+				SYMBOL *c = addloc( sname, j, typ, k, LSTATIC);
+				if (typ == CSTRUCT)
+					c->tagidx = otag;
+			}
 			else {
+				SYMBOL *c;
 //				k = galign(k);
 				totalk += k;
 				// stkp = modstk (stkp - k);
 				// addloc (sname, j, typ, stkp, AUTO);
-				addloc (sname, j, typ, stkp - totalk, AUTO);
+				c = addloc (sname, j, typ, stkp - totalk, AUTO);
+				if (typ == CSTRUCT)
+					c->tagidx = otag;
 			}
 			break;
 		}
