@@ -1320,21 +1320,27 @@ level_2:
 
 
 /* ----
- * flush_ins()
+ * flush_ins_label(int nextlabel)
  * ----
- * flush instruction queue
+ * flush instruction queue, eliminating redundant trailing branches to a
+ * label following immediately
  *
  */
 
-void flush_ins(void)
+void flush_ins_label(int nextlabel)
 {
 	while (q_nb)
 	{
-		/* gen code */
-		if (arg_stack_flag)
-			arg_push_ins(&q_ins[q_rd]);
-		else
-			gen_code(&q_ins[q_rd]);
+		/* skip last op if it's a branch to nextlabel */
+		if (q_nb > 1 || nextlabel == -1 ||
+		    q_ins[q_rd].code != I_LBRA ||
+		    q_ins[q_rd].data != nextlabel) {
+			/* gen code */
+			if (arg_stack_flag)
+				arg_push_ins(&q_ins[q_rd]);
+			else
+				gen_code(&q_ins[q_rd]);
+		}
 
 		/* advance and wrap queue read pointer */
 		q_rd++;
@@ -1350,6 +1356,17 @@ void flush_ins(void)
 	q_nb = 0;
 }
 
+/* ----
+ * flush_ins()
+ * ----
+ * flush instruction queue
+ *
+ */
+
+void flush_ins(void)
+{
+	flush_ins_label(-1);
+}
 
 /* ----
  * gen_asm()

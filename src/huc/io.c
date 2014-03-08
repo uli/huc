@@ -332,7 +332,8 @@ void glabel (char *lab)
 void gnlabel (long nlab)
 /*long	nlab; */
 {
-	flush_ins(); /* David - optimize.c related */
+	/* Do a flush that eliminates trailing branches to nlab. */
+	flush_ins_label(nlab); /* David - optimize.c related */
 	outlabel (nlab);
 	col ();
 	nl ();
