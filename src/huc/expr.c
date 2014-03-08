@@ -284,12 +284,12 @@ long heir4 (LVALUE *lval)
 static int is_byte(LVALUE *lval)
 {
 	if (!lval->symbol) {
-		if (lval->value < 0x80)
+		if (lval->value < 0x80 && lval->value >= 0)
 			return 1;
 		else
 			return 0;
 	}
-	if (lval->symbol->type == CCHAR || lval->symbol->type == CUCHAR)
+	if (!lval->ptr_type && (lval->symbol->type == CCHAR || lval->symbol->type == CUCHAR))
 		return 1;
 	return 0;
 }
