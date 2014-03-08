@@ -322,6 +322,15 @@ __addbi	.macro
 	.endm	
 
 __addmi	.macro
+	.if (\1 = 2)
+	 inc	<\2
+	 bne	.x\@
+	 inc	<\2+1
+.x\@	 inc	<\2
+	 bne	.y\@
+	 inc	<\2+1
+.y\@
+	.else
 	 pha
 	 clc
 	 lda	<\2
@@ -331,6 +340,7 @@ __addmi	.macro
 	 adc	#high(\1)
 	 sta	<\2+1
 	 pla
+	.endif
 	.endm	
 
 __subw	.macro
