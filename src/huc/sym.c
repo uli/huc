@@ -69,8 +69,8 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				}
 			} else {
 				if (stor == CONST) {
-					stor  = PUBLIC;
-					error ("const scalar not supported");
+					/* stor  = PUBLIC; XXX: What is this for? */
+					scalar_initializer(typ, id, stor);
 				}
 			}
 			if (mtag == 0) {

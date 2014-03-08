@@ -87,7 +87,7 @@ long array_initializer(long typ, long id, long stor)
 				if ((ch() == '\"') && (id == POINTER))
 					i = get_string_ptr(typ);
 				else
-					i = get_raw_value();
+					i = get_raw_value(',');
 				nb++;
 				blanks();
 				if (const_val_idx < MAX_CONST_VALUE)
@@ -118,6 +118,39 @@ long array_initializer(long typ, long id, long stor)
 	return (k);
 }
 
+/*
+ *	scalar initializer
+ *
+ */
+long scalar_initializer(long typ, long id, long stor)
+{
+	long i;
+
+	if (stor == CONST)
+		new_const();
+	if (match ("=")) {
+		if (stor != CONST)
+			error ("can't initialize non-const scalars");
+		blanks();
+		if (ch() == ';') {
+			error("value missing");
+			return -1;
+		}
+		if (ch() == '\"' && id == POINTER)
+			i = get_string_ptr(typ);
+		else
+			i = get_raw_value(';');
+		if (const_val_idx < MAX_CONST_VALUE)
+			const_val[const_val_idx++] = i;
+		blanks();
+		if (ch() != ';') {
+			error("syntax error");
+			return (-1);
+		}
+	}
+	return 1;
+}
+
 
 /*
  *  add a string to the literal pool and return a pointer (index) to it
@@ -140,7 +173,7 @@ long get_string_ptr(long typ)
  *  get value raw text
  *
  */
-long get_raw_value(void )
+long get_raw_value(char sep)
 {
 	char  c;
 	char  tmp[LINESIZE+1];
@@ -184,7 +217,7 @@ long get_raw_value(void )
 		else if (c == ')')
 			level--;
 		/* comma separator */
-		else if (c == ',') {
+		else if (c == sep) {
 			if (level == 0)
 				break;
 		}

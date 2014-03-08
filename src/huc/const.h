@@ -9,8 +9,9 @@
 void new_const(void );
 void add_const(long typ);
 long array_initializer(long typ, long id, long stor);
+long scalar_initializer(long typ, long id, long stor);
 long get_string_ptr(long typ);
-long get_raw_value(void );
+long get_raw_value(char sep);
 void add_buffer (char *p, char c);
 void dump_const (void );
 
