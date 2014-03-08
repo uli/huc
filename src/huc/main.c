@@ -1,8 +1,10 @@
 /*	File main.c: 2.7 (84/11/28,10:14:56)
  *
  * PC Engine C Compiler
- * Made by <unknown guy>, hacked to work on Pc Engine by David Michel
- * resumed work by Zeograd
+ * based on Small C Compiler by Ron Cain, James E. Hendrix, and others
+ * hacked to work on PC Engine by David Michel
+ * work resumed by Zeograd
+ * work resumed again by Ulrich Hecht
  *
  * 00/02/22 : added oldargv variable to show real exe name in usage function
  */
