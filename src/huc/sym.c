@@ -167,8 +167,12 @@ void declloc (long typ, long stclass, int otag)
 			} else {
 				if ((typ == CCHAR || typ == CUCHAR) & (j != POINTER))
 					k = 1;
-				else if (typ == CSTRUCT)
-					k = tag_table[otag].size;
+				else if (typ == CSTRUCT) {
+					if (j == VARIABLE)
+						k = tag_table[otag].size;
+					else if (j == POINTER)
+						k = INTSIZE;
+				}
 				else
 					k = INTSIZE;
 			}
