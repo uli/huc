@@ -146,7 +146,7 @@ void push_ins(INS *ins)
 			}
 
 			/*  __ldwi  i                   --> __ldwi i+j
-			 *  __addwi j
+			 *  __add[bw]i j
 			 *
 			 *  ====
 			 *  bytes  : 4+ 7 = 11          --> 4
@@ -154,7 +154,7 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-			   ((p[0]->code == I_ADDWI) &&
+			   ((p[0]->code == I_ADDWI || p[0]->code == I_ADDBI) &&
 				(p[1]->code == I_LDWI) &&
 
 				(p[1]->type == T_VALUE))
@@ -552,24 +552,25 @@ void push_ins(INS *ins)
 		/* 3-instruction patterns */
 		if (q_nb >= 3)
 		{
-			/*  __pushw                     --> __addwi i
+			/*  __pushw                     --> __add[bw]i i
 			 *  __ldwi  i
-			 *  __addws
+			 *  __add[bw]s
 			 *
 			 *  ====
 			 *  bytes  : 23+4+24 = 51      -->  7
 			 *  cycles : 49+4+43 = 96      --> 12
 			 *
 			 */
-			if ((p[0]->code == I_ADDWS) &&
+			if ((p[0]->code == I_ADDWS || p[0]->code == I_ADDBS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 	
 				(p[1]->type == T_VALUE))
 			{
 				/* replace code */
-				p[2]->code = I_ADDWI;
+				p[2]->code = (p[0]->code == I_ADDWS) ? I_ADDWI : I_ADDBI;
 				p[2]->data = p[1]->data;
+				p[2]->type = T_VALUE;
 				nb = 2;
 			}
 
