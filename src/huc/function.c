@@ -270,8 +270,15 @@ void getarg (long t, int syntax, int otag)
 				t = CUINT;
 		}
 
-		if (!(legalname = symname (n)))
-			illname ();
+		if (!(legalname = symname (n))) {
+			if (syntax == ANSI && (ch() == ',' || ch() == ')')) {
+				sprintf(n, "__anon_%ld\n", -argstk);
+			}
+			else {
+				illname ();
+				junk();
+			}
+		}
 		if (match ("[")) {
 			while (inbyte () != ']')
 				if (endst ())
