@@ -1575,3 +1575,8 @@ _strncmp.3:
 	  cla
 	  rts
 
+_abort:
+	  .db 0xe2
+
+_exit:
+	  .db 0x63
