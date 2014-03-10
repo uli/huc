@@ -47,30 +47,32 @@ eq:
 
 .eq_endyes:
    addw	#2,<__stack   ; don't push A/X; they are thrown away
-   lda	#$FF        ; A=255 -> true
+   tya        ; A=1 -> true
    clx
+   sax
    rts
 
 .eq_endno:
    addw	#2,<__stack
-   lda	#0
    clx
+   cla
    rts
 
 eqb:
    txa
-   clx
    cmp [__stack]
    bne .eq_endno
 
 .eq_endyes:
    addw	#2,<__stack   ; don't push A/X; they are thrown away
-   lda	#$FF        ; A=255 -> true
+   ldx	#1        ; A=1 -> true
+   cla
    rts
 
 .eq_endno:
    addw	#2,<__stack
-   lda	#0
+   clx
+   cla
    rts
 
 ; streamlined version MACRO - uses zp ( <__temp ) instead of stack
@@ -83,23 +85,23 @@ eqzp:
 	sax
 	cmp   <__temp
 	bne   .x_ne
-	lda   #$FF	; ensure Z flag not set
+	ldx   #1	; ensure Z flag not set
 	bra   .x1_eq
 .x_ne:
-	lda   #0	; ensure Z flag set
-.x1_eq:
 	clx
+.x1_eq:
+	cla
 	rts
 
 eqbzp:
 	txa
-	clx
 	cmp   <__temp
+	cla
 	bne   .x_ne
-	lda   #$ff
+	ldx   #1
 	rts
 .x_ne:
-	lda   #0
+	clx
 	rts
 
 ; ----
@@ -141,8 +143,8 @@ lt_primary_minus:
 
 cmp_false:
    addw	#2,<__stack	; OK to kill A/X
-   lda	#0
-   clx
+   ldx	#0
+   cla
    rts
 
 getA_ult:
@@ -169,9 +171,11 @@ ult_y1: ; same thing but Y is assumed to be egal to 1
    addw      #2,<__stack
 
    tya          ; if Y was 1, return A=X=0 -> false
-   dec A        ; if Y was 0, return A=255 -> true
-
-   clx
+   eor #$ff     ; if Y was 0, return A=0, X=1 -> true
+   inc a
+   inc a
+   tax
+   cla
    rts
 
 ublt:    ; unsigned version
@@ -183,8 +187,8 @@ ublt:    ; unsigned version
 
 .lt_end:
    addw      #2,<__stack
-   lda	#0
-   clx
+   ldx	#0
+   cla
    rts
 
 
@@ -227,8 +231,8 @@ gt:     ; signed version of >
 
 cmp_ok:
    addw	#2,<__stack	; OK to kill A/X
-   lda #$FF
-   clx
+   ldx #1
+   cla
    rts
 
 getA_ugt:       ; we grab back the value of A before entering the unsigned
@@ -256,19 +260,22 @@ ugt_y1: ; unsigned version of >, assuming Y = 1
 .gt_end:
    addw      #2,<__stack
    tya
-   dec A
-   clx
+   eor #$ff
+   inc a
+   inc a
+   tax
+   cla
    rts
 
 ubgt:    ; unsigned byte version of >
    txa
-   clx
+   ldx #1
    cmp [__stack]
-   lda	#$ff
    bcc .gt_end       ; lobyte of the reg var < lobyte of the pushed var
-   lda	#0
+   clx
 
 .gt_end:
+   cla
    addw      #2,<__stack
    rts
 
@@ -284,11 +291,11 @@ ltzp:	; signed, zero page
 	bpl	.geta_ult
 	lda	<__temp+2
 	bpl	.true
-.false:	lda	#0
-	clx
+.false:	clx
+	cla
 	rts
-.true:	lda	#$ff
-	clx
+.true:	ldx	#1
+	cla
 	rts
 .geta_ult:
 	lda	<__temp+2	; and fall through to unsigned test
@@ -296,27 +303,27 @@ ltzp:	; signed, zero page
 ultzp:	cmp	<__temp+1
 	beq	.test_lo
 	bcc	.false
-.true:	lda	#$ff
-	clx
+.true:	ldx	#1
+	cla
 	rts
 .test_lo:
 	sax
 	cmp	<__temp
 	beq	.false
 	bcs	.true
-.false:	lda	#0
-	clx
+.false:	clx
+	cla
 	rts
 
 ubltzp:
 	txa
-	clx
 	cmp	<__temp
+	cla
 	beq	.false
 	bcc	.false
-	lda	#$ff
+	ldx	#1
 	rts
-.false:	lda	#0
+.false: clx
 	rts
 
 ; ----
@@ -327,11 +334,11 @@ gtzp:	; signed, zero page
 	bpl	.geta_ugt
 	lda	<__temp+2
 	bpl	.false
-.true:	lda	#$ff
-	clx
+.true:	ldx	#1
+	cla
 	rts
-.false:	lda	#0
-	clx
+.false:	clx
+	cla
 	rts
 .geta_ugt:
 	lda	<__temp+2	; and fall through to unsigned test
@@ -340,27 +347,27 @@ ugtzp:
 	cmp	<__temp+1
 	beq	.test_lo
 	bcs	.false
-.true:	lda	#$ff
-	clx
+.true:	ldx	#1
+	cla
 	rts
 .test_lo:
 	sax
 	cmp	<__temp
 	beq	.false
 	bcc	.true
-.false:	lda	#0
-	clx
+.false:	clx
+	cla
 	rts
 
 ubgtzp:
 	txa
-	clx
 	cmp	<__temp
+	cla
 	beq	.false
 	bcs	.false
-	lda	#$ff
+	ldx	#1
 	rts
-.false:	lda	#0
+.false:	clx
 	rts
 
 
@@ -378,20 +385,36 @@ ubgtzp:
 
 ge:     ; signed version of >
     jsr lt
-    inc A   ; assuming that true is represented by A = 255
+    sax
+    dec a
+    dec a
+    eor #$ff
+    sax
     rts
 
 geb:     ; signed byte version of >
     jsr ltb
-    inc A   ; assuming that true is represented by A = 255
+    sax
+    dec a
+    dec a
+    eor #$ff
+    sax
     rts
 
 gezp:	jsr	ltzp
+	sax
+	dec a
+	dec a
 	eor	#$ff
+	sax
 	rts
 
 gebzp:	jsr	ltbzp
+	sax
+	dec a
+	dec a
 	eor	#$ff
+	sax
 	rts
 
 ; ----
@@ -408,20 +431,36 @@ gebzp:	jsr	ltbzp
 
 uge:    ; unsigned version of >
     jsr ult
-    inc A   ; assuming that true is represented by A = 255
+    sax
+    dec a
+    dec a
+    eor #$ff
+    sax
     rts
 
 ubge:    ; unsigned byte version of >
     jsr ublt
-    inc A   ; assuming that true is represented by A = 255
+    sax
+    dec a
+    dec a
+    eor #$ff
+    sax
     rts
 
 ugezp:	jsr	ultzp
+	sax
+	dec a
+	dec a
 	eor	#$ff
+	sax
 	rts
 
 ubgezp:	jsr	ubltzp
+	sax
+	dec a
+	dec a
 	eor	#$ff
+	sax
 	rts
 
 ; ----
@@ -454,30 +493,31 @@ ne:
 
 .ne_endeq:
    addw	#2,<__stack   ; don't push A/X; they are thrown away
-   lda	#0
    clx
+   cla
    rts
 
 .ne_endne:
    addw	#2,<__stack
-   lda	#$ff
-   clx
+   ldx	#1
+   cla
    rts
 
 neb:
    txa
-   clx
    cmp [__stack]
    bne .ne_endne
 
 .ne_endeq:
    addw	#2,<__stack   ; don't push A/X; they are thrown away
-   lda	#0
+   clx
+   cla
    rts
 
 .ne_endne:
    addw	#2,<__stack
-   lda	#$ff
+   ldx	#1
+   cla
    rts
 
 ; streamlined version MACRO - uses zp ( <__temp ) instead of stack
@@ -490,23 +530,23 @@ nezp:
 	sax
 	cmp   <__temp
 	bne   .x_ne
-	lda   #0	; ensure Z flag set
+	clx
 	bra   .x1_eq
 .x_ne:
-	lda   #$ff   	; ensure Z flag not set
+	ldx   #1   	; ensure Z flag not set
 .x1_eq:
-	clx
+	cla
 	rts
 
 nebzp:
 	txa
-	clx
 	cmp   <__temp
+	cla
 	bne   .x_ne
-	lda   #0	; ensure Z flag set
+	clx
 	rts
 .x_ne:
-	lda   #$ff   	; ensure Z flag not set
+	ldx   #1   	; ensure Z flag not set
 	rts
 
 ; ----
@@ -523,20 +563,36 @@ nebzp:
 
 le:     ; signed version
     jsr gt
-    inc A       ; assuming that A=255 if true
+    sax
+    eor #$ff
+    inc a
+    inc a
+    sax
     rts
 
 leb:     ; signed version
     jsr gtb
-    inc A       ; assuming that A=255 if true
+    sax
+    eor #$ff
+    inc A       ; assuming that A=1 if true
+    inc a
+    sax
     rts
 
 lezp:	jsr	gtzp
+	sax
 	eor	#$ff
+	inc a
+	inc a
+	sax
 	rts
 
 lebzp:	jsr	gtbzp
+	sax
 	eor	#$ff
+	inc a
+	inc a
+	sax
 	rts
 
 ; ----
@@ -553,20 +609,36 @@ lebzp:	jsr	gtbzp
 
 ule:    ; unsigned version
     jsr ugt
-    inc A       ; assuming that A=255 if true
+    sax
+    eor #$ff
+    inc A       ; assuming that A=1 if true
+    inc a
+    sax
     rts
 
 uble:    ; unsigned byte version
     jsr ubgt
+    sax
+    eor #$ff
     inc A       ; assuming that A=255 if true
+    inc a
+    sax
     rts
 
 ulezp:	jsr	ugtzp
+	sax
 	eor	#$ff
+	inc a
+	inc a
+	sax
 	rts
 
 ublezp:	jsr	ubgtzp
+	sax
 	eor	#$ff
+	inc a
+	inc a
+	sax
 	rts
 
 ; ----

@@ -463,12 +463,14 @@ __lbra	.macro
 	.endm
 
 __lbeq	.macro
+	 cpx #0
 	 bne	.x\@
 	 jmp	\1
 .x\@
 	.endm
 
 __lbne	.macro
+	 cpx #0
 	 beq	.x\@
 	 jmp	\1
 .x\@
