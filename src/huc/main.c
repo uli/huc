@@ -372,8 +372,10 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 
 	if (err == 2) /* function */
 		return 1;
-	else if (err)
+	else if (err) {
 		kill ();
+		return 0;
+	}
 	else
 		ns ();
 	return(1);

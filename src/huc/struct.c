@@ -91,7 +91,8 @@ int define_struct(char *sname, int storage, int is_struct) {
 
     needbrack("{");
     do {
-        dodcls(storage, &tag_table[tag_table_index], is_struct);
+        if (!dodcls(storage, &tag_table[tag_table_index], is_struct))
+            break;
     } while (!match ("}"));
     printf("end of struct\n");
     symbol->number_of_members = member_table_index - symbol->member_idx;
