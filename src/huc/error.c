@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "data.h"
 #include "error.h"
@@ -24,6 +25,10 @@ void error (char *ptr)
 	output = tempfile;
 	doerror(ptr);
 	errcnt++;
+	if (errcnt > 3) {
+	        doerror("too many errors, aborting");
+	        exit(1);
+        }
 }
 
 void doerror(char* ptr)
