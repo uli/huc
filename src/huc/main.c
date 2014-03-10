@@ -174,7 +174,6 @@ int main (int argc,char* argv[])
 			addglb_far("vram", CCHAR);
 			/* end specific externs */
 			defpragma();
-			defmac("short\tint");
 			defmac("huc6280\t1");
 			defmac("huc\t1");
 
@@ -405,7 +404,11 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 
 		if (amatch("char", 4))
 			err = declglb(CCHAR | sign, stclass, mtag, NULL_TAG, is_struct);
-		else if (amatch("int", 3))
+		else if (amatch("short", 5)) {
+			amatch("int", 3);
+			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
+		}
+		else if (amatch("int", 3) || amatch("void", 4))
 			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
 		else if (stclass == PUBLIC)
 			return(0);

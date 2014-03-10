@@ -87,6 +87,10 @@ long doldcls(long stclass)
         }
 	else if (amatch("char", 4))
 		declloc(CCHAR | sign, stclass, -1);
+        else if (amatch("short", 5)) {
+                amatch("int", 3);
+                declloc(CINT | sign, stclass, -1);
+        }
 	else if (amatch("int", 3))
 		declloc(CINT | sign, stclass, -1);
 	else if (stclass == LSTATIC || stclass == DEFAUTO)

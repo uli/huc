@@ -116,6 +116,10 @@ void newfunc (const char *sname)
 			if (amatch("char", 4)) {
 				getarg(CCHAR | sign, ANSI, 0);
 				nbarg++;
+			} else if (amatch("short", 5)) {
+				amatch("int", 3);
+				getarg(CINT | sign, ANSI, 0);
+				nbarg++;
 			} else if (amatch("int", 3)) {
 				getarg(CINT | sign, ANSI, 0);
 				nbarg++;
@@ -190,6 +194,10 @@ void newfunc (const char *sname)
 				if (amatch ("char", 4)) {
 					getarg (CCHAR | sign, KR, 0);
 					ns ();
+				} else if (amatch ("short", 5)) {
+					amatch("int", 3);
+					getarg (CINT | sign, KR, 0);
+					ns();
 				} else if (amatch ("int", 3)) {
 					getarg (CINT | sign, KR, 0);
 					ns ();
