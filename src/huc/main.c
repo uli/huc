@@ -276,97 +276,51 @@ void parse (void )
 // but the #include "startup.asm" line must be output before actual code
 // (And only once...)
 //
-// This should clear confusion (the 'parse' code is otherwise trivial)
-//
+		if (amatch("#asmdef", 7)) {
+			doasmdef ();
+			continue;
+		}
+		else if (match ("#define")) {
+			dodefine();
+			continue;
+		}
+		else if (match ("#undef")) {
+			doundef();
+			continue;
+		}
+		else if (match ("#pragma")) {
+			dopragma();
+			continue;
+		}
+		
+		if (!startup_incl) {
+			inc_startup();
+			incl_globals();
+		}
+
 		if (amatch ("extern", 6))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				dodcls(EXTERN, NULL_TAG, 0);
-			}
-		}
-		else if (amatch ("static",6))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				dodcls(STATIC, NULL_TAG, 0);
-			}
-		}
-		else if (amatch ("const",5))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
+			dodcls(EXTERN, NULL_TAG, 0);
+		else if (amatch ("static",6)) {
+			if (amatch("const", 5)) {
+				/* XXX: what about the static part? */
 				dodcls(CONST, NULL_TAG, 0);
 			}
+			else
+				dodcls(STATIC, NULL_TAG, 0);
 		}
+		else if (amatch ("const",5))
+			dodcls(CONST, NULL_TAG, 0);
 		else if (dodcls(PUBLIC, NULL_TAG, 0)) ;
-		else if (match ("#asmdef"))
-			doasmdef ();
 		else if (match ("#asm"))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				doasm ();
-			}
-		}
+			doasm ();
 		else if (match ("#include"))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				doinclude ();
-			}
-		}
-		else if (match ("#define"))
-			dodefine();
-		else if (match ("#undef"))
-			doundef();
-		else if (match ("#pragma"))
-			dopragma();
+			doinclude ();
 		else if (match("#inc"))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				dopsdinc();
-			}
-		}
+			dopsdinc();
 		else if (match("#def"))
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				dopsddef();
-			}
-		}
+			dopsddef();
 		else
-		{
-			if (!startup_incl) {
-				inc_startup();
-				unget_line();
-				incl_globals();
-			} else {
-				newfunc (NULL);
-			}
-		}
+			newfunc (NULL);
 		blanks ();
 	}
 	if (optimize)
