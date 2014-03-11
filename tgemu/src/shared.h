@@ -15,4 +15,6 @@
 #include "fileio.h"
 #include "osd.h"
 
+#include <string.h>
+
 #endif /* _SHARED_H_ */
