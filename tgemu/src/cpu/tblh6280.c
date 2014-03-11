@@ -24,7 +24,7 @@ OP(000) {		   h6280_ICount -= 8;		  BRK;		   } // 8 BRK
 OP(020) {		   h6280_ICount -= 7; EA_ABS; JSR;		   } // 7 JSR  ABS
 OP(040) {		   h6280_ICount -= 7;		  RTI;		   } // 7 RTI
 OP(060) {		   h6280_ICount -= 7;		  RTS;		   } // 7 RTS
-OP(080) { int tmp; if (RDOPARG() == 0xfe) exit(0);        BRA(1);	   } // 4 BRA  REL
+OP(080) { int tmp; if (RDOPARG() == 0xfe) exit(X);        BRA(1);	   } // 4 BRA  REL
 OP(0a0) { int tmp; h6280_ICount -= 2; RD_IMM; LDY;		   } // 2 LDY  IMM
 OP(0c0) { int tmp; h6280_ICount -= 2; RD_IMM; CPY;		   } // 2 CPY  IMM
 OP(0e0) { int tmp; h6280_ICount -= 2; RD_IMM; CPX;		   } // 2 CPX  IMM
@@ -77,7 +77,7 @@ OP(0f2) { int tmp; h6280_ICount -= 7; RD_ZPI; SBC;		   } // 7 SBC  ZPI
 OP(003) { int tmp; h6280_ICount -= 4; RD_IMM; ST0;		   } // 4 ST0  IMM
 OP(023) { int tmp; h6280_ICount -= 4; RD_IMM; ST2;		   } // 4 ST2  IMM
 OP(043) { int tmp; h6280_ICount -= 4; RD_IMM; TMA;		   } // 4 TMA
-OP(063) { exit(0);									  ILL;		   } // 2 ???
+OP(063) { exit(X);									  ILL;		   } // 2 ???
 OP(083) { int tmp,tmp2; h6280_ICount -= 7; RD_IMM2; RD_ZPG; TST; } // 7 TST  IMM,ZPG
 OP(0a3) { int tmp,tmp2; h6280_ICount -= 7; RD_IMM2; RD_ZPX; TST; } // 7 TST  IMM,ZPX
 OP(0c3) { int to,from,length;			      TDD;		   } // 6*l+17 TDD  XFER
