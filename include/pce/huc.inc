@@ -247,9 +247,13 @@ __aslw	.macro
 	.endm
 
 __aslws	.macro
-	 asl	[__stack]
+	 lda	[__stack]
+	 asl	a
+	 sta	[__stack]
 	 ldy	#1
-	 rol	[__stack],Y
+	 lda	[__stack],Y
+	 rol	a
+	 sta	[__stack],Y
 	.endm
 
 __asrw	.macro
