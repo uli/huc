@@ -175,7 +175,13 @@ __stwps	.macro
 	.endm
 
 __pushw	.macro
-       __submi	2,__stack
+	 ldy	<__stack
+	 bne	.x_\@
+	 dec	<__stack + 1
+.x_\@:	 dec	<__stack
+	 bne	.y_\@
+	 dec	<__stack + 1
+.y_\@:	 dec	<__stack
          sax
 	 sta	[__stack]
 	 sax
