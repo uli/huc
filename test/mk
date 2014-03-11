@@ -1,0 +1,23 @@
+#!/bin/bash
+export PCE_INCLUDE=`pwd`/../include/pce
+echo $PCE_INCLUDE
+tests="$@"
+test -z "$tests" && tests="tests/*.c dg/*.c"
+test -n "$1" && tests="$@"
+for i in $tests
+do
+	echo -n "$i: "
+	if ! ../src/huc/huc $i >/dev/null ; then
+		echo NOCOMPILE
+		#../src/huc/huc $i
+		#exit
+		continue
+	fi
+	if ../tgemu/tgemu "${i%.c}.pce" 2>/dev/null >/dev/null ; then
+		echo PASS
+	else
+		echo "FAIL (exit code $?)"
+		mkdir -p failtraces
+		mv "${i%.c}".{sym,lst,s,pce} failtraces/
+	fi
+done
