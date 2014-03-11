@@ -1495,6 +1495,17 @@ _memcpy.3:
 	  bne	.cpylp
 	  rts
 
+; _memset(char *s [di], int c [bx], int n [acc])
+_memset.3:
+	__stw	<_ax
+	lda	<_bx
+.setlp:   sta	[_di]
+	  incw	<_di
+	  decw	<_ax
+	  tstw	<_ax
+	  bne	.setlp
+	  rts
+
 ; ----
 ; _memcmp(char *dest [di], char *src [si], int count [acc])
 ; ----
