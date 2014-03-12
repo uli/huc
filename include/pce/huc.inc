@@ -229,6 +229,11 @@ __tstw	.macro
          ; pha
 	 stx	<__temp
 	 ora	<__temp
+	 cla
+	 clx
+	 beq	.x_\@
+	 inx
+.x_\@:
 	 ; pla
 	.endm
 
