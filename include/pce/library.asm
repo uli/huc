@@ -1498,8 +1498,8 @@ _memcpy.3:
 ; _memset(char *s [di], int c [bx], int n [acc])
 _memset.3:
 	__stw	<_ax
-	lda	<_bx
-.setlp:   sta	[_di]
+.setlp:   lda	<_bx
+	  sta	[_di]
 	  incw	<_di
 	  decw	<_ax
 	  tstw	<_ax
