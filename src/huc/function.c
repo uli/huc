@@ -45,6 +45,7 @@ void arg_to_dword(struct fastcall *fast, long i, long arg, long adj);
 
 /* argument address pointers for ANSI arguments */
 short *fixup[32];
+char current_fn[NAMESIZE];
 
 /*
  *	begin a function
@@ -58,11 +59,10 @@ void newfunc (const char *sname)
 {
 	char n[NAMESIZE];
 	SYMBOL *ptr;
-	char fn[NAMESIZE];
 	long  nbarg;
 
 	if (sname) {
-		strcpy(fn, sname);
+		strcpy(current_fn, sname);
 		strcpy(n, sname);
 	}
 	else {
@@ -78,7 +78,7 @@ void newfunc (const char *sname)
 			kill ();
 			return;
 		}
-		strcpy(fn, n);
+		strcpy(current_fn, n);
 		if (!match ("("))
 			error ("missing open paren");
 	}
@@ -211,20 +211,20 @@ void newfunc (const char *sname)
 
 	fexitlab = getlabel();
 
-	if ( (ptr = findglb (fn)) ) {
+	if ( (ptr = findglb (current_fn)) ) {
 		if (ptr->ident != FUNCTION)
-			multidef (fn);
+			multidef (current_fn);
 		else if (ptr->offset == FUNCTION)
-			multidef (fn);
+			multidef (current_fn);
 		else
 			ptr->offset = FUNCTION;
 	} else
-		addglb (fn, FUNCTION, CINT, FUNCTION, PUBLIC);
+		addglb (current_fn, FUNCTION, CINT, FUNCTION, PUBLIC);
 
 	flush_ins(); /* David, .proc directive support */
 	ot (".proc ");
 	prefix ();
-	outstr (fn);
+	outstr (current_fn);
 	nl ();
 
 	if (nbarg)      /* David, arg optimization */

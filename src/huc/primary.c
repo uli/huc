@@ -15,6 +15,8 @@
 #include "primary.h"
 #include "sym.h"
 
+extern char current_fn[];
+
 long primary (LVALUE* lval)
 {
 	SYMBOL	*ptr;
@@ -54,6 +56,15 @@ long primary (LVALUE* lval)
 			error("sizeof only on type or variable");
 		}
 		needbrack(")");
+		lval->symbol = 0;
+		lval->indirect = 0;
+		return 0;
+	}
+	if (amatch("__FUNCTION__", 12)) {
+	        const_str(num, current_fn);
+                immed(T_STRING, num[0]);
+		indflg = 0;
+		lval->value = num[0];
 		lval->symbol = 0;
 		lval->indirect = 0;
 		return 0;
@@ -294,6 +305,18 @@ long qstr (long val[])
 	gch ();
 	litq[litptr++] = 0;
 	return (1);
+}
+
+long const_str(long *val, const char *str)
+{
+        if (litptr + strlen(str) + 1 >= LITMAX) {
+                error("string space exhausted");
+                return 1;
+        }
+        strcpy(&litq[litptr], str);
+        *val = litptr;
+        litptr += strlen(str) + 1;
+        return 1;
 }
 
 /*

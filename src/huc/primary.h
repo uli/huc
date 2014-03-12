@@ -13,6 +13,7 @@ long constant (long val[]);
 long number (long val[]);
 long pstr (long val[]);
 long qstr (long val[]);
+long const_str(long val[], const char *);
 long readqstr (void );
 long readstr (void );
 long spechar(void );
