@@ -109,6 +109,14 @@ void push_ins(INS *ins)
 		/* 2-instruction patterns */
 		if (q_nb >= 2)
 		{
+			if (p[0]->code == I_LABEL &&
+				p[1]->code == I_LBRA &&
+				p[1]->type == T_LABEL &&
+				p[0]->data == p[1]->data)
+			{
+				*p[1] = *p[0];
+				nb = 1;
+			}
 			/*  __addmi i,__stack           --> __addmi i+j,__stack
 			 *  __addmi j,__stack
 			 *

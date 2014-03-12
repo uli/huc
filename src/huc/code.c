@@ -679,6 +679,12 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_LABEL:
+		outlabel(data);
+		col();
+		nl();
+		break;
+
 	default:
 		gen_asm(tmp);
 		break;

@@ -89,6 +89,7 @@
 #define I_FGETUB     57
 #define I_ADDBS	     58
 #define I_ADDBI      59
+#define I_LABEL      60
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

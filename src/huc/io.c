@@ -11,6 +11,7 @@
 #include "optimize.h"
 #include "preproc.h"
 #include "main.h"
+#include "code.h"
 
 /*
  *	open input file
@@ -330,13 +331,8 @@ void glabel (char *lab)
  *	gnlabel - generate numeric label
  */
 void gnlabel (long nlab)
-/*long	nlab; */
 {
-	/* Do a flush that eliminates trailing branches to nlab. */
-	flush_ins_label(nlab); /* David - optimize.c related */
-	outlabel (nlab);
-	col ();
-	nl ();
+	out_ins(I_LABEL, T_VALUE, nlab);
 }
 
 /*

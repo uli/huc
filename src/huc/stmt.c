@@ -18,6 +18,7 @@
 #include "sym.h"
 #include "while.h"
 #include "struct.h"
+#include "optimize.h"
 
 /*
  *	statement parser
@@ -431,6 +432,7 @@ void dumpsw (long *ws)
 
 //	gdata ();
 	gnlabel (ws[WSTAB]);
+	flush_ins();
 	if (ws[WSCASEP] != swstp) {
 		j = ws[WSCASEP];
 		while (j < swstp) {
