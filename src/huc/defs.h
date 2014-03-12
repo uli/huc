@@ -163,6 +163,7 @@ struct symbol {
 	char far;
 	short offset;
 	short tagidx;
+	int size;
 };
 
 typedef struct symbol SYMBOL;

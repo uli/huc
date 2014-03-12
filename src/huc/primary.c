@@ -42,12 +42,9 @@ long primary (LVALUE* lval)
 				(ptr = findglb(sname))) {
 				if ((ptr->storage & ~WRITTEN) == LSTATIC)
 					error("sizeof local static");
-				k = glint(ptr);
-				if ((ptr->type == CINT) || ptr->type == CUINT ||
-					(ptr->ident == POINTER))
-					k *= INTSIZE;
-                                else if (ptr->type == CSTRUCT)
-                                        k *= tag_table[ptr->tagidx].size;
+				k = ptr->size;
+                                if (ptr->type == CSTRUCT && ptr->ident != POINTER)
+                                        k = tag_table[ptr->tagidx].size;
 				immed (T_VALUE, k);
 			} else {
 				error("sizeof undeclared variable");

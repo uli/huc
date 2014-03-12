@@ -420,7 +420,6 @@ void dumplits (void )
 void dumpglbs (void )
 {
 	long i = 1;
-	long	j;
 
 	if (glbflag) {
 		cptr = rglbptr;
@@ -438,11 +437,7 @@ void dumpglbs (void )
 						outstr (cptr->name);
 						outstr (":\t");
 						defstorage ();
-						j = glint(cptr);
-						if ((cptr->type == CINT) || cptr->type == CUINT ||
-								(cptr->ident == POINTER))
-							j = j * INTSIZE;
-						outdec (j);
+						outdec (cptr->size);
 						nl ();
 						cptr->storage |= WRITTEN;
 					}

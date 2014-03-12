@@ -134,7 +134,7 @@ void newfunc (const char *sname)
 					if (findloc (n))
 						multidef (n);
 					else {
-						addloc (n, 0, 0, argstk, AUTO);
+						addloc (n, 0, 0, argstk, AUTO, INTSIZE);
 						argstk = argstk + INTSIZE;
 						nbarg++;
 					}
@@ -290,7 +290,7 @@ void getarg (long t, int syntax, int otag)
 				if (findloc (n))
 					multidef (n);
 				else {
-					addloc (n, 0, 0, argstk, AUTO);
+					addloc (n, 0, 0, argstk, AUTO, INTSIZE);
 					argstk = argstk + INTSIZE;
 				}
 			}

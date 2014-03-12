@@ -177,7 +177,7 @@ void declloc (long typ, long stclass, int otag)
 					k = INTSIZE;
 			}
 			if (stclass == LSTATIC) {
-				SYMBOL *c = addloc( sname, j, typ, k, LSTATIC);
+				SYMBOL *c = addloc( sname, j, typ, k, LSTATIC, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
 			}
@@ -187,7 +187,7 @@ void declloc (long typ, long stclass, int otag)
 				totalk += k;
 				// stkp = modstk (stkp - k);
 				// addloc (sname, j, typ, stkp, AUTO);
-				c = addloc (sname, j, typ, stkp - totalk, AUTO);
+				c = addloc (sname, j, typ, stkp - totalk, AUTO, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
 			}
@@ -266,6 +266,13 @@ SYMBOL *addglb (char* sname,char id,char typ,long value,long stor)
 	cptr->type = typ;
 	cptr->storage = stor;
 	cptr->offset = value;
+	cptr->size = value;
+	if (id == FUNCTION)
+		cptr->size = 0;
+	else if (id == POINTER)
+		cptr->size = INTSIZE;
+	else if (typ == CINT || typ == CUINT)
+		cptr->size *= 2;
 	glbptr++;
 	return (cptr);
 }
@@ -281,7 +288,7 @@ SYMBOL *addglb_far (char* sname, char typ)
 }
 
 
-SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass)
+SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass, long size)
 {
 	char	*ptr;
 	long	k;
@@ -305,13 +312,14 @@ SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass)
 		outlabel(k = getlabel());
 		outstr(":\t");
 		defstorage();
-		outdec(value);
+		outdec(size);
 		nl();
 		value = k;
 	}
 //	else
 //		value = galign(value);
 	cptr->offset = value;
+	cptr->size = size;
 	locptr++;
 	return (cptr);
 }

@@ -8,7 +8,7 @@ SYMBOL* findglb (char *sname);
 SYMBOL* findloc (char *sname);
 SYMBOL *addglb (char* sname,char id,char typ,long value,long stor);
 SYMBOL *addglb_far (char* sname, char typ);
-SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass);
+SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass, long size);
 long symname (char* sname);
 void illname (void);
 void multidef (char* sname);
