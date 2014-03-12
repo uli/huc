@@ -479,16 +479,12 @@ __lbra	.macro
 
 __lbeq	.macro
 	 cpx #0
-	 bne	.x\@
-	 jmp	\1
-.x\@
+	 beq	\1
 	.endm
 
 __lbne	.macro
 	 cpx #0
-	 beq	.x\@
-	 jmp	\1
-.x\@
+	 bne	\1
 	.endm
 
 __call	.macro
