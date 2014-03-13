@@ -364,7 +364,7 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 		}
 		else if (amatch("int", 3) || amatch("void", 4))
 			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
-		else if (stclass == PUBLIC)
+		else if (stclass == PUBLIC && sign != CUNSIGNED)
 			return(0);
 		else
 			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
