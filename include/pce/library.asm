@@ -1586,6 +1586,17 @@ _strncmp.3:
 	  cla
 	  rts
 
+_strlen.1:
+	cly
+.loop:	lda	[_si],y
+	beq	.out
+	iny
+	bra .loop
+.out:	tya
+	tax
+	cla
+	rts
+
 _abort:
 	  .db 0xe2
 

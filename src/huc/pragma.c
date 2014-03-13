@@ -122,6 +122,7 @@ static char *pragma_init[] = {
 	"fastcall strncat(word di, word si, word acc)",
 	"fastcall strcmp(word di, word si)",
 	"fastcall strncmp(word di, word si, word acc)",
+	"fastcall strlen(word si)",
 	"fastcall memcpy(word di, word si, word acc)",
 	"fastcall memcmp(word di, word si, word acc)",
 	"fastcall memset(word di, word bx, word acc)",
