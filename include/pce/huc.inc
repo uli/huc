@@ -103,6 +103,19 @@ __ldb	.macro
        	.endif
 	.endm
 
+__ldub	.macro
+	.if (\# = 2)
+	 clx
+	 lda	\1
+	 clc
+	 adc	#low(\2)
+	 sax
+	.else
+	 ldx	\1
+	 cla
+       	.endif
+	.endm
+
 __ldbp	.macro
 	 lda	[\1]
 	 tax
