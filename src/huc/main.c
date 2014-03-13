@@ -162,8 +162,8 @@ int main (int argc,char* argv[])
 			glbflag = 1;
 			nxtlab = 0;
 			litlab = getlabel ();
-			defmac("end\tmemory");
-			addglb("memory", ARRAY, CCHAR, 0, EXTERN);
+			defmac("__end\t__memory");
+			addglb("__memory", ARRAY, CCHAR, 0, EXTERN);
 			addglb("stack", ARRAY, CCHAR, 0, EXTERN);
 			rglbptr = glbptr;
 			addglb ("etext", ARRAY, CCHAR, 0, EXTERN);
