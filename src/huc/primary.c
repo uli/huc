@@ -411,6 +411,7 @@ long spechar(void )
 	else if (c == 'f') c = FFEED;
 	else if (c == 'b') c = BKSP;
 	else if (c == '0') c = EOS;
+	else if (c == '1') c = 1;
 	else if (c == EOS) return(c);
 
 	gch();
