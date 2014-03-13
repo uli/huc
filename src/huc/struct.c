@@ -83,7 +83,7 @@ int define_struct(char *sname, int storage, int is_struct) {
         error("struct table overflow");
         return 0;
     }
-    symbol = &tag_table[tag_table_index];
+    symbol = &tag_table[tag_table_index++];
     buffer_ptr = symbol->name;
     while (an(*buffer_ptr++ = *sname++));
     symbol->size = 0;
@@ -91,10 +91,10 @@ int define_struct(char *sname, int storage, int is_struct) {
 
     needbrack("{");
     do {
-        if (!dodcls(storage, &tag_table[tag_table_index], is_struct))
+        if (!dodcls(storage, &tag_table[tag_table_index-1], is_struct))
             break;
     } while (!match ("}"));
     printf("end of struct\n");
     symbol->number_of_members = member_table_index - symbol->member_idx;
-    return tag_table_index++;
+    return tag_table_index-1;
 }
