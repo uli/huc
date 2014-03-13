@@ -66,6 +66,9 @@ long primary (LVALUE* lval)
 				error("sizeof undeclared variable");
 				immed (T_VALUE, 0);
 			}
+                }
+                else if (readqstr()) {
+                        immed(T_VALUE, strlen(litq2));
 		} else {
 			error("sizeof only on type or variable");
 		}
