@@ -26,7 +26,8 @@ void error (char *ptr)
 	doerror(ptr);
 	errcnt++;
 	if (errcnt > 3) {
-	        doerror("too many errors, aborting");
+	        errcnt = 0;
+	        error("too many errors, aborting");
 	        exit(1);
         }
 }
