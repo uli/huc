@@ -95,7 +95,7 @@ long primary (LVALUE* lval)
 				getloc (ptr);
 				lval->ptr_type = ptr->type;
 //				lval->ptr_type = 0;
-                                if (ptr->type == CSTRUCT)
+                                if (ptr->type == CSTRUCT && ptr->ident == VARIABLE)
                                         return 1;
                                 else
 				        return 0;
