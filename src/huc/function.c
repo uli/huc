@@ -318,6 +318,7 @@ void getarg (long t, int syntax, int otag)
 				error ("expected comma");
 		}
 		else {
+			blanks();
 			if (streq(line + lptr, ")") || streq(line + lptr, ","))
 				return;
 			else
