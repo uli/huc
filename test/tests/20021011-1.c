@@ -1,5 +1,8 @@
 /* PR opt/8165.  */
 
+#define __builtin_strcpy strcpy
+#define __builtin_strcmp strcmp
+
 extern void abort (void);
 
 char buf[64];
