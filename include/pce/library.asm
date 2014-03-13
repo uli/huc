@@ -1486,6 +1486,8 @@ _strncpy.3:
 ;
 _memcpy.3:
 	__stw	<_ax
+	__ldw	<_di
+	__stw	<_bx
 .cpylp:	  lda	[_si]
 	  sta	[_di]
 	  incw	<_si
@@ -1493,6 +1495,7 @@ _memcpy.3:
 	  decw	<_ax
 	  tstw	<_ax
 	  bne	.cpylp
+	__ldw	<_bx
 	  rts
 
 ; _memset(char *s [di], int c [bx], int n [acc])
