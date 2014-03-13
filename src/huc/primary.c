@@ -14,6 +14,7 @@
 #include "lex.h"
 #include "primary.h"
 #include "sym.h"
+#include "struct.h"
 
 extern char current_fn[];
 
@@ -39,6 +40,18 @@ long primary (LVALUE* lval)
 			immed (T_VALUE, INTSIZE);
 		else if (amatch("char", 4))
 			immed (T_VALUE, 1);
+                else if (amatch("struct", 6)) {
+                        if (symname(sname)) {
+                                int tag = find_tag(sname);
+                                if (tag == -1)
+                                        error("unknown struct");
+                                else {
+                                        immed(T_VALUE, tag_table[tag].size);
+                                }
+                        }
+                        else
+                                error("missing struct name");
+                }
 		else if (symname(sname)) {
 			if ((ptr = findloc(sname)) ||
 				(ptr = findglb(sname))) {
