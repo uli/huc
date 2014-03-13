@@ -158,8 +158,8 @@ void declloc (long typ, long stclass, int otag)
 					j = ARRAY;
 					if (typ == CINT || typ == CUINT)
 						k = k * INTSIZE;
-				} else if (typ == CSTRUCT) {
-					k *= tag_table[otag].size;
+					else if (typ == CSTRUCT)
+						k *= tag_table[otag].size;
 				} else {
 					j = POINTER;
 					k = INTSIZE;
