@@ -34,8 +34,9 @@ long primary (LVALUE* lval)
 		return (k);
 	}
 	if (amatch("sizeof", 6)) {
+	        int have_paren;
 		indflg = 0;
-		needbrack("(");
+		have_paren = match("(");
 		if (amatch("int", 3))
 			immed (T_VALUE, INTSIZE);
 		else if (amatch("char", 4))
@@ -68,7 +69,8 @@ long primary (LVALUE* lval)
 		} else {
 			error("sizeof only on type or variable");
 		}
-		needbrack(")");
+		if (have_paren)
+			needbrack(")");
 		lval->symbol = 0;
 		lval->indirect = 0;
 		return 0;
