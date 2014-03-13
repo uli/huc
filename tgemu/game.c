@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 	if (res != 1) {
 		fprintf(stderr, "failed to load ROM: %d\n", res);
 		close(fd);
-		return 0;
+		return -1;
 	}
     //SDL_Surface *sf = SDL_SetVideoMode(480, 272, 16, SDL_HWSURFACE);
     char *pixels = malloc(480*272*2);
