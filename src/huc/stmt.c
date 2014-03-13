@@ -94,6 +94,15 @@ long doldcls(long stclass)
         }
 	else if (amatch("int", 3))
 		declloc(CINT | sign, stclass, -1);
+        else if (amatch("void", 4)) {
+                blanks();
+                if (ch() != '*') {
+                        error("illegal type \"void\"");
+                        junk();
+                        return 0;
+                }
+                declloc(CINT, stclass, -1);
+        }
 	else if (stclass == LSTATIC || stclass == DEFAUTO)
 		declloc(CINT | sign, stclass, -1);
 	else
