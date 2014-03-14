@@ -38,6 +38,7 @@ long statement (long func)
 	lastst = 0;
 	if (func)
 	{
+	        top_level_stkp = 1;	/* uninitialized */
 		if (match ("{")) {
 			compound (YES);
 			return (lastst);
@@ -184,6 +185,10 @@ void compound (long func)
 
 	decls = YES;
 	ncmp++;
+	/* remember stack pointer before entering the first compound
+	   statement inside a function */
+	if (!func && top_level_stkp == 1)
+	        top_level_stkp = stkp;
 	while (!match ("}")) {
 		if (feof (input))
 			return;
@@ -397,8 +402,16 @@ void dodefault (void )
  */
 void doreturn (void )
 {
+        /* Jumping to fexitlab will clean up the top-level stack,
+           but we may have added additional stack variables in
+           an inner compound statement, and if so we have to
+           clean those up as well. */
+        if (top_level_stkp != 1 && stkp != top_level_stkp)
+                modstk(top_level_stkp);
+
 	if (endst () == 0)
 		expression (YES);
+
 	jump(fexitlab);
 }
 

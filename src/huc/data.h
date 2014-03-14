@@ -82,3 +82,5 @@ extern	long	cdflag;
 extern	long	verboseflag;
 extern	long	startup_incl;
 extern	long	errs;
+
+extern long top_level_stkp;

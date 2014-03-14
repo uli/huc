@@ -63,6 +63,8 @@ long	nxtlab,
 	optimize,
 	globals_h_in_process;
 
+long top_level_stkp;
+
 FILE	*input, *input2, *output;
 FILE	*inclstk[INCLSIZ];
 
