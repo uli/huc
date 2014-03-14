@@ -219,11 +219,23 @@ long needsub (void)
 		error ("must be constant");
 		num[0] = 1;
 	}
+	else {
+		long num2[1];
+		while (!match("]")) {
+			if (match("-") && number(num2))
+				num[0] -= num2[0];
+			else if (match("+") && number(num2))
+				num[0] += num2[0];
+			else {
+				error("cannot evaluate array size");
+				break;
+			}
+		}
+	}
 	if (num[0] < 0) {
 		error ("negative size illegal");
 		num[0] = (-num[0]);
 	}
-	needbrack ("]");
 	return (num[0]);
 }
 
