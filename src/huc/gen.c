@@ -520,7 +520,9 @@ void glneg (void )
  */
 void ginc (LVALUE *lval)
 {
-	if (lval->ptr_type == CINT || lval->ptr_type == CUINT)
+        SYMBOL *sym = lval->symbol;
+	if (lval->ptr_type == CINT || lval->ptr_type == CUINT ||
+	    (sym && (sym->ptr_order > 1 || (sym->ident == ARRAY && sym->ptr_order > 0))))
 		out_ins(I_ADDWI, T_VALUE, 2);
 	else if (lval->ptr_type == CSTRUCT) {
 		out_ins(I_ADDWI, T_VALUE, lval->tagsym->size);
@@ -535,7 +537,9 @@ void ginc (LVALUE *lval)
  */
 void gdec (LVALUE *lval)
 {
-	if (lval->ptr_type == CINT || lval->ptr_type == CUINT)
+        SYMBOL *sym = lval->symbol;
+	if (lval->ptr_type == CINT || lval->ptr_type == CUINT ||
+	    (sym && (sym->ptr_order > 1 || (sym->ident == ARRAY && sym->ptr_order > 0))))
 		out_ins(I_SUBWI, T_VALUE, 2);
 	else if (lval->ptr_type == CSTRUCT) {
 		out_ins(I_SUBWI, T_VALUE, lval->tagsym->size);
