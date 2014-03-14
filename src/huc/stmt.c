@@ -106,6 +106,8 @@ long doldcls(long stclass)
         }
 	else if (stclass == LSTATIC || stclass == DEFAUTO)
 		declloc(CINT | sign, stclass, -1);
+        else if (sign == CUNSIGNED)
+                declloc(CINT | sign, stclass, -1);
 	else
 		return(0);
 	ns();
