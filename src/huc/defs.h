@@ -164,6 +164,7 @@ struct symbol {
 	short offset;
 	short tagidx;
 	int size;
+	int ptr_order;
 };
 
 typedef struct symbol SYMBOL;

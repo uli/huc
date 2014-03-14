@@ -666,7 +666,8 @@ long heir11 (LVALUE *lval)
 				gpush ();
 			expression (YES);
 			needbrack ("]");
-			if (ptr->type == CINT || ptr->type == CUINT)
+			if (ptr->type == CINT || ptr->type == CUINT || ptr->ptr_order > 1 ||
+			    (ptr->ident == ARRAY && ptr->ptr_order > 0))
 				gaslint ();
 			else if (ptr->type == CSTRUCT) {
 				int size = tag_table[ptr->tagidx].size;

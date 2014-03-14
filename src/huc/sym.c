@@ -139,15 +139,17 @@ void declloc (long typ, long stclass, int otag)
 
 	for (;;) {
 		for (;;) {
+			int ptr_order = 0;
 			if (endst ())
 			{
 				stkp = modstk (stkp - totalk);
 				return;
 			}
-			if (match ("*"))
+			j = VARIABLE;
+			while (match ("*")) {
 				j = POINTER;
-			else
-				j = VARIABLE;
+				ptr_order++;
+			}
 			if (!symname (sname))
 				illname ();
 			if (findloc (sname))
@@ -155,13 +157,14 @@ void declloc (long typ, long stclass, int otag)
 			if (match ("[")) {
 				k = needsub ();
 				if (k) {
-					j = ARRAY;
-					if (typ == CINT || typ == CUINT)
+					if (typ == CINT || typ == CUINT || j == POINTER)
 						k = k * INTSIZE;
 					else if (typ == CSTRUCT)
 						k *= tag_table[otag].size;
+					j = ARRAY;
 				} else {
 					j = POINTER;
+					ptr_order++;
 					k = INTSIZE;
 				}
 			} else {
@@ -180,6 +183,7 @@ void declloc (long typ, long stclass, int otag)
 				SYMBOL *c = addloc( sname, j, typ, k, LSTATIC, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
+				c->ptr_order = ptr_order;
 			}
 			else {
 				SYMBOL *c;
@@ -190,6 +194,7 @@ void declloc (long typ, long stclass, int otag)
 				c = addloc (sname, j, typ, stkp - totalk, AUTO, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
+				c->ptr_order = ptr_order;
 			}
 			break;
 		}

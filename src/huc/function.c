@@ -256,15 +256,17 @@ void getarg (long t, int syntax, int otag)
 	long	j, legalname, address;
 	char	n[NAMESIZE];
 	SYMBOL	*argptr;
+	int ptr_order = 0;
 /*	char	c; */
 
 	FOREVER {
 		if (syntax == KR && argstk == 0)
 			return;
-		if (match ("*"))
+		j = VARIABLE;
+		while (match ("*")) {
 			j = POINTER;
-		else
-			j = VARIABLE;
+			ptr_order++;
+		}
 
 		if (t == CVOID) {
 			if (j != POINTER)
@@ -287,6 +289,7 @@ void getarg (long t, int syntax, int otag)
 				if (endst ())
 					break;
 			j = POINTER;
+			ptr_order++;
 		}
 		if (legalname) {
 			if (syntax == ANSI) {
@@ -305,6 +308,7 @@ void getarg (long t, int syntax, int otag)
 					address = address + BYTEOFF;
 				argptr->offset = address;
 				argptr->tagidx = otag;
+				argptr->ptr_order = ptr_order;
 				if (syntax == ANSI)
 					fixup[argstk/INTSIZE - 1] = &argptr->offset;
 			} else
