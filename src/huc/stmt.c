@@ -315,10 +315,10 @@ void dofor (void )
 		pws[WSINCR] = pws[WSTEST];
 	gnlabel (pws[WSBODY]);
 	statement (NO);
+	stkp = modstk (pws[WSSP]);
 	jump (pws[WSINCR]);
 	gnlabel (pws[WSEXIT]);
 	locptr = (SYMBOL*)pws[WSSYM];
-	stkp = modstk (pws[WSSP]);
 	delwhile ();
 }
 
