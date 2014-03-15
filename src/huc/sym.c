@@ -198,6 +198,22 @@ void declloc (long typ, long stclass, int otag)
 			}
 			break;
 		}
+		if (match("=")) {
+			long num[0];
+			stkp = modstk (stkp - totalk);
+			totalk -= k;
+			if (number(num)) {
+				if (k == 1)
+					out_ins_ex(X_STBI_S, T_VALUE, 0, *num);
+				else if (k == 2)
+					out_ins_ex(X_STWI_S, T_VALUE, 0, *num);
+				else
+					error("complex type initialization not implemented");
+			}
+			else {
+				error("cannot parse initializer");
+			}
+		}
 		if (!match (","))
 		{
 			stkp = modstk (stkp - totalk);
