@@ -133,6 +133,9 @@ void newfunc (const char *sname)
 					break;
 				getarg(CVOID, ANSI, 0);
 				nbarg++;
+			} else if (sign == CUNSIGNED) {
+				getarg(CINT | sign, ANSI, 0);
+				nbarg++;
 			} else {
 				/* no valid type, assuming K&R argument */
 				if (symname (n)) {
