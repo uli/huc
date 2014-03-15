@@ -18,6 +18,12 @@
 
 extern char current_fn[];
 
+static void ignore_ast(void)
+{
+        while (match("*")) {
+        }
+}
+
 long primary (LVALUE* lval)
 {
 	SYMBOL	*ptr;
@@ -37,17 +43,31 @@ long primary (LVALUE* lval)
 	        int have_paren;
 		indflg = 0;
 		have_paren = match("(");
-		if (amatch("int", 3))
+		if (amatch("int", 3)) {
+		        /* int* same size as int */
+		        ignore_ast();
 			immed (T_VALUE, INTSIZE);
-		else if (amatch("char", 4))
-			immed (T_VALUE, 1);
+                }
+		else if (amatch("char", 4)) {
+		        if (match("*")) {
+		                ignore_ast();
+		                immed(T_VALUE, INTSIZE);
+                        }
+                        else
+				immed (T_VALUE, 1);
+                }
                 else if (amatch("struct", 6)) {
                         if (symname(sname)) {
                                 int tag = find_tag(sname);
                                 if (tag == -1)
                                         error("unknown struct");
                                 else {
-                                        immed(T_VALUE, tag_table[tag].size);
+                                        if (match("*")) {
+                                                ignore_ast();
+                                                immed(T_VALUE, INTSIZE);
+                                        }
+                                        else
+                                                immed(T_VALUE, tag_table[tag].size);
                                 }
                         }
                         else
