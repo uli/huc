@@ -48,8 +48,6 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 			if (findglb (sname))
 				multidef (sname);
 			if (match ("[")) {
-				if((id == POINTER) && (stor != CONST))
-					error ("array of variable pointers not supported");
 				k = array_initializer(typ, id, stor);
 				if (k == -1)
 					return (1);
