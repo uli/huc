@@ -67,10 +67,12 @@ void newfunc (const char *sname)
 	}
 	else {
 		/* allow (and ignore) return type */
+		amatch("const", 5);
 		amatch("unsigned", 8);
 		amatch("short", 5);
 		if (amatch("char", 4) || amatch("int", 3) || amatch("void", 4)) {
-			match("*");
+			while (match("*")) {
+			}
 		}
 
 		if (!symname (n) ) {
