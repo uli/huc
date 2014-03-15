@@ -29,16 +29,19 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 {
 	long	 k, id;
 	char sname[NAMESIZE];
+	int ptr_order;
 
 	for (;;) {
 		for (;;) {
+			ptr_order = 0;
 			if (endst())
 				return 0;
 			k = 1;
-			if (match ("*"))
+			id = VARIABLE;
+			while(match ("*")) {
 				id = POINTER;
-			else
-				id = VARIABLE;
+				ptr_order++;
+			}
 			if(!symname (sname))
 				illname ();
 			if (match("(")) {
@@ -62,8 +65,10 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 					}
 					else if (id == POINTER)
 						id = ARRAY;
-					else
+					else {
 						id = POINTER;
+						ptr_order++;
+					}
 				}
 			} else {
 				if (stor == CONST) {
@@ -84,6 +89,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 					SYMBOL *c = addglb (sname, id, typ, k, stor);
 					if (typ == CSTRUCT)
 						c->tagidx = otag;
+					c->ptr_order = ptr_order;
 				}
 				else {
 					SYMBOL *c = addglb (sname, id, typ, k, STATIC);
@@ -92,6 +98,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 						if (typ == CSTRUCT)
 							c->tagidx = otag;
 					}
+					c->ptr_order = ptr_order;
 				}
 			}
 			else if (is_struct) {
