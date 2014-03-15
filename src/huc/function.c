@@ -118,6 +118,8 @@ void newfunc (const char *sname)
 		else {
 			if (amatch("unsigned", 8))
 				sign = CUNSIGNED;
+			if (amatch("signed", 6) && sign == CUNSIGNED)
+				error("conflicting signedness");
 			if (amatch("char", 4)) {
 				getarg(CCHAR | sign, ANSI, 0);
 				nbarg++;
@@ -199,6 +201,8 @@ void newfunc (const char *sname)
 			else {
 				if (amatch("unsigned", 8))
 					sign = CUNSIGNED;
+				if (amatch("signed", 6) && sign == CUNSIGNED)
+					error("conflicting signedness");
 				if (amatch ("char", 4)) {
 					getarg (CCHAR | sign, KR, 0);
 					ns ();
