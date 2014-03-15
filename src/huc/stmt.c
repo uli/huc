@@ -76,6 +76,8 @@ long doldcls(long stclass)
         char sname[NAMESIZE];
         int sign = CSIGNED;
 	blanks();
+	/* we don't do optimizations that would require "volatile" */
+	amatch("volatile", 8);
 	if (amatch("unsigned", 8))
 	        sign = CUNSIGNED;
         if ((sflag=amatch("struct", 6)) || amatch("union", 5)) {

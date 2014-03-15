@@ -351,6 +351,8 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 		err = declglb(CSTRUCT, stclass, mtag, otag, is_struct);
 	}
 	else {
+		/* we don't do optimizations that would require "volatile" */
+		amatch("volatile", 8);
 		if (amatch("unsigned", 8)) {
 			sign = CUNSIGNED;
 			blanks();	/* XXX: necessary? */
