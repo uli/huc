@@ -355,7 +355,8 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 			sign = CUNSIGNED;
 			blanks();	/* XXX: necessary? */
 		}
-
+		if (amatch("signed", 6) && sign == CUNSIGNED)
+			error("conflicting signedness");
 		if (amatch("char", 4))
 			err = declglb(CCHAR | sign, stclass, mtag, NULL_TAG, is_struct);
 		else if (amatch("short", 5)) {
