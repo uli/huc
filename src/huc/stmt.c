@@ -80,6 +80,8 @@ long doldcls(long stclass)
 	amatch("volatile", 8);
 	if (amatch("unsigned", 8))
 	        sign = CUNSIGNED;
+        if (amatch("signed", 6) && sign == CUNSIGNED)
+                error("conflicting signedness");
         if ((sflag=amatch("struct", 6)) || amatch("union", 5)) {
             if (symname(sname) == 0) { // legal name ?
                 illname();
