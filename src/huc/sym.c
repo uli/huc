@@ -204,10 +204,20 @@ void declloc (long typ, long stclass, int otag)
 			break;
 		}
 		if (match("=")) {
-			long num[0];
+			long num[0], num2[0];
 			stkp = modstk (stkp - totalk);
 			totalk -= k;
 			if (number(num)) {
+				while (blanks(), ch() != ';' && ch() != ',') {
+					if (match("-") && number(num2))
+						num[0] -= num2[0];
+					else if (match("+") && number(num2))
+						num[0] += num2[0];
+					else {
+						error("cannot evaluate initializer");
+						break;
+					}
+				}
 				if (k == 1)
 					out_ins_ex(X_STBI_S, T_VALUE, 0, *num);
 				else if (k == 2)
