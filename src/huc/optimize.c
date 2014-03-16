@@ -662,6 +662,24 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
+			/*  __pushw                      --> __aslw
+			 *  __ldwi 1
+			 *  jsr asl
+			 *
+			 */
+			else if
+			   ((p[0]->code == I_JSR && !strcmp((char *)p[0]->data, "asl")) &&
+				(p[1]->code == I_LDWI) &&
+				(p[1]->type == T_VALUE) &&
+				(p[1]->data == 1) &&
+				p[2]->code == I_PUSHW)
+			{
+				/* replace code */
+				p[2]->code = I_ASLW;
+				p[2]->type = p[2]->data = 0;
+				nb = 2;
+			}
+
 			/*  __pushw                     --> __addw  nnn
 			 *  __ldw  nnn
 			 *  __addws
