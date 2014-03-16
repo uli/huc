@@ -573,10 +573,11 @@ long heir10 (LVALUE *lval)
 		}
 		if (k)
 			rvalue (lval);
-		if ( (ptr = lval->symbol) )
+		if ( (ptr = lval->symbol) && ptr->ptr_order < 2)
 			lval->indirect = ptr->type;
 		else
 			lval->indirect = CINT;
+		/* XXX: what about multiple indirection? */
 		lval->ptr_type = 0;  /* flag as not pointer or array */
 		return (1);
 	} else if (ch()=='&' && nch()!='&' && nch()!='=') {
