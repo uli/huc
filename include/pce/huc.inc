@@ -178,6 +178,12 @@ __stwp	.macro
 	 sta	[\1],Y
 	.endm
 
+__stbp	.macro
+	 sax
+	 sta	[\1]
+	 sax
+	.endm
+
 __stwps	.macro
        __stw	<__temp
        __ldwp	 __stack
@@ -195,6 +201,14 @@ __stwipp .macro
 	 lda	#high(\1)
 	 ldy	#1
 	 sta	[__ptr],Y
+	.endm
+
+__stbipp .macro
+	 __stw	__ptr
+	 lda	#low(\1)
+	 sta	[__ptr]
+	 tax
+	 cla
 	.endm
 
 __pushw	.macro

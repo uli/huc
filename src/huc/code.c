@@ -485,6 +485,12 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_STBIPP:
+		ot("__stbipp\t");
+		outdec(data);
+		nl();
+		break;
+
 	case I_STWIPP:
 		ot("__stwipp\t");
 		outdec(data);

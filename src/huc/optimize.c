@@ -683,19 +683,19 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
-			/*  __pushw                     --> __stwipp i
+			/*  __pushw                     --> __st{b|w}ipp i
 			 *  __ldwi  i
-			 *  __stwps
+			 *  __st{b|w}ps
 			 *
 			 */
-			if ((p[0]->code == I_STWPS) &&
+			if ((p[0]->code == I_STWPS || p[0]->code == I_STBPS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 	
 				(p[1]->type == T_VALUE))
 			{
 				/* replace code */
-				p[2]->code = I_STWIPP;
+				p[2]->code = p[0]->code == I_STWPS? I_STWIPP : I_STBIPP;
 				p[2]->data = p[1]->data;
 				nb = 2;
 			}

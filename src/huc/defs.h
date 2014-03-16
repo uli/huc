@@ -91,6 +91,7 @@
 #define I_ADDBI      59
 #define I_LABEL      60
 #define I_STWIPP     61
+#define I_STBIPP     62
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
