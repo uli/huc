@@ -189,9 +189,12 @@ __stwps	.macro
 
 __stwipp .macro
 	 __stw	__ptr
-	 ldx	#low(\1)
+	 lda	#low(\1)
+	 tax
+	 sta	[__ptr]
 	 lda	#high(\1)
-	 __stwp	__ptr
+	 ldy	#1
+	 sta	[__ptr],Y
 	.endm
 
 __pushw	.macro
