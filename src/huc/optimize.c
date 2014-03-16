@@ -866,7 +866,11 @@ void push_ins(INS *ins)
 			 */
 			else if
 				((p[0]->code == I_JSR) &&
-				 ((p[1]->code == I_LDWI) || (p[1]->code == I_LDW) || p[1]->code == X_LDW_S) &&
+				 (p[1]->code == I_LDWI ||
+				  p[1]->code == I_LDW ||
+				  p[1]->code == X_LDW_S ||
+				  p[1]->code == I_LDB ||
+				  p[1]->code == X_LDB_S) &&
 				 (p[2]->code == I_PUSHW) &&
 				 ((strcmp((char*)p[0]->data, "eq") == 0) ||
 				  (strcmp((char*)p[0]->data, "eqb") == 0) ||
@@ -889,7 +893,7 @@ void push_ins(INS *ins)
 				  (strcmp((char*)p[0]->data, "ule") == 0) ||
 				  (strcmp((char*)p[0]->data, "uble") == 0)) )
 			{
-				if (p[1]->code == X_LDW_S)
+				if (p[1]->code == X_LDW_S || p[1]->code == X_LDB_S)
 					p[1]->data -= 2;
 				/* replace code */
 				p[2]->code = I_STW;
