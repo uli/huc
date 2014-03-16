@@ -645,6 +645,23 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
+			/*  __pushw                     --> __stwipp i
+			 *  __ldwi  i
+			 *  __stwps
+			 *
+			 */
+			if ((p[0]->code == I_STWPS) &&
+				(p[1]->code == I_LDWI) &&
+				(p[2]->code == I_PUSHW) &&
+	
+				(p[1]->type == T_VALUE))
+			{
+				/* replace code */
+				p[2]->code = I_STWIPP;
+				p[2]->data = p[1]->data;
+				nb = 2;
+			}
+
 			/*  __pushw                     --> __addw  nnn
 			 *  __ldw  nnn
 			 *  __addws

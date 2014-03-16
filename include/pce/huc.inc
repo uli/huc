@@ -187,6 +187,13 @@ __stwps	.macro
        __addmi	2,__stack
 	.endm
 
+__stwipp .macro
+	 __stw	__ptr
+	 ldx	#low(\1)
+	 lda	#high(\1)
+	 __stwp	__ptr
+	.endm
+
 __pushw	.macro
 	 ldy	<__stack
 	 bne	.x_\@
