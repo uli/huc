@@ -286,6 +286,24 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
+			/*  __ldwi <power of two>       --> __ldwi <log2>
+			 *  jsr {u|s}mul		--> jsr asl
+			 *
+			 */
+			else if
+			   (p[0]->code == I_JSR &&
+			    (!strcmp((char*)p[0]->data, "umul") ||
+			     !strcmp((char*)p[0]->data, "smul")) &&
+			    (p[1]->code == I_LDWI) &&
+			    (p[1]->type == T_VALUE) &&
+			    __builtin_popcount(p[1]->data) == 1 &&
+			    p[1]->data > 0 && p[1]->data < 0x8000)
+			{
+				p[0]->data = (long)"asl";
+				p[1]->data = __builtin_ctz(p[1]->data);
+				nb = 0;
+			}
+
 			/*  __ldw   __stack             --> @_pea_s 0
 			 *  __pushw
 			 *
