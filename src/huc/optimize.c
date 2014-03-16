@@ -248,6 +248,44 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
+			/*  __ldwi i                    --> __ldwi i ^ 0xffff
+			 *  __comw
+			 *
+			 *  ====
+			 *  bytes  : 4+4 = 8            --> 4
+			 *  cycles : 4+8 = 12           --> 4
+			 *
+			 */
+			else if
+			   ((p[0]->code == I_COMW) &&
+				(p[1]->code == I_LDWI) &&
+
+				(p[1]->type == T_VALUE))
+			{
+				/* replace code */
+				p[1]->data = p[1]->data ^ 0xffff;
+				nb = 1;
+			}
+
+			/*  __ldwi i                    --> __ldwi i ^ 0xffff
+			 *  __negw
+			 *
+			 *  ====
+			 *  bytes  : 4+4 = 8            --> 4
+			 *  cycles : 4+8 = 12           --> 4
+			 *
+			 */
+			else if
+			   ((p[0]->code == I_NEGW) &&
+				(p[1]->code == I_LDWI) &&
+
+				(p[1]->type == T_VALUE))
+			{
+				/* replace code */
+				p[1]->data = -p[1]->data;
+				nb = 1;
+			}
+
 			/*  __ldw   __stack             --> @_pea_s 0
 			 *  __pushw
 			 *
