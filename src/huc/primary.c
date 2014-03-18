@@ -434,7 +434,16 @@ long spechar(void )
 	else if (c == 'f') c = FFEED;
 	else if (c == 'b') c = BKSP;
 	else if (c == '0') c = EOS;
-	else if (c == '1') c = 1;
+	else if (numeric(c) && c < '8') {
+	        /* octal character specification */
+	        int n = 0;
+	        while (numeric(c) && c < '8') {
+	                n = (n << 3) | (c - '0');
+	                gch();
+	                c = ch();
+	        }
+	        return n;
+	}
 	else if (c == EOS) return(c);
 
 	gch();
