@@ -652,10 +652,30 @@ long heir11 (LVALUE *lval)
 	for (;;) {
 		if (match ("[")) {
 			if (ptr == 0) {
-				error ("can't subscript");
-				junk ();
-				needbrack ("]");
-				return (0);
+				if (lval->ptr_type) {
+					/* subscription of anonymous array
+					   ATM this can only happen for a
+					   string literal. */
+					if (lval->ptr_type != CCHAR)
+						error("internal error: cannot subscript non-character literals");
+					/* Primary contains literal pointer, add subscript. */
+					gpush();
+					expression(YES);
+					needbrack("]");
+					gadd(NULL, NULL);
+					/* Dereference final pointer. */
+					lval->symbol = lval->symbol2 = 0;
+					lval->indirect = lval->ptr_type;
+					lval->ptr_type = 0;
+					k = 1;
+					continue;
+				}
+				else {
+					error ("can't subscript");
+					junk ();
+					needbrack ("]");
+					return (0);
+				}
 			}
 			else if (ptr->ident == POINTER)
 				rvalue (lval);

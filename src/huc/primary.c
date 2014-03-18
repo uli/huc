@@ -199,11 +199,13 @@ long primary (LVALUE* lval)
 		lval->indirect = 0;
 		return (0);
 	}
-	if (constant (num)) {
+	if ((k = constant (num))) {
 		indflg = 0;
 		lval->value = num[0];
 		lval->symbol = 0;
 		lval->indirect = 0;
+		if (k == 2)
+		        lval->ptr_type = CCHAR;
 		return 0;
 	}
 	else {
@@ -251,6 +253,7 @@ long constant (long val[])
 		immed (T_VALUE,  val[0]);
 	else if (qstr (val)) {
 		immed (T_STRING, val[0]);
+		return 2;
 	} else
 		return (0);
 	return (1);
