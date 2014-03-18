@@ -277,6 +277,9 @@ void getarg (long t, int syntax, int otag)
 			ptr_order++;
 		}
 
+		if (t == CSTRUCT && j != POINTER)
+			error("passing structures as arguments by value not implemented yet");
+
 		if (t == CVOID) {
 			if (j != POINTER)
 				error("illegal argument type \"void\"");
