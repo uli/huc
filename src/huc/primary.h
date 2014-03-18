@@ -11,6 +11,7 @@ long dbltest (LVALUE val1[],LVALUE val2[]);
 void result (LVALUE lval[],LVALUE lval2[]);
 long constant (long val[]);
 long number (long val[]);
+int const_expr(long *, char *);
 long pstr (long val[]);
 long qstr (long val[]);
 long const_str(long val[], const char *);

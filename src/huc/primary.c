@@ -299,6 +299,26 @@ long number (long val[])
 	return (1);
 }
 
+int const_expr(long *num, char *end)
+{
+        long num2;
+        if (!number(num))
+                return 0;
+        while (!match(end)) {
+                if (match("-") && number(&num2))
+                        *num -= num2;
+                else if (match("+") && number(&num2))
+                        *num += num2;
+                else if (match("*") && number(&num2))
+                        *num *= num2;
+                else if (match("/") && number(&num2))
+                        *num /= num2;
+                else
+                        return 0;
+        }
+        return 1;
+}
+
 /*
  *         pstr
  * pstr parses a character than can eventually be 'double' i.e. like 'a9'
