@@ -299,24 +299,100 @@ long number (long val[])
 	return (1);
 }
 
-int const_expr(long *num, char *end)
+static int parse3(long *num)
 {
-        long num2;
-        if (!number(num))
-                return 0;
-        while (!match(end)) {
-                if (match("-") && number(&num2))
-                        *num -= num2;
-                else if (match("+") && number(&num2))
-                        *num += num2;
-                else if (match("*") && number(&num2))
-                        *num *= num2;
-                else if (match("/") && number(&num2))
-                        *num /= num2;
-                else
-                        return 0;
+	long num2;
+	char op;
+
+	if (match("-"))
+		op = '-';
+	else if (match("+"))
+		op = '+';
+	else if (match("~"))
+		op = '~';
+	else
+		op = 0;
+
+	if (!number(&num2))
+		return 0;
+
+	if (op == '-')
+		*num = -num2;
+	else if (op == '~')
+		*num = ~num2;
+	else
+		*num = num2;
+	return 1;
+}
+
+static int parse5(long *num)
+{
+	long num1, num2;
+
+	if (!parse3(&num1))
+		return 0;
+
+	for (;;) {
+		char op;
+		if (match("*"))
+			op = '*';
+		else if (match("/"))
+			op = '/';
+		else {
+			*num = num1;
+			return 1;
+		}
+
+		if (!parse3(&num2))
+			return 0;
+
+		if (op == '*')
+			num1 *= num2;
+		else
+			num1 /= num2;
+	}
+}
+
+static int parse6(long *num)
+{
+	long num1, num2;
+
+	if (!parse5(&num1))
+		return 0;
+
+	for (;;) {
+		char op;
+		if (match("+"))
+			op = '+';
+		else if (match("-"))
+			op = '-';
+		else {
+			*num = num1;
+			return 1;
+		}
+
+		if (!parse5(&num2))
+			return 0;
+
+		if (op == '-')
+			num1 -= num2;
+		else
+			num1 += num2;
+	}
+}
+
+int const_expr(long *num, char *end1, char *end2)
+{
+	if (!parse6(num)) {
+	        error("failed to evaluate constant expression");
+	        return 0;
         }
-        return 1;
+	blanks();
+	if (!sstreq(end1) && !(end2 && sstreq(end2))) {
+		error("unexpected character after constant expression");
+		return 0;
+	}
+	return 1;
 }
 
 /*

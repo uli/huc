@@ -204,20 +204,10 @@ void declloc (long typ, long stclass, int otag)
 			break;
 		}
 		if (match("=")) {
-			long num[0], num2[0];
+			long num[0];
 			stkp = modstk (stkp - totalk);
 			totalk -= k;
-			if (number(num)) {
-				while (blanks(), ch() != ';' && ch() != ',') {
-					if (match("-") && number(num2))
-						num[0] -= num2[0];
-					else if (match("+") && number(num2))
-						num[0] += num2[0];
-					else {
-						error("cannot evaluate initializer");
-						break;
-					}
-				}
+			if (const_expr(num, ",", ";")) {
 				if (k == 1)
 					out_ins_ex(X_STBI_S, T_VALUE, 0, *num);
 				else if (k == 2)
@@ -246,10 +236,12 @@ long needsub (void)
 
 	if (match ("]"))
 		return (0);
-	if (!const_expr (num, "]")) {
+	if (!const_expr (num, "]", NULL)) {
 		error ("must be constant");
 		num[0] = 1;
 	}
+	if (!match("]"))
+		error("internal error");
 	if (num[0] < 0) {
 		error ("negative size illegal");
 		num[0] = (-num[0]);
