@@ -210,7 +210,7 @@ void newfunc (const char *sname)
 					amatch("int", 3);
 					getarg (CINT | sign, KR, 0);
 					ns();
-				} else if (amatch ("int", 3)) {
+				} else if (amatch ("int", 3) || sign == CUNSIGNED) {
 					getarg (CINT | sign, KR, 0);
 					ns ();
 				} else {
