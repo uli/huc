@@ -394,6 +394,10 @@ void callfunction (char *ptr)
 	else
 		nb = fastcall_look(ptr, -1, NULL);
 
+	/* calling regular functions in fastcall arguments is OK */
+	if (!nb)
+		--func_call_stack;
+
 	/* flush instruction stack */
 	flush_ins();
 
