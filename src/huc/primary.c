@@ -24,7 +24,7 @@ static void ignore_ast(void)
         }
 }
 
-long primary (LVALUE* lval)
+long primary (LVALUE* lval, int comma)
 {
 	SYMBOL	*ptr;
 	char	sname[NAMESIZE];
@@ -35,7 +35,9 @@ long primary (LVALUE* lval)
 	lval->symbol2 = 0;
 	if (match ("(")) {
 		indflg = 0;
-		k = heir1 (lval);
+		/* need to use expression_ex() (not heir1()), otherwise
+		   the comma operator is not handled */
+		k = expression_ex (lval, comma, YES);
 		needbrack (")");
 		return (k);
 	}

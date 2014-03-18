@@ -23,16 +23,22 @@
  *	lval->ptr_type - type pointer or array, else 0
  */
 
-void expression (long comma)
+void expression (int comma)
 {
 	LVALUE lval[1];
+	expression_ex(lval, comma, NO);
+}
 
+long expression_ex (LVALUE *lval, int comma, int norval)
+{
+	long k;
 	do {
-		if (heir1 (lval))
+		if ((k = heir1 (lval, comma)) && !norval)
 			rvalue (lval);
 		if (!comma)
-			return;
+			return k;
 	} while (match (","));
+	return k;
 }
 
 static int is_unsigned(LVALUE *lval)
@@ -59,13 +65,13 @@ static void gen_scale_right(LVALUE *lval, LVALUE *lval2)
 	}
 }
 
-long heir1 (LVALUE *lval)
+long heir1 (LVALUE *lval, int comma)
 {
 	long	k;
 	LVALUE	lval2[1];
 	char	fc;
 
-	k = heir1a (lval);
+	k = heir1a (lval, comma);
 	if (match ("=")) {
 		if (k == 0) {
 			needlval ();
@@ -73,7 +79,7 @@ long heir1 (LVALUE *lval)
 		}
 		if (lval->indirect)
 			gpush ();
-		if (heir1 (lval2))
+		if (heir1 (lval2, comma))
 			rvalue (lval2);
 		store (lval);
 		return (0);
@@ -98,7 +104,7 @@ long heir1 (LVALUE *lval)
 				gpush ();
 			rvalue (lval);
 			gpush ();
-			if (heir1 (lval2))
+			if (heir1 (lval2, comma))
 				rvalue (lval2);
 			switch (fc) {
 				case '-':	{
@@ -129,13 +135,13 @@ long heir1 (LVALUE *lval)
 	}
 }
 
-long heir1a (LVALUE *lval)
+long heir1a (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k, lab1, lab2;
 	LVALUE	lval2[1];
 
-	k = heir1b (lval);
+	k = heir1b (lval, comma);
 	blanks ();
 	if (ch () != '?')
 		return (k);
@@ -144,7 +150,7 @@ long heir1a (LVALUE *lval)
 	FOREVER
 		if (match ("?")) {
 			testjump (lab1 = getlabel (), FALSE);
-			if (heir1b (lval2))
+			if (heir1b (lval2, comma))
 				rvalue (lval2);
 			jump (lab2 = getlabel ());
 			gnlabel (lab1);
@@ -153,20 +159,20 @@ long heir1a (LVALUE *lval)
 				error ("missing colon");
 				return (0);
 			}
-			if (heir1b (lval2))
+			if (heir1b (lval2, comma))
 				rvalue (lval2);
 			gnlabel (lab2);
 		} else
 			return (0);
 }
 
-long heir1b (LVALUE *lval)
+long heir1b (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k, lab;
 	LVALUE	lval2[1];
 
-	k = heir1c (lval);
+	k = heir1c (lval, comma);
 	blanks ();
 	if (!sstreq ("||"))
 		return (k);
@@ -175,7 +181,7 @@ long heir1b (LVALUE *lval)
 	FOREVER
 		if (match ("||")) {
 			testjump (lab = getlabel (), TRUE);
-			if (heir1c (lval2))
+			if (heir1c (lval2, comma))
 				rvalue (lval2);
 			gnlabel (lab);
 			gbool();
@@ -183,13 +189,13 @@ long heir1b (LVALUE *lval)
 			return (0);
 }
 
-long heir1c (LVALUE *lval)
+long heir1c (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k, lab;
 	LVALUE	lval2[1];
 
-	k = heir2 (lval);
+	k = heir2 (lval, comma);
 	blanks ();
 	if (!sstreq ("&&"))
 		return (k);
@@ -198,7 +204,7 @@ long heir1c (LVALUE *lval)
 	FOREVER
 		if (match ("&&")) {
 			testjump (lab = getlabel (), FALSE);
-			if (heir2 (lval2))
+			if (heir2 (lval2, comma))
 				rvalue (lval2);
 			gnlabel (lab);
 			gbool();
@@ -206,13 +212,13 @@ long heir1c (LVALUE *lval)
 			return (0);
 }
 
-long heir2 (LVALUE *lval)
+long heir2 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir3 (lval);
+	k = heir3 (lval, comma);
 	blanks ();
 	if ((ch() != '|') | (nch() == '|') | (nch() == '='))
 		return (k);
@@ -222,7 +228,7 @@ long heir2 (LVALUE *lval)
 		if ((ch() == '|') & (nch() != '|') & (nch() != '=')) {
 			inbyte ();
 			gpush ();
-			if (heir3 (lval2))
+			if (heir3 (lval2, comma))
 				rvalue (lval2);
 			gor ();
 			blanks();
@@ -231,13 +237,13 @@ long heir2 (LVALUE *lval)
 	}
 }
 
-long heir3 (LVALUE *lval)
+long heir3 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
 	LVALUE lval2[1];
 
-	k = heir4 (lval);
+	k = heir4 (lval, comma);
 	blanks ();
 	if ((ch () != '^') | (nch() == '='))
 		return (k);
@@ -247,7 +253,7 @@ long heir3 (LVALUE *lval)
 		if ((ch() == '^') & (nch() != '=')){
 			inbyte ();
 			gpush ();
-			if (heir4 (lval2))
+			if (heir4 (lval2, comma))
 				rvalue (lval2);
 			gxor ();
 			blanks();
@@ -256,13 +262,13 @@ long heir3 (LVALUE *lval)
 	}
 }
 
-long heir4 (LVALUE *lval)
+long heir4 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir5 (lval);
+	k = heir5 (lval, comma);
 	blanks ();
 	if ((ch() != '&') | (nch() == '|') | (nch() == '='))
 		return (k);
@@ -272,7 +278,7 @@ long heir4 (LVALUE *lval)
 		if ((ch() == '&') & (nch() != '&') & (nch() != '=')) {
 			inbyte ();
 			gpush ();
-			if (heir5 (lval2))
+			if (heir5 (lval2, comma))
 				rvalue (lval2);
 			gand ();
 			blanks();
@@ -294,13 +300,13 @@ int is_byte(LVALUE *lval)
 	return 0;
 }
 
-long heir5 (LVALUE *lval)
+long heir5 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir6 (lval);
+	k = heir6 (lval, comma);
 	blanks ();
 	if (!sstreq ("==") &
 	    !sstreq ("!="))
@@ -310,12 +316,12 @@ long heir5 (LVALUE *lval)
 	FOREVER {
 		if (match ("==")) {
 			gpush ();
-			if (heir6 (lval2))
+			if (heir6 (lval2, comma))
 				rvalue (lval2);
 			geq (is_byte(lval) && is_byte(lval2));
 		} else if (match ("!=")) {
 			gpush ();
-			if (heir6 (lval2))
+			if (heir6 (lval2, comma))
 				rvalue (lval2);
 			gne (is_byte(lval) && is_byte(lval2));
 		} else
@@ -323,13 +329,13 @@ long heir5 (LVALUE *lval)
 	}
 }
 
-long heir6 (LVALUE *lval)
+long heir6 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir7 (lval);
+	k = heir7 (lval, comma);
 	blanks ();
 	if (!sstreq ("<") &&
 	    !sstreq ("<=") &&
@@ -343,7 +349,7 @@ long heir6 (LVALUE *lval)
 	FOREVER {
 		if (match ("<=")) {
 			gpush ();
-			if (heir7 (lval2))
+			if (heir7 (lval2, comma))
 				rvalue (lval2);
 			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
@@ -355,7 +361,7 @@ long heir6 (LVALUE *lval)
 			gle (is_byte(lval) && is_byte(lval2));
 		} else if (match (">=")) {
 			gpush ();
-			if (heir7 (lval2))
+			if (heir7 (lval2, comma))
 				rvalue (lval2);
 			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
@@ -369,7 +375,7 @@ long heir6 (LVALUE *lval)
 			   !sstreq ("<<")) {
 			inbyte ();
 			gpush ();
-			if (heir7 (lval2))
+			if (heir7 (lval2, comma))
 				rvalue (lval2);
 			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
@@ -383,7 +389,7 @@ long heir6 (LVALUE *lval)
 			   !sstreq (">>")) {
 			inbyte ();
 			gpush ();
-			if (heir7 (lval2))
+			if (heir7 (lval2, comma))
 				rvalue (lval2);
 			if (lval->ptr_type || lval2->ptr_type ||
 			    is_unsigned(lval) ||
@@ -399,13 +405,13 @@ long heir6 (LVALUE *lval)
 	}
 }
 
-long heir7 (LVALUE *lval)
+long heir7 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir8 (lval);
+	k = heir8 (lval, comma);
 	blanks ();
 	if (  (!sstreq (">>") && !sstreq ("<<") ) ||
 		sstreq(">>=") || sstreq("<<=") )
@@ -416,13 +422,13 @@ long heir7 (LVALUE *lval)
 		if (sstreq(">>") && ! sstreq(">>=")) {
 			inbyte(); inbyte();
 			gpush ();
-			if (heir8 (lval2))
+			if (heir8 (lval2, comma))
 				rvalue (lval2);
 			gasr (is_unsigned(lval));
 		} else if (sstreq("<<") && ! sstreq("<<=")) {
 			inbyte(); inbyte();
 			gpush ();
-			if (heir8 (lval2))
+			if (heir8 (lval2, comma))
 				rvalue (lval2);
 			gasl ();
 		} else
@@ -431,13 +437,13 @@ long heir7 (LVALUE *lval)
 	}
 }
 
-long heir8 (LVALUE *lval)
+long heir8 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir9 (lval);
+	k = heir9 (lval, comma);
 	blanks ();
 	if ( ( (ch () != '+') && (ch () != '-') ) || (nch() == '=') )
 		return (k);
@@ -446,7 +452,7 @@ long heir8 (LVALUE *lval)
 	FOREVER {
 		if (match ("+")) {
 			gpush ();
-			if (heir9 (lval2))
+			if (heir9 (lval2, comma))
 				rvalue (lval2);
 			/* if left is pointer and right is int, scale right */
 			gen_scale_right(lval, lval2);
@@ -455,7 +461,7 @@ long heir8 (LVALUE *lval)
 			result (lval, lval2);
 		} else if (match ("-")) {
 			gpush ();
-			if (heir9 (lval2))
+			if (heir9 (lval2, comma))
 				rvalue (lval2);
 			/* if dbl, can only be: pointer - int, or
 						pointer - pointer, thus,
@@ -475,13 +481,13 @@ long heir8 (LVALUE *lval)
 	}
 }
 
-long heir9 (LVALUE *lval)
+long heir9 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
 	LVALUE	lval2[1];
 
-	k = heir10 (lval);
+	k = heir10 (lval, comma);
 	blanks ();
 	if (((ch () != '*') && (ch () != '/') &&
 		(ch () != '%')) || (nch() == '='))
@@ -491,17 +497,17 @@ long heir9 (LVALUE *lval)
 	FOREVER {
 		if (match ("*")) {
 			gpush ();
-			if (heir10 (lval2))
+			if (heir10 (lval2, comma))
 				rvalue (lval2);
 			gmult (is_unsigned(lval) || is_unsigned(lval2));
 		} else if (match ("/")) {
 			gpush ();
-			if (heir10 (lval2))
+			if (heir10 (lval2, comma))
 				rvalue (lval2);
 			gdiv (is_unsigned(lval) || is_unsigned(lval2));
 		} else if (match ("%")) {
 			gpush ();
-			if (heir10 (lval2))
+			if (heir10 (lval2, comma))
 				rvalue (lval2);
 			gmod (is_unsigned(lval) || is_unsigned(lval2));
 		} else
@@ -509,7 +515,7 @@ long heir9 (LVALUE *lval)
 	}
 }
 
-long heir10 (LVALUE *lval)
+long heir10 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
@@ -517,7 +523,7 @@ long heir10 (LVALUE *lval)
 
 	if (match ("++")) {
 		indflg = 0;
-		if ((k = heir10 (lval)) == 0) {
+		if ((k = heir10 (lval, comma)) == 0) {
 			needlval ();
 			return (0);
 		}
@@ -529,7 +535,7 @@ long heir10 (LVALUE *lval)
 		return (0);
 	} else if (match ("--")) {
 		indflg = 0;
-		if ((k = heir10 (lval)) == 0) {
+		if ((k = heir10 (lval, comma)) == 0) {
 			needlval ();
 			return (0);
 		}
@@ -541,21 +547,21 @@ long heir10 (LVALUE *lval)
 		return (0);
 	} else if (match ("-")) {
 		indflg = 0;
-		k = heir10 (lval);
+		k = heir10 (lval, comma);
 		if (k)
 			rvalue (lval);
 		gneg ();
 		return (0);
 	} else if (match ("~")) {
 		indflg = 0;
-		k = heir10 (lval);
+		k = heir10 (lval, comma);
 		if (k)
 			rvalue (lval);
 		gcom ();
 		return (0);
 	} else if (match ("!")) {
 		indflg = 0;
-		k = heir10 (lval);
+		k = heir10 (lval, comma);
 		if (k)
 			rvalue (lval);
 		glneg ();
@@ -563,7 +569,7 @@ long heir10 (LVALUE *lval)
 	} else if (ch()=='*' && nch() != '=') {
 		inbyte();
 		indflg = 1;
-		k = heir10 (lval);
+		k = heir10 (lval, comma);
 		indflg = 0;
 		ptr = lval->symbol;
 		/* vram */
@@ -583,7 +589,7 @@ long heir10 (LVALUE *lval)
 	} else if (ch()=='&' && nch()!='&' && nch()!='=') {
 		indflg = 0;
 		inbyte();
-		k = heir10 (lval);
+		k = heir10 (lval, comma);
 		if (k == 0) {
 			error ("illegal address");
 			return (0);
@@ -600,7 +606,7 @@ long heir10 (LVALUE *lval)
 		lval->indirect = ptr->type;
 		return (0);
 	} else {
-		k = heir11 (lval);
+		k = heir11 (lval, comma);
 		ptr = lval->symbol;
 		if (match ("++")) {
 			if (k == 0) {
@@ -639,14 +645,14 @@ long heir10 (LVALUE *lval)
 	}
 }
 
-long heir11 (LVALUE *lval)
+long heir11 (LVALUE *lval, int comma)
 /*long	*lval; */
 {
 	long	direct,k;
 	SYMBOL	*ptr;
 	char    sname[NAMESIZE];
 
-	k = primary (lval);
+	k = primary (lval, comma);
 	ptr = lval->symbol;
 	blanks ();
 	for (;;) {

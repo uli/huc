@@ -6,7 +6,7 @@
 #ifndef _PRIMARY_H
 #define _PRIMARY_H
 
-long primary (LVALUE* lval);
+long primary (LVALUE* lval, int comma);
 long dbltest (LVALUE val1[],LVALUE val2[]);
 void result (LVALUE lval[],LVALUE lval2[]);
 long constant (long val[]);
