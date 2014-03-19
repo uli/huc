@@ -90,10 +90,10 @@ int define_struct(char *sname, int storage, int is_struct) {
     symbol->member_idx = member_table_index;
 
     needbrack("{");
-    do {
+    while (!match("}")) {
         if (!dodcls(storage, &tag_table[tag_table_index-1], is_struct))
             break;
-    } while (!match ("}"));
+    };
     printf("end of struct\n");
     symbol->number_of_members = member_table_index - symbol->member_idx;
     return tag_table_index-1;
