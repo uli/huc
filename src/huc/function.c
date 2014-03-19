@@ -191,6 +191,7 @@ void newfunc (const char *sname)
 					}
 					else {
 						getarg(CSTRUCT, KR, otag);
+						ns();
 					}
 				}
 				else {
