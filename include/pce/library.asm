@@ -1600,6 +1600,32 @@ _strlen.1:
 	cla
 	rts
 
+___builtin_ffs.1:
+	sax
+	ldy #-8
+.search_lo:	ror a
+	bcs .found_in_lo
+	iny
+	bne .search_lo
+	txa
+	ldy #-8
+.search_hi:	ror a
+	bcs .found_in_hi
+	iny
+	bne .search_hi
+	clx		; no bits set, return 0 (A is already 0)
+	rts
+.found_in_hi:tya		; found bit in the high byte
+	adc #16		; carry is set
+	tax
+	cla		; return 17 + y
+	rts
+.found_in_lo:tya		; found bit in the low byte
+	adc #8		; carry is set
+	tax
+	cla		; return 9 + y
+	rts
+
 _abort:
 	  .db 0xe2
 

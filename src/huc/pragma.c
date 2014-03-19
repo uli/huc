@@ -137,6 +137,8 @@ static char *pragma_init[] = {
 	"fastcall ad_read(word cx, byte dh, word bx, word ax)",
 	"fastcall ad_write(word cx, byte dh, word bx, word ax)",
 	"fastcall ad_play(word bx, word ax, byte dh, byte dl)",
+
+	"fastcall __builtin_ffs(word acc)",
 	NULL
 };
 
