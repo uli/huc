@@ -109,6 +109,15 @@ long primary (LVALUE* lval, int comma)
 		lval->indirect = 0;
 		return 0;
 	}
+	else if (amatch("__FILE__", 8)) {
+	        const_str(num, fname_copy);
+                immed(T_STRING, num[0]);
+		indflg = 0;
+		lval->value = num[0];
+		lval->symbol = 0;
+		lval->indirect = 0;
+		return 0;
+	}
 	if (symname (sname)) {
 		ptr = findloc (sname);
 		if (ptr) {
