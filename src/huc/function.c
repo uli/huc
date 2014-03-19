@@ -98,7 +98,7 @@ void newfunc (const char *sname)
 		if (amatch("const", 5)) {
 			/* ignore */
 		}
-		if (amatch("struct", 6)) {
+		if (amatch("struct", 6) || amatch("union", 5)) {
 			if (symname(n)) {
 				int otag = find_tag(n);
 				if (otag < 0) {
