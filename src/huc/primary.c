@@ -313,7 +313,7 @@ static int parse3(long *num)
 	else
 		op = 0;
 
-	if (!number(&num2))
+	if (!number(&num2) && !pstr(&num2))
 		return 0;
 
 	if (op == '-')
