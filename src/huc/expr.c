@@ -582,7 +582,7 @@ long heir10 (LVALUE *lval, int comma)
 		if ( (ptr = lval->symbol) && ptr->ptr_order < 2)
 			lval->indirect = ptr->type;
 		else
-			lval->indirect = CINT;
+			lval->indirect = CUINT;
 		/* XXX: what about multiple indirection? */
 		lval->ptr_type = 0;  /* flag as not pointer or array */
 		return (1);
@@ -706,7 +706,10 @@ long heir11 (LVALUE *lval, int comma)
 			if (!ptr->far)
 				gadd (NULL,NULL);
 			lval->symbol = 0;
-			lval->indirect = ptr->type;
+			if (ptr->ptr_order > 1 || (ptr->ident == ARRAY && ptr->ptr_order > 0))
+				lval->indirect = CUINT;
+			else
+				lval->indirect = ptr->type;
 			lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
 			lval->symbol2 = ptr->far ? (SYMBOL *)ptr : (SYMBOL *)NULL;
 			k = 1;
