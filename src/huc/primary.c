@@ -45,7 +45,7 @@ long primary (LVALUE* lval, int comma)
 	        int have_paren;
 		indflg = 0;
 		have_paren = match("(");
-		if (amatch("int", 3)) {
+		if (amatch("int", 3) || amatch("short", 5)) {
 		        /* int* same size as int */
 		        ignore_ast();
 			immed (T_VALUE, INTSIZE);
