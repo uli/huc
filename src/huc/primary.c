@@ -76,7 +76,12 @@ long primary (LVALUE* lval, int comma)
                                 error("missing struct name");
                 }
 		else if (symname(sname)) {
-			if ((ptr = findloc(sname)) ||
+		        if (!strcmp("__func__", sname) ||
+			    !strcmp("__FUNCTION__", sname))
+				immed(T_VALUE, strlen(current_fn) + 1);
+			else if (!strcmp("__FILE__", sname))
+				immed(T_VALUE, strlen(fname_copy) + 1);
+			else if ((ptr = findloc(sname)) ||
 				(ptr = findglb(sname))) {
 				if ((ptr->storage & ~WRITTEN) == LSTATIC)
 					error("sizeof local static");
@@ -100,7 +105,7 @@ long primary (LVALUE* lval, int comma)
 		lval->indirect = 0;
 		return 0;
 	}
-	if (amatch("__FUNCTION__", 12)) {
+	if (amatch("__FUNCTION__", 12) || amatch("__func__", 8)) {
 	        const_str(num, current_fn);
                 immed(T_STRING, num[0]);
 		indflg = 0;
