@@ -204,7 +204,9 @@ void declloc (long typ, long stclass, int otag)
 			break;
 		}
 		if (match("=")) {
-			long num[0];
+			long num[1];
+			if (stclass == LSTATIC)
+				error("initialization of static local variables unimplemented");
 			stkp = modstk (stkp - totalk);
 			totalk -= k;
 			if (const_expr(num, ",", ";")) {
