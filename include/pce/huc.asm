@@ -9,7 +9,7 @@
 _vdc      .ds 20*2
 
           .zp
-__sign
+__sign	  .ds 1
 __remain  .ds 2
 
           .code
@@ -982,10 +982,26 @@ udiv:
 ; OUT : Register word egals the remainder of the division of the
 ;       pushed value by A:X
 ; ----
-; REMARK : signed NON compatible
-; ----
 
 smod:
+	stz <__sign
+	__stw <__ptr
+	__ldwp __stack
+	cmp #$80
+	bcc .skip1
+	inc <__sign
+	__negw
+	__stwp __stack
+.skip1:	__ldw <__ptr
+	cmp #$80
+	bcc .skip2
+	__negw
+.skip2:	jsr umod
+	ldy <__sign
+	beq .noinv
+	__negw
+.noinv:	rts
+
 umod:
         __stw   <__ptr
         __ldwp  __stack
@@ -994,7 +1010,7 @@ umod:
         lda	#0
  	sta	<__remain+1
  	ldy	#16
-.smod_begin:	asl	<__temp
+.umod_begin:	asl	<__temp
 	rol	<__temp+1
 	rol	a
 	rol	<__remain+1
@@ -1002,15 +1018,15 @@ umod:
 	cmp	<__ptr
 	lda	<__remain+1
 	sbc	<__ptr+1
-	bcc	.smod_end
+	bcc	.umod_end
 	sta	<__remain+1
 	pla
 	sbc	<__ptr
 	pha
 	inc	<__temp
-.smod_end:	pla
+.umod_end:	pla
 	dey
-	bne	.smod_begin
+	bne	.umod_begin
 	sta	<__remain
 
         addw  #2,<__stack
