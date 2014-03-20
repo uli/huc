@@ -65,6 +65,12 @@ static void gen_scale_right(LVALUE *lval, LVALUE *lval2)
 	}
 }
 
+static int is_ptrptr(LVALUE *lval)
+{
+	SYMBOL *s = lval->symbol;
+	return s && (s->ptr_order > 1 || (s->ident == ARRAY && s->ptr_order > 0));
+}
+
 long heir1 (LVALUE *lval, int comma)
 {
 	long	k;
@@ -470,10 +476,16 @@ long heir8 (LVALUE *lval, int comma)
 			gen_scale_right(lval, lval2);
 			gsub ();
 			/* if both pointers, scale result */
-			/* XXX: structs? */
-			if ((lval->ptr_type == CINT || lval->ptr_type == CUINT) &&
-			    (lval2->ptr_type == CINT || lval->ptr_type == CUINT)) {
+			if ((lval->ptr_type == CINT || lval->ptr_type == CUINT || is_ptrptr(lval)) &&
+			    (lval2->ptr_type == CINT || lval2->ptr_type == CUINT || is_ptrptr(lval2))) {
 				gasrint(); /* divide by intsize */
+			}
+			else if (lval->ptr_type == CSTRUCT && lval2->ptr_type == CSTRUCT) {
+				TAG_SYMBOL* tag = lval->tagsym;
+				if (tag->size == 2)
+					gasrint();
+				else if (tag->size > 1)
+					gdiv_imm(tag->size);
 			}
 			result (lval, lval2);
 		} else

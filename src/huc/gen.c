@@ -406,6 +406,13 @@ void gdiv (int is_unsigned)
 	stkp = stkp + INTSIZE;
 }
 
+void gdiv_imm (int value)
+{
+    gpush();
+    immed(T_VALUE, value);
+    gdiv(1);
+}
+
 /*
  *	compute the remainder (mod) of the secondary register
  *	divided by the primary register

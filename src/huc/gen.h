@@ -34,6 +34,7 @@ void gsub (void );
 void gmult (int is_unsigned);
 void gmult_imm (int value);
 void gdiv (int is_unsigned);
+void gdiv_imm (int value);
 void gmod (int is_unsigned);
 void gor (void );
 void gxor (void );
