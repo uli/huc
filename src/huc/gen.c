@@ -387,9 +387,7 @@ void gmult (int is_unsigned)
 
 void gmult_imm (int value)
 {
-    gpush();
-    immed(T_VALUE, value);
-    gmult(1);
+    out_ins(I_MULWI, T_VALUE, (long)value);
 }
 
 /*

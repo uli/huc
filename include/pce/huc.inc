@@ -365,6 +365,55 @@ __addwi	.macro
 	 adc	#high(\1)
 	.endm	
 
+__mulwi	.macro
+	.if (\1 = 2)
+	 __aslw
+	.else
+	.if (\1 = 3)
+	 __stw <__temp
+	 __aslw
+	 __addw <__temp
+	.else
+	.if (\1 = 4)
+	 __aslw
+	 __aslw
+	.else
+	.if (\1 = 5)
+	 __stw <__temp
+	 __aslw
+	 __aslw
+	 __addw <__temp
+	.else
+	.if (\1 = 6)
+	 __aslw
+	 __stw <__temp
+	 __aslw
+	 __addw <__temp
+	.else
+	.if (\1 = 7)
+	 __stw <__temp
+	 __aslw
+	 __aslw
+	 __aslw
+	 __subw <__temp
+	.else
+	.if (\1 = 8)
+	 __aslw
+	 __aslw
+	 __aslw
+	.else
+	 __pushw
+	 __ldwi \1
+	 jsr umul
+	.endif
+	.endif
+	.endif
+	.endif
+	.endif
+	.endif
+	.endif
+	.endm
+
 __addbi	.macro
 	 clc
 	 txa

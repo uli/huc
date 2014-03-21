@@ -697,6 +697,12 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_MULWI:
+		ot("__mulwi\t");
+		outdec(data);
+		nl();
+		break;
+
 	default:
 		gen_asm(tmp);
 		break;
