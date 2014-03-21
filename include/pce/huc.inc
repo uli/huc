@@ -228,14 +228,13 @@ __pushw	.macro
 	 bne	.x_\@
 	 dec	<__stack + 1
 .x_\@:	 dec	<__stack
+	 sta	[__stack]
 	 bne	.y_\@
 	 dec	<__stack + 1
 .y_\@:	 dec	<__stack
          sax
 	 sta	[__stack]
 	 sax
-	 ldy	#1
-	 sta	[__stack],Y
 	.endm
 
 __popw	.macro
