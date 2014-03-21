@@ -358,11 +358,24 @@ __addw	.macro
 	.endm	
 
 __addwi	.macro
+	.if (\1 = 1)
+	 cpx #$ff
+	 inx
+	 adc #0
+	.else
+	.if (\1 = 2)
+	 cpx #$fe
+	 inx
+	 inx
+	 adc #0
+	.else
 	 clc
 	 sax
 	 adc	#low(\1)
 	 sax
 	 adc	#high(\1)
+	.endif
+	.endif
 	.endm	
 
 __mulwi	.macro
