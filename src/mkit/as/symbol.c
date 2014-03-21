@@ -234,15 +234,12 @@ labldef(int lval, int flag)
 		switch (lablptr->type) {
 		/* undefined */
 		case UNDEF:
+		case IFUNDEF:
 			lablptr->type = DEFABS;
 			lablptr->value = lval;
 			break;
 
 		/* already defined - error */
-		case IFUNDEF:
-			error("Can not define this label, declared as undefined in an IF expression!");
-			return (-1);
-
 		case MACRO:
 			error("Symbol already used by a macro!");
 			return (-1);
