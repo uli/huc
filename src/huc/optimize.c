@@ -598,6 +598,16 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
+			/*  __boolw         --> __tstw
+			 *  __tstw
+			 *
+			 */
+			else if	((p[0]->code == I_TSTW) &&
+				 (p[1]->code == I_BOOLW)) {
+				 p[1]->code = I_TSTW;
+				 nb = 1;
+			}
+
 			/* flush queue */
 			if (nb)
 			{
