@@ -89,6 +89,19 @@ __expr     .ds 2
 	 cla
 	.endm
 
+__phax	.macro
+	pha
+	phx
+	.endm
+__plax	.macro
+	plx
+	pla
+	.endm
+__plxa	.macro
+	pla
+	plx
+	.endm
+
 __ldb	.macro
 	.if (\# = 2)
 	 clx
@@ -129,11 +142,10 @@ __ldubp	.macro
 	.endm
 
 __stbps	.macro
-       __stw	<__temp
+       __phax
        __ldwp	 __stack
        __stw	<__ptr
-       __ldw	<__temp
-	 sax
+       __plxa
 	 sta	[__ptr]
 	 sax
        __addmi	2,__stack
@@ -185,10 +197,10 @@ __stbp	.macro
 	.endm
 
 __stwps	.macro
-       __stw	<__temp
+       __phax
        __ldwp	 __stack
        __stw	<__ptr
-       __ldw	<__temp
+       __plax
        __stwp	 __ptr
        __addmi	2,__stack
 	.endm
