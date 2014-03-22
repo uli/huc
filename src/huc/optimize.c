@@ -425,21 +425,48 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
-			/*  __pushw                      --> __aslw
-			 *  __ldwi 1
-			 *  jsr asl
+			/*  __pushw                      --> __asl/lsr/asrwi i
+			 *  __ldwi i
+			 *  jsr asl/lsr/asr
 			 *
 			 */
-			else if
-			   ((p[0]->code == I_JSR && !strcmp((char *)p[0]->data, "asl")) &&
+			if (p[0]->code == I_JSR &&
+			    (!strcmp((char *)p[0]->data, "asl")||
+			     !strcmp((char *)p[0]->data, "lsr") ||
+			     !strcmp((char *)p[0]->data, "asr")) &&
 				(p[1]->code == I_LDWI) &&
-				(p[1]->type == T_VALUE) &&
-				(p[1]->data == 1) &&
 				p[2]->code == I_PUSHW)
 			{
 				/* replace code */
-				p[2]->code = I_ASLW;
-				p[2]->type = p[2]->data = 0;
+				if (!strcmp((char *)p[0]->data, "asl"))
+					p[2]->code = I_ASLWI;
+				else if (!strcmp((char *)p[0]->data, "lsr"))
+					p[2]->code = I_LSRWI;
+				else
+					p[2]->code = I_ASRWI;
+				p[2]->type = p[1]->type;
+				p[2]->data = p[1]->data;
+				nb = 2;
+			}
+
+			/*  __pushw                     --> __aslwi <log2>
+			 *  __ldwi <power of two>
+			 *  jsr {u|s}mul
+			 *
+			 */
+			else if
+			   (p[0]->code == I_JSR &&
+			    (!strcmp((char*)p[0]->data, "umul") ||
+			     !strcmp((char*)p[0]->data, "smul")) &&
+			    (p[1]->code == I_LDWI) &&
+			    (p[1]->type == T_VALUE) &&
+			    __builtin_popcount(p[1]->data) == 1 &&
+			    p[1]->data > 0 && p[1]->data < 0x8000 &&
+			    p[2]->code == I_PUSHW)
+			{
+				p[2]->code = I_ASLWI;
+				p[2]->type = T_VALUE;
+				p[2]->data = __builtin_ctz(p[1]->data);
 				nb = 2;
 			}
 
