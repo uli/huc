@@ -543,6 +543,23 @@ void push_ins(INS *ins)
 				goto lv1_loop;
 			}
 
+			/* ldwi i; stwipp j	--> stwi i, j */
+			else if (p[0]->code == I_STWIPP &&
+				 p[1]->code == I_LDWI)
+			{
+				p[1]->code = I_STWI;
+				p[1]->imm = p[0]->data;
+				nb = 1;
+			}
+			/* ldwi i; stbipp j	--> stbi i, j */
+			else if (p[0]->code == I_STBIPP &&
+				 p[1]->code == I_LDWI)
+			{
+				p[1]->code = I_STBI;
+				p[1]->imm = p[0]->data;
+				nb = 1;
+			}
+
 			/*  jsr eq/ne/eqzp/nezp         --> jsr eq/ne/eqzp/nezp
 			 *  __tstw
 			 *
@@ -892,6 +909,23 @@ void push_ins(INS *ins)
 			{
 				/* replace code */
 				p[2]->code = X_LDW_S;
+				nb = 2;
+			}
+
+			/*  @_ldwi i                   --> @_ldw i
+			 *  __stw   __ptr
+			 *  __ldwp  __ptr
+			 */
+			else if
+			   ((p[0]->code == I_LDWP) &&
+				(p[1]->code == I_STW) &&
+				(p[2]->code == I_LDWI) &&
+
+				(p[0]->type == T_PTR) &&
+				(p[1]->type == T_PTR))
+			{
+				/* replace code */
+				p[2]->code = I_LDW;
 				nb = 2;
 			}
 
