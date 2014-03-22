@@ -22,6 +22,7 @@ int main (void)
   return 0;
 }
 
+#pragma recurse
 void recurser_void (int n)
 {
   if (n == 0 || n == 7)

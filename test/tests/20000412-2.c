@@ -1,3 +1,4 @@
+#pragma recurse
 int f(int a,int *y)
 {
   int x;
