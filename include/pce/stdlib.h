@@ -1,1 +1,1 @@
-/* dummy include file */
+#define RAND_MAX 32767

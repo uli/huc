@@ -217,6 +217,7 @@ randomize:
 	incw	<_rndzp	; eor with next 2 bytes of ROM
 	lda	_rndn2
 	eor	[_rndzp]
+	and	#$7f
 	sta	_rndn2
 
 	incw	<_rndzp
