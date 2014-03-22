@@ -38,26 +38,25 @@ __remain  .ds 2
 eq:
    sax
    cmp [__stack]
-   bne .eq_endno
+   bne eq_endno
 
    ldy #1
    sax
    cmp [__stack],Y
-   bne .eq_endno
+   bne eq_endno
 
-.eq_endyes:
+eq_endyes:
   .ifndef SMALL
    addw	#2,<__stack   ; don't push A/X; they are thrown away
   .else
    inc <__stack
    inc <__stack
   .endif
-   tya        ; A=1 -> true
-   clx
-   sax
+   ldx #1
+   cla
    rts
 
-.eq_endno:
+eq_endno:
   .ifndef SMALL
    addw	#2,<__stack
   .else
@@ -71,29 +70,8 @@ eq:
 eqb:
    txa
    cmp [__stack]
-   bne .eq_endno
-
-.eq_endyes:
-  .ifndef SMALL
-   addw	#2,<__stack   ; don't push A/X; they are thrown away
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx	#1        ; A=1 -> true
-   cla
-   rts
-
-.eq_endno:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   clx
-   cla
-   rts
+   bne eq_endno
+   bra eq_endyes
 
 ; streamlined version MACRO - uses zp ( <__temp ) instead of stack
 ; returns A:X = 0 if false, FF00 if true
