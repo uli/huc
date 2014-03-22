@@ -297,6 +297,7 @@ typedef struct {
 	long   data;
 	long   imm;
 	long   arg[3];
+	int    imm_type;
 	SYMBOL *sym;
 } INS;
 

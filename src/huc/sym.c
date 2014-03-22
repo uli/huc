@@ -224,18 +224,18 @@ void declloc (long typ, long stclass, int otag)
 				if (k == 1) {
 					if (norecurse) {
 						sprintf(locsym, "_%s_lend-%ld", current_fn, -locals_ptr);
-						out_ins_ex(I_STBI, T_SYMBOL, (long)locsym, *num);
+						out_ins_ex(I_STBI, T_SYMBOL, (long)locsym, T_VALUE, *num);
 					}
 					else
-						out_ins_ex(X_STBI_S, T_VALUE, 0, *num);
+						out_ins_ex(X_STBI_S, T_VALUE, 0, T_VALUE, *num);
 				}
 				else if (k == 2) {
 					if (norecurse) {
 						sprintf(locsym, "_%s_lend-%ld", current_fn, -locals_ptr);
-						out_ins_ex(I_STWI, T_SYMBOL, (long)locsym, *num);
+						out_ins_ex(I_STWI, T_SYMBOL, (long)locsym, T_VALUE, *num);
 					}
 					else
-					out_ins_ex(X_STWI_S, T_VALUE, 0, *num);
+					out_ins_ex(X_STWI_S, T_VALUE, 0, T_VALUE, *num);
 				}
 				else
 					error("complex type initialization not implemented");

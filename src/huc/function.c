@@ -500,11 +500,11 @@ void callfunction (char *ptr)
 					j += 2;
 					break;
 				case 0x11: /* auto byte */
-					out_ins_ex(I_PHB, T_VALUE, idx, (idx==fast->argsize) ? idx : 0);
+					out_ins_ex(I_PHB, T_VALUE, idx, T_VALUE, (idx==fast->argsize) ? idx : 0);
 					idx -= 1;
 					break;
 				case 0x12: /* auto word */
-					out_ins_ex(I_PHW, T_VALUE, idx, (idx==fast->argsize) ? idx : 0);
+					out_ins_ex(I_PHW, T_VALUE, idx, T_VALUE, (idx==fast->argsize) ? idx : 0);
 					idx -= 2;
 					break;
 				case 0x00: /* acc */

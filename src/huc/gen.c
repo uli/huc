@@ -248,7 +248,7 @@ void swapstk (void )
  */
 void gcall (char *sname, long nargs)
 {
-	out_ins_ex(I_CALL, T_SYMBOL, (long)sname, nargs);
+	out_ins_ex(I_CALL, T_SYMBOL, (long)sname, T_VALUE, nargs);
 }
 
 /*

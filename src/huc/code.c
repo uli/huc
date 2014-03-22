@@ -121,7 +121,7 @@ void out_ins(long code, long type, long data)
 	gen_ins(&tmp);
 }
 
-void out_ins_ex(long code, long type, long data, long imm)
+void out_ins_ex(long code, long type, long data, int imm_type, long imm)
 {
 	INS tmp;
 
@@ -129,6 +129,7 @@ void out_ins_ex(long code, long type, long data, long imm)
 	tmp.type = type;
 	tmp.data = data;
 	tmp.imm  = imm;
+	tmp.imm_type = imm_type;
 	gen_ins(&tmp);
 }
 
@@ -155,36 +156,36 @@ void gen_ins(INS *tmp)
 	}
 }
 
-void out_type(INS *tmp)
+void out_type(long type, long data)
 {
-	switch (tmp->type) {
+	switch (type) {
 	case T_VALUE:
-		outdec(tmp->data);
+		outdec(data);
 		break;
 	case T_LABEL:
-		outlabel(tmp->data);
+		outlabel(data);
 		break;
 	case T_SYMBOL:
-		outsymbol((char *)tmp->data);
+		outsymbol((char *)data);
 		break;
 	case T_STRING:
 		outlabel(litlab);
 		outbyte('+');
-		outdec(tmp->data);
+		outdec(data);
 		break;
 	case T_BANK:
 		outstr("BANK(");
-		outstr((char *)tmp->data);
+		outstr((char *)data);
 		outstr(")");
 		break;
 	case T_VRAM:
 		outstr("VRAM(");
-		outstr((char *)tmp->data);
+		outstr((char *)data);
 		outstr(")");
 		break;
 	case T_PAL:
 		outstr("PAL(");
-		outstr((char *)tmp->data);
+		outstr((char *)data);
 		outstr(")");
 		break;
 	}
@@ -337,7 +338,7 @@ void gen_code(INS *tmp)
 	case I_LDWI:
 		ot("__ldwi\t");
 
-		out_type(tmp);
+		out_type(type, data);
 		nl();
 		break;
 
@@ -386,8 +387,8 @@ void gen_code(INS *tmp)
 			ot("__stwi\t");
 		else
 			ot("__stbi\t");
-		out_type(tmp);
-		outstr(", "); outdec(imm);
+		out_type(type, data);
+		outstr(", "); out_type(tmp->imm_type, imm);
 		nl();
 		break;
 
@@ -419,7 +420,7 @@ void gen_code(INS *tmp)
 		else
 			ot("__addwi\t");
 
-		out_type(tmp);
+		out_type(type, data);
 		nl();
 		break;
 
