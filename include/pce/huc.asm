@@ -737,6 +737,22 @@ asl:
   .endif
    rts
 
+aslzp:
+   beq .asl_end
+   sta <__temp
+   sax
+
+.asl_begin
+   asl a
+   rol <__temp
+   dey
+   bne .asl_begin
+
+   sax
+   lda <__temp
+.asl_end
+   rts
+
 
 ; ----
 ; asr
@@ -781,6 +797,24 @@ asr:
   .endif
    rts
 
+asrzp:
+   beq .asr_end
+   sta <__temp
+   sax
+
+.asr_begin
+   cpx #$80
+   ror <__temp
+   ror a
+
+   dey
+   bne .asr_begin
+
+   sax
+   lda <__temp
+.asr_end
+   rts
+
 lsr:
    stx <__temp
    __ldwp __stack
@@ -806,6 +840,22 @@ lsr:
    inc <__stack
    inc <__stack
   .endif
+   rts
+
+lsrzp:
+   beq .lsr_end
+   sta <__temp
+   sax
+
+.lsr_begin
+   lsr <__temp
+   ror a
+   dey
+   bne .lsr_begin
+
+   sax
+   lda <__temp
+.lsr_end
    rts
 
 ; ----

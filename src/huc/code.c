@@ -506,6 +506,24 @@ void gen_code(INS *tmp)
 		ol("__aslw");
 		break;
 
+	case I_ASLWI:
+		ot("__aslwi\t");
+		out_type(type, data);
+		nl();
+		break;
+
+	case I_LSRWI:
+		ot("__lsrwi\t");
+		out_type(type, data);
+		nl();
+		break;
+
+	case I_ASRWI:
+		ot("__asrwi\t");
+		out_type(type, data);
+		nl();
+		break;
+
 	case I_ASLWS:
 		ol("__aslws");
 		break;

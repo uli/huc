@@ -95,6 +95,9 @@
 #define I_MULWI      63
 #define I_STWI       64
 #define I_STBI       65
+#define I_ASLWI      66
+#define I_LSRWI      67
+#define I_ASRWI      68
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

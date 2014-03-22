@@ -323,6 +323,25 @@ __aslw	.macro
 	 rol	A
 	.endm
 
+__aslwi	.macro
+	.if (\1 = 1)
+	 __aslw
+	.else
+	.if (\1 = 2)
+	 __aslw
+	 __aslw
+	.else
+	.if (\1 = 8)
+	 txa
+	 clx
+	.else
+	 ldy #\1
+	 jsr aslzp
+	.endif
+	.endif
+	.endif
+	.endm
+
 __aslws	.macro
 	 lda	[__stack]
 	 asl	a
@@ -339,6 +358,48 @@ __asrw	.macro
 	 sax
 	 ror	A
 	 sax
+	.endm
+
+__asrwi	.macro
+	.if (\1 = 1)
+	 __asrw
+	.else
+	.if (\1 = 2)
+	 __asrw
+	 __asrw
+	.else
+	.if (\1 = 8)
+	 tax
+	 cmp #$80
+	 cla
+	 bcc .x_\@
+	 dec a
+.x_\@:
+	.else
+	 ldy #\1
+	 jsr asrzp
+	.endif
+	.endif
+	.endif
+	.endm
+
+__lsrwi	.macro
+	.if (\1 = 1)
+	 __lsrw
+	.else
+	.if (\1 = 2)
+	 __lsrw
+	 __lsrw
+	.else
+	.if (\1 = 8)
+	 tax
+	 cla
+	.else
+	 ldy #\1
+	 jsr lsrzp
+	.endif
+	.endif
+	.endif
 	.endm
 
 __extw	.macro
