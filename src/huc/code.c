@@ -155,6 +155,41 @@ void gen_ins(INS *tmp)
 	}
 }
 
+void out_type(INS *tmp)
+{
+	switch (tmp->type) {
+	case T_VALUE:
+		outdec(tmp->data);
+		break;
+	case T_LABEL:
+		outlabel(tmp->data);
+		break;
+	case T_SYMBOL:
+		outsymbol((char *)tmp->data);
+		break;
+	case T_STRING:
+		outlabel(litlab);
+		outbyte('+');
+		outdec(tmp->data);
+		break;
+	case T_BANK:
+		outstr("BANK(");
+		outstr((char *)tmp->data);
+		outstr(")");
+		break;
+	case T_VRAM:
+		outstr("VRAM(");
+		outstr((char *)tmp->data);
+		outstr(")");
+		break;
+	case T_PAL:
+		outstr("PAL(");
+		outstr((char *)tmp->data);
+		outstr(")");
+		break;
+	}
+}
+
 /*
  *	gen assembly code
  *
@@ -302,37 +337,7 @@ void gen_code(INS *tmp)
 	case I_LDWI:
 		ot("__ldwi\t");
 
-		switch (type) {
-		case T_VALUE:
-			outdec(data);
-			break;
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_STRING:
-			outlabel(litlab);
-			outbyte('+');
-			outdec(data);
-			break;
-		case T_BANK:
-			outstr("BANK(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		case T_VRAM:
-			outstr("VRAM(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		case T_PAL:
-			outstr("PAL(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		}
+		out_type(tmp);
 		nl();
 		break;
 
@@ -381,37 +386,7 @@ void gen_code(INS *tmp)
 			ot("__stwi\t");
 		else
 			ot("__stbi\t");
-		switch (type) {
-		case T_VALUE:
-			outdec(data);
-			break;
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_STRING:
-			outlabel(litlab);
-			outbyte('+');
-			outdec(data);
-			break;
-		case T_BANK:
-			outstr("BANK(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		case T_VRAM:
-			outstr("VRAM(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		case T_PAL:
-			outstr("PAL(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		}
+		out_type(tmp);
 		outstr(", "); outdec(imm);
 		nl();
 		break;
@@ -444,37 +419,7 @@ void gen_code(INS *tmp)
 		else
 			ot("__addwi\t");
 
-		switch (type) {
-		case T_VALUE:
-			outdec(data);
-			break;
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_STRING:
-			outlabel(litlab);
-			outbyte('+');
-			outdec(data);
-			break;
-		case T_BANK:
-			outstr("BANK(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		case T_VRAM:
-			outstr("VRAM(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		case T_PAL:
-			outstr("PAL(");
-			outstr((char *)data);
-			outstr(")");
-			break;
-		}
+		out_type(tmp);
 		nl();
 		break;
 
