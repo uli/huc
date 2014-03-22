@@ -3,12 +3,14 @@
    -O2 -fomit-frame-pointer        
    Testcase by David B. Trout     */
 
+#undef STACK_SIZE
 #define STACK_SIZE 128
+
 #define __SIZE_TYPE__ unsigned int
 
 //#if defined(STACK_SIZE) && STACK_SIZE < 16000
-#define ARRAY_SIZE (STACK_SIZE / 2)
-#define STRLEN	   (ARRAY_SIZE - 9)
+#define ARRAY_SIZE STACK_SIZE / 2
+#define STRLEN	   ARRAY_SIZE - 9
 //#else
 //#define ARRAY_SIZE 15000
 //#define STRLEN     13371
@@ -19,7 +21,7 @@ extern void abort (void);
 
 static void foo ()
 {
-    char a[/*ARRAY_SIZE*/ 4096];
+    char a[ARRAY_SIZE];
 
     a[0]=0;
     memset( &a[0], 0xCD, STRLEN );

@@ -4,20 +4,26 @@ echo $PCE_INCLUDE
 tests="$@"
 test -z "$tests" && tests="tests/*.c dg/*.c"
 test -n "$1" && tests="$@"
-for i in $tests
+for d in large small
 do
-	echo -n "$i: "
-	if ! ../src/huc/huc $i >/dev/null ; then
-		echo NOCOMPILE
-		#../src/huc/huc $i
-		#exit
-		continue
-	fi
-	if ../tgemu/tgemu "${i%.c}.pce" 2>/dev/null >/dev/null ; then
-		echo PASS
-	else
-		echo "FAIL (exit code $?)"
-		mkdir -p failtraces
-		mv "${i%.c}".{sym,lst,s,pce} failtraces/
-	fi
+	test "$d" == "large" && opt="-DSTACK_SIZE=1024"
+	test "$d" == "small" && opt="-ASMALL=1 -DSTACK_SIZE=256 -DSMALL"
+	echo "testing $d"
+	for i in $tests
+	do
+		echo -en "$d\t$i: "
+		if ! ../src/huc/huc -DNO_LABEL_VALUES $opt $i >/dev/null ; then
+			echo NOCOMPILE
+			../src/huc/huc -DNO_LABEL_VALUES $i
+			exit
+			continue
+		fi
+		if ../tgemu/tgemu "${i%.c}.pce" 2>/dev/null >/dev/null ; then
+			echo PASS
+		else
+			echo "FAIL (exit code $?)"
+			mkdir -p failtraces
+			mv "${i%.c}".{sym,lst,s,pce} failtraces/
+		fi
+	done
 done

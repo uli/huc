@@ -19,13 +19,13 @@ void f (unsigned int *x)
 
 int main ()
 {
-  unsigned int x[256];
+  unsigned int x[STACK_SIZE / 4];
   int i;
 
-  for (i = 0; i < 256; i++)
+  for (i = 0; i < STACK_SIZE / 4; i++)
     x[i] = 1;
   f (x);
-  for (i = 0; i < 256; i++)
+  for (i = 0; i < STACK_SIZE / 4; i++)
     if (x[i] != (i >= 0x08 && i < 0xf8))
       abort ();
   exit (0);

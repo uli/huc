@@ -5,7 +5,7 @@
 char **
 buildargv (char *input)
 {
-  static char *arglist[256];
+  static char *arglist[STACK_SIZE / 4];
   int numargs = 0;
 
   while (1)
@@ -29,7 +29,7 @@ buildargv (char *input)
 int main()
 {
   char **args;
-  char input[256];
+  char input[STACK_SIZE / 4];
   int i;
 
   strcpy(input, " a b");

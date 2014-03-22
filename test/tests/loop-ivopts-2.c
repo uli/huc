@@ -33,6 +33,7 @@ check (unsigned int *l)
 int
 main (void)
 {
+#ifndef SMALL
   int i;
   unsigned int l[288];
 
@@ -45,6 +46,7 @@ main (void)
   for (; i < 288; i++)
     l[i] = 8;
   check (l);
+#endif
   return 0;
 }
 

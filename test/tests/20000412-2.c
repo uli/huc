@@ -11,7 +11,7 @@ int f(int a,int *y)
 
 int main(int argc,char *argv[])
 {
-  if (f (100, 0) != 1)
+  if (f (10, 0) != 1)
     abort ();
   exit (0);
 }
