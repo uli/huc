@@ -314,19 +314,26 @@ ugt_y1: ; unsigned version of >, assuming Y = 1
 
 ubgt:    ; unsigned byte version of >
    txa
-   ldx #1
    cmp [__stack]
-   bcc .gt_end       ; lobyte of the reg var < lobyte of the pushed var
-   clx
-
-.gt_end:
-   cla
+   bcc .gt_true
   .ifndef SMALL
    addw	#2,<__stack
   .else
    inc <__stack
    inc <__stack
   .endif
+   clx
+   cla
+   rts
+.gt_true:
+  .ifndef SMALL
+   addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
+   ldx #1
+   cla
    rts
 
 
