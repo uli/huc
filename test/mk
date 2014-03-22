@@ -4,26 +4,41 @@ echo $PCE_INCLUDE
 tests="$@"
 test -z "$tests" && tests="tests/*.c dg/*.c"
 test -n "$1" && tests="$@"
-for d in large small
+fails=0
+nocompiles=0
+for d in large small norec noopt
 do
+	fails=0
+	nocompiles=0
+	passes=0
 	test "$d" == "large" && opt="-DSTACK_SIZE=1024"
 	test "$d" == "small" && opt="-ASMALL=1 -DSTACK_SIZE=256 -DSMALL"
+	test "$d" == "norec" && opt="-DSTACK_SIZE=1024 -DNORECURSE -r"
+	test "$d" == "noopt" && opt="-DSTACK_SIZE=1024 -O0"
 	echo "testing $d"
 	for i in $tests
 	do
 		echo -en "$d\t$i: "
 		if ! ../src/huc/huc -DNO_LABEL_VALUES $opt $i >/dev/null ; then
 			echo NOCOMPILE
-			../src/huc/huc -DNO_LABEL_VALUES $i
+			../src/huc/huc $opt $i
 			exit
+			nocompiles=$((nocompiles + 1))
 			continue
 		fi
 		if ../tgemu/tgemu "${i%.c}.pce" 2>/dev/null >/dev/null ; then
 			echo PASS
+			passes=$((passes + 1))
 		else
 			echo "FAIL (exit code $?)"
 			mkdir -p failtraces
 			mv "${i%.c}".{sym,lst,s,pce} failtraces/
+			fails=$((fails + 1))
 		fi
 	done
+	echo "$d passes: $passes; fails: $fails, nocompiles: $nocompiles"
+	total_fails=$((total_fails + fails))
+	total_nocompiles=$((total_nocompiles + nocompiles))
+	total_passes=$((total_passes + passes))
 done
+echo "Total passes: $total_passes; fails: $total_fails, nocompiles: $total_nocompiles"
