@@ -82,13 +82,12 @@ eqzp:
 	bne   .x_ne
 	sax
 	cmp   <__temp
+	cla
 	bne   .x_ne
 	ldx   #1	; ensure Z flag not set
-	bra   .x1_eq
+	rts
 .x_ne:
 	clx
-.x1_eq:
-	cla
 	rts
 
 eqbzp:
