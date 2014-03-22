@@ -89,8 +89,8 @@ void push_ins(INS *ins)
 
 	lv1_loop:
 		/* precalculate pointers to instructions */
-		if (q_nb > 5)
-			nb = 5;
+		if (q_nb > 6)
+			nb = 6;
 		else
 			nb = q_nb;
 		for (i = 0, j = q_wr; i < nb; i++) {
@@ -105,6 +105,49 @@ void push_ins(INS *ins)
 
 		/* LEVEL 1 - FUN STUFF STARTS HERE */
 		nb = 0;
+
+		/* 6-instruction patterns */
+		if (q_nb >= 6)
+		{
+			/*
+			 *  __ldwi  p              --> __ldw p
+			 *  __pushw                    __addwi i
+			 *  __stw __ptr                __stw p
+			 *  __ldwp __ptr
+			 *  __addwi i
+			 *  __stwps
+			 *
+			 */
+			if ((p[0]->code == I_STWPS) &&
+				(p[1]->code == I_ADDWI) &&
+				(p[2]->code == I_LDWP) &&
+				(p[3]->code == I_STW && p[3]->type == T_PTR) &&
+				(p[4]->code == I_PUSHW) &&
+				(p[5]->code == I_LDWI))
+			{
+				/* replace code */
+				p[5]->code = I_LDW;
+				*p[4] = *p[1];
+				p[3]->code = I_STW;
+				p[3]->type = p[5]->type;
+				p[3]->data = p[5]->data;
+				nb = 3;
+			}
+
+			/* flush queue */
+			if (nb)
+			{
+				q_wr -= nb;
+				q_nb -= nb;
+				nb    = 0;
+
+				if (q_wr < 0)
+					q_wr += Q_SIZE;
+
+				/* loop */
+				goto lv1_loop;
+			}			
+		}
 
 		/* 5-instruction patterns */
 		if (q_nb >= 5)
