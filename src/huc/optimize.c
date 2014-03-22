@@ -244,6 +244,24 @@ void push_ins(INS *ins)
 				nb = 3;
 			}
 
+			/*  @_ldwi p                  --> __stwi p, i
+			 *  __pushw
+			 *  __ldwi  i
+			 *  __st{b|w}ps
+			 *
+			 */
+			if ((p[0]->code == I_STWPS || p[0]->code == I_STBPS) &&
+				(p[1]->code == I_LDWI) &&
+				(p[2]->code == I_PUSHW) &&
+				(p[3]->code == I_LDWI))
+			{
+				/* replace code */
+				p[3]->code = p[0]->code == I_STWPS? I_STWI : I_STBI;
+				p[3]->imm = p[1]->data;
+				p[3]->imm_type = p[1]->type;
+				nb = 3;
+			}
+
 			/* flush queue */
 			if (nb)
 			{
