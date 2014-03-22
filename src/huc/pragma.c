@@ -162,6 +162,7 @@ void dopragma(void )
 			break;
 		cmd[i] = gch();
 	}
+	cmd[i] = 0;
 
 	/* parse */
 	parse_pragma();
@@ -209,7 +210,10 @@ void parse_pragma(void )
 	if (strcmp(sname, "fastcall") == 0)
 		new_fastcall();
 /*		new_fastcall(sname); */
-
+	else if (!strcmp(sname, "norecurse"))
+		norecurse = 1;
+	else if (!strcmp(sname, "recurse"))
+		norecurse = 0;
 	/* others */
 	else
 		error ("unknown pragma");
