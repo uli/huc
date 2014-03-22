@@ -271,7 +271,11 @@ ovlentry:
 	lda  #_call_bank
 	tam  #4
 
+	.ifndef SMALL
 	stw  #$4000,<__sp
+	.else
+	stw  #$3f00,<__sp
+	.endif
 	ldx  #$ff
 	txs
 
@@ -552,7 +556,11 @@ dontloadprog:
     ; load font
 
        .ifdef HUC
+	.ifndef SMALL
 	stw   #$4000,<__sp	; init stack ptr first
+	.else
+	stw   #$3f00,<__sp
+	.endif
 
 	stw   #FONT_VADDR,<_di	; Load Font @ VRAM addr
 

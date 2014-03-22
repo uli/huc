@@ -224,13 +224,17 @@ __stbipp .macro
 	.endm
 
 __pushw	.macro
+	.ifndef SMALL
 	 ldy	<__stack
 	 bne	.x_\@
 	 dec	<__stack + 1
+	.endif
 .x_\@:	 dec	<__stack
 	 sta	[__stack]
+	.ifndef SMALL
 	 bne	.y_\@
 	 dec	<__stack + 1
+	.endif
 .y_\@:	 dec	<__stack
          sax
 	 sta	[__stack]
@@ -250,10 +254,18 @@ __calls	.macro
 	 ldy	#\1
 	 lda	[__stack],Y
 	 sta	<__ptr
+	.ifndef SMALL
 	 incw	<__stack
+	.else
+	 inc	<__stack
+	.endif
 	 lda	[__stack],Y
 	 sta	<__ptr+1
+	.ifndef SMALL
 	 incw	<__stack
+	.else
+	 inc	<__stack
+	.endif
 	 pla
 	 jsr	hook
 	.endm
@@ -449,21 +461,27 @@ __addbi	.macro
 __addmi	.macro
 	.if (\1 = 2)
 	 inc	<\2
+	.ifndef SMALL
 	 bne	.x\@
 	 inc	<\2+1
+	.endif
 .x\@	 inc	<\2
+	.ifndef SMALL
 	 bne	.y\@
 	 inc	<\2+1
 .y\@
+	.endif
 	.else
 	 pha
 	 clc
 	 lda	<\2
 	 adc	#low(\1)
 	 sta	<\2
+	.ifndef SMALL
 	 lda	<\2+1
 	 adc	#high(\1)
 	 sta	<\2+1
+	.endif
 	 pla
 	.endif
 	.endm	

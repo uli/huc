@@ -46,14 +46,24 @@ eq:
    bne .eq_endno
 
 .eq_endyes:
+  .ifndef SMALL
    addw	#2,<__stack   ; don't push A/X; they are thrown away
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    tya        ; A=1 -> true
    clx
    sax
    rts
 
 .eq_endno:
+  .ifndef SMALL
    addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    clx
    cla
    rts
@@ -64,13 +74,23 @@ eqb:
    bne .eq_endno
 
 .eq_endyes:
+  .ifndef SMALL
    addw	#2,<__stack   ; don't push A/X; they are thrown away
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    ldx	#1        ; A=1 -> true
    cla
    rts
 
 .eq_endno:
+  .ifndef SMALL
    addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    clx
    cla
    rts
@@ -142,7 +162,12 @@ lt_primary_minus:
 			; __temp and call ult
 
 cmp_false:
+  .ifndef SMALL
    addw	#2,<__stack	; OK to kill A/X
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    ldx	#0
    cla
    rts
@@ -168,7 +193,12 @@ ult_y1: ; same thing but Y is assumed to be egal to 1
                      ; lobyte of the reg var < lobyte of the pushed var
 
 .lt_end:
-   addw      #2,<__stack
+  .ifndef SMALL
+   addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
 
    tya          ; if Y was 1, return A=X=0 -> false
    eor #$ff     ; if Y was 0, return A=0, X=1 -> true
@@ -186,7 +216,12 @@ ublt:    ; unsigned version
                      ; lobyte of the reg var < lobyte of the pushed var
 
 .lt_end:
-   addw      #2,<__stack
+  .ifndef SMALL
+   addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    ldx	#0
    cla
    rts
@@ -230,7 +265,12 @@ gt:     ; signed version of >
 			; __temp and call ugt
 
 cmp_ok:
+  .ifndef SMALL
    addw	#2,<__stack	; OK to kill A/X
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    ldx #1
    cla
    rts
@@ -258,7 +298,12 @@ ugt_y1: ; unsigned version of >, assuming Y = 1
    cly
 
 .gt_end:
-   addw      #2,<__stack
+  .ifndef SMALL
+   addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    tya
    eor #$ff
    inc a
@@ -276,7 +321,12 @@ ubgt:    ; unsigned byte version of >
 
 .gt_end:
    cla
-   addw      #2,<__stack
+  .ifndef SMALL
+   addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    rts
 
 
@@ -492,13 +542,23 @@ ne:
    bne .ne_endne
 
 .ne_endeq:
+  .ifndef SMALL
    addw	#2,<__stack   ; don't push A/X; they are thrown away
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    clx
    cla
    rts
 
 .ne_endne:
+  .ifndef SMALL
    addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    ldx	#1
    cla
    rts
@@ -509,13 +569,23 @@ neb:
    bne .ne_endne
 
 .ne_endeq:
+  .ifndef SMALL
    addw	#2,<__stack   ; don't push A/X; they are thrown away
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    clx
    cla
    rts
 
 .ne_endne:
+  .ifndef SMALL
    addw	#2,<__stack
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    ldx	#1
    cla
    rts
@@ -672,9 +742,14 @@ asl:
    sax
    lda <__temp
 .asl_end
+  .ifndef SMALL
    tay
    addw #2,<__stack
    tya
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    rts
 
 
@@ -711,9 +786,14 @@ asr:
    sax
    lda <__temp
 .asr_end
+  .ifndef SMALL
    tay
    addw #2,<__stack
    tya
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    rts
 
 lsr:
@@ -733,9 +813,14 @@ lsr:
    sax
    lda <__temp
 .lsr_end
+  .ifndef SMALL
    tay
    addw #2,<__stack
    tya
+  .else
+   inc <__stack
+   inc <__stack
+  .endif
    rts
 
 ; ----
@@ -823,7 +908,12 @@ umul:
 	__ldwp	__stack
 	__stw	<__temp   ; ax
 	  jsr	umul16
+	.ifndef SMALL
 	  addw	#2,<__stack
+	.else
+	  inc <__stack
+	  inc <__stack
+	.endif
 	__ldw	<__ptr
 	  rts
 umul16:
@@ -965,7 +1055,12 @@ udiv:
 	bne     .sdiv_begin
 	sta     <__remain
 
-	addw  #2,<__stack
+	.ifndef SMALL
+	addw	#2,<__stack
+	.else
+	inc <__stack
+	inc <__stack
+	.endif
 	__ldw <__temp
 
 	rts
@@ -1029,7 +1124,12 @@ umod:
 	bne	.umod_begin
 	sta	<__remain
 
-        addw  #2,<__stack
+	.ifndef SMALL
+	 addw	#2,<__stack
+	.else
+	 inc <__stack
+	 inc <__stack
+	.endif
         __ldw <__remain
 
 	rts
@@ -1066,7 +1166,12 @@ ___case:
   __ldwp __stack
   __stw <__ptr ; __ptr contain the address of the array
 
+  .ifndef SMALL
   addw #2,<__stack
+  .else
+  inc <__stack
+  inc <__stack
+  .endif
 
 .begin_case:
   addw #2,<__ptr
@@ -1078,7 +1183,12 @@ ___case:
 
   __ldwp __ptr
 
+  .ifndef SMALL
   __addmi -2,__stack
+  .else
+  dec <__stack
+  dec <__stack
+  .endif
   __stwp __stack
 
   addw  #4,<__ptr
