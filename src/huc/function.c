@@ -242,12 +242,30 @@ void newfunc (const char *sname)
 
 	if (nbarg)      /* David, arg optimization */
 		gpusharg (0);
+
+	/* When using fixed-address locals, locals_ptr is used to
+	   keep track of their memory offset instead of stkp, so
+	   we have to reset it before producing code. */
+	if (norecurse)
+		locals_ptr = 0;
+
 	statement(YES);
 	gnlabel(fexitlab);
 	modstk (nbarg * INTSIZE);
 	gret (); /* generate the return statement */
 	flush_ins();    /* David, optimize.c related */
 	ol (".endp");   /* David, .endp directive support */
+
+	/* Add space for fixed-address locals to .bss section. */
+	if (norecurse) {
+		ot(".data"); nl();
+		ot(".bss"); nl();
+		ot("__"); outstr(current_fn); outstr("_loc: .ds ");
+		outdec(-locals_ptr); nl();
+		ot("__"); outstr(current_fn); outstr("_lend:"); nl();
+		ot(".code"); nl();
+	}
+
 	nl ();
 	stkp = 0;
 	locptr = STARTLOC;

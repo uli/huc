@@ -193,7 +193,7 @@ void compound (long func)
 	ncmp++;
 	/* remember stack pointer before entering the first compound
 	   statement inside a function */
-	if (!func && top_level_stkp == 1)
+	if (!func && top_level_stkp == 1 && !norecurse)
 	        top_level_stkp = stkp;
 	while (!match ("}")) {
 		if (feof (input))

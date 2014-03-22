@@ -87,3 +87,6 @@ long	cdflag;
 long	verboseflag;
 long	startup_incl;
 long	errs;
+
+int norecurse = 0;
+long locals_ptr;

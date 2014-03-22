@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -98,14 +99,17 @@ void getloc (SYMBOL *sym)
 	if ((sym->storage & ~WRITTEN) == LSTATIC)
 		out_ins(I_LDWI, T_LABEL, glint(sym));
 	else {
-		value = glint(sym) - stkp;
-		out_ins_sym(X_LEA_S, T_STACK, value, sym);
-
-//		out_ins(I_LDW, T_STACK, NULL);
-//
-//		if (value || optimize) {
-//			out_ins(I_ADDWI, T_VALUE, value);
-//		}
+		value = glint(sym);
+		if (norecurse && value < 0) {
+		    /* XXX: bit of a memory leak, but whatever... */
+		    char *locsym = (char *)malloc(strlen(current_fn) + 16);
+		    sprintf(locsym, "_%s_lend-%ld", current_fn, -value);
+		    out_ins(I_LDWI, T_SYMBOL, (long)locsym);
+		}
+		else {
+		    value -= stkp;
+		    out_ins_sym(X_LEA_S, T_STACK, value, sym);
+		}
 	}
 }
 

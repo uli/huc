@@ -93,6 +93,8 @@
 #define I_STWIPP     61
 #define I_STBIPP     62
 #define I_MULWI      63
+#define I_STWI       64
+#define I_STBI       65
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

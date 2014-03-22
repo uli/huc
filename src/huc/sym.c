@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -147,7 +148,8 @@ void declloc (long typ, long stclass, int otag)
 			int ptr_order = 0;
 			if (endst ())
 			{
-				stkp = modstk (stkp - totalk);
+				if (!norecurse)
+					stkp = modstk (stkp - totalk);
 				return;
 			}
 			j = VARIABLE;
@@ -196,7 +198,10 @@ void declloc (long typ, long stclass, int otag)
 				totalk += k;
 				// stkp = modstk (stkp - k);
 				// addloc (sname, j, typ, stkp, AUTO);
-				c = addloc (sname, j, typ, stkp - totalk, AUTO, k);
+				if (!norecurse)
+					c = addloc (sname, j, typ, stkp - totalk, AUTO, k);
+				else
+					c = addloc (sname, j, typ, locals_ptr - totalk, AUTO, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
 				c->ptr_order = ptr_order;
@@ -207,13 +212,31 @@ void declloc (long typ, long stclass, int otag)
 			long num[1];
 			if (stclass == LSTATIC)
 				error("initialization of static local variables unimplemented");
-			stkp = modstk (stkp - totalk);
+			if (!norecurse)
+				stkp = modstk (stkp - totalk);
+			else
+				locals_ptr -= totalk;
 			totalk -= k;
 			if (const_expr(num, ",", ";")) {
-				if (k == 1)
-					out_ins_ex(X_STBI_S, T_VALUE, 0, *num);
-				else if (k == 2)
+				/* XXX: minor memory leak */
+				char *locsym = malloc(80);
+				gtext();
+				if (k == 1) {
+					if (norecurse) {
+						sprintf(locsym, "_%s_lend-%ld", current_fn, -locals_ptr);
+						out_ins_ex(I_STBI, T_SYMBOL, (long)locsym, *num);
+					}
+					else
+						out_ins_ex(X_STBI_S, T_VALUE, 0, *num);
+				}
+				else if (k == 2) {
+					if (norecurse) {
+						sprintf(locsym, "_%s_lend-%ld", current_fn, -locals_ptr);
+						out_ins_ex(I_STWI, T_SYMBOL, (long)locsym, *num);
+					}
+					else
 					out_ins_ex(X_STWI_S, T_VALUE, 0, *num);
+				}
 				else
 					error("complex type initialization not implemented");
 			}
@@ -223,7 +246,10 @@ void declloc (long typ, long stclass, int otag)
 		}
 		if (!match (","))
 		{
-			stkp = modstk (stkp - totalk);
+			if (!norecurse)
+				stkp = modstk (stkp - totalk);
+			else
+				locals_ptr -= totalk;
 			return;
 		}
 	}

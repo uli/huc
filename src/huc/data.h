@@ -84,3 +84,6 @@ extern	long	startup_incl;
 extern	long	errs;
 
 extern long top_level_stkp;
+extern int norecurse;
+extern long locals_ptr;
+extern char current_fn[];

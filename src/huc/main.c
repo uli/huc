@@ -127,6 +127,10 @@ int main (int argc,char* argv[])
 					else       optimize = atoi(++p);
 					break;
 
+				case 'r':
+					norecurse = 1;
+					break;
+
 				default:
 					usage(oldargv[0]);
 			}

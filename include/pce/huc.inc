@@ -182,6 +182,18 @@ __stw	.macro
 	 sta	\1+1
 	.endm
 
+__stwi	.macro
+	 ldx	#low(\2)
+	 stx	\1
+	 lda	#high(\2)
+	 sta	\1 + 1
+	.endm
+
+__stbi	.macro
+	 ldy	#low(\2)
+	 sty	\1
+	.endm
+
 __stwp	.macro
 	 sax
 	 sta	[\1]

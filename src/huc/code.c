@@ -374,7 +374,48 @@ void gen_code(INS *tmp)
 		}
 		nl();
 		break;
-	
+
+	case I_STWI:
+	case I_STBI:
+		if (code == I_STWI)
+			ot("__stwi\t");
+		else
+			ot("__stbi\t");
+		switch (type) {
+		case T_VALUE:
+			outdec(data);
+			break;
+		case T_LABEL:
+			outlabel(data);
+			break;
+		case T_SYMBOL:
+			outsymbol((char *)data);
+			break;
+		case T_STRING:
+			outlabel(litlab);
+			outbyte('+');
+			outdec(data);
+			break;
+		case T_BANK:
+			outstr("BANK(");
+			outstr((char *)data);
+			outstr(")");
+			break;
+		case T_VRAM:
+			outstr("VRAM(");
+			outstr((char *)data);
+			outstr(")");
+			break;
+		case T_PAL:
+			outstr("PAL(");
+			outstr((char *)data);
+			outstr(")");
+			break;
+		}
+		outstr(", "); outdec(imm);
+		nl();
+		break;
+
 	case I_STWPS:
 		ol("__stwps");
 		break;
