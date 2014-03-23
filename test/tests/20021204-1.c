@@ -18,7 +18,7 @@ int z;
 int main (int argc, char *argv[])
 {
   char *a, *b; a = "test";
-  *b = a + 2;
+  b = a + 2;
 
   foo (z > 0 ? b - a : b - a - 1);
   exit (0);
