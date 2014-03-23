@@ -298,7 +298,7 @@ long heir4 (LVALUE *lval, int comma)
 int is_byte(LVALUE *lval)
 {
 	if (!lval->symbol) {
-		if (lval->value < 0x80 && lval->value >= 0)
+		if (lval->value < 0x80 && lval->value >= 0 && lval->ptr_type == 0)
 			return 1;
 		else
 			return 0;
