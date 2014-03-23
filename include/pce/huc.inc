@@ -511,9 +511,25 @@ __mulwi	.macro
 	 __aslw
 	 __aslw
 	.else
+	.if (\1 = 9)
+	 __stw <__temp
+	 __aslw
+	 __aslw
+	 __aslw
+	 __addw <__temp
+	.else
+	.if (\1 = 10)
+	 __aslw
+	 __stw <__temp
+	 __aslw
+	 __aslw
+	 __addw <__temp
+	.else
 	 __pushw
 	 __ldwi \1
 	 jsr umul
+	.endif
+	.endif
 	.endif
 	.endif
 	.endif
