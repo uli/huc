@@ -1,4 +1,4 @@
-const int *p;
+int *p;
 
 int bar (void)
 {
