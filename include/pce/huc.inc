@@ -524,10 +524,25 @@ __mulwi	.macro
 	.endm
 
 __addbi	.macro
+	.if (\1 = 1)
+	 inx
+	.else
+	.if (\1 = 2)
+	 inx
+	 inx
+	.else
+	.if (\1 = 3)
+	 inx
+	 inx
+	 inx
+	.else
 	 clc
 	 txa
 	 adc	#low(\1)
 	 tax
+	.endif
+	.endif
+	.endif
 	 cla
 	.endm	
 
