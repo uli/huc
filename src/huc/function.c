@@ -252,7 +252,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	ol (".endp");   /* David, .endp directive support */
 
 	/* Add space for fixed-address locals to .bss section. */
-	if (norecurse) {
+	if (norecurse && locals_ptr < 0) {
 		ot(".data"); nl();
 		ot(".bss"); nl();
 		ot("__"); outstr(current_fn); outstr("_loc: .ds ");
