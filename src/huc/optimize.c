@@ -1142,7 +1142,7 @@ void push_ins(INS *ins)
 			}
 
 			/*  ...                         --> ...
-			 *  __addwi 0
+			 *  __addwi etc. 0
 			 *
 			 *  ====
 			 *  bytes  : x+ 7               --> x
@@ -1150,7 +1150,9 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-			   ((p[0]->code == I_ADDWI) &&
+			   ((p[0]->code == I_ADDWI || p[0]->code == I_ASLWI ||
+			     p[0]->code == I_LSRWI || p[0]->code == I_ASRWI ||
+			     p[0]->code == I_SUBWI) &&
 				(p[0]->data == 0))
 			{
 				/* remove code */
