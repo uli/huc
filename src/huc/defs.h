@@ -98,6 +98,8 @@
 #define I_ASLWI      66
 #define I_LSRWI      67
 #define I_ASRWI      68
+#define I_LBEQN      69
+#define I_LBNEN      70
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

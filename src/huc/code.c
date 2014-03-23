@@ -636,8 +636,20 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_LBEQN:
+		ot("__lbeqn\t");
+		outlabel(data);
+		nl();
+		break;
+
 	case I_LBNE:
 		ot("__lbne\t");
+		outlabel(data);
+		nl();
+		break;
+
+	case I_LBNEN:
+		ot("__lbnen\t");
 		outlabel(data);
 		nl();
 		break;

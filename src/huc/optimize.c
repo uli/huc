@@ -89,8 +89,8 @@ void push_ins(INS *ins)
 
 	lv1_loop:
 		/* precalculate pointers to instructions */
-		if (q_nb > 6)
-			nb = 6;
+		if (q_nb > 10)
+			nb = 10;
 		else
 			nb = q_nb;
 		for (i = 0, j = q_wr; i < nb; i++) {
@@ -101,6 +101,30 @@ void push_ins(INS *ins)
 			j -= 1;
 			if (j < 0)
 				j += Q_SIZE;
+		}
+
+		/* Convert long branches to near ones.
+		   This currently assumes that no ten macroinsns in a row
+		   will be larger than 128 bytes. */
+		/* XXX: This is something the assembler should do, but
+		   is currently incapable of. */
+		{
+			int j;
+			for (j = 0; j < nb; j++) {
+			if (p[j]->code == I_LBNE || p[j]->code == I_LBEQ) {
+				int i;
+				for (i = 0; i < nb; i++) {
+					if (p[i]->code == I_LABEL &&
+					    p[i]->data == p[j]->data) {
+						if (p[j]->code == I_LBNE)
+							p[j]->code = I_LBNEN;
+						else
+							p[j]->code = I_LBEQN;
+						break;
+					}
+				}
+			}
+			}
 		}
 
 		/* LEVEL 1 - FUN STUFF STARTS HERE */

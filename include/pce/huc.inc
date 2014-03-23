@@ -729,11 +729,21 @@ __lbeq	.macro
 .x\@
 	.endm
 
+__lbeqn	.macro
+	 cpx #0
+	 beq	\1
+	.endm
+
 __lbne	.macro
 	 cpx #0
 	 beq	.x\@
 	 jmp	\1
 .x\@
+	.endm
+
+__lbnen	.macro
+	 cpx #0
+	 bne	\1
 	.endm
 
 __call	.macro
