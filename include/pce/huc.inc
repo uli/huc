@@ -599,11 +599,24 @@ __subw	.macro
 	.endm	
 
 __subwi	.macro
+	.if (\1 = 1)
+	 cpx #1
+	 dex
+	 sbc #0
+	.else
+	.if (\1 = 2)
+	 cpx #2
+	 dex
+	 dex
+	 sbc #0
+	.else
 	 sec
 	 sax
 	 sbc	#low(\1)
 	 sax
 	 sbc	#high(\1)
+	.endif
+	.endif
 	.endm	
 
 __submi	.macro
