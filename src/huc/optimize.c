@@ -449,8 +449,8 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
-			/*  __pushw                     --> __aslwi <log2>
-			 *  __ldwi <power of two>
+			/*  __pushw                     --> __aslwi log2(i)
+			 *  __ldwi i                     or __mulwi i
 			 *  jsr {u|s}mul
 			 *
 			 */
@@ -460,13 +460,18 @@ void push_ins(INS *ins)
 			     !strcmp((char*)p[0]->data, "smul")) &&
 			    (p[1]->code == I_LDWI) &&
 			    (p[1]->type == T_VALUE) &&
-			    __builtin_popcount(p[1]->data) == 1 &&
 			    p[1]->data > 0 && p[1]->data < 0x8000 &&
 			    p[2]->code == I_PUSHW)
 			{
-				p[2]->code = I_ASLWI;
 				p[2]->type = T_VALUE;
-				p[2]->data = __builtin_ctz(p[1]->data);
+				if (__builtin_popcount(p[1]->data) == 1) {
+					p[2]->code = I_ASLWI;
+					p[2]->data = __builtin_ctz(p[1]->data);
+				}
+				else {
+					p[2]->code = I_MULWI;
+					p[2]->data = p[1]->data;
+				}
 				nb = 2;
 			}
 
