@@ -45,7 +45,9 @@ static int is_unsigned(LVALUE *lval)
 {
 	if (!lval->symbol)
 		return 0;
-	if (lval->symbol->type & CUNSIGNED)
+	/* C only promotes operations with an unsigned int
+	   to unsigned, not unsigned char! */
+	if (lval->symbol->type == CUINT)
 		return 1;
 	return 0;
 }
