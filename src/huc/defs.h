@@ -338,6 +338,7 @@ struct lvalue {
 	SYMBOL *symbol2;
 	long value;
 	TAG_SYMBOL *tagsym;
+	int ptr_order;
 };
 #define LVALUE struct lvalue
 

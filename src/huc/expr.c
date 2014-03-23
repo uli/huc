@@ -584,16 +584,22 @@ long heir10 (LVALUE *lval, int comma)
 		/* vram */
 		if (ptr && !strcmp(ptr->name, "vram")) {
 			lval->ptr_type = 0;
+			lval->ptr_order = 0;
 			return (1);
 		}
 		if (k)
 			rvalue (lval);
-		if ( (ptr = lval->symbol) && ptr->ptr_order < 2)
-			lval->indirect = ptr->type;
+		if (lval->ptr_order < 2)
+			lval->indirect = lval->ptr_type;
 		else
 			lval->indirect = CUINT;
 		/* XXX: what about multiple indirection? */
-		lval->ptr_type = 0;  /* flag as not pointer or array */
+		if (lval->ptr_order > 1)
+			lval->ptr_order--;
+		else {
+			lval->ptr_type = 0;  /* flag as not pointer or array */
+			lval->ptr_order = 0;
+		}
 		return (1);
 	} else if (ch()=='&' && nch()!='&' && nch()!='=') {
 		indflg = 0;
@@ -606,7 +612,9 @@ long heir10 (LVALUE *lval, int comma)
 		if (lval->symbol) {
 			ptr = lval->symbol;
 			lval->ptr_type = ptr->type;
+			lval->ptr_order = ptr->ptr_order;
 		}
+		lval->ptr_order++;
 		if (lval->indirect)
 			return (0);
 		/* global and non-array */
@@ -681,7 +689,12 @@ long heir11 (LVALUE *lval, int comma)
 					/* Dereference final pointer. */
 					lval->symbol = lval->symbol2 = 0;
 					lval->indirect = lval->ptr_type;
-					lval->ptr_type = 0;
+					if (lval->ptr_order > 1)
+						lval->ptr_order--;
+					else {
+						lval->ptr_type = 0;
+						lval->ptr_order = 0;
+					}
 					k = 1;
 					continue;
 				}
@@ -719,7 +732,12 @@ long heir11 (LVALUE *lval, int comma)
 				lval->indirect = CUINT;
 			else
 				lval->indirect = ptr->type;
-			lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
+			if (lval->ptr_order > 1)
+				lval->ptr_order--;
+			else {
+				lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
+				lval->ptr_order = 0;
+			}
 			lval->symbol2 = ptr->far ? (SYMBOL *)ptr : (SYMBOL *)NULL;
 			k = 1;
 		}
@@ -745,8 +763,10 @@ long heir11 (LVALUE *lval, int comma)
 			/* Encode return type in lval. */
 			SYMBOL *s = lval->symbol;
 			if (s) {
-				if (s->ptr_order >=1)
+				if (s->ptr_order >=1) {
 					lval->ptr_type = s->type;
+					lval->ptr_order = s->ptr_order;
+				}
 				if (s->type == CSTRUCT)
 					lval->tagsym = &tag_table[s->tagidx];
 				lval->symbol = 0;
@@ -769,18 +789,21 @@ long heir11 (LVALUE *lval, int comma)
 			lval->symbol = (SYMBOL *)ptr;
 			lval->indirect = ptr->type; // lval->indirect = lval->val_type = ptr->type
 			lval->ptr_type = 0;
+			lval->ptr_order = 0;
 			lval->tagsym = (long)NULL_TAG;
 			if (ptr->type == CSTRUCT)
 			    lval->tagsym = &tag_table[ptr->tagidx];
 			if (ptr->ident == POINTER) {
 			    lval->indirect = CINT;
 			    lval->ptr_type = ptr->type;
+			    lval->ptr_order = ptr->ptr_order;
 			    //lval->val_type = CINT;
 			}
 			if (ptr->ident==ARRAY ||
 			    (ptr->type==CSTRUCT && ptr->ident==VARIABLE)) {
 			    // array or struct
 			    lval->ptr_type = ptr->type;
+			    lval->ptr_order = ptr->ptr_order;
 			    //lval->val_type = CINT;
 			    k = 0;
 			}

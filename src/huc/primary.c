@@ -32,6 +32,7 @@ long primary (LVALUE* lval, int comma)
 	long	k;
 
 	lval->ptr_type = 0;  /* clear pointer/array type */
+	lval->ptr_order = 0;
 	lval->symbol2 = 0;
 	if (match ("(")) {
 		indflg = 0;
@@ -142,12 +143,14 @@ long primary (LVALUE* lval, int comma)
 					getloc (ptr);
 				}
 				lval->ptr_type = ptr->type;
+				lval->ptr_order = ptr->ptr_order;
 				return (1);
 			}
 			if (ptr->ident == ARRAY ||
 			    (ptr->ident == VARIABLE && ptr->type == CSTRUCT)) {
 				getloc (ptr);
 				lval->ptr_type = ptr->type;
+				lval->ptr_order = ptr->ptr_order;
 //				lval->ptr_type = 0;
                                 if (ptr->type == CSTRUCT && ptr->ident == VARIABLE)
                                         return 1;
@@ -170,8 +173,10 @@ long primary (LVALUE* lval, int comma)
 				        lval->tagsym = &tag_table[ptr->tagidx];
 				if (ptr->ident != ARRAY &&
 				    (ptr->ident != VARIABLE || ptr->type != CSTRUCT)) {
-					if (ptr->ident == POINTER)
+					if (ptr->ident == POINTER) {
 						lval->ptr_type = ptr->type;
+						lval->ptr_order = ptr->ptr_order;
+                                        }
 					return (1);
 				}
 				if (!ptr->far)
@@ -193,6 +198,7 @@ long primary (LVALUE* lval, int comma)
 					}
 				}
 				lval->indirect = lval->ptr_type = ptr->type;
+				lval->ptr_order = lval->ptr_order;
 //				lval->ptr_type = 0;
                                 if (ptr->ident == VARIABLE && ptr->type == CSTRUCT)
                                         return 1;
@@ -220,8 +226,10 @@ long primary (LVALUE* lval, int comma)
 		lval->value = num[0];
 		lval->symbol = 0;
 		lval->indirect = 0;
-		if (k == 2)
+		if (k == 2) {
 		        lval->ptr_type = CCHAR;
+		        lval->ptr_order = 1;
+                }
 		return 0;
 	}
 	else {
@@ -252,12 +260,15 @@ long dbltest (LVALUE val1[],LVALUE val2[])
  */
 void result (LVALUE lval[],LVALUE lval2[])
 {
-	if (lval->ptr_type && lval2->ptr_type)
+	if (lval->ptr_type && lval2->ptr_type) {
 		lval->ptr_type = 0;
+		lval->ptr_order = 0;
+        }
 	else if (lval2->ptr_type) {
 		lval->symbol = lval2->symbol;
 		lval->indirect = lval2->indirect;
 		lval->ptr_type = lval2->ptr_type;
+		lval->ptr_order = lval2->ptr_order;
 	}
 }
 
