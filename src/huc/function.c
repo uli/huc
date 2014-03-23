@@ -412,9 +412,6 @@ void callfunction (char *ptr)
 	if (!nb)
 		--func_call_stack;
 
-	/* flush instruction stack */
-	flush_ins();
-
 	/* get args */
 	while (!streq (line + lptr, ")")) {
 		if (endst ())
