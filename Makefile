@@ -2,7 +2,7 @@
 # Makefile for HuC sources
 #
 
-SUBDIRS = src
+SUBDIRS = src tgemu
 
 all clean:
 	@$(MAKE) $(SUBDIRS) "COMMAND=$@"
