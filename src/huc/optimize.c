@@ -1120,23 +1120,16 @@ void push_ins(INS *ins)
 			/*  __stw a                  --> __ldw a
 			 *  __ldw a
 			 *
-			 *  ====
-			 *  bytes  : ?               --> ?
-			 *  cycles : ?               --> ?
-			 *
 			 */
-//
-// This optimization is not quite ready yet - need to run tests
-//
-//			else if
-//			   ((p[0]->code == I_LDW) &&
-//				(p[1]->code == I_STW) &&
-//				(cmp_operands(p[0], p[1]) == 1) )
-//			{
-//				/* remove code */
-//				nb = 1;
-//			}
-//
+			else if
+			   ((p[0]->code == I_LDW) &&
+				(p[1]->code == I_STW) &&
+				(cmp_operands(p[0], p[1]) == 1) )
+			{
+				/* remove code */
+				nb = 1;
+			}
+
 			/*  __ldw a (or __ldwi a)       --> __ldw b (or __ldwi b)
 			 *  __ldw b (or __ldwi b)
 			 *
@@ -1332,6 +1325,19 @@ void push_ins(INS *ins)
 			{
 				p[1]->code = I_STBI;
 				p[1]->imm = p[0]->data;
+				nb = 1;
+			}
+
+			/* subwi/addwi i; ldw j --> ldw j
+			   This is a frequent case in which the result
+			   of a post-increment or decrement is not used. */
+			else if ((p[0]->code == I_LDW ||
+				  p[0]->code == I_LDWI ||
+				  p[0]->code == X_LDW_S) &&
+				 (p[1]->code == I_SUBWI ||
+				  p[1]->code == I_ADDWI))
+			{
+				*p[1] = *p[0];
 				nb = 1;
 			}
 
