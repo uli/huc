@@ -139,7 +139,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
  */
 void declloc (long typ, long stclass, int otag)
 {
-	long  k, j;
+	long  k = 0, j;
 	char sname[NAMESIZE];
 	long  totalk = 0;
 

@@ -9,7 +9,7 @@
 # general stuff
 #
 CDEFS =
-CFLAGS = -Werror -Wall -g
+CFLAGS = -Werror -Wall -g -O2
 LDFLAGS = -g
 
 #

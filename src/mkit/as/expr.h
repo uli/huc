@@ -38,7 +38,7 @@
 #define OP_SIZEOF	28
 
 /* operator priority */
-int op_pri[] = {
+const int op_pri[] = {
 	 0 /* START */,  0 /* OPEN  */,
 	 7 /* ADD   */,  7 /* SUB   */,  8 /* MUL   */,  8 /* DIV   */,
 	 8 /* MOD   */, 10 /* NEG   */,  6 /* SHL   */,  6 /* SHR   */,

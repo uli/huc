@@ -655,6 +655,8 @@ do_op(void)
 	/* second arg */
 	if (op_pri[op] < 9)
 		val[1] = val_stack[--val_idx];
+        else
+                val[1] = 0;
 
 	switch (op) {
 	/* BANK */
