@@ -156,7 +156,7 @@ void gen_ins(INS *tmp)
 	}
 }
 
-void out_type(long type, long data)
+static void out_type(long type, long data)
 {
 	switch (type) {
 	case T_VALUE:
@@ -187,6 +187,21 @@ void out_type(long type, long data)
 		outstr("PAL(");
 		outstr((char *)data);
 		outstr(")");
+		break;
+	}
+}
+
+static void out_addr(long type, long data)
+{
+	switch (type) {
+	case T_LABEL:
+		outlabel(data);
+		break;
+	case T_SYMBOL:
+		outsymbol((char *)data);
+		break;
+	case T_PTR:
+		outstr("__ptr");
 		break;
 	}
 }
@@ -311,11 +326,15 @@ void gen_code(INS *tmp)
 		break;
 
 	case I_LDBP:
-		ol("__ldbp\t__ptr");
+		ot("__ldbp\t");
+		out_addr(type, data);
+		nl();
 		break;
 
 	case I_LDUBP:
-		ol("__ldubp\t__ptr");
+		ot("__ldubp\t");
+		out_addr(type, data);
+		nl();
 		break;
 
 	case I_LDW:
@@ -343,7 +362,9 @@ void gen_code(INS *tmp)
 		break;
 
 	case I_LDWP:
-		ol("__ldwp\t__ptr");
+		ot("__ldwp\t");
+		out_addr(type, data);
+		nl();
 		break;
 
 	case I_STB:
@@ -366,18 +387,7 @@ void gen_code(INS *tmp)
 
 	case I_STW:
 		ot("__stw\t");
-
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_PTR:
-			outstr("__ptr");
-			break;
-		}
+		out_addr(type, data);
 		nl();
 		break;
 
@@ -398,18 +408,7 @@ void gen_code(INS *tmp)
 
 	case I_ADDW:
 		ot("__addw\t");
-
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_PTR:
-			outstr("__ptr");
-			break;
-		}
+		out_addr(type, data);
 		nl();
 		break;
 
@@ -441,18 +440,7 @@ void gen_code(INS *tmp)
 
 	case I_SUBW:
 		ot("__subw\t");
-
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_PTR:
-			outstr("__ptr");
-			break;
-		}
+		out_addr(type, data);
 		nl();
 		break;
 
@@ -682,17 +670,7 @@ void gen_code(INS *tmp)
 
 	case I_INCW:
 		ot("incw\t");
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_PTR:
-			outstr("__ptr");
-			break;
-		}
+		out_addr(type, data);
 		nl();
 		break;
 
