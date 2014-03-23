@@ -55,7 +55,7 @@ char current_fn[NAMESIZE];
  *	modified version.  p.l. woods
  *
  */
-void newfunc (const char *sname)
+void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 {
 	char n[NAMESIZE];
 	SYMBOL *ptr;
@@ -66,15 +66,8 @@ void newfunc (const char *sname)
 		strcpy(n, sname);
 	}
 	else {
-		/* allow (and ignore) return type */
-		amatch("const", 5);
-		amatch("unsigned", 8);
-		amatch("short", 5);
-		if (amatch("char", 4) || amatch("int", 3) || amatch("void", 4)) {
-			while (match("*")) {
-			}
-		}
-
+		/* No explicit return type. */
+		ret_type = CINT;
 		if (!symname (n) ) {
 			error ("illegal function or declaration");
 			kill ();
@@ -232,7 +225,9 @@ void newfunc (const char *sname)
 		else
 			ptr->offset = FUNCTION;
 	} else
-		addglb (current_fn, FUNCTION, CINT, FUNCTION, PUBLIC);
+		ptr = addglb (current_fn, FUNCTION, ret_type, FUNCTION, PUBLIC);
+	ptr->ptr_order = ret_ptr_order;
+	ptr->tagidx = ret_otag;
 
 	flush_ins(); /* David, .proc directive support */
 	ot (".proc ");

@@ -46,7 +46,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 			if(!symname (sname))
 				illname ();
 			if (match("(")) {
-				newfunc(sname);
+				newfunc(sname, ptr_order, typ, otag);
 				return 2;
 			}
 			if (findglb (sname))

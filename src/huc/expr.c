@@ -747,7 +747,15 @@ long heir11 (LVALUE *lval, int comma)
 			} else
 				callfunction (ptr->name);
 			k = 0;
-			lval->symbol = 0;
+			/* Encode return type in lval. */
+			SYMBOL *s = lval->symbol;
+			if (s) {
+				if (s->ptr_order >=1)
+					lval->ptr_type = s->type;
+				if (s->type == CSTRUCT)
+					lval->tagsym = &tag_table[s->tagidx];
+				lval->symbol = 0;
+			}
 		} else if ((direct=match(".")) || match("->")) {
 			if (lval->tagsym == 0) {
 			    error("can't take member") ;
