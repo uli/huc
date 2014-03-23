@@ -987,6 +987,21 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
+			/*  __ldwi  i                   --> __ldwi (i*j)
+			 *  __mulwi j
+			 *
+			 */
+			else if
+			   ((p[0]->code == I_MULWI) &&
+				(p[1]->code == I_LDWI) &&
+
+				(p[1]->type == T_VALUE))
+			{
+				/* replace code */
+				p[1]->data *= p[0]->data;
+				nb = 1;
+			}
+
 			/*  __ldwi i                    --> __ldwi i+i
 			 *  __aslw
 			 *
