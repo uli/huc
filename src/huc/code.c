@@ -206,6 +206,14 @@ static void out_addr(long type, long data)
 	}
 }
 
+void dump_ins(INS *tmp)
+{
+	FILE *save = output;
+	output = stdout;
+	gen_code(tmp);
+	output = save;
+}
+
 /*
  *	gen assembly code
  *

@@ -22,4 +22,6 @@ void out_ins_sym(long code, long type, long data, SYMBOL *sym);
 void gen_ins(INS *tmp);
 void gen_code(INS *tmp);
 
+void dump_ins(INS *tmp);
+
 #endif
