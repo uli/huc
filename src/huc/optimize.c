@@ -1180,13 +1180,11 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-			   ( ((p[0]->code == I_LDW) || (p[0]->code == I_LDWI)) &&
-				 ((p[1]->code == I_LDW) || (p[1]->code == I_LDWI)) )
+			   ( ((p[0]->code == I_LDW) || (p[0]->code == I_LDWI || p[0]->code == X_LDW_S || p[0]->code == X_LEA_S)) &&
+				 ((p[1]->code == I_LDW) || (p[1]->code == I_LDWI) || p[1]->code == X_LDW_S || p[1]->code == X_LEA_S) )
 			{
 				/* remove code */
-				p[1]->code = p[0]->code;
-				p[1]->type = p[0]->type;
-				p[1]->data = p[0]->data;
+				*p[1] = *p[0];
 				nb = 1;
 			}
 
