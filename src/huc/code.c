@@ -622,6 +622,12 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_LBRAN:
+		ot("__lbran\t");
+		outlabel(data);
+		nl();
+		break;
+
 	case I_LBEQ:
 		ot("__lbeq\t");
 		outlabel(data);

@@ -722,6 +722,10 @@ __lbra	.macro
 	 jmp	\1
 	.endm
 
+__lbran	.macro
+	 bra	\1
+	.endm
+
 __lbeq	.macro
 	 cpx #0
 	 bne	.x\@

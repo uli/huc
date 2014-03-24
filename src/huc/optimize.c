@@ -111,15 +111,23 @@ void push_ins(INS *ins)
 		{
 			int j;
 			for (j = 0; j < nb; j++) {
-			if (p[j]->code == I_LBNE || p[j]->code == I_LBEQ) {
+			if (p[j]->code == I_LBNE || p[j]->code == I_LBEQ ||
+			    p[j]->code == I_LBRA) {
 				int i;
 				for (i = 0; i < nb; i++) {
 					if (p[i]->code == I_LABEL &&
 					    p[i]->data == p[j]->data) {
-						if (p[j]->code == I_LBNE)
+						switch (p[j]->code) {
+						case I_LBNE:
 							p[j]->code = I_LBNEN;
-						else
+							break;
+						case I_LBEQ:
 							p[j]->code = I_LBEQN;
+							break;
+						case I_LBRA:
+							p[j]->code = I_LBRAN;
+							break;
+						}
 						break;
 					}
 				}
@@ -890,13 +898,14 @@ void push_ins(INS *ins)
 		if (q_nb >= 2)
 		{
 			if (p[0]->code == I_LABEL &&
-				p[1]->code == I_LBRA &&
+				(p[1]->code == I_LBRA || p[1]->code == I_LBRAN) &&
 				p[1]->type == T_LABEL &&
 				p[0]->data == p[1]->data)
 			{
 				*p[1] = *p[0];
 				nb = 1;
 			}
+
 			/*  __addmi i,__stack           --> __addmi i+j,__stack
 			 *  __addmi j,__stack
 			 *
@@ -1683,7 +1692,7 @@ void flush_ins_label(int nextlabel)
 	{
 		/* skip last op if it's a branch to nextlabel */
 		if (q_nb > 1 || nextlabel == -1 ||
-		    q_ins[q_rd].code != I_LBRA ||
+		    (q_ins[q_rd].code != I_LBRA && q_ins[q_rd].code != I_LBRAN) ||
 		    q_ins[q_rd].data != nextlabel) {
 			/* gen code */
 			if (arg_stack_flag)
