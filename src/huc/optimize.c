@@ -1563,15 +1563,25 @@ level_2:
 							break;
 					}
 					else {
-						if (q_ins[j].code != X_PEA_S)
+						if (q_ins[j].code != X_PEA_S && (q_ins[j].code != I_PUSHW || q_ins[j-1].code != I_LDWI))
 							break;
 
-						/* change stwps into stw_s */
-							q_ins[q_wr].data =  q_ins[j].data;
-						if (q_ins[q_wr].code == I_STBPS)
-							q_ins[q_wr].code =  X_STB_S;
-						else
-							q_ins[q_wr].code =  X_STW_S;
+						/* change stwps into stw_s/stw */
+						q_ins[q_wr].data =  q_ins[j].data;
+						if (q_ins[j].code == X_PEA_S) {
+							if (q_ins[q_wr].code == I_STBPS)
+								q_ins[q_wr].code =  X_STB_S;
+							else
+								q_ins[q_wr].code =  X_STW_S;
+						}
+						else {
+							if (q_ins[q_wr].code == I_STBPS)
+								q_ins[q_wr].code =  I_STB;
+							else
+								q_ins[q_wr].code =  I_STW;
+							q_ins[q_wr].type = q_ins[j-1].type;
+							q_ins[q_wr].data =  q_ins[j-1].data;
+						}
 					}
 
 					/* adjust stack references;
