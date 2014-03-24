@@ -1505,6 +1505,7 @@ level_2:
 		long  i, j;
 		long  flag;
 		long  t;
+		long  jp;
 
 		/* check last instruction */
 		if ((q_nb > 1) &&
@@ -1522,6 +1523,11 @@ level_2:
 
 				if (j < 0)
 					j += Q_SIZE;
+
+				/* Index of insn precdeing j. */
+				jp = j - 1;
+				if (jp < 0)
+					jp += Q_SIZE;
 
 				/* check instruction */
 				switch (q_ins[j].code) {
@@ -1580,24 +1586,29 @@ level_2:
 							break;
 					}
 					else {
-						if (q_ins[j].code != X_PEA_S && (q_ins[j].code != I_PUSHW || q_ins[j-1].code != I_LDWI))
+						/* Only handle sequences that start with
+						   pea_s or ldwi/pushw. */
+						if (q_ins[j].code != X_PEA_S &&
+						    (q_ins[j].code != I_PUSHW || q_ins[jp].code != I_LDWI)
+						   )
 							break;
 
 						/* change stwps into stw_s/stw */
-						q_ins[q_wr].data =  q_ins[j].data;
 						if (q_ins[j].code == X_PEA_S) {
 							if (q_ins[q_wr].code == I_STBPS)
 								q_ins[q_wr].code =  X_STB_S;
 							else
 								q_ins[q_wr].code =  X_STW_S;
+							q_ins[q_wr].data =  q_ins[j].data;
 						}
 						else {
 							if (q_ins[q_wr].code == I_STBPS)
 								q_ins[q_wr].code =  I_STB;
 							else
 								q_ins[q_wr].code =  I_STW;
-							q_ins[q_wr].type = q_ins[j-1].type;
-							q_ins[q_wr].data =  q_ins[j-1].data;
+							/* Use data from the preceding ldwi. */
+							q_ins[q_wr].type = q_ins[jp].type;
+							q_ins[q_wr].data =  q_ins[jp].data;
 						}
 					}
 
