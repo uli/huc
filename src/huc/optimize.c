@@ -142,19 +142,17 @@ void push_ins(INS *ins)
 			 *  __stwps
 			 *
 			 */
-			if ((p[0]->code == I_STWPS) &&
-				(p[1]->code == I_ADDWI) &&
-				(p[2]->code == I_LDWP) &&
-				(p[3]->code == I_STW && p[3]->type == T_PTR) &&
-				(p[4]->code == I_PUSHW) &&
-				(p[5]->code == I_LDWI))
+			if (p[0]->code == I_STWPS &&
+			    (p[1]->code == I_ADDWI || p[1]->code == I_SUBWI) &&
+			    p[2]->code == I_LDWP && p[2]->type == T_PTR &&
+			    p[3]->code == I_STW && p[3]->type == T_PTR &&
+			    p[4]->code == I_PUSHW &&
+			    p[5]->code == I_LDWI)
 			{
-				/* replace code */
-				p[5]->code = I_LDW;
-				*p[4] = *p[1];
+				*p[3] = *p[5];
 				p[3]->code = I_STW;
-				p[3]->type = p[5]->type;
-				p[3]->data = p[5]->data;
+				*p[4] = *p[1];
+				p[5]->code = I_LDW;
 				nb = 3;
 			}
 
