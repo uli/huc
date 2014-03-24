@@ -952,6 +952,25 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
+			/*  __ldwi  sym                   --> __ldwi sym+j
+			 *  __add[bw]i j
+			 *
+			 */
+			else if
+			   ((p[0]->code == I_ADDWI || p[0]->code == I_ADDBI) &&
+				(p[1]->code == I_LDWI) &&
+
+				(p[1]->type == T_SYMBOL))
+			{
+				/* replace code */
+				if (p[0]->data != 0) {
+					char *newsym = (char *)malloc(strlen((char *)p[1]->data) + 12);
+					sprintf(newsym, "%s+%ld", (char *)p[1]->data, p[0]->data);
+					p[1]->data = (long)newsym;
+				}
+				nb = 1;
+			}
+
 			/*  __ldwi  i                   --> __ldwi (i-j)
 			 *  __subwi j
 			 *
