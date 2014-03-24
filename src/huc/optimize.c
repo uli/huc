@@ -1271,8 +1271,8 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
-			/*  @_lea_s i                   --> @_ldb_s i
-			 *  @_ldb_p
+			/*  @_lea_s i                   --> @_ld(u)b_s i
+			 *  @_ld(u)b_p
 			 *
 			 *  ====
 			 *  bytes  : 10+11 = 21         -->  9
@@ -1293,6 +1293,27 @@ void push_ins(INS *ins)
 			{
 				/* replace code */
 				p[1]->code = X_LDUB_S;
+				nb = 1;
+			}
+
+			/*  @_ldwi i                   --> @_ld(u)b i
+			 *  @_ld(u)b_p
+			 *
+			 */
+			else if
+			   ((p[0]->code == X_LDB_P) &&
+				(p[1]->code == I_LDWI))
+			{
+				/* replace code */
+				p[1]->code = I_LDB;
+				nb = 1;
+			}
+			else if
+			   ((p[0]->code == X_LDUB_P) &&
+				(p[1]->code == I_LDWI))
+			{
+				/* replace code */
+				p[1]->code = I_LDUB;
 				nb = 1;
 			}
 
