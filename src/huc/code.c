@@ -299,29 +299,13 @@ void gen_code(INS *tmp)
 
 	case I_LDB:
 		ot("__ldb\t");
-
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		default:
-			outsymbol((char *)data);
-			break;
-		}
+		out_type(type, data);
 		nl();
 		break;
 
 	case I_LDUB:
 		ot("__ldub\t");
-
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		default:
-			outsymbol((char *)data);
-			break;
-		}
+		out_type(type, data);
 		nl();
 		break;
 
