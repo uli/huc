@@ -1,0 +1,26 @@
+#!/bin/bash
+# Check if norecurse model actually yields smaller code.
+for i in "$@"
+do
+	../src/huc/huc "$i" >/dev/null
+	s="${i%.c}.s"
+	large=`wc -l <"$s"`
+	../src/huc/huc -r "$i" >/dev/null
+	norec=`wc -l <"$s"`
+	cut=`grep "_lend:" "$s"|wc -l`
+	norec=$((norec - cut * 5))
+	if test $norec -lt $large
+	then
+		echo -n "good"
+	elif test $norec -gt $large
+	then
+		echo -n "BAD "
+		mkdir -p rbad
+		cp "$s" rbad/"${s##*/}.norec"
+		../src/huc/huc "$i" >/dev/null
+		cp "$s" rbad/"${s##*/}.large"
+	else
+		echo -n "ok  "
+	fi
+	echo -e " $large/$norec\t$i"
+done
