@@ -1056,6 +1056,11 @@ scr_height .ds 1
 	   .code
 
 init_vdc:
+	maplibfunc lib2_init_vdc
+	rts
+
+	.bank	LIB2_BANK
+lib2_init_vdc:
     ; ----
     ; default screen resolution
     ;
@@ -1197,6 +1202,7 @@ _xres	.equ 256
 	.db $0E,$0C,$00		; VCR +
 	.db $0F,$10,$00		; DCR   DMA control register
 	.db $13,$00,$7F		; SATB  address of the SATB
+	.bank	LIB1_BANK
 
 
 ; ----
@@ -1383,6 +1389,11 @@ set_bat_size:
 ; ----
 
 init_psg:
+	maplibfunc lib2_init_psg
+	rts
+
+	.bank	LIB2_BANK
+lib2_init_psg:
        .if !(CDROM)
 	stz   <psg_irqflag	; IRQ not running
 	lda   #1
@@ -1406,6 +1417,7 @@ init_psg:
 	sta   psg_ch
 	stz   psg_noise
 	rts
+	.bank	LIB1_BANK
 
 
 ; ----------------------------------
