@@ -1613,6 +1613,11 @@ _strlen.1:
 	rts
 
 ___builtin_ffs.1:
+	maplibfunc lib2____builtin_ffs.1
+	rts
+
+	.bank LIB2_BANK
+lib2____builtin_ffs.1:
 	sax
 	ldy #-8
 .search_lo:	ror a
@@ -1637,6 +1642,7 @@ ___builtin_ffs.1:
 	tax
 	cla		; return 9 + y
 	rts
+	.bank LIB1_BANK
 
 _abort:
 	  .db 0xe2
