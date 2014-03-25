@@ -1457,27 +1457,29 @@ _strcpy.2:
 
 _strncat.3:
 	__stw	<_ax
+	__ldw	<_di
+	__stw	<_bx
 .endlp:	  lda	[_di]
 	  beq	.cpylp
 	  incw	<_di
 	  bra	.endlp
 .cpylp:
-	  lda	[_si]
-	  sta	[_di]
-	  beq	.out
-	  incw	<_di
-	  incw	<_si
-	  decw	<_ax
-	  tstw	<_ax
-	  bne	.cpylp
+	  jsr	strncpy_loop
 	  cla
 	  sta	[_di]
+	__ldw	<_bx
 .out:	  rts
 
 
 _strncpy.3:
 	__stw	<_ax
-.lp:
+	__ldw	<_di
+	__stw	<_bx
+	  jsr	strncpy_loop
+	__ldw	<_bx
+	  rts
+
+strncpy_loop:
 	  lda	[_si]
 	  sta	[_di]
 	  beq	.out
@@ -1485,10 +1487,8 @@ _strncpy.3:
 	  incw	<_si
 	  decw	<_ax
 	  tstw	<_ax
-	  beq	.out
-	  bra	.lp
+	  bne	strncpy_loop
 .out:	  rts
-
 
 ; ----
 ; _memcpy(char *dest [di], char *src [si], int count [acc])
