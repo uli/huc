@@ -121,6 +121,7 @@ _cmp32.2:
 	  txa
 	  rts
 
+	.ifdef BCD
 ; bcd_init(char *dst [bx], char digits)
 ; ----
 
@@ -284,3 +285,4 @@ _bcd_add.2:
 	  cld
 	  rts
 
+	.endif ; BCD
