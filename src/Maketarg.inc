@@ -6,7 +6,7 @@
 
 clean::
 	$(RM) core
-	$(RM) *.o
+	$(RM) *.o *.gcno *.gcda *.gcov
 ifneq "$(EXE)" ""
 	$(RM) $(EXE)
 endif
