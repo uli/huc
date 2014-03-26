@@ -12,7 +12,8 @@ char pseudo_flag[] = {
 	0x0C, 0x0C, 0x0C, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
 	0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0C,
 	0x0F, 0x0F, 0x0F, 0x0C, 0x0C, 0x0C, 0x0C, 0x0F, 0x0F, 0x0F,
-	0x0F, 0x0F, 0x0C, 0x0C, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x04
+	0x0F, 0x0F, 0x0C, 0x0C, 0x0C, 0x04, 0x04, 0x04, 0x0C, 0x0C,
+	0x0C, 0x0C
 };
 
 
@@ -47,6 +48,8 @@ do_pseudo(int *ip)
 
 	case P_DB:
 	case P_DW:
+	case P_DWL:
+	case P_DWH:
 		if (lastlabl) {
 			if(lastlabl->data_type != P_DB)
 		 	   lastlabl = NULL;
@@ -333,6 +336,144 @@ do_dw(int *ip)
 	if (pass == LAST_PASS)
 		println();
 }
+
+
+/* ----
+ * do_dwl()
+ * ----
+ * .db pseudo
+ */
+
+void
+do_dwl(int *ip)
+{
+	char c;
+
+	/* define label */
+	labldef(loccnt, 1);
+
+	/* output infos */
+	data_loccnt = loccnt;
+	data_size   = 1;
+	data_level  = 2;
+
+	/* get data */
+	for (;;) {
+		/* get a word */
+		if (!evaluate(ip, 0))
+			return;
+
+		/* update location counter */
+		loccnt += 1;
+
+		/* store word on last pass */
+		if (pass == LAST_PASS) {
+			/* check for overflow */
+			if ((value > 0xFFFF) && (value < 0xFFFF8000)) {
+				error("Overflow error!");
+				return;
+			}
+
+			/* store word */
+			putbyte(loccnt - 1, (value & 0xff));
+		}
+
+		/* check if there's another word */
+		c = prlnbuf[(*ip)++];
+
+		if (c != ',')
+			break;
+	}
+
+	/* check error */
+	if (c != ';' && c != '\0') {
+		error("Syntax error!");
+		return;
+	}
+
+	/* size */
+	if (lablptr) {
+		lablptr->data_type = P_DB;
+		lablptr->data_size = loccnt - data_loccnt;
+	}
+	else {
+		if (lastlabl) {
+			if (lastlabl->data_type == P_DB)
+				lastlabl->data_size += loccnt - data_loccnt;
+		}
+	}
+
+	/* output line */
+	if (pass == LAST_PASS)
+		println();
+}
+
+
+
+void
+do_dwh(int *ip)
+{
+	char c;
+
+	/* define label */
+	labldef(loccnt, 1);
+
+	/* output infos */
+	data_loccnt = loccnt;
+	data_size   = 1;
+	data_level  = 2;
+
+	/* get data */
+	for (;;) {
+		/* get a word */
+		if (!evaluate(ip, 0))
+			return;
+
+		/* update location counter */
+		loccnt += 1;
+
+		/* store word on last pass */
+		if (pass == LAST_PASS) {
+			/* check for overflow */
+			if ((value > 0xFFFF) && (value < 0xFFFF8000)) {
+				error("Overflow error!");
+				return;
+			}
+
+			/* store word */
+			putbyte(loccnt - 1, ((value>>8) & 0xff));
+		}
+
+		/* check if there's another word */
+		c = prlnbuf[(*ip)++];
+
+		if (c != ',')
+			break;
+	}
+
+	/* check error */
+	if (c != ';' && c != '\0') {
+		error("Syntax error!");
+		return;
+	}
+
+	/* size */
+	if (lablptr) {
+		lablptr->data_type = P_DB;
+		lablptr->data_size = loccnt - data_loccnt;
+	}
+	else {
+		if (lastlabl) {
+			if (lastlabl->data_type == P_DB)
+				lastlabl->data_size += loccnt - data_loccnt;
+		}
+	}
+
+	/* output line */
+	if (pass == LAST_PASS)
+		println();
+}
+
 
 
 /* ----

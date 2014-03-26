@@ -26,6 +26,7 @@ assemble(void)
 	struct t_line *ptr;
 	char *buf;
 	char c;
+	char local_check;
 	int	 flag;
 	int	 ip, i, j;		/* prlnbuf pointer */
 
@@ -142,12 +143,17 @@ assemble(void)
 	j = 0;
 	while (isspace(prlnbuf[i]))
 		i++;
+    local_check=prlnbuf[i + j];
 	for (;;) {
 		c = prlnbuf[i + j];
 		if (isdigit(c) && (j == 0))
 			break;
 		if (!isalnum(c) && (c != '_') && (c != '.'))
-			break;
+		{ if((local_check=='.') && ((c=='-') || (c=='+')))
+            { }
+          else { break;}
+		}
+
 		j++;
 	}
 	if ((j == 0) || ((i != SFIELD) && (c != ':')))

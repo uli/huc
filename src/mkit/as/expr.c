@@ -519,11 +519,72 @@ getsym(void)
 	int	valid;
 	int	i;
 	char c;
+	char local_check;
 
 	valid = 1;
 	i = 0;
 
 	/* get the symbol, stop to the first 'non symbol' char */
+	local_check = *expr;
+    while (valid) {
+        c = *expr;
+        if (isalpha(c) || c == '_' || c == '.' || (isdigit(c) && i >= 1)) {
+            symbol[++i] = c;
+            expr++;
+        }
+        else if((local_check=='.') && ((c=='-') || (c=='+'))) {
+            symbol[++i] = c;
+            expr++;
+        }
+        else {
+            valid = 0;
+        }
+    }
+
+	/* is it a reserved symbol? */
+	if (i == 1) {
+		switch (toupper(symbol[1])) {
+		case 'A':
+		case 'X':
+		case 'Y':
+			error("Symbol is reserved (A, X or Y)!");
+			i = 0;
+		}
+	}
+
+	/* store symbol length */
+	symbol[0] = i;
+	symbol[i+1] = '\0';
+
+    if (i > SBOLSZ - 1) {
+        char errorstr[512];
+        snprintf(errorstr, 512, "Symbol name too long ('%s' is %d chars long, max is %d)", symbol + 1, i, SBOLSZ - 1);
+        fatal_error(errorstr);
+    }
+
+	return (i);
+}
+
+
+/* ----
+ * getsym_op()
+ * ----
+ * extract a symbol name from the input string. Branch opcodes only.
+ */
+
+int
+getsym_op(void)
+{
+	int	valid;
+	int	i;
+	char c;
+	char local_check;
+
+	valid = 1;
+	i = 0;
+
+	/* get the symbol, stop to the first 'non symbol' char */
+	local_check = *expr;
 	while (valid) {
 		c = *expr;
 		if (isalpha(c) || c == '_' || c == '.' || (isdigit(c) && i >= 1)) {
@@ -531,9 +592,14 @@ getsym(void)
 				symbol[++i] = c;
 			expr++;
 		}
-		else {
-			valid = 0;
-		}
+		else if((local_check=='.') && ((c=='-') || (c=='+'))) {
+                if (i < SBOLSZ - 1)
+                    symbol[++i] = c;
+                expr++;
+             }
+            else {
+                valid = 0;
+            }
 	}
 
 	/* is it a reserved symbol? */

@@ -361,15 +361,11 @@ main(int argc, char **argv)
 		while (readline() != -1) {
 			assemble();
 			if (loccnt > 0x2000) {
-				if (proc_ptr == NULL)
-					fatal_error("Bank overflow, offset > $1FFF!");
-				else {
-					char tmp[128];
-
-					sprintf(tmp, "Proc : '%s' is too large (code > 8KB)!", proc_ptr->name);
-					fatal_error(tmp);
-				}
-				break;
+				loccnt&=0x1fff;
+				page++;
+				bank++;
+				if(pass==FIRST_PASS)
+				printf("   (Warning. Opcode crossing page boundary $%04X, bank $%02X)\n",(page*0x2000),bank);
 			}
 			if (stop_pass)
 				break;
@@ -382,7 +378,8 @@ main(int argc, char **argv)
 		/* abord pass on errors */
 		if (errcnt) {
 			printf("# %d error(s)\n", errcnt);
-			break;
+			exit(1);
+			//break;
 		}
 
 		/* adjust bank base */

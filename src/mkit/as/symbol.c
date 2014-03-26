@@ -46,14 +46,19 @@ colsym(int *ip)
 	int  err = 0;
 	int	 i = 0;
 	char c;
+	char local_check;
 
 	/* get the symbol */
+    local_check=prlnbuf[*ip];
 	for (;;) {
 		c = prlnbuf[*ip];
 		if (isdigit(c) && (i == 0))
 			break;
-		if ((!isalnum(c)) && (c != '_') && (c != '.'))
-			break;
+		if (!isalnum(c) && (c != '_') && (c != '.'))
+		{ if((local_check=='.') && ((c=='-') || (c=='+')))
+            { }
+          else { break;}
+		}
 		if (i < (SBOLSZ - 1))
 			symbol[++i] = c;
 		(*ip)++;

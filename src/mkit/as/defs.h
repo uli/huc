@@ -1,6 +1,6 @@
 
-#define NES_ASM_VERSION	("NES Assembler (v3.21, 2005/04/09, Denki Release)")
-#define PCE_ASM_VERSION	("PC Engine Assembler (v3.21, 2005/04/09, Denki Release)")
+#define NES_ASM_VERSION	("NES Assembler (v3.23 Beta, 5/09/2013, nop Release)")
+#define PCE_ASM_VERSION	("PC Engine Assembler (v3.23, 5/09/2013, nop Release)")
 
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
@@ -27,7 +27,7 @@
 /* line buffer length */
 #define LAST_CH_POS	158
 #define SFIELD	26
-#define SBOLSZ	32
+#define SBOLSZ	64
 
 /* macro argument types */
 #define NO_ARG			0
@@ -101,6 +101,8 @@
 #define P_PGROUP	47	// .procgroup
 #define P_ENDPG		48	// .endprocgroup
 #define P_CALL		49	// .call
+#define P_DWL		50  // lsb of a WORD
+#define P_DWH		51	// lsb of a WORD
 
 /* symbol flags */
 #define MDEF	3	/* multiply defined */

@@ -97,8 +97,9 @@ struct t_macro *macro_look(int *ip)
 		c = prlnbuf[*ip];
 		if (c == '\0' || c == ' ' || c == '\t' || c == ';')
 			break;
+
 		if (!isalnum(c) && c != '_')
-			return (NULL);
+		{ if(c!=0x2e) {	return (NULL); }}
 		if (l == 0) {
 			if (isdigit(c))
 				return (NULL);
@@ -330,10 +331,12 @@ macro_install(void)
 	lablptr->type = MACRO;
 
 	/* check macro name syntax */
+	/*
 	if (strchr(&symbol[1], '.')) {
 		error("Invalid macro name!");
 		return (0);
 	}
+	*/
 
 	/* calculate symbol hash value */
 	for (i = 1; i <= symbol[0]; i++) {
