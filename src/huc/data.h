@@ -63,9 +63,10 @@ extern	long	nxtlab,
 extern	FILE	*input, *input2, *output;
 extern	FILE	*inclstk[];
 
-extern char    inclstk_name[INCLSIZ][20];
+extern char    inclstk_name[INCLSIZ][FILENAMESIZE];
 extern long     inclstk_line[];
-extern char    fname_copy[20];
+extern char    fname_copy[FILENAMESIZE];
+extern char	user_outfile[FILENAMESIZE];
 extern long     line_number;
 
 extern	long		inclsp;

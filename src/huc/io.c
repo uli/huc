@@ -50,10 +50,18 @@ long openin (char *p)
  */
 long openout (void)
 {
-   outfname (fname);
-   if ((output = fopen (fname, "w")) == NULL) {
+   if (user_outfile[0])
+     output = fopen(user_outfile, "w");
+   else {
+     outfname (fname);
+     output = fopen(fname, "w");
+   }
+   if (output == NULL) {
       pl ("Open failure : ");
-      pl (fname);
+      if (user_outfile[0])
+        pl(user_outfile);
+      else
+        pl (fname);
       pl ("\n");
       return (NO);
       }

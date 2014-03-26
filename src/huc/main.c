@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -118,8 +119,16 @@ int main (int argc,char* argv[])
 							p += 6;
 						else
 							p += 3;
-						break;
 					}
+					else {
+						bp = ++p;
+						while (*p && *p != ' ' && *p != '\t')
+							p++;
+						memcpy(user_outfile, bp, p-bp);
+						user_outfile[p - bp] = 0;
+						p--;
+					}
+					break;
 				case 'O':
 					/* David, made -O equal to -O2
 					 * I'm too lazy to tape -O2 each time :)
@@ -215,21 +224,21 @@ int main (int argc,char* argv[])
 //			trailer ();
 			pl ("");
 			errs = errs || errfile;
-#ifndef	NOASLD
-		}
-#else
 		} else {
 			fputs("Don't understand file ", stderr);
 			fputs(p, stderr);
-			errs = 1;
+			fputc('\n', stderr);
+			exit(1);
 		}
-#endif
 		p = *argv; argv++;
 		first = 0;
 	}
 	fclose(output);
 	if (!errs && !sflag) {
-		errs = errs || assemble(pp);
+		if (user_outfile[0])
+			errs = errs || assemble(user_outfile);
+		else
+			errs = errs || assemble(pp);
 	}
 	exit(errs != 0);
 }

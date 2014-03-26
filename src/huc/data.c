@@ -70,6 +70,7 @@ FILE	*inclstk[INCLSIZ];
 
 char    inclstk_name[INCLSIZ][FILENAMESIZE];
 char    fname_copy[FILENAMESIZE];
+char	user_outfile[FILENAMESIZE];
 long     inclstk_line[INCLSIZ];
 long     line_number;
 
