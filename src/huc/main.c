@@ -35,9 +35,10 @@
 
 int main (int argc,char* argv[])
 {
-	char	*p,*bp;
+	char	*p,*pp,*bp;
 	char** oldargv = argv;
 	long smacptr;
+	int first = 1;
 	macptr = 0;
 	ctext = 0;
 	argc--; argv++;
@@ -50,7 +51,7 @@ int main (int argc,char* argv[])
 	overlayflag = 0;
 	asmdefs[0] = '\0';
 
-	while ( (p = *argv++) )
+	while ( (p = *argv++) ) {
 		if (*p == '-') while (*++p)
 			switch(*p) {
 				case 't': case 'T':
@@ -135,6 +136,7 @@ int main (int argc,char* argv[])
 					usage(oldargv[0]);
 			}
 			else break;
+	}
 
 	smacptr = macptr;
 	if (!p)
@@ -142,6 +144,8 @@ int main (int argc,char* argv[])
 	printf(HUC_VERSION);
 	printf("\n");
 	init_path();
+	pp = p;
+	nxtlab = 0;
 	while (p) {
 		errfile = 0;
 		if (extension(p) == 'c') {
@@ -164,7 +168,6 @@ int main (int argc,char* argv[])
 			quote[0] = '"';
 			cmode = 1;
 			glbflag = 1;
-			nxtlab = 0;
 			litlab = getlabel ();
 			defmac("__end\t__memory");
 			addglb("__memory", ARRAY, CCHAR, 0, EXTERN);
@@ -177,7 +180,8 @@ int main (int argc,char* argv[])
 			addglb_far("vdc", CINT);
 			addglb_far("vram", CCHAR);
 			/* end specific externs */
-			defpragma();
+			if (first)
+				defpragma();
 			defmac("huc6280\t1");
 			defmac("huc\t1");
 
@@ -197,7 +201,7 @@ int main (int argc,char* argv[])
 			 */
 			if (!openin (p))
 				exit(1);
-			if (!openout ())
+			if (first && !openout ())
 				exit(1);
 			header();
 			asmdefines();
@@ -209,13 +213,9 @@ int main (int argc,char* argv[])
 			dumpglbs ();
 			errorsummary ();
 //			trailer ();
-			fclose (output);
 			pl ("");
 			errs = errs || errfile;
 #ifndef	NOASLD
-		}
-		if (!errfile && !sflag) {
-				errs = errs || assemble(p);
 		}
 #else
 		} else {
@@ -224,14 +224,13 @@ int main (int argc,char* argv[])
 			errs = 1;
 		}
 #endif
-		p = *argv++;
+		p = *argv; argv++;
+		first = 0;
 	}
-// David, removed because link() doesn't exist
-//
-//#ifndef	NOASLD
-//	if (!errs && !sflag && !cflag)
-//		errs = errs || link();
-//#endif
+	fclose(output);
+	if (!errs && !sflag) {
+		errs = errs || assemble(pp);
+	}
 	exit(errs != 0);
 }
 

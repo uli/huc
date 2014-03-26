@@ -230,6 +230,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	ptr->tagidx = ret_otag;
 
 	flush_ins(); /* David, .proc directive support */
+	gtext();
 	ot (".proc ");
 	prefix ();
 	outstr (current_fn);
