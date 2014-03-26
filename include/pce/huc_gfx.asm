@@ -1437,6 +1437,11 @@ _gfx_setbgpal:
 ; ----
 
 _gfx_init:
+	maplibfunc lib2_gfx_init
+	rts
+
+	.bank LIB2_BANK
+lib2_gfx_init:
 	__stw	<_dx	; vram addr
 
 	  lsrw	<_dx	; shift address to make char pattern
@@ -1460,7 +1465,7 @@ _gfx_init:
 	  dey
 	  bne	.l2
 	  rts
-
+	.bank LIB1_BANK
 
 ; gfx_clear(int start_vram_addr)
 ; ----
