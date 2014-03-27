@@ -34,6 +34,8 @@
 #include "sym.h"
 #include "struct.h"
 
+static void dumparg(void);
+
 int main (int argc,char* argv[])
 {
 	char	*p,*pp,*bp;
@@ -244,6 +246,7 @@ int main (int argc,char* argv[])
 		p = *argv; argv++;
 		first = 0;
 	}
+	dumparg();
 	fclose(output);
 	if (!errs && !sflag) {
 		if (user_outfile[0])
@@ -478,6 +481,10 @@ void dumpglbs (void )
 		nl();
 		gdata();
 	}
+}
+
+static void dumparg(void)
+{
 	if (globals_h_in_process != 1) {
 		outstr("__arg:\n");
 	}
