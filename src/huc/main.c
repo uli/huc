@@ -331,8 +331,10 @@ void usage(char* exename)
  */
 void parse (void )
 {
-	while (!feof (input)) {
-
+	while (1) {
+		blanks();
+		if (feof(input))
+			break;
 // Note:
 // At beginning of 'parse' call, the header has been output to '.s'
 // file, as well as all the -Asym=val operands from command line.
@@ -389,7 +391,6 @@ void parse (void )
 			dopsddef();
 		else
 			newfunc (NULL, 0, 0, 0);
-		blanks ();
 	}
 	if (optimize)
 		flush_ins();
