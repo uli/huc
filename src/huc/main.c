@@ -188,6 +188,7 @@ int main (int argc,char* argv[])
 	/* Labels count is not reset for each file because labels are
 	   global and conflicts would arise. */
 	nxtlab = 0;
+	defpragma();
 	link_lib = link_libs;
 	/* Remember where the global assembler defines end so we can
 	   reset to that point for each file. */
@@ -221,6 +222,10 @@ int main (int argc,char* argv[])
 			cmode = 1;
 			glbflag = 1;
 			litlab = getlabel ();
+
+			/* Macros and globals have to be reset for each
+			   file, so we have to define the defaults all over
+			   each time. */
 			defmac("__end\t__memory");
 			addglb("__memory", ARRAY, CCHAR, 0, EXTERN);
 			addglb("stack", ARRAY, CCHAR, 0, EXTERN);
@@ -232,8 +237,6 @@ int main (int argc,char* argv[])
 			addglb_far("vdc", CINT);
 			addglb_far("vram", CCHAR);
 			/* end specific externs */
-			if (first)
-				defpragma();
 			defmac("huc6280\t1");
 			defmac("huc\t1");
 
