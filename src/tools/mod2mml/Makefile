@@ -8,7 +8,7 @@
 #
 BASEDIR=..d ..d ..
 include ../../Make_src.inc
-
+CFLAGS += -Wno-char-subscripts
 
 HDRS = 
 OBJS = mod2mml.o
@@ -18,7 +18,7 @@ all: $(EXE)
 
 
 $(EXE): $(OBJS) $(LIBS) $(HDRS)
-	$(LD) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
 	$(CP) $(EXE) $(BINDIR)
 
 #
