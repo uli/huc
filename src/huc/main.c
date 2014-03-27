@@ -40,6 +40,8 @@ int main (int argc,char* argv[])
 	char** oldargv = argv;
 	long smacptr;
 	int first = 1;
+	char *asmdefs_global_end;
+
 	macptr = 0;
 	ctext = 0;
 	argc--; argv++;
@@ -155,8 +157,17 @@ int main (int argc,char* argv[])
 	init_path();
 	pp = p;
 	nxtlab = 0;
+	/* Remember where the global assembler defines end so we can
+	   reset to that point for each file. */
+	/* XXX: Even if we don't repeat the local asm defines, they
+	   are still defined because we compile everything into one
+	   assembly file. */
+	asmdefs_global_end = asmdefs + strlen(asmdefs);
 	while (p) {
 		errfile = 0;
+		/* Truncate asm defines to the point where global
+		   defines end. */
+		asmdefs_global_end[0] = 0;
 		if (extension(p) == 'c') {
 			glbptr = STARTGLB;
 			locptr = STARTLOC;
