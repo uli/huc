@@ -215,6 +215,7 @@ int main (int argc,char* argv[])
 			ncmp =
 			lastst =
 			quote[1] =
+			const_nb =
 			line_number = 0;
 			macptr = smacptr;
 			input2 = NULL;
