@@ -31,7 +31,7 @@ long openin (char *p)
 	if (!checkname (fname))
 		return (NO);
 	if ((input = fopen (fname, "r")) == NULL) {
-		pl ("Open failure\n");
+		perror(fname);
 		return (NO);
 	}
 	kill ();
