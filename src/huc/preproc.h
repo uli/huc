@@ -41,4 +41,6 @@ long findmac (char* sname);
 
 void toggle (char name, long onoff);
 
+const char *include_dir(void);
+
 #endif

@@ -29,6 +29,38 @@
 /* locals */
 static char incpath[10][256];
 
+const char *include_dir(void)
+{
+	static const char *default_dirs[] = {
+		"/usr/local/lib/huc/include/pce",
+		"/usr/local/huc/include/pce",
+		"/usr/local/share/huc/include/pce",
+		"/usr/local/include/pce",
+		"/usr/lib/huc/include/pce",
+		"/usr/share/huc/include/pce",
+		"/usr/include/pce",
+		NULL
+	};
+	char *p;
+	p = getenv("PCE_INCLUDE");
+
+	if (p == NULL) {
+		int i;
+		struct stat st;
+		for (i = 0; default_dirs[i]; i++) {
+			if (!stat(default_dirs[i], &st)) {
+				return default_dirs[i];
+			}
+		}
+		
+		if (!p)
+			return 0;
+	}
+	else
+		return p;
+	return 0;
+}
+
 /*
  *  init the include paths
  */
@@ -38,31 +70,7 @@ init_path(void)
 	const char *p,*pl;
 	long	  i, l;
 
-	p = getenv("PCE_INCLUDE");
-
-	if (p == NULL) {
-		int i;
-		struct stat st;
-		const char *default_dirs[] = {
-			"/usr/local/lib/huc/include/pce",
-			"/usr/local/huc/include/pce",
-			"/usr/local/share/huc/include/pce",
-			"/usr/local/include/pce",
-			"/usr/lib/huc/include/pce",
-			"/usr/share/huc/include/pce",
-			"/usr/include/pce",
-			NULL
-		};
-		for (i = 0; default_dirs[i]; i++) {
-			if (!stat(default_dirs[i], &st)) {
-				p = default_dirs[i];
-				break;
-			}
-		}
-		
-		if (!p)
-			return;
-	}
+	p = include_dir();
 
 	for (i = 0; i < 10; i++) {
 		pl = strchr(p, ';');
