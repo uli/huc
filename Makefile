@@ -16,7 +16,7 @@ $(SUBDIRS):
 
 install:
 	cp -p bin/* /usr/local/bin
-	cp -p include/pce/* /usr/include/pce/
+	cp -pr include/pce/* /usr/include/pce/
 
 package:
 	$(MAKE) clean
