@@ -34,12 +34,22 @@
 #include "sym.h"
 #include "struct.h"
 
+static char **link_libs = 0;
+static int link_lib_ptr;
+
+static char *lib_to_file(char *lib)
+{
+	static char libfile[FILENAMESIZE];
+	sprintf(libfile, "%s/%s.c", include_dir(), lib);
+	return libfile;
+}
 static void dumparg(void);
 
 int main (int argc,char* argv[])
 {
 	char	*p,*pp,*bp;
 	char** oldargv = argv;
+	char **link_lib;
 	long smacptr;
 	int first = 1;
 	char *asmdefs_global_end;
@@ -145,6 +155,21 @@ int main (int argc,char* argv[])
 					norecurse = 1;
 					break;
 
+				case 'l':
+					bp = ++p;
+					while (*p && *p != ' ' && *p != '\t')
+						p++;
+					link_libs = realloc(link_libs, (link_lib_ptr + 2) * sizeof(*link_libs));
+					link_libs[link_lib_ptr] = malloc(p - bp + 1);
+					memcpy(link_libs[link_lib_ptr], bp, p - bp);
+					link_libs[link_lib_ptr][p - bp] = 0;
+					strcat(asmdefs, "LINK_");
+					strcat(asmdefs, link_libs[link_lib_ptr]);
+					strcat(asmdefs, "\t= 1\n");
+					link_libs[++link_lib_ptr] = 0;
+					p--;
+					break;
+
 				default:
 					usage(oldargv[0]);
 			}
@@ -157,8 +182,13 @@ int main (int argc,char* argv[])
 	printf(HUC_VERSION);
 	printf("\n");
 	init_path();
+	/* Remember the first file, it will be used as the base for the
+	   output file name unless there is a user-specified outfile. */
 	pp = p;
+	/* Labels count is not reset for each file because labels are
+	   global and conflicts would arise. */
 	nxtlab = 0;
+	link_lib = link_libs;
 	/* Remember where the global assembler defines end so we can
 	   reset to that point for each file. */
 	/* XXX: Even if we don't repeat the local asm defines, they
@@ -243,7 +273,15 @@ int main (int argc,char* argv[])
 			fputc('\n', stderr);
 			exit(1);
 		}
-		p = *argv; argv++;
+		p = *argv;
+		if (!p && link_lib && *link_lib) {
+			/* No more command-line files, continue with
+			   libraries. */
+			p = lib_to_file(*link_lib);
+			link_lib++;
+		}
+		else
+			argv++;
 		first = 0;
 	}
 	dumparg();
