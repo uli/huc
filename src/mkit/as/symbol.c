@@ -423,14 +423,15 @@ labldump(FILE *fp)
 	struct t_symbol *local;
 	int i;
 
-	fprintf(fp, "Label\t\t\t\tAddr\tBank\n");
-	fprintf(fp, "-----\t\t\t\t----\t----\n");
+	fprintf(fp, "Bank\tAddr\tLabel\n");
+	fprintf(fp, "----\t----\t-----\n");
 
 	/* browse the symbol table */
 	for (i = 0; i < 256; i++) {
 		sym = hash_tbl[i];
 		while (sym) {
 			/* dump the label */
+			fprintf(fp, "%2.2x\t%4.4x\t", sym->bank, sym->value);
 			fprintf(fp, "%s\t", &(sym->name[1]));
 			if (strlen(&(sym->name[1])) < 8)
 				fprintf(fp, "\t");
@@ -438,19 +439,20 @@ labldump(FILE *fp)
 				fprintf(fp, "\t");
 			if (strlen(&(sym->name[1])) < 24)
 				fprintf(fp, "\t");
-			fprintf(fp, "%4.4x\t %2.2x\n", sym->value, sym->bank);
+			fprintf(fp, "\n");
 
 			/* local symbols */
 			if (sym->local) {
 				local = sym->local;
 
 				while  (local) {
+					fprintf(fp, "%2.2x\t%4.4x\t", local->bank, local->value);
 					fprintf(fp, "\t%s\t", &(local->name[1]));
 					if (strlen(&(local->name[1])) < 8)
 						fprintf(fp, "\t");
 					if (strlen(&(local->name[1])) < 16)
 						fprintf(fp, "\t");
-					fprintf(fp, "%4.4x\t %2.2x\n", local->value, local->bank);
+					fprintf(fp, "\n");
 	
 					/* next */
 					local = local->next;
