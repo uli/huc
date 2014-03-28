@@ -1646,6 +1646,11 @@ lib2____builtin_ffs.1:
 	rts
 	.bank LIB1_BANK
 
+_mem_mapdatabank:
+	txa
+	tam #3
+	rts
+
 _abort:
 	  .db 0xe2
 
