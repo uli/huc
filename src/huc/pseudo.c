@@ -395,6 +395,32 @@ void dopsdinc(void)
 	do_inc_ex(16);
    }
  else
+ if (amatch("asm",3))
+   {
+
+    if (!match("("))
+      error("missing (");
+
+    ol(".data");
+
+    if (readqstr() == 0)
+    {
+       error("bad filename in incasm");
+       kill();
+       return;
+    }
+
+    ot(".include \"");
+    outstr(litq2);
+    outstr("\"");
+
+    if (!match(")"))
+      error("missing )");
+    nl();
+    ol(".code");
+    kill();
+    }
+ else
    {
     error("Unknown include directive");
     kill();
