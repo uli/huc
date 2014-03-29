@@ -86,6 +86,7 @@ const int ft_period[NB_OCTAVE * NOTE_PER_OCTAVE] = {
 int nb_warning; /* Number of non fatal errors */
 char* input_filename; /* Name of the current module */
 char output_filename[256]; /* Name of the file used to output result */
+char track_name[256];
 
 /*
  * Little memento about fast tracker effects (from memory plus ft2 help)
@@ -209,49 +210,10 @@ void convert_period(int period,
  }
 
 
-/*****************************************************************************
+char out_ch[MAX_CHANNEL][100000];
+char *out_ch_ptr[MAX_CHANNEL];
 
-    Function: handle_note_display
-
-    Description: Simply display note
-    Parameters: ( int current_channel from global variables )
-		( int current_row from global variables )
-
-		int period, data about the "height" (not sure this term is
-				     the right one in english) of the note
-		int instrument
-		int effect_id, cf table above
-		int effect_data
-    Return: nothing
-
-*****************************************************************************/
-void handle_note_display(int period,
-			 int instrument,
-			 int effect_id,
-			 int effect_data)
-{
- char alpha, octave;
- const char* alpha_to_disp[NOTE_PER_OCTAVE] =
-  { "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"};
-
- if (current_channel == 0)
-   printf("%02X: ", current_row);
-
- if (period != 0)
-   {
-     convert_period(period, &alpha, &octave);
-     printf("%s%d", alpha_to_disp[alpha] , octave);
-   }
- else
-   {
-     printf("   ");
-   }
-
- printf("%2d %1X %2X   ", instrument, effect_id, effect_data);
-
- if (current_channel == nb_channel - 1)
-   printf("\n");
- }
+#define outmem(x...) out_ch_ptr[current_channel] += sprintf(out_ch_ptr[current_channel], x)
 
 /*****************************************************************************
 
@@ -275,32 +237,23 @@ void handle_note_mml(int period,
 		     int effect_data)
 {
  char alpha, octave;
- FILE *out;
+ int old_vol;
+ static int prev_instrument[MAX_CHANNEL] = {-1, -1, -1, -1};
+ static int prev_octave[MAX_CHANNEL] = {-1, -1, -1, -1};
+ static int charcnt[MAX_CHANNEL] = {0};
+ static int rests[MAX_CHANNEL] = {0};
  const char* alpha_to_disp[NOTE_PER_OCTAVE] =
-  { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+  { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"};
 
 /*
  if (current_channel != 0)
    return;
 */
 
- strcpy(output_filename, input_filename);
- if (strrchr(output_filename, '.'))
-   strrchr(output_filename, '.')[1] = '\0';
-
- sprintf(output_filename + strlen(output_filename),
-   "%d", current_channel);
-
- out = fopen(output_filename, "at");
-
- if (out == NULL)
-   {
-     print_error("can't output to %s\n", output_filename);
-   }
-
  switch (effect_id)
  {
   case FX_VOLUME:
+    old_vol = channel[current_channel].volume;
     if (effect_data >> 1 > 31)
       {
 	channel[current_channel].volume = 31;
@@ -309,6 +262,8 @@ void handle_note_mml(int period,
       }
     else
       channel[current_channel].volume = effect_data >> 1;
+    if (channel[current_channel].volume != old_vol)
+      outmem("V%d ", channel[current_channel].volume);
     break;
 
   case FX_PATTERN_BREAK:
@@ -330,19 +285,46 @@ void handle_note_mml(int period,
 
  if (period != 0)
    {
+     if (rests[current_channel] > 0) {
+       while (rests[current_channel] >= 4) {
+         outmem("R4 ");
+         rests[current_channel] -= 4;
+       }
+       while (rests[current_channel] >= 2) {
+         outmem("R8 ");
+         rests[current_channel] -= 2;
+       }
+       while (rests[current_channel] > 0) {
+         outmem("R ");
+         rests[current_channel]--;
+       }
+     }
+     if (instrument != prev_instrument[current_channel]) {
+       outmem("@%d ", instrument);
+       prev_instrument[current_channel] = instrument;
+     }
      convert_period(period, &alpha, &octave);
-     fprintf(out, "%s%d", alpha_to_disp[alpha] , octave);
+     if (octave != prev_octave[current_channel]) {
+       if (octave == prev_octave[current_channel] + 1)
+         outmem("> ");
+       else if (octave == prev_octave[current_channel] - 1)
+         outmem("< ");
+       else
+         outmem("O%d ", octave);
+       prev_octave[current_channel] = octave;
+     }
+     outmem("%s ", alpha_to_disp[alpha]);
    }
  else
    {
-     fprintf(out, "   ");
+     rests[current_channel]++;
    }
+  if (++charcnt[current_channel] > 20) {
+   outmem("\n");
+   charcnt[current_channel] = 0;
+  }
 
- fprintf(out, "%2d %1X %2X\n", instrument, effect_id, effect_data);
-
- fclose(out);
-
- }
+}
 
 /*****************************************************************************
 
@@ -404,7 +386,7 @@ void output(FILE* f,
       total_duration_elapsed[channel_number] += duration;
 
       fprintf(stderr,
-              "Channel %d : %d vsync elapsed\n",
+              "Channel %d : %ld vsync elapsed\n",
               channel_number,
               total_duration_elapsed[channel_number]);
 
@@ -950,7 +932,7 @@ handle_pattern(FILE* in, int pattern_number)
 {
 
 #if DEBUG > 1
-  printf("Handling pattern %d\n at position %d\n",
+  printf("Handling pattern %d\n at position %ld\n\n",
 	 pattern_number,
 	 position_in_file(pattern_number));
 #endif
@@ -997,14 +979,27 @@ handle_pattern(FILE* in, int pattern_number)
 
 int main(int argc, char *argv[])
 {
+ FILE* input, *output; /* File to parse */
 
- FILE* input; /* File to parse */
+ while (argc > 2) {
+   if (argv[1][0] == '-') {
+     if (argv[1][1] == 't') {
+       argv++; argc--;
+       strcpy(track_name, argv[1]);
+     }
+   }
+   argc--; argv++;
+ }
 
- handle_note = handle_note_display; /* We'll display each note encoutered by default */
+ int i;
+ for (i = 0; i < MAX_CHANNEL; i++)
+   out_ch_ptr[i] = out_ch[i];
+
+// handle_note = handle_note_display; /* We'll display each note encoutered by default */
  handle_note = handle_note_mml; /* We'll try to output mml stuff there :) */
- handle_note = handle_note_d2z_mml; /* We'll *try* to output our new sound system */
+// handle_note = handle_note_d2z_mml; /* We'll *try* to output our new sound system */
 
- finish_parsing = finish_d2z;
+// finish_parsing = finish_d2z;
 
  nb_warning = 0;
  unlink(LOG_FILENAME);
@@ -1073,18 +1068,21 @@ int main(int argc, char *argv[])
 
  /* Clear files where results will be dumped */
 
- for (current_channel = 0; current_channel < nb_channel; current_channel++)
- {
-   FILE* f;
-
    strcpy(output_filename, input_filename);
    if (strrchr(output_filename, '.'))
-     strrchr(output_filename, '.')[1] = '\0';
-
-   sprintf(output_filename + strlen(output_filename),
-     "%d", current_channel);
+     strrchr(output_filename, '.')[0] = '\0';
+   if (!track_name[0])
+     strcpy(track_name, output_filename);
+   strcat(output_filename, ".mml");
+   //sprintf(output_filename + strlen(output_filename),
+   //  "%d", current_channel);
 
    unlink(output_filename);
+
+ for (current_channel = 0; current_channel < nb_channel; current_channel++)
+ {
+//   FILE* f;
+
 
    channel[current_channel].last_note = 	 0;
    channel[current_channel].period = 		-1;
@@ -1093,6 +1091,7 @@ int main(int argc, char *argv[])
    channel[current_channel].panning = 		 0;
    channel[current_channel].col_written =	 0;
 
+#if 0
    f = fopen(output_filename,"wt");
 
    if (!f)
@@ -1104,6 +1103,7 @@ int main(int argc, char *argv[])
    fprintf(f,"\tdb ");
 
    fclose(f);
+#endif
  }
 
  /* Initial song values */
@@ -1135,6 +1135,7 @@ int main(int argc, char *argv[])
 
    for (dummy = 0; dummy < song_length; dummy++)
      printf("%4d", pattern_array[dummy]);
+   puts("");
 
   }
 #endif
@@ -1162,7 +1163,7 @@ int main(int argc, char *argv[])
  for (current_channel = 0;
       current_channel < nb_channel;
       current_channel ++)
- (*finish_parsing)();
+ //(*finish_parsing)();
 
  log_raw(" *** %s processed ***\n",
 	 input_filename);
@@ -1170,6 +1171,18 @@ int main(int argc, char *argv[])
  input_filename = *(++argv);
 
  }
+
+ output = fopen(output_filename, "w");
+ fprintf(output, ".TRACK %s\n", track_name);
+ fprintf(output, ".CHANNEL 0 Setup\n");
+ fprintf(output, "T60 V31 L16 ^D0\n\n");
+ for (current_channel = 0; current_channel < nb_channel; current_channel++) {
+   fprintf(output, ".CHANNEL %d\tch_%d\n", current_channel+1, current_channel);
+   fprintf(output, "P15,15\n");
+   fputs(out_ch[current_channel], output);
+   fputc('\n', output);
+ }
+ fclose(output);
 
  log_raw("\
 --[ END ]---------------------------------------------------------------------\n\
