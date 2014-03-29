@@ -49,6 +49,7 @@ int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
 int instrument_map[32];
 int percussion_map[32];
 sample_info samples[32];
+int pattern_handled[256];
 
 unsigned char pce_inst[64][32];	/* library builtin samples, normalized to 0..31 */
 
@@ -148,6 +149,8 @@ char track_name[256];
 #define FX_EXTENDED 0xE
 #define FX_SPEED 0xF
 
+#define FX_FLUSH -1
+
 /*****************************************************************************
 
     Function: convert_period
@@ -244,6 +247,19 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	static int last_instrument[MAX_CHANNEL] = {-1, -1, -1, -1};
 	const char *alpha_to_disp[NOTE_PER_OCTAVE] =
 	    { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
+
+	if (effect_id == FX_FLUSH) {
+		/* XXX: Handle long notes properly. */
+		while (rests[current_channel] > 0) {
+			outmem("R ");
+			rests[current_channel]--;
+		}
+		prev_octave[current_channel] = -1;
+		last_instrument[current_channel] = -1;
+		charcnt[current_channel] = 0;
+		rests[current_channel] = 0;
+		return;
+	}
 
 	switch (effect_id) {
 	case FX_VOLUME:
@@ -995,6 +1011,9 @@ void handle_pattern(FILE * in, int pattern_number)
 
 		}
 	}
+	for (current_channel = 0; current_channel < nb_channel;
+	     current_channel++)
+	     (*handle_note)(0, 0, FX_FLUSH, 0);
 }
 
 int main(int argc, char *argv[])
@@ -1068,6 +1087,21 @@ int main(int argc, char *argv[])
 
 	input_filename = argv[optind];
 
+	if (output_filename[0] == 0) {
+		strcpy(output_filename, input_filename);
+		if (strrchr(output_filename, '.'))
+			strrchr(output_filename, '.')[0] = '\0';
+		if (!track_name[0])
+			strcpy(track_name, output_filename);
+		strcat(output_filename, ".mml");
+	}
+	unlink(output_filename);
+
+	output = fopen(output_filename, "w");
+	fprintf(output, ".TRACK %s\n", track_name);
+	fprintf(output, ".CHANNEL 0 Setup\n");
+	fprintf(output, "T60 V31 L16 ^D0\n\n");
+
 	while (input_filename) {	/* For each filename on command line ... */
 
 		input = fopen(input_filename, "rb");
@@ -1118,26 +1152,12 @@ int main(int argc, char *argv[])
 			read_word_motorola(input, &samples[i].repeat_at);
 			read_word_motorola(input, &samples[i].repeat_length);
 			if (samples[i].length > 0)
-                                printf("sample %d: %s len %d vol %d repeat at %d for %d\n",
-                                        i, samples[i].name, samples[i].length,
-                                        samples[i].volume, samples[i].repeat_at,
-                                        samples[i].repeat_length);
+				printf("sample %d: %s len %d vol %d repeat at %d for %d\n",
+					i, samples[i].name, samples[i].length,
+					samples[i].volume, samples[i].repeat_at,
+					samples[i].repeat_length);
 		}
 
-		/* Clear files where results will be dumped */
-
-		if (output_filename[0] == 0) {
-			strcpy(output_filename, input_filename);
-			if (strrchr(output_filename, '.'))
-				strrchr(output_filename, '.')[0] = '\0';
-			if (!track_name[0])
-				strcpy(track_name, output_filename);
-			strcat(output_filename, ".mml");
-			//sprintf(output_filename + strlen(output_filename),
-			//  "%d", current_channel);
-		}
-
-		unlink(output_filename);
 
 		for (current_channel = 0; current_channel < nb_channel;
 		     current_channel++) {
@@ -1198,8 +1218,20 @@ int main(int argc, char *argv[])
 		     current_song_position++) {
 			printf("%d/%d\r", current_song_position + 1,
 			       song_length);
-			handle_pattern(input,
-				       pattern_array[current_song_position]);
+			if (!pattern_handled[pattern_array[current_song_position]]) {
+				handle_pattern(input,
+					       pattern_array[current_song_position]);
+				fprintf(output, "; Pattern %d\n", pattern_array[current_song_position]);
+				for (i = 0; i < nb_channel; i++) {
+					fprintf(output, "CH%dP%d=", i, pattern_array[current_song_position]);
+					fputs(out_ch[i], output);
+					fputs("'\n", output);
+					out_ch_ptr[i] = out_ch[i];
+					*out_ch_ptr[i] = 0;
+				}
+				fputs("\n", output);
+				pattern_handled[pattern_array[current_song_position]] = 1;
+			}
 		}
 
 		fclose(input);
@@ -1214,11 +1246,6 @@ int main(int argc, char *argv[])
 		input_filename = argv[optind];
 
 	}
-
-	output = fopen(output_filename, "w");
-	fprintf(output, ".TRACK %s\n", track_name);
-	fprintf(output, ".CHANNEL 0 Setup\n");
-	fprintf(output, "T60 V31 L16 ^D0\n\n");
 
 	/* There are only two noise-capable channels (5 and 6), so we
 	   allocate them to the two MOD channels with the most noise. */
@@ -1253,7 +1280,11 @@ int main(int argc, char *argv[])
 			current_channel);
 		fprintf(output, "P15,15");
 		fputc('\n', output);
-		fputs(out_ch[current_channel], output);
+		for (current_song_position = 0;
+		     current_song_position < song_length;
+		     current_song_position++) {
+			fprintf(output, "(CH%dP%d)", current_channel, pattern_array[current_song_position]);
+		}
 		fputc('\n', output);
 	}
 	fclose(output);
