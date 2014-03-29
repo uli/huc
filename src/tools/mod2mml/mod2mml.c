@@ -46,6 +46,7 @@ int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
 #endif
 int instrument_map[32];
 int percussion_map[32];
+int perchan = 5;
 
 unsigned char pce_inst[64][32];	/* library builtin samples, normalized to 0..31 */
 
@@ -69,16 +70,16 @@ void (*finish_parsing) ();
 
 const int ft_period[NB_OCTAVE * NOTE_PER_OCTAVE] = {
 	1712, 1616, 1524, 1440, 1356, 1280, 1208, 1140, 1076, 1016, 960, 906,
-/*        C-0   C#0   D-0   D#0   E-0   F-0   F#0   G-0   G#0   A-0   A#0   B-0 */
+/*	C-0   C#0   D-0   D#0   E-0   F-0   F#0   G-0   G#0   A-0   A#0   B-0 */
 
 	856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
-/*        C-1   C#1   D-1   D#1   E-1   F-1   F#1   G-1   G#1   A-1   A#1   B-1 */
+/*	C-1   C#1   D-1   D#1   E-1   F-1   F#1   G-1   G#1   A-1   A#1   B-1 */
 
 	428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
-/*	  C-2   C#2   D-2   D#2   E-2   F-2   F#2   G-2   G#2   A-2   A#2   B-2 */
+/*	C-2   C#2   D-2   D#2   E-2   F-2   F#2   G-2   G#2   A-2   A#2   B-2 */
 
 	214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113,
-/*	  C-3   C#3   D-3   D#3   E-3   F-3   F#3   G-3   G#3   A-3   A#3   B-3 */
+/*	C-3   C#3   D-3   D#3   E-3   F-3   F#3   G-3   G#3   A-3   A#3   B-3 */
 
 	107, 101, 95, 90, 85, 80, 75, 71, 67, 63, 60, 56
 };
@@ -296,41 +297,54 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				rests[current_channel]--;
 			}
 		}
-		if (channel[current_channel].percussion) {
-                        if (instrument != channel[current_channel].instrument) {
-                                channel[current_channel].instrument = instrument;
-                        }
-		        printf("drum %d\n", percussion_map[channel[current_channel].instrument]);
-		        int drum = percussion_map[channel[current_channel].instrument];
-		        if (drum > 12 || drum < 1)
-		                drum = 1;
-                        outmem("%s ", alpha_to_disp[drum - 1]);
-                        if (channel[current_channel].volume != 31) {
-                                outmem("V31 ");
-                                channel[current_channel].volume = 31;
-                        }
+		if (percussion_map[instrument] && channel[current_channel].percussion == 0) {
+			if (perchan > 6)
+				log_warning("Too many percussion channels\n");
+			else
+				channel[current_channel].percussion = perchan++;
+		}
+		if (channel[current_channel].percussion && percussion_map[instrument]) {
+			if (channel[current_channel].mode != 1) {
+				channel[current_channel].mode = 1;
+				outmem("@M1 ");
+			}
+			if (instrument != channel[current_channel].instrument) {
+				channel[current_channel].instrument = instrument;
+			}
+			int drum = percussion_map[channel[current_channel].instrument];
+			if (drum > 12 || drum < 1)
+				drum = 1;
+			outmem("%s ", alpha_to_disp[drum - 1]);
+			if (channel[current_channel].volume != 31) {
+				outmem("V31 ");
+				channel[current_channel].volume = 31;
+			}
 		}
 		else {
-                        if (instrument != channel[current_channel].instrument) {
-                                outmem("@%d ", instrument_map[instrument]);
-                                channel[current_channel].instrument = instrument;
-                                if (channel[current_channel].volume != 31) {
-                                        outmem("V31 ");
-                                        channel[current_channel].volume = 31;
-                                }
-                        }
-                        convert_period(period, &alpha, &octave);
-                        if (octave != prev_octave[current_channel]) {
-                                if (octave == prev_octave[current_channel] + 1)
-                                        outmem("> ");
-                                else if (octave == prev_octave[current_channel] - 1)
-                                        outmem("< ");
-                                else
-                                        outmem("O%d ", octave);
-                                prev_octave[current_channel] = octave;
-                        }
-                        outmem("%s ", alpha_to_disp[alpha]);
-                }
+			if (channel[current_channel].mode != 0) {
+				channel[current_channel].mode = 0;
+				outmem("@M0 ");
+			}
+			if (instrument != channel[current_channel].instrument) {
+				outmem("@%d ", instrument_map[instrument]);
+				channel[current_channel].instrument = instrument;
+				if (channel[current_channel].volume != 31) {
+					outmem("V31 ");
+					channel[current_channel].volume = 31;
+				}
+			}
+			convert_period(period, &alpha, &octave);
+			if (octave != prev_octave[current_channel]) {
+				if (octave == prev_octave[current_channel] + 1)
+					outmem("> ");
+				else if (octave == prev_octave[current_channel] - 1)
+					outmem("< ");
+				else
+					outmem("O%d ", octave);
+				prev_octave[current_channel] = octave;
+			}
+			outmem("%s ", alpha_to_disp[alpha]);
+		}
 	} else {
 		rests[current_channel]++;
 	}
@@ -951,60 +965,59 @@ int main(int argc, char *argv[])
 	
 	int i;
 	for (i = 0; i < 32; i++) {
-	        instrument_map[i] = i;
-	        percussion_map[i] = 1;
+		instrument_map[i] = i;
+		percussion_map[i] = 0;
 	}
 
 	int c;
 	char *eq;
-	int perchan = 5;
 	for(;;) {
-	        static struct option long_options[] = {
-	                {"track-name", required_argument, 0, 't'},
-	                {"map-instrument", required_argument, 0, 'm'},
-	                {"map-percussion", required_argument, 0, 'n'},
-	                {"percussion", required_argument, 0, 'p'},
-	                {0, 0, 0, 0}
-	        };
-	        int option_index = 0;
-	        c = getopt_long(argc, argv, "o:p:t:m:n:", long_options, &option_index);
-	        if (c == -1)
-	                break;
-                switch (c) {
-                        case 'm':
-                                eq = strchr(optarg, '=');
-                                if (!eq) {
-                                        fprintf(stderr, "invalid instrument mapping %s\n", optarg);
-                                        exit(1);
-                                }
-                                *eq = 0;
-                                instrument_map[atoi(optarg)] = atoi(eq+1);
-                                break;
-                        case 'n':
-                                eq = strchr(optarg, '=');
-                                if (!eq) {
-                                        fprintf(stderr, "invalid percussion mapping %s\n", optarg);
-                                        exit(1);
-                                }
-                                *eq = 0;
-                                percussion_map[atoi(optarg)] = atoi(eq+1);
-                                break;
-                        case 'o':
-                                strcpy(output_filename, optarg);
-                                break;
-                        case 'p':
-                                if (perchan > 6) {
-                                        fprintf(stderr, "too many percussion channels\n");
-                                        exit(1);
-                                }
-                                channel[atoi(optarg)].percussion = perchan++;
-                                break;
-                        case 't':
-                                strcpy(track_name, optarg);
-                                break;
-                        default:
-                                abort();
-                }
+		static struct option long_options[] = {
+			{"track-name", required_argument, 0, 't'},
+			{"map-instrument", required_argument, 0, 'm'},
+			{"map-percussion", required_argument, 0, 'n'},
+			{"percussion", required_argument, 0, 'p'},
+			{0, 0, 0, 0}
+		};
+		int option_index = 0;
+		c = getopt_long(argc, argv, "o:p:t:m:n:", long_options, &option_index);
+		if (c == -1)
+			break;
+		switch (c) {
+			case 'm':
+				eq = strchr(optarg, '=');
+				if (!eq) {
+					fprintf(stderr, "invalid instrument mapping %s\n", optarg);
+					exit(1);
+				}
+				*eq = 0;
+				instrument_map[atoi(optarg)] = atoi(eq+1);
+				break;
+			case 'n':
+				eq = strchr(optarg, '=');
+				if (!eq) {
+					fprintf(stderr, "invalid percussion mapping %s\n", optarg);
+					exit(1);
+				}
+				*eq = 0;
+				percussion_map[atoi(optarg)] = atoi(eq+1);
+				break;
+			case 'o':
+				strcpy(output_filename, optarg);
+				break;
+			case 'p':
+				if (perchan > 6) {
+					fprintf(stderr, "too many percussion channels\n");
+					exit(1);
+				}
+				channel[atoi(optarg)].percussion = perchan++;
+				break;
+			case 't':
+				strcpy(track_name, optarg);
+				break;
+			default:
+				abort();
+		}
 	}
 
 	for (i = 0; i < MAX_CHANNEL; i++)
@@ -1065,15 +1078,15 @@ int main(int argc, char *argv[])
 		/* Clear files where results will be dumped */
 
 		if (output_filename[0] == 0) {
-                        strcpy(output_filename, input_filename);
-                        if (strrchr(output_filename, '.'))
-                                strrchr(output_filename, '.')[0] = '\0';
-                        if (!track_name[0])
-                                strcpy(track_name, output_filename);
-                        strcat(output_filename, ".mml");
-                        //sprintf(output_filename + strlen(output_filename),
-                        //  "%d", current_channel);
-                }
+			strcpy(output_filename, input_filename);
+			if (strrchr(output_filename, '.'))
+				strrchr(output_filename, '.')[0] = '\0';
+			if (!track_name[0])
+				strcpy(track_name, output_filename);
+			strcat(output_filename, ".mml");
+			//sprintf(output_filename + strlen(output_filename),
+			//  "%d", current_channel);
+		}
 
 		unlink(output_filename);
 
@@ -1164,7 +1177,7 @@ int main(int argc, char *argv[])
 
 			log_raw(" *** %s processed ***\n", input_filename);
 
-                optind++;
+		optind++;
 		input_filename = argv[optind];
 
 	}
@@ -1175,15 +1188,15 @@ int main(int argc, char *argv[])
 	fprintf(output, "T60 V31 L16 ^D0\n\n");
 	for (current_channel = 0; current_channel < nb_channel;
 	     current_channel++) {
-	        int outchan = current_channel + 1;
-	        if (channel[current_channel].percussion)
-	                outchan = channel[current_channel].percussion;
+		int outchan = current_channel + 1;
+		if (channel[current_channel].percussion)
+			outchan = channel[current_channel].percussion;
 		fprintf(output, ".CHANNEL %d\tch_%d\n", outchan,
 			current_channel);
 		fprintf(output, "P15,15");
-		if (channel[current_channel].percussion)
-		        fprintf(output, " @M1");
-                fputc('\n', output);
+		//if (channel[current_channel].percussion)
+		//	fprintf(output, " @M1");
+		fputc('\n', output);
 		fputs(out_ch[current_channel], output);
 		fputc('\n', output);
 	}
