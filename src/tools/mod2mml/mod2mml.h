@@ -25,3 +25,12 @@ typedef struct {
     unsigned char col_written; /* number of operandes written on the curent line */
     unsigned char mode;
     } Channel_info;
+
+typedef struct {
+	char name[22];
+	unsigned int length;
+	int tune;
+	unsigned char volume;
+	unsigned int repeat_at;
+	unsigned int repeat_length;
+} sample_info;

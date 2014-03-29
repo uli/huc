@@ -1,5 +1,7 @@
 #include "mod2mml.h"
 #include <getopt.h>
+#include <assert.h>
+#include <ctype.h>
 
 #define DEBUG 0
 
@@ -46,6 +48,7 @@ int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
 #endif
 int instrument_map[32];
 int percussion_map[32];
+sample_info samples[32];
 
 unsigned char pce_inst[64][32];	/* library builtin samples, normalized to 0..31 */
 
@@ -81,9 +84,9 @@ const int ft_period[NB_OCTAVE * NOTE_PER_OCTAVE] = {
 /*	C-3   C#3   D-3   D#3   E-3   F-3   F#3   G-3   G#3   A-3   A#3   B-3 */
 
 	107, 101, 95, 90, 85, 80, 75, 71, 67, 63, 60, 56
+/*	C-4   C#4   D-4   D#4   E-4   F-4   F#4   G-4   G#4   A-4   A#4   B-4 */
 };
 
-/*	  C-4   C#4   D-4   D#4   E-4   F-4   F#4   G-4   G#4   A-4   A#4   B-4 */
 
 /* Others variables */
 
@@ -238,6 +241,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	static int prev_octave[MAX_CHANNEL] = { -1, -1, -1, -1 };
 	static int charcnt[MAX_CHANNEL] = { 0 };
 	static int rests[MAX_CHANNEL] = { 0 };
+	static int last_instrument[MAX_CHANNEL] = {-1, -1, -1, -1};
 	const char *alpha_to_disp[NOTE_PER_OCTAVE] =
 	    { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
 
@@ -251,8 +255,12 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				    effect_data);
 		} else
 			channel[current_channel].volume = effect_data >> 1;
-		if (channel[current_channel].volume != old_vol)
+		if (channel[current_channel].volume != old_vol) {
 			outmem("V%d ", channel[current_channel].volume);
+			/* XXX: This may go in between a note and a length
+			   modifier; workaround: truncate the note. */
+			last_instrument[current_channel] = -1;
+		}
 		break;
 
 	case FX_PATTERN_BREAK:
@@ -274,6 +282,42 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 
 	if (period != 0) {
 		if (rests[current_channel] > 0) {
+			if (last_instrument[current_channel] != -1) {
+				/* If the last note played is longer than a row, we have to
+				   extend it into the rest, i.e. we have to add a number
+				   to extend the note and reduce the number of rests. */
+				int ticks;
+				sample_info *si = &samples[last_instrument[current_channel]];
+				ticks = si->length / 1024;	/* This is a rather uneducated guess. */
+				/* The note may at most last for as long as the following
+				   rest. */
+				if (ticks - 1 > rests[current_channel])
+					ticks = rests[current_channel] + 1;
+				/* The longest note is 1/1, i.e. 16 ticks. */
+				if (ticks > 16)
+					ticks = 16;
+				else if (ticks < 1)	/* XXX: Shorter notes are possible. */
+					ticks = 1;
+				/* Go down to the nearest power of two. */
+				/* XXX: Generate dot notes if appropriate. */
+				while (__builtin_popcount(ticks) > 1)
+					ticks--;
+				//printf("lastinst %d samlen %d ticks %d\n", last_instrument[current_channel], si->length, ticks);
+				assert(rests[current_channel] >= ticks - 1);
+				if (ticks > 1) {
+					/* Make sure we're following a note. */
+					assert(isalpha(out_ch_ptr[current_channel][-1]) || out_ch_ptr[current_channel][-1] == '#');
+					outmem("%d ", 16 / ticks);
+					rests[current_channel] -= ticks - 1;
+					assert(rests[current_channel] >= 0);
+				}
+				else
+					outmem(" ");
+			}
+			while (rests[current_channel] >= 16) {
+				outmem("R1 ");
+				rests[current_channel] -= 16;
+			}
 			while (rests[current_channel] >= 8) {
 				outmem("R2 ");
 				rests[current_channel] -= 8;
@@ -290,6 +334,11 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				outmem("R ");
 				rests[current_channel]--;
 			}
+			last_instrument[current_channel] = -1;
+		}
+		if (++charcnt[current_channel] > 20) {
+			outmem("\n");
+			charcnt[current_channel] = 0;
 		}
 		if (percussion_map[instrument]) {
 			channel[current_channel].percussion++;
@@ -310,6 +359,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				outmem("V31 ");
 				channel[current_channel].volume = 31;
 			}
+			last_instrument[current_channel] = -1;
 		}
 		else {
 			if (channel[current_channel].mode != 0) {
@@ -334,14 +384,11 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 					outmem("O%d ", octave);
 				prev_octave[current_channel] = octave;
 			}
-			outmem("%s ", alpha_to_disp[alpha]);
+			outmem("%s", alpha_to_disp[alpha]);
+			last_instrument[current_channel] = instrument;
 		}
 	} else {
 		rests[current_channel]++;
-	}
-	if (++charcnt[current_channel] > 20) {
-		outmem("\n");
-		charcnt[current_channel] = 0;
 	}
 
 }
@@ -1061,6 +1108,21 @@ int main(int argc, char *argv[])
 		printf("Module %s has %d channels and %d instruments\n",
 		       input_filename, nb_channel, nb_instrument);
 #endif
+
+		fseek(input, 20, SEEK_SET);
+		for (i = 0; i < nb_instrument; i++) {
+			read_byte_array(input, samples[i].name, 22);
+			read_word_motorola(input, &samples[i].length);
+			read_byte(input, (unsigned char *)&samples[i].tune);
+			read_byte(input, &samples[i].volume);
+			read_word_motorola(input, &samples[i].repeat_at);
+			read_word_motorola(input, &samples[i].repeat_length);
+			if (samples[i].length > 0)
+                                printf("sample %d: %s len %d vol %d repeat at %d for %d\n",
+                                        i, samples[i].name, samples[i].length,
+                                        samples[i].volume, samples[i].repeat_at,
+                                        samples[i].repeat_length);
+		}
 
 		/* Clear files where results will be dumped */
 
