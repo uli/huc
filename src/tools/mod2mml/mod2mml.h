@@ -22,4 +22,5 @@ typedef struct {
     int last_note; /* number of elapsed row since last note releasing */
     unsigned char panning; /* 0 is left, 0xff for right */
     unsigned char col_written; /* number of operandes written on the curent line */
+    unsigned char percussion;
     } Channel_info;
