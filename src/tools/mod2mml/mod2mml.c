@@ -1225,12 +1225,12 @@ int main(int argc, char *argv[])
 	int max = -1;
 	int max2 = -1;
 	for (i = 0; i < nb_channel; i++) {
-	        if (channel[i].percussion > max) {
-	                max2 = max;
-	                max = channel[i].percussion;
-                }
-                else if (channel[i].percussion > max2)
-                        max2 = channel[i].percussion;
+		if (channel[i].percussion > max) {
+			max2 = max;
+			max = channel[i].percussion;
+		}
+		else if (channel[i].percussion > max2)
+			max2 = channel[i].percussion;
 	}
 
 	for (current_channel = 0; current_channel < nb_channel;
@@ -1238,17 +1238,17 @@ int main(int argc, char *argv[])
 		int outchan = current_channel + 1;
 		if (channel[current_channel].percussion == max)
 			outchan = 5;
-                else if (channel[current_channel].percussion == max2)
-                        outchan = 6;
-                else if (channel[current_channel].percussion) {
-                        log_warning("Cannot allocate channel %d to noise channel.", current_channel);
-                        /* Turn all @M1 to @M0. */
-                        char *c;
-                        for (c = out_ch[current_channel]; *c; c++) {
-                                if (c[0] == '@' && c[1] == 'M' && c[2] == '1')
-                                        c[2] = '0';
-                        }
-                }
+		else if (channel[current_channel].percussion == max2)
+			outchan = 6;
+		else if (channel[current_channel].percussion) {
+			log_warning("Cannot allocate channel %d to noise channel.", current_channel);
+			/* Turn all @M1 to @M0. */
+			char *c;
+			for (c = out_ch[current_channel]; *c; c++) {
+				if (c[0] == '@' && c[1] == 'M' && c[2] == '1')
+					c[2] = '0';
+			}
+		}
 		fprintf(output, ".CHANNEL %d\tch_%d\n", outchan,
 			current_channel);
 		fprintf(output, "P15,15");
