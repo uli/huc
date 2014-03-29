@@ -46,7 +46,6 @@ int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
 #endif
 int instrument_map[32];
 int percussion_map[32];
-int perchan = 5;
 
 unsigned char pce_inst[64][32];	/* library builtin samples, normalized to 0..31 */
 
@@ -297,11 +296,8 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				rests[current_channel]--;
 			}
 		}
-		if (percussion_map[instrument] && channel[current_channel].percussion == 0) {
-			if (perchan > 6)
-				log_warning("Too many percussion channels\n");
-			else
-				channel[current_channel].percussion = perchan++;
+		if (percussion_map[instrument]) {
+			channel[current_channel].percussion++;
 		}
 		if (channel[current_channel].percussion && percussion_map[instrument]) {
 			if (channel[current_channel].mode != 1) {
@@ -1006,11 +1002,7 @@ int main(int argc, char *argv[])
 				strcpy(output_filename, optarg);
 				break;
 			case 'p':
-				if (perchan > 6) {
-					fprintf(stderr, "too many percussion channels\n");
-					exit(1);
-				}
-				channel[atoi(optarg)].percussion = perchan++;
+				channel[atoi(optarg)].percussion = 1000;
 				break;
 			case 't':
 				strcpy(track_name, optarg);
@@ -1186,11 +1178,29 @@ int main(int argc, char *argv[])
 	fprintf(output, ".TRACK %s\n", track_name);
 	fprintf(output, ".CHANNEL 0 Setup\n");
 	fprintf(output, "T60 V31 L16 ^D0\n\n");
+
+	/* There are only two noise-capable channels (5 and 6), so we
+	   allocate them to the two MOD channels with the most noise. */
+	int max = -1;
+	int max2 = -1;
+	for (i = 0; i < nb_channel; i++) {
+	        if (channel[i].percussion > max) {
+	                max2 = max;
+	                max = channel[i].percussion;
+                }
+                else if (channel[i].percussion > max2)
+                        max2 = channel[i].percussion;
+	}
+
 	for (current_channel = 0; current_channel < nb_channel;
 	     current_channel++) {
 		int outchan = current_channel + 1;
-		if (channel[current_channel].percussion)
-			outchan = channel[current_channel].percussion;
+		if (channel[current_channel].percussion == max)
+			outchan = 5;
+                else if (channel[current_channel].percussion == max2)
+                        outchan = 6;
+                else if (channel[current_channel].percussion)
+                        log_warning("Cannot allocate channel %d to noise channel.", current_channel);
 		fprintf(output, ".CHANNEL %d\tch_%d\n", outchan,
 			current_channel);
 		fprintf(output, "P15,15");
