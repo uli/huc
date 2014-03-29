@@ -241,11 +241,6 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	const char *alpha_to_disp[NOTE_PER_OCTAVE] =
 	    { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
 
-/*
- if (current_channel != 0)
-   return;
-*/
-
 	switch (effect_id) {
 	case FX_VOLUME:
 		old_vol = channel[current_channel].volume;
@@ -1084,28 +1079,12 @@ int main(int argc, char *argv[])
 
 		for (current_channel = 0; current_channel < nb_channel;
 		     current_channel++) {
-//   FILE* f;
-
 			channel[current_channel].last_note = 0;
 			channel[current_channel].period = -1;
 			channel[current_channel].instrument = -1;
 			channel[current_channel].volume = -1;
 			channel[current_channel].panning = 0;
 			channel[current_channel].col_written = 0;
-
-#if 0
-			f = fopen(output_filename, "wt");
-
-			if (!f) {
-				fprintf(stderr, "can't open output file : %s\n",
-					output_filename);
-				return -1;
-			}
-
-			fprintf(f, "\tdb ");
-
-			fclose(f);
-#endif
 		}
 
 		/* Initial song values */
@@ -1199,13 +1178,18 @@ int main(int argc, char *argv[])
 			outchan = 5;
                 else if (channel[current_channel].percussion == max2)
                         outchan = 6;
-                else if (channel[current_channel].percussion)
+                else if (channel[current_channel].percussion) {
                         log_warning("Cannot allocate channel %d to noise channel.", current_channel);
+                        /* Turn all @M1 to @M0. */
+                        char *c;
+                        for (c = out_ch[current_channel]; *c; c++) {
+                                if (c[0] == '@' && c[1] == 'M' && c[2] == '1')
+                                        c[2] = '0';
+                        }
+                }
 		fprintf(output, ".CHANNEL %d\tch_%d\n", outchan,
 			current_channel);
 		fprintf(output, "P15,15");
-		//if (channel[current_channel].percussion)
-		//	fprintf(output, " @M1");
 		fputc('\n', output);
 		fputs(out_ch[current_channel], output);
 		fputc('\n', output);
