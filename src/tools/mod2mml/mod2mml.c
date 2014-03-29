@@ -279,6 +279,10 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 
 	if (period != 0) {
 		if (rests[current_channel] > 0) {
+			while (rests[current_channel] >= 8) {
+				outmem("R2 ");
+				rests[current_channel] -= 8;
+			}
 			while (rests[current_channel] >= 4) {
 				outmem("R4 ");
 				rests[current_channel] -= 4;
