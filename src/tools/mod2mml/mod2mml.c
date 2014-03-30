@@ -1099,7 +1099,7 @@ void print_usage(char *argv[])
 {
 	fprintf(stderr, "\
 --[ USAGE ]-------------------------------------------------------------------\n");
-	fprintf(stderr, "%s <mod_filename>\n", argv[0]);
+	fprintf(stderr, "%s [OPTIONS] <mod_filename>\n", argv[0]);
 }
 
 /*****************************************************************************
@@ -1180,7 +1180,8 @@ void handle_pattern(FILE * in, int pattern_number)
 int main(int argc, char *argv[])
 {
 	FILE *input, *output;	/* File to parse */
-	
+	char **oargv = argv;
+
 	int i;
 	for (i = 0; i < 32; i++) {
 		instrument_map[i] = i;
@@ -1247,6 +1248,11 @@ int main(int argc, char *argv[])
 	unlink(LOG_FILENAME);
 
 	input_filename = argv[optind];
+
+	if (!input_filename) {
+		print_usage(oargv);
+		exit(1);
+	}
 
 	if (output_filename[0] == 0) {
 		strcpy(output_filename, input_filename);
