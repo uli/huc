@@ -245,8 +245,20 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	static int charcnt[MAX_CHANNEL] = { 0 };
 	static int rests[MAX_CHANNEL] = { 0 };
 	static int last_instrument[MAX_CHANNEL] = {-1, -1, -1, -1};
+	static int last_period[MAX_CHANNEL];
 	const char *alpha_to_disp[NOTE_PER_OCTAVE] =
 	    { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
+
+	/* Data for converting sample length and frequency to note length. */
+	const char *ticks_to_notelen[17] = {
+		"invalid", "", "8", "8.", "4", "4", "4.", "4.", "2",
+		"2", "2", "2", "2.", "2.", "2.", "2.", "1"
+	};
+	/* The note lengths above do not exactly correspond to the
+	   respective tick counts; the actual values are thus: */
+	const int ticks_to_actual_ticks[17] = {
+		-1, 1, 2, 3, 4, 4, 6, 6, 8, 8, 8, 8, 12, 12, 12, 12, 16
+	};
 
 	if (effect_id == FX_FLUSH) {
 		/* XXX: Handle long notes properly. */
@@ -303,8 +315,21 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				   extend it into the rest, i.e. we have to add a number
 				   to extend the note and reduce the number of rests. */
 				sample_info *si = &samples[last_instrument[current_channel]-1];
-				int ticks;
-				ticks = si->length / 1024;	/* This is a rather uneducated guess. */
+
+				/* Determine sample duration in rows from period
+				   and sample length. */
+				int samplerate = 7093789 /* Amiga clock (PAL, Hz) */
+						 / 2 / last_period[current_channel];
+				int samplesperrow = samplerate / 60 /* vsync frequency (Hz) */
+						    * /* speed */ 6; /* vsyncs per row */
+				int ticks = si->length / samplesperrow;
+
+#if DEBUG > 1
+				printf("inst %d ticks %d at period %d size %d\n",
+					last_instrument[current_channel],
+					ticks, last_period[current_channel], si->length);
+#endif
+
 				/* The note may at most last for as long as the following
 				   rest. */
 				if (ticks - 1 > rests[current_channel])
@@ -314,17 +339,13 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 					ticks = 16;
 				else if (ticks < 1)	/* XXX: Shorter notes are possible. */
 					ticks = 1;
-				/* Go down to the nearest power of two. */
-				/* XXX: Generate dot notes if appropriate. */
-				while (__builtin_popcount(ticks) > 1)
-					ticks--;
-				//printf("lastinst %d samlen %d ticks %d\n", last_instrument[current_channel], si->length, ticks);
+
 				assert(rests[current_channel] >= ticks - 1);
 				if (ticks > 1) {
 					/* Make sure we're following a note. */
 					assert(isalpha(out_ch_ptr[current_channel][-1]) || out_ch_ptr[current_channel][-1] == '#');
-					outmem("%d ", 16 / ticks);
-					rests[current_channel] -= ticks - 1;
+					outmem("%s ", ticks_to_notelen[ticks]);
+					rests[current_channel] -= ticks_to_actual_ticks[ticks] - 1;
 					assert(rests[current_channel] >= 0);
 				}
 				else
@@ -402,6 +423,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 			}
 			outmem("%s", alpha_to_disp[alpha]);
 			last_instrument[current_channel] = instrument;
+			last_period[current_channel] = period;
 		}
 	} else {
 		rests[current_channel]++;
