@@ -1169,6 +1169,7 @@ int main(int argc, char *argv[])
 		for (i = 0; i < nb_instrument; i++) {
 			read_byte_array(input, samples[i].name, 22);
 			read_word_motorola(input, &samples[i].length);
+			samples[i].length *= 2;
 			read_byte(input, (unsigned char *)&samples[i].tune);
 			read_byte(input, &samples[i].volume);
 			read_word_motorola(input, &samples[i].repeat_at);
