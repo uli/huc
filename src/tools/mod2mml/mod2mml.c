@@ -302,8 +302,8 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				/* If the last note played is longer than a row, we have to
 				   extend it into the rest, i.e. we have to add a number
 				   to extend the note and reduce the number of rests. */
+				sample_info *si = &samples[last_instrument[current_channel]-1];
 				int ticks;
-				sample_info *si = &samples[last_instrument[current_channel]];
 				ticks = si->length / 1024;	/* This is a rather uneducated guess. */
 				/* The note may at most last for as long as the following
 				   rest. */
