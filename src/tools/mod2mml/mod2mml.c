@@ -379,6 +379,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	static int rests[MAX_CHANNEL] = { 0 };
 	static int last_instrument[MAX_CHANNEL] = {-1, -1, -1, -1};
 	static int last_period[MAX_CHANNEL];
+	static int current_env[MAX_CHANNEL] = {0};
 	const char *alpha_to_disp[NOTE_PER_OCTAVE] =
 	    { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
 
@@ -519,6 +520,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				outmem("@M1 ");
 			}
 			if (instrument != channel[current_channel].instrument) {
+				/* XXX: Is this correct? We don't set it after all... */
 				channel[current_channel].instrument = instrument;
 			}
 			int drum = percussion_map[channel[current_channel].instrument];
@@ -539,6 +541,10 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 			if (instrument != channel[current_channel].instrument) {
 				outmem("@%d ", instrument_map[instrument]);
 				channel[current_channel].instrument = instrument;
+				if (current_env[current_channel] != samples[instrument-1].envelope) {
+					outmem("@E%02d ", samples[instrument-1].envelope);
+					current_env[current_channel] = samples[instrument-1].envelope;
+				}
 				if (channel[current_channel].volume != 31) {
 					outmem("V31 ");
 					channel[current_channel].volume = 31;
