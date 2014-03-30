@@ -1165,6 +1165,21 @@ int main(int argc, char *argv[])
 		       input_filename, nb_channel, nb_instrument);
 #endif
 
+		/* Then, let's grab the sequence of played patterns */
+
+		fseek(input, PATTERN_ARRAY_OFFSET, SEEK_SET);
+		read_byte_array(input, pattern_array, PATTERN_ARRAY_LENGTH);
+
+		/* Find start of sample data */
+		int max_pat = 0;
+		for (i = 0; i < 128; i++) {
+			if (pattern_array[i] > max_pat)
+				max_pat = pattern_array[i];
+		}
+#if DEBUG > 0
+		printf("max pat %d\n", max_pat);
+#endif
+		int sam_ptr = PATTERN_DATA_OFFSET + 1024 * (max_pat + 1);
 		fseek(input, 20, SEEK_SET);
 		for (i = 0; i < nb_instrument; i++) {
 			read_byte_array(input, samples[i].name, 22);
@@ -1174,11 +1189,28 @@ int main(int argc, char *argv[])
 			read_byte(input, &samples[i].volume);
 			read_word_motorola(input, &samples[i].repeat_at);
 			read_word_motorola(input, &samples[i].repeat_length);
-			if (samples[i].length > 0)
+			if (samples[i].length > 0) {
+#if DEBUG > 0
 				printf("sample %d: %s len %d vol %d repeat at %d for %d\n",
 					i, samples[i].name, samples[i].length,
 					samples[i].volume, samples[i].repeat_at,
 					samples[i].repeat_length);
+#endif
+				samples[i].data = (signed char *)malloc(samples[i].length - 2);
+				long here = ftell(input);
+#if DEBUG > 0
+				printf("getting data at %d\n", sam_ptr);
+#endif
+				fseek(input, sam_ptr + 2, SEEK_SET);
+				read_byte_array(input, (char *)samples[i].data, samples[i].length - 2);
+				sam_ptr += samples[i].length;
+				fseek(input, here, SEEK_SET);
+				if (samples[i].length > 2) {
+					samples[i].length -= 2;
+				}
+				else
+					samples[i].length -= 2;
+			}
 		}
 
 
@@ -1196,11 +1228,6 @@ int main(int argc, char *argv[])
 
 		speed = 6;
 		bpm = 125;
-
-		/* Then, let's grab the sequence of played patterns */
-
-		fseek(input, PATTERN_ARRAY_OFFSET, SEEK_SET);
-		read_byte_array(input, pattern_array, PATTERN_ARRAY_LENGTH);
 
 		/* As well as the number of played patterns
 		 * This is not the number of pattern we'll found on the file

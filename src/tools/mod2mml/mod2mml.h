@@ -33,4 +33,5 @@ typedef struct {
 	unsigned char volume;
 	unsigned int repeat_at;
 	unsigned int repeat_length;
+	signed char *data;
 } sample_info;
