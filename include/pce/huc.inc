@@ -116,6 +116,11 @@ __ldb	.macro
        	.endif
 	.endm
 
+__ldby:	.macro
+	 ldx \1, y
+	 __extw
+	.endm
+
 __ldub	.macro
 	.if (\# = 2)
 	 clx

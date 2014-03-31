@@ -306,7 +306,17 @@ void gen_code(INS *tmp)
 		break;
 
 	case I_LDB:
-		ot("__ldb\t");
+	case I_LDBY:
+		if (code == I_LDBY)
+			ot("__ldby\t");
+		else
+			ot("__ldb\t");
+		out_type(type, data);
+		nl();
+		break;
+
+	case I_LDYB:
+		ot("  ldy\t");
 		out_type(type, data);
 		nl();
 		break;

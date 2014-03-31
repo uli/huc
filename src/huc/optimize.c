@@ -258,6 +258,25 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
+			/* __ldwi a	--> __ldyb i
+			 * __pushw	    __ldby a
+			 * __ldub i
+			 * __addws
+			 * __ldb_p
+			 */
+			else if (p[0]->code == X_LDB_P &&
+				 p[1]->code == I_ADDWS &&
+				 p[2]->code == I_LDUB &&
+				 p[3]->code == I_PUSHW &&
+				 p[4]->code == I_LDWI)
+			{
+				*p[3] = *p[4];
+				p[3]->code = I_LDBY;
+				*p[4] = *p[2];
+				p[4]->code = I_LDYB;
+				nb = 3;
+			}
+
 			/* flush queue */
 			if (nb)
 			{

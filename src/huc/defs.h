@@ -101,6 +101,8 @@
 #define I_LBEQN      69
 #define I_LBNEN      70
 #define I_LBRAN      71
+#define I_LDYB       72
+#define I_LDBY       73
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
