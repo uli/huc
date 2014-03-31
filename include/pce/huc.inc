@@ -458,6 +458,25 @@ __addw	.macro
 	 adc	\1+1
 	.endm	
 
+__addb	.macro
+	 clc
+	 sax
+	 adc	\1
+	 sax
+	 ldy	\1
+	 bpl	.x\@
+	 dec a
+.x\@:	 adc	#0
+	.endm
+
+__addub	.macro
+	 clc
+	 sax
+	 adc	\1
+	 sax
+	 adc	#0
+	.endm
+
 __addwi	.macro
 	.if (\1 = 1)
 	 cpx #$ff

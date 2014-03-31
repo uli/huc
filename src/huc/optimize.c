@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -524,8 +525,8 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
-			/*  __pushw                     --> __addw  nnn
-			 *  __ldw  nnn
+			/*  __pushw                     --> __addb/w/ub  nnn
+			 *  __ldb/w/ub  nnn
 			 *  __addws
 			 *
 			 *  ====
@@ -534,11 +535,16 @@ void push_ins(INS *ins)
 			 *
 			 */
 			if ((p[0]->code == I_ADDWS) &&
-				(p[1]->code == I_LDW) &&
+				(p[1]->code == I_LDW || p[1]->code == I_LDB || p[1]->code == I_LDUB) &&
 				(p[2]->code == I_PUSHW))
 			{
 				/* replace code */
-				p[2]->code = I_ADDW;
+				switch (p[1]->code) {
+				case I_LDW: p[2]->code = I_ADDW; break;
+				case I_LDB: p[2]->code = I_ADDB; break;
+				case I_LDUB: p[2]->code = I_ADDUB; break;
+				default: abort();
+				}
 				p[2]->data = p[1]->data;
 				p[2]->type = p[1]->type;
 				nb = 2;

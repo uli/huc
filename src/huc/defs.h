@@ -103,6 +103,8 @@
 #define I_LBRAN      71
 #define I_LDYB       72
 #define I_LDBY       73
+#define I_ADDB       74
+#define I_ADDUB      75
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

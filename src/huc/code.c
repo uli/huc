@@ -414,6 +414,18 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_ADDB:
+		ot("__addb\t");
+		out_addr(type, data);
+		nl();
+		break;
+
+	case I_ADDUB:
+		ot("__addub\t");
+		out_addr(type, data);
+		nl();
+		break;
+
 	case I_ADDWI:
 	case I_ADDBI:
 		if (code == I_ADDBI)
