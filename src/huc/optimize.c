@@ -541,8 +541,8 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
-			/*  __pushw                     --> __addb/w/ub  nnn
-			 *  __ldb/w/ub  nnn
+			/*  __pushw                     --> __addb/w/ub/b_s/ub_s/w_s  nnn
+			 *  __ldb/w/ub/b_s/ub_s/w_s  nnn
 			 *  __addws
 			 *
 			 *  ====
@@ -551,7 +551,12 @@ void push_ins(INS *ins)
 			 *
 			 */
 			if ((p[0]->code == I_ADDWS) &&
-				(p[1]->code == I_LDW || p[1]->code == I_LDB || p[1]->code == I_LDUB) &&
+				(p[1]->code == I_LDW ||
+				 p[1]->code == I_LDB ||
+				 p[1]->code == I_LDUB ||
+				 p[1]->code == X_LDB_S ||
+				 p[1]->code == X_LDUB_S ||
+				 p[1]->code == X_LDW_S) &&
 				(p[2]->code == I_PUSHW))
 			{
 				/* replace code */
@@ -559,6 +564,9 @@ void push_ins(INS *ins)
 				case I_LDW: p[2]->code = I_ADDW; break;
 				case I_LDB: p[2]->code = I_ADDB; break;
 				case I_LDUB: p[2]->code = I_ADDUB; break;
+				case X_LDB_S: p[2]->code = X_ADDB_S; p[1]->data -= 2; break;
+				case X_LDUB_S: p[2]->code = X_ADDUB_S; p[1]->data -= 2; break;
+				case X_LDW_S: p[2]->code = X_ADDW_S; p[1]->data -= 2; break;
 				default: abort();
 				}
 				p[2]->data = p[1]->data;
@@ -1902,6 +1910,16 @@ void gen_asm(INS *inst)
 
 	case X_ADDW_S:
 		ot("__addw_s\t");
+		outdec(inst->data);
+		nl();
+		break;
+	case X_ADDB_S:
+		ot("__addb_s\t");
+		outdec(inst->data);
+		nl();
+		break;
+	case X_ADDUB_S:
+		ot("__addub_s\t");
 		outdec(inst->data);
 		nl();
 		break;

@@ -132,7 +132,8 @@
 #define X_LDUB		0x10003
 #define X_LDUB_S	0x10004
 #define X_LDUB_P	0x10005
-
+#define X_ADDB_S	0x100C1
+#define X_ADDUB_S	0x100D1
 
 #define	FOREVER	for(;;)
 #define	FALSE	0

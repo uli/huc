@@ -142,6 +142,29 @@
 	.endif
 	.endm
 
+; addb_s
+;
+	.macro __addb_s
+	 ; short index (bytes :  9, cycles : 13/17)
+
+	 stx	<__temp
+	 sta	<__temp+1
+	.if (\1 < 256)
+	 ldy	#\1
+	 lda	[__sp],Y
+	.else
+	 addw	#\1,<__sp,<__ptr	; 13,26
+	 lda	[__ptr]
+	.endif
+	 tax
+	 __extw
+	 sax
+	 clc
+	 adc	<__temp
+	 sax
+	 adc	<__temp+1
+	.endm
+
 ; ldub_s
 ;
 	.macro __ldub_s
@@ -159,6 +182,32 @@
 	 lda	[__ptr]
 	 tax
 	 cla
+	.endif
+	.endm
+
+; addub_s
+;
+	.macro __addub_s
+	.if (\1 < 256)
+	 ; short index (bytes :  9, cycles : 13/17)
+
+	 ldy	#\1
+	 sax
+	 clc
+	 adc	[__sp],Y
+	 sax
+	 adc	#0
+	.else
+	 ; long index  (bytes : 20, cycles : 37/41)
+
+	 sta	<__temp
+	 addw	#\1,<__sp,<__ptr	; 13,26
+	 txa
+	 clc
+	 adc	[__ptr]
+	 tax
+	 lda	<__temp
+	 adc	#0
 	.endif
 	.endm
 
