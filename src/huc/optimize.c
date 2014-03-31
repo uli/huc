@@ -356,6 +356,21 @@ void push_ins(INS *ins)
 				nb = 3;
 			}
 
+			/* __pushw		--> addbi_p i
+			 * __ldb_p
+			 * __addwi i
+			 * __stbps
+			 */
+			if (p[0]->code == I_STBPS &&
+			    p[1]->code == I_ADDWI &&
+			    p[2]->code == X_LDB_P &&
+			    p[3]->code == I_PUSHW)
+			{
+				*p[3] = *p[1];
+				p[3]->code = I_ADDBI_P;
+				nb = 3;
+			}
+
 			/* flush queue */
 			if (nb)
 			{

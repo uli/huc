@@ -105,6 +105,7 @@
 #define I_LDBY       73
 #define I_ADDB       74
 #define I_ADDUB      75
+#define I_ADDBI_P    76
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

@@ -176,6 +176,16 @@
 .x_\@:
 	.endm
 
+; addbi_p
+	.macro __addbi_p
+	 stx	<__ptr
+	 sta	<__ptr+1
+	 lda	[__ptr]
+	 clc
+	 adc	#\1
+	 sta	[__ptr]
+	.endm
+
 ; ldub_p
 ;
 	.macro __ldub_p
