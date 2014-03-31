@@ -11,6 +11,7 @@
 #include "code.h"
 #include "function.h"
 #include "io.h"
+#include "error.h"
 
 /* defines */
 #define Q_SIZE		16
@@ -1888,6 +1889,9 @@ void gen_asm(INS *inst)
 		ot("__addw_s\t");
 		outdec(inst->data);
 		nl();
+		break;
+	default:
+		error("internal error: invalid instruction");
 		break;
 	}
 }
