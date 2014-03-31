@@ -233,6 +233,8 @@
 	 clc
 	 adc	#\1
 	 sta	[__ptr]
+	 tax
+	 cla
 	.endm
 
 ; ldub_p
