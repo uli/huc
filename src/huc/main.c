@@ -112,8 +112,9 @@ int main (int argc,char* argv[])
 
 
 				case 'v':
-					verboseflag = 1;
-					ctext = 1;		/* "C" code in asm output */
+					verboseflag++;
+					if (verboseflag > 1)
+						ctext = 1;		/* "C" code in asm output */
 					break;
 					
 				case 'd': case 'D':
@@ -615,9 +616,15 @@ long assemble(char *s)
 
 	if (verboseflag) {
 		opts[i++] = "-S";	/* asm: display full segment map */
-		opts[i++] = "-l 3";	/* top listing output */
-		opts[i++] = "-m";	/* force macros also */
+		if (verboseflag > 1) {
+			opts[i++] = "-l 3";	/* top listing output */
+			opts[i++] = "-m";	/* force macros also */
+		}
+		else
+			opts[i++] = "-l 0";
 	}
+	else
+		opts[i++] = "-l 0";
 
 	strcpy(buf, s);
 	buf[strlen(buf)-1] = 's';
