@@ -410,13 +410,31 @@ void dopsdinc(void)
        return;
     }
 
+	if (match(",")) {
+		if (number(&dummy) != 0) {
+			ot(".page ");
+			if (dummy > 8)
+				outdec(dummy / 0x2000);
+			else
+				outdec(dummy);
+			nl();
+		}
+		else {
+			error("missing page number/address");
+			kill();
+			return;
+		}
+	}
+
     ot(".include \"");
     outstr(litq2);
     outstr("\"");
+    nl();
+
+    ol(".page 3");	/* assumes data bank is mapped at 0x6000 */
 
     if (!match(")"))
       error("missing )");
-    nl();
     ol(".code");
     kill();
     }
