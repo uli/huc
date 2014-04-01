@@ -586,33 +586,83 @@ __addbi	.macro
 	 cla
 	.endm	
 
+ .ifdef SMALL
 __addmi	.macro
+	.if (\1 = 1)
+	 inc	<\2		; 6
+	.else
+	.if (\1 = -1)
+	 dec	<\2		; 6
+	.else
+	.if (\1 = -2)
+	 dec	<\2
+	 dec	<\2		; => 12
+	.else
 	.if (\1 = 2)
 	 inc	<\2
-	.ifndef SMALL
-	 bne	.x\@
-	 inc	<\2+1
-	.endif
-.x\@	 inc	<\2
-	.ifndef SMALL
-	 bne	.y\@
-	 inc	<\2+1
-.y\@
-	.endif
+	 inc	<\2		; => 12
 	.else
-	 pha
-	 clc
-	 lda	<\2
-	 adc	#low(\1)
-	 sta	<\2
-	.ifndef SMALL
-	 lda	<\2+1
-	 adc	#high(\1)
-	 sta	<\2+1
+	 tay			; 2
+	 clc			; 2
+	 lda	<\2		; 4
+	 adc	#low(\1)	; 2
+	 sta	<\2		; 4
+	 tya			; 2 => 16
 	.endif
-	 pla
+	.endif
+	.endif
 	.endif
 	.endm	
+
+ .else ; SMALL
+
+__addmi1 .macro		; 10(14)
+	 inc	<\1	; 6
+	 bne	.x\@	; 4(2)
+	 inc	<\1+1	; 0(6)
+.x\@:
+	.endm
+
+__submi1 .macro			; 14(18)
+	 ldy <\1		; 4
+	 bne .x\@		; 4(2)
+	 dec <\1+1		; 0(6)
+.x\@
+	 dec <\1		; 6
+	.endm
+
+__addmi	.macro
+	.if (\1 = 1)
+	 __addmi1 \2
+	.else
+	.if (\1 = -1)
+	 __submi1 \2
+	.else
+	 tay			; 2
+	 clc			; 2
+	 lda	<\2		; 4
+	 adc	#low(\1)	; 2
+	 sta	<\2		; 4
+	.if (\1 < 256) & (\1 >= 0)
+	 bcc	.x\@		; 4(2)
+	 inc	<\2+1		; 0(6)
+.x\@:
+	.else
+	.if (\1 >= -256) & (\1 < 0)
+	 bcs	.y\@		; 4(2)
+	 dec	<\2+1		; 0(6)
+.y\@:
+	.else
+	 lda	<\2+1		; 4
+	 adc	#high(\1)	; 2
+	 sta	<\2+1		; 4
+	.endif
+	.endif
+	 tya			; 2 => 20(24) / 26
+	.endif
+	.endif
+	.endm	
+ .endif ; SMALL
 
 __subw	.macro
 	 sec
