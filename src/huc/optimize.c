@@ -474,7 +474,7 @@ void push_ins(INS *ins)
 				nb = 2;
 			}
 
-			/*  __pushw                     --> __st{b|w}ipp i
+			/*  __pushw                     --> __st{b|w}ip i
 			 *  __ldwi  i
 			 *  __st{b|w}ps
 			 *
@@ -486,7 +486,7 @@ void push_ins(INS *ins)
 				(p[1]->type == T_VALUE))
 			{
 				/* replace code */
-				p[2]->code = p[0]->code == I_STWPS? I_STWIPP : I_STBIPP;
+				p[2]->code = p[0]->code == I_STWPS? I_STWIP : I_STBIP;
 				p[2]->data = p[1]->data;
 				nb = 2;
 			}
@@ -1429,16 +1429,16 @@ void push_ins(INS *ins)
 				goto lv1_loop;
 			}
 
-			/* ldwi i; stwipp j	--> stwi i, j */
-			else if (p[0]->code == I_STWIPP &&
+			/* ldwi i; stwip j	--> stwi i, j */
+			else if (p[0]->code == I_STWIP &&
 				 p[1]->code == I_LDWI)
 			{
 				p[1]->code = I_STWI;
 				p[1]->imm = p[0]->data;
 				nb = 1;
 			}
-			/* ldwi i; stbipp j	--> stbi i, j */
-			else if (p[0]->code == I_STBIPP &&
+			/* ldwi i; stbip j	--> stbi i, j */
+			else if (p[0]->code == I_STBIP &&
 				 p[1]->code == I_LDWI)
 			{
 				p[1]->code = I_STBI;

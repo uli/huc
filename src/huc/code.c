@@ -480,14 +480,14 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
-	case I_STBIPP:
-		ot("__stbipp\t");
+	case I_STBIP:
+		ot("__stbip\t");
 		outdec(data);
 		nl();
 		break;
 
-	case I_STWIPP:
-		ot("__stwipp\t");
+	case I_STWIP:
+		ot("__stwip\t");
 		outdec(data);
 		nl();
 		break;

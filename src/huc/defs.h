@@ -90,8 +90,8 @@
 #define I_ADDBS	     58
 #define I_ADDBI      59
 #define I_LABEL      60
-#define I_STWIPP     61
-#define I_STBIPP     62
+#define I_STWIP      61
+#define I_STBIP      62
 #define I_MULWI      63
 #define I_STWI       64
 #define I_STBI       65

@@ -222,7 +222,7 @@ __stwps	.macro
        __addmi	2,__stack
 	.endm
 
-__stwipp .macro
+__stwip .macro
 	 __stw	__ptr
 	 lda	#low(\1)
 	 tax
@@ -232,7 +232,7 @@ __stwipp .macro
 	 sta	[__ptr],Y
 	.endm
 
-__stbipp .macro
+__stbip .macro
 	 __stw	__ptr
 	 lda	#low(\1)
 	 sta	[__ptr]
