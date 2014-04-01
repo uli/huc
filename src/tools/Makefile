@@ -2,7 +2,7 @@
 # Makefile for HuC tools sources
 #
 
-SUBDIRS = pcxtool mod2mml
+SUBDIRS = pcxtool mod2mml mml
 
 all clean:
 	@$(MAKE) $(SUBDIRS) "COMMAND=$@"
