@@ -11,7 +11,7 @@ include ../../Make_src.inc
 CFLAGS += -Wno-char-subscripts
 
 HDRS = 
-OBJS = mod2mml.o
+OBJS = mod2mml.o analyze.o
 EXE = mod2mml$(EXESUFFIX)
 
 all: $(EXE)

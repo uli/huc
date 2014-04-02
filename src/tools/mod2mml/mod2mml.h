@@ -26,13 +26,3 @@ typedef struct {
     unsigned char mode;
 } Channel_info;
 
-typedef struct {
-	char name[22];			/* sample name from MOD */
-	unsigned int length;		/* length in samples */
-	int tune;
-	unsigned char volume;		/* volume from MOD */
-	unsigned int repeat_at;		/* repeat position from MOD */
-	unsigned int repeat_length;	/* repeat length from MOD */
-	signed char *data;		/* sample data */
-	int envelope;			/* detected envelope */
-} sample_info;

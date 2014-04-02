@@ -1,4 +1,5 @@
 #include "mod2mml.h"
+#include "analyze.h"
 #include <getopt.h>
 #include <assert.h>
 #include <ctype.h>
@@ -46,6 +47,9 @@ int bpm;			/* Number of Beat Per Minut */
 int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
 						 * for each module instrument */
 #endif
+int autowave = 0;		/* automatic wave detection */
+int autowave_normalize = 0;	/* autowave normalization */
+int custom_wave = 45;		/* custom wave counter */
 int instrument_map[32];		/* mapping of MOD instruments to waveforms */
 int percussion_map[32];		/* mapping of MOD instruments to drums */
 sample_info samples[32];	/* instrument data and metadata from analysis */
@@ -214,139 +218,6 @@ void convert_period(int period, char *alpha, char *octave)
 	*octave = OCTAVE_OFFSET + (index / NOTE_PER_OCTAVE);
 	return;
 
-}
-
-void dump_curve(int *data, int len, int divisor)
-{
-	int i, j;
-	for (i = 0; i < len; i++) {
-		for (j = 0; j < data[i]/divisor; j++) {
-			printf("#");
-		}
-		printf("\n");
-	}
-}
-
-void analyze_sample(sample_info *s)
-{
-	int i, j;
-#define VOLAVGSIZE (s->length / 8)
-	int avgsize = s->length / VOLAVGSIZE;
-	int vol[s->length];	/* volume per sample */
-	int avgvol[avgsize];	/* averaged volume per VOLAVGSIZE samples */
-
-	/* Find volume for each sample by finding local maxima. */
-	int last_vol = -1;
-	for (i = 2; i < s->length-2; i++) {
-		if (abs(s->data[i-1]) < abs(s->data[i]) &&
-		    abs(s->data[i-2]) < abs(s->data[i]) &&
-		    abs(s->data[i+2]) < abs(s->data[i]) &&
-		    abs(s->data[i+1]) < abs(s->data[i])) {
-			//printf("peak at %d of %d\n", i, s->data[i]);
-			for (j = last_vol+1; j <= i; j++)
-				vol[j] = abs(s->data[i]);
-			last_vol = i;
-		}
-	}
-	for (i = last_vol + 1; i < s->length; i++)
-		vol[i] = vol[last_vol];
-
-	/* Calculate 8 averaged volumes per instrument. */
-	for (i = 0; i < s->length-VOLAVGSIZE+1; i+=VOLAVGSIZE) {
-		avgvol[i/VOLAVGSIZE] = 0;
-		for (j = i; j < i+VOLAVGSIZE; j++) {
-			//printf("%4d ", s->data[j]);
-			avgvol[i/VOLAVGSIZE] += vol[j];
-		}
-		avgvol[i/VOLAVGSIZE] /= VOLAVGSIZE;
-		//printf("avgvol %d: %d\n", i, avgvol[i/VOLAVGSIZE]);
-	}
-#if DEBUG > 1
-	dump_curve(avgvol, avgsize, 4);
-
-	/* Smooth the volumes a bit. */
-	printf("smoothed\n");
-#endif
-	avgvol[0] = (avgvol[0] + avgvol[1]) / 2;
-	for (i = 1; i < avgsize - 1; i++) {
-		avgvol[i] = (avgvol[i-1] + avgvol[i] + avgvol[i+1]) / 3;
-	}
-	avgvol[avgsize-1] = (avgvol[avgsize-1] +
-					 avgvol[avgsize-2]) / 2;
-#if DEBUG > 1
-	dump_curve(avgvol, avgsize, 4);
-#endif
-
-	/* Detect volume envelope. */
-	int has_strong_up = 0;
-	int has_up = 0;
-	int has_down = 0;
-	int has_strong_down = 0;
-	int has_sustain = 0;
-	int sustain_before_down = 0;
-	int down_before_up = 0;
-	int up_after_down = 0;
-#if DEBUG > 1
-#define PRINTENV(x) printf(x)
-#else
-#define PRINTENV(x)
-#endif
-	for (i = 1; i < avgsize; i++) {
-		double diff = (avgvol[i] - avgvol[i-1]) / (double)avgvol[i-1];
-		if (diff > .02) {
-			if (diff > .3) {
-				PRINTENV("U");
-				has_strong_up++;
-			}
-			else {
-				PRINTENV("u");
-				has_up++;
-			}
-			if (has_down || has_strong_down)
-				up_after_down = 1;
-		}
-		else if (diff < -.02) {
-			if (diff < -.3) {
-				PRINTENV("D");
-				has_strong_down++;
-			}
-			else {
-				PRINTENV("d");
-				has_down++;
-			}
-			if (!has_up && !has_strong_up)
-				down_before_up = 1;
-		}
-		else {
-			PRINTENV("-");
-			has_sustain++;
-			if (!has_down && !has_strong_down)
-				sustain_before_down = 1;
-		}
-	}
-	PRINTENV("\n");
-#undef PRINTENV
-
-	/* Try to match the volume envelope to a predefined MML envelope. */
-	if ((has_strong_down || has_down) &&
-	    !(has_up || has_strong_up) &&
-	    !(has_sustain && sustain_before_down)) {
-		/* continuous decay */
-		if (has_strong_down > has_down)
-			s->envelope = 6;
-		else
-			s->envelope = 4;
-	}
-	else if ((has_up || has_strong_up) &&
-		 (has_down||has_strong_down) &&
-		 !down_before_up && !up_after_down) {
-		/* attack/decay */
-		s->envelope = 7;
-	}
-
-#if DEBUG > 1
-	printf("env %d\n", s->envelope);
-#endif
 }
 
 char out_ch[MAX_CHANNEL][100000];
@@ -1184,7 +1055,7 @@ int main(int argc, char *argv[])
 
 	int i;
 	for (i = 0; i < 32; i++) {
-		instrument_map[i] = i;
+		instrument_map[i] = -1;
 		percussion_map[i] = 0;
 	}
 
@@ -1194,12 +1065,14 @@ int main(int argc, char *argv[])
 		static struct option long_options[] = {
 			{"track-name", required_argument, 0, 't'},
 			{"map-instrument", required_argument, 0, 'm'},
-			{"map-percussion", required_argument, 0, 'n'},
+			{"map-percussion", required_argument, 0, 'd'},
 			{"percussion", required_argument, 0, 'p'},
+			{"auto-wave", no_argument, 0, 'a'},
+			{"normalize-waves", no_argument, 0, 'n'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
-		c = getopt_long(argc, argv, "o:p:t:m:n:", long_options, &option_index);
+		c = getopt_long(argc, argv, "o:p:t:m:d:an", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -1212,7 +1085,7 @@ int main(int argc, char *argv[])
 				*eq = 0;
 				instrument_map[atoi(optarg)] = atoi(eq+1);
 				break;
-			case 'n':
+			case 'd':
 				eq = strchr(optarg, '=');
 				if (!eq) {
 					fprintf(stderr, "invalid percussion mapping %s\n", optarg);
@@ -1229,6 +1102,12 @@ int main(int argc, char *argv[])
 				break;
 			case 't':
 				strcpy(track_name, optarg);
+				break;
+			case 'a':
+				autowave = 1;
+				break;
+			case 'n':
+				autowave_normalize = 1;
 				break;
 			default:
 				abort();
@@ -1353,10 +1232,21 @@ int main(int argc, char *argv[])
 				if (samples[i].length > 2) {
 					samples[i].length -= 2;
 					analyze_sample(&samples[i]);
+					if (autowave && samples[i].wave && !percussion_map[i] && instrument_map[i] == -1) {
+#if DEBUG > 0
+						printf("autowaving to %d\n", custom_wave);
+#endif
+						samples[i].waveno = custom_wave;
+						instrument_map[i] = custom_wave++;
+					}
 				}
 				else
 					samples[i].length -= 2;
 			}
+			/* No user instrument mapping and no autodetected wave
+                           => take a wild guess. */
+			if (instrument_map[i] == -1)
+				instrument_map[i] = i;
 		}
 
 
@@ -1484,6 +1374,26 @@ int main(int argc, char *argv[])
 			fprintf(output, "(CH%dP%d)", current_channel, pattern_array[current_song_position]);
 		}
 		fputc('\n', output);
+	}
+
+	/* Output custom waves. */
+	for (i = 0; i < nb_instrument; i++) {
+		if (samples[i].wave && instrument_map[i] == samples[i].waveno) {
+			wave_info *w = samples[i].wave;
+			signed char *d = samples[i].data;
+			fprintf(output, ".Wave %d\n", samples[i].waveno);
+			int j, s;
+			for (j = 0; j < 32; j++) {
+				s = d[w->start + j];
+				if (autowave_normalize)
+					s = s * 128 / (w->vol + 1);
+#if DEBUG > 1
+				printf("s %d wvol %d\n", s, w->vol);
+#endif
+				fprintf(output, "%d%s", (s + 128) >> 3,
+					j == 31 ? "\n" : ", ");
+			}
+		}
 	}
 	fclose(output);
 
