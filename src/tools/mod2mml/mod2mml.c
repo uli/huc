@@ -265,19 +265,6 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 		-1, 1, 2, 3, 4, 4, 6, 6, 8, 8, 8, 8, 12, 12, 12, 12, 16
 	};
 
-	if (effect_id == FX_FLUSH) {
-		/* XXX: Handle long notes properly. */
-		while (rests[current_channel] > 0) {
-			outmem("R ");
-			rests[current_channel]--;
-		}
-		prev_octave[current_channel] = -1;
-		last_instrument[current_channel] = -1;
-		charcnt[current_channel] = 0;
-		rests[current_channel] = 0;
-		return;
-	}
-
 	switch (effect_id) {
 	case FX_VOLUME:
 		old_vol = channel[current_channel].volume;
@@ -308,12 +295,16 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 		if (effect_data == 0)
 			break;
 
+        case FX_FLUSH:
+                /* handled further down */
+                break;
+
 	default:
 		nb_warning++;
 		log_warning("Unsupported effect 0X%X", effect_id);
 	}
 
-	if (period != 0) {
+	if (period != 0 || effect_id == FX_FLUSH) {
 		if (rests[current_channel] > 0) {
 			if (last_instrument[current_channel] != -1) {
 				/* If the last note played is longer than a row, we have to
@@ -378,6 +369,14 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 			}
 			last_instrument[current_channel] = -1;
 		}
+
+                if (effect_id == FX_FLUSH) {
+                        prev_octave[current_channel] = -1;
+                        charcnt[current_channel] = 0;
+                        rests[current_channel] = 0;
+                        return;
+                }
+
 		if (++charcnt[current_channel] > 20) {
 			outmem("\n");
 			charcnt[current_channel] = 0;
