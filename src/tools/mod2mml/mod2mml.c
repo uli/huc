@@ -1448,12 +1448,14 @@ int main(int argc, char *argv[])
 	int max = -1;
 	int max2 = -1;
 	for (i = 0; i < nb_channel; i++) {
-		if (channel[i].percussion > max) {
-			max2 = max;
-			max = channel[i].percussion;
+		if (channel[i].percussion) {
+			if (channel[i].percussion > max) {
+				max2 = max;
+				max = channel[i].percussion;
+			}
+			else if (channel[i].percussion > max2)
+				max2 = channel[i].percussion;
 		}
-		else if (channel[i].percussion > max2)
-			max2 = channel[i].percussion;
 	}
 
 	for (current_channel = 0; current_channel < nb_channel;
