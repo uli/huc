@@ -24,15 +24,15 @@ typedef struct {
     unsigned char panning; /* 0 is left, 0xff for right */
     unsigned char col_written; /* number of operandes written on the curent line */
     unsigned char mode;
-    } Channel_info;
+} Channel_info;
 
 typedef struct {
-	char name[22];
-	unsigned int length;
+	char name[22];			/* sample name from MOD */
+	unsigned int length;		/* length in samples */
 	int tune;
-	unsigned char volume;
-	unsigned int repeat_at;
-	unsigned int repeat_length;
-	signed char *data;
-	int envelope;
+	unsigned char volume;		/* volume from MOD */
+	unsigned int repeat_at;		/* repeat position from MOD */
+	unsigned int repeat_length;	/* repeat length from MOD */
+	signed char *data;		/* sample data */
+	int envelope;			/* detected envelope */
 } sample_info;

@@ -46,10 +46,10 @@ int bpm;			/* Number of Beat Per Minut */
 int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
 						 * for each module instrument */
 #endif
-int instrument_map[32];
-int percussion_map[32];
-sample_info samples[32];
-int pattern_handled[256];
+int instrument_map[32];		/* mapping of MOD instruments to waveforms */
+int percussion_map[32];		/* mapping of MOD instruments to drums */
+sample_info samples[32];	/* instrument data and metadata from analysis */
+int pattern_handled[256];	/* has this pattern been processed yet? */
 
 unsigned char pce_inst[64][32];	/* library builtin samples, normalized to 0..31 */
 
