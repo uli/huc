@@ -25,19 +25,8 @@ LIB2_BANK	.equ	START_BANK+1
 	       .ifdef HUC
 FONT_BANK	.equ	START_BANK+1
 
-		.if  (CDROM)
 CONST_BANK	 .equ	START_BANK+2
 DATA_BANK	 .equ	START_BANK+3
-		.else
- .ifdef LINK_psg
-PSG_BANK	 .equ	START_BANK+2
-CONST_BANK	 .equ	START_BANK+3
-DATA_BANK	 .equ	START_BANK+4
- .else
-CONST_BANK	 .equ	START_BANK+2
-DATA_BANK	 .equ	START_BANK+3
- .endif ; LINK_psg
-		.endif
 
 	       .else
 
@@ -105,12 +94,6 @@ scr_h:		.ds 1
 
 		.org	$2284
 soft_reset:	.ds 2	; soft reset jump loc (run+select)
-
-	.if  !(CDROM)
- .ifdef LINK_psg
-		.include  "sound.inc"
- .endif
-	.endif
 
 		.org	$2680
 vsync_cnt:	.ds 1	; counter for 'wait_vsync' routine
@@ -946,13 +929,6 @@ _vsync_hndl:
 	jsr   ex_colorcmd
 	inc   rndseed
 	jsr   randomize
- .ifdef LINK_psg
-	lda   <$e7
-	cmp   #$01
-	bne  .skip_psg
-	jsr   psg_driver
-.skip_psg:
- .endif ; LINK_psg
        .endif
 
        .ifdef SUPPORT_MOUSE
@@ -1132,62 +1108,10 @@ _timer:
 
 	sta   irq_status	; acknowledge interrupt
 
- .ifdef LINK_psg
-	lda   <psg_irqflag	; is IRQ being serviced ?
-	bne   .exit
-
-	inc   <psg_irqflag	; IRQ being serviced
-	cli			; but allow other interrupts to be processed
-
-	lda   <psg_inhibit	; if sound off, don't bother
-	bne   .exit2
-
-	bsr   psg_driver	; do all sound-related stuff
-.exit2:	stz   <psg_irqflag	; allow IRQ processing again
- .endif ; LINK_psg
-
 .exit:	ply
 	plx
 	pla
 	rti
-
- .ifdef LINK_psg
-psg_driver:
-	tma   #page(psg_drive)	; map out the code segment
-	pha
-	lda   #bank(psg_drive)
-	tam   #page(psg_drive)
-
-	tma   #4		; save data banks
-	pha
-	tma   #3
-	pha
-
-	lda   psg_bank1		; map PSG data banks
-	tam   #3
-	lda   psg_bank2
-	tam   #4
-
-	jsr   psg_drive
-
-	lda   psg_tempo
-	bmi   .noreset
-
-	sta   timer_cnt
-	ora   #$80
-	sta   psg_tempo
-
-.noreset:
-	pla			; restore data banks
-	tam   #3
-	pla
-	tam   #4
-
-	pla
-	tam   #page(psg_drive)	; restore code bank
-	rts
-
- .endif ; LINK_psg
 
        .endif	; !(CDROM)
 
@@ -1248,9 +1172,6 @@ font_table:
        .if (CDROM)
 	.include "cdrom.asm"
        .else
- .ifdef LINK_psg
-	.include "sound.asm"
- .endif ; LINK_psg
        .endif   ; CDROM
 
 ; ----

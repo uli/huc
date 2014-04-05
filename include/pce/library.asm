@@ -1394,14 +1394,6 @@ init_psg:
 
 	.bank	LIB2_BANK
 lib2_init_psg:
-       .if !(CDROM)
-       .ifdef LINK_psg
-	stz   <psg_irqflag	; IRQ not running
-	lda   #1
-	sta   <psg_inhibit	; inhibit PSG playing
-       .endif
-       .endif ; !(CDROM)
-
 	stz   psg_mainvol	; main volume to zero
 	stz   psg_lfoctrl	; disable the LFO
 	
