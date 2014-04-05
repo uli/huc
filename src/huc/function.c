@@ -638,6 +638,8 @@ arg_flush(long arg, long adj)
 			case X_STW_S:
 			case X_INCW_S:
 			case X_ADDW_S:
+			case X_ADDB_S:
+			case X_ADDUB_S:
 			case X_STBI_S:
 			case X_STWI_S:
 				ins->data -= adj;
