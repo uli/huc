@@ -1471,6 +1471,20 @@ void push_ins(INS *ins)
 				nb = 1;
 			}
 
+			/* ldwi i; stw const	--> stwi const, i */
+			/* XXX: This doesn't really do anything... */
+			else if ((p[0]->code == I_STW || p[0]->code == I_STB) &&
+				 p[0]->type == T_VALUE &&
+				 p[1]->code == I_LDWI)
+			{
+				p[1]->code = (p[0]->code == I_STW) ? I_STWI : I_STBI;
+				p[1]->imm = p[1]->data;
+				p[1]->imm_type = p[1]->type;
+				p[1]->data = p[0]->data;
+				p[1]->type = p[0]->type;
+				nb = 1;
+			}
+
 			/* subwi/addwi i; ldw j --> ldw j
 			   This is a frequent case in which the result
 			   of a post-increment or decrement is not used. */
