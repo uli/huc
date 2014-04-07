@@ -1444,7 +1444,7 @@ int main(int argc, char *argv[])
 #if DEBUG > 1
 			printf("samples[i].wave %p i %d imap %d waveno %d\n", samples[i].wave, i, instrument_map[i], samples[i].waveno);
 #endif
-			if (samples[i].wave && instrument_map[i] == samples[i].waveno) {
+			if (autowave && samples[i].wave && instrument_map[i] == samples[i].waveno) {
 				wave_info *w = samples[i].wave;
 				signed char *d = samples[i].data;
 				if (use_mml)
