@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <ctype.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -13,6 +15,7 @@
 #include "sym.h"
 #include "gen.h"
 #include "expr.h"
+#include "const.h"
 
 static char *needargs[] = {
 	"vreg",
@@ -60,6 +63,7 @@ long getlabel (void )
  */
 void getmem (SYMBOL *sym)
 {
+	char *data;
 	if ((sym->ident != POINTER) && (sym->type == CCHAR || sym->type == CUCHAR)) {
 		int op = I_LDB;
 		if (sym->type & CUNSIGNED)
@@ -71,6 +75,9 @@ void getmem (SYMBOL *sym)
 	} else {
 		if ((sym->storage & ~WRITTEN) == LSTATIC)
 			out_ins(I_LDW, T_LABEL, glint(sym));
+		else if ((sym->storage & ~WRITTEN) == CONST && (data = get_const(sym))) {
+			out_ins(I_LDWI, T_LITERAL, (long)data);
+		}
 		else
 			out_ins(I_LDW, T_SYMBOL, (long)(sym->name));
 	}

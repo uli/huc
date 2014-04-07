@@ -168,6 +168,9 @@ static void out_type(long type, long data)
 	case T_SYMBOL:
 		outsymbol((char *)data);
 		break;
+	case T_LITERAL:
+		outstr((char *)data);
+		break;
 	case T_STRING:
 		outlabel(litlab);
 		outbyte('+');
@@ -200,8 +203,14 @@ static void out_addr(long type, long data)
 	case T_SYMBOL:
 		outsymbol((char *)data);
 		break;
+	case T_LITERAL:
+		outstr((char *)data);
+		break;
 	case T_PTR:
 		outstr("__ptr");
+		break;
+	case T_VALUE:
+		outdec(data);
 		break;
 	}
 }
@@ -371,15 +380,7 @@ void gen_code(INS *tmp)
 
 	case I_STB:
 		ot("  stx\t");
-
-		switch (type) {
-		case T_LABEL:
-			outlabel(data);
-			break;
-		default:
-			outsymbol((char *)data);
-			break;
-		}
+		out_addr(type, data);
 		nl();
 		break;
 

@@ -28,6 +28,7 @@
 #define T_BANK		 9
 #define T_VRAM		10
 #define T_PAL		11
+#define T_LITERAL	12
 
 /* basic pseudo instructions */
 #define I_LDB		 1

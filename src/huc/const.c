@@ -211,7 +211,7 @@ long get_raw_value(char sep)
 					break;
 			}
 		}
-		/* paranthesis */
+		/* parenthesis */
 		if (c == '(')
 			level++;
 		else if (c == ')')
@@ -284,6 +284,25 @@ void add_buffer (char *p, char c)
 	}
 }
 
+char *get_const(SYMBOL *s)
+{
+	int i;
+	if (const_nb) {
+		const_ptr = const_var;
+
+		for (i = 0; i < const_nb; i++) {
+			if (const_ptr->sym == s) {
+				int j = const_val[const_ptr->data];
+				if (j >= 0)
+					return &const_data[j];
+				else
+					return 0;
+			}
+			const_ptr++;
+		}
+	}
+	return 0;
+}
 
 /*
  *	dump the constant pool

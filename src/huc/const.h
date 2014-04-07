@@ -14,6 +14,7 @@ long get_string_ptr(long typ);
 long get_raw_value(char sep);
 void add_buffer (char *p, char c);
 void dump_const (void );
+char *get_const(SYMBOL *);
 
 #endif
 

@@ -93,7 +93,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 					c->ptr_order = ptr_order;
 				}
 				else {
-					SYMBOL *c = addglb (sname, id, typ, k, STATIC);
+					SYMBOL *c = addglb (sname, id, typ, k, CONST);
 					if (c) {
 						add_const(typ);
 						if (typ == CSTRUCT)
