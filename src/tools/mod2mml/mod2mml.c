@@ -1342,21 +1342,9 @@ int main(int argc, char *argv[])
 		}
 #endif
 
-		for (current_instrument = 0;
-		     current_instrument < nb_instrument; current_instrument++) {
-			printf("%d/%d\r", current_instrument + 1,
-			       nb_instrument);
-#if 0
-			convertion_inst[current_instrument] =
-			    nearest_pce_instrument(current_instrument);
-#endif
-		}
-
 		for (current_song_position = 0;
 		     current_song_position < song_length;
 		     current_song_position++) {
-			printf("%d/%d\r", current_song_position + 1,
-			       song_length);
 			if (!pattern_handled[pattern_array[current_song_position]]) {
 				handle_pattern(input,
 					       pattern_array[current_song_position]);
