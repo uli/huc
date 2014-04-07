@@ -26,3 +26,4 @@ typedef struct {
     unsigned char mode;
 } Channel_info;
 
+const unsigned char standard_waves[45][32];
