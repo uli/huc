@@ -20,6 +20,9 @@ typedef struct {
 	unsigned int repeat_length;	/* repeat length from MOD */
 	signed char *data;		/* sample data */
 	int envelope;			/* detected envelope */
+	int env_data[16];
+	int max_env;
+	int avg_env;
 	wave_info *wave;		/* detected waveform */
 	int waveno;			/* number of detected waveform */
 } sample_info;

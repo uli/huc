@@ -62,7 +62,7 @@ void analyze_sample(sample_info *s)
 	/* ===== Find a Volume Envelope ===== */
 
 	/* Number of samples considered per volume value. */
-	int volavgsize = s->length / 8;
+	int volavgsize = s->length / 16;
 	/* Number of volume values. */
 	int avgsize = s->length / volavgsize;
 	int vol[s->length];	/* volume per sample */
@@ -109,6 +109,15 @@ void analyze_sample(sample_info *s)
 #if DEBUG > 1
 	dump_curve(avgvol, avgsize, 4);
 #endif
+	memcpy(s->env_data, avgvol, sizeof(s->env_data));
+	s->max_env = 0;
+	s->avg_env = 0;
+	for (i = 0; i < avgsize; i++) {
+		if (avgvol[i] > s->max_env)
+			s->max_env = avgvol[i];
+		s->avg_env += avgvol[i];
+	}
+	s->avg_env /= avgsize;
 
 	/* Detect volume envelope. */
 	int has_strong_up = 0;
