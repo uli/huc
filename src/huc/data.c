@@ -31,7 +31,7 @@ long   swstp;
 char  litq[LITABSZ];
 char  litq2[LITABSZ];
 long   litptr;
-char  macq[MACQSIZE];
+struct macro  macq[MACQSIZE];
 long   macptr;
 char  line[LINESIZE];
 char  mline[LINESIZE];

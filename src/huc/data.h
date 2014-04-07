@@ -28,7 +28,7 @@ extern	long   swstp;
 extern	char  litq[];
 extern	char  litq2[];
 extern	long   litptr;
-extern	char  macq[];
+extern	struct macro  macq[];
 extern	long   macptr;
 extern	char  line[];
 extern	char  mline[];

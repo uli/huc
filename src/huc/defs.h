@@ -282,6 +282,17 @@ struct tag_symbol {
 #define	MACQSIZE	16384
 #define	MACMAX	(MACQSIZE-1)
 
+struct macro {
+	char *name;
+	char **args;
+	int argc;
+	struct {
+		int arg;
+		int pos;
+	} *argpos;
+	char *def;
+};
+
 /* "include" stack */
 
 #define	INCLSIZ	3

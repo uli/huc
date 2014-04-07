@@ -179,7 +179,7 @@ void readline (void)
 	FILE	*unit;
 
 	FOREVER {
-		if (feof (input))
+		if (!input || feof (input))
 			return;
 		if ((unit = input2) == NULL)
 			unit = input;

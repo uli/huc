@@ -33,11 +33,9 @@ void defmac(char* s);
 
 void addmac (void);
 
-void delmac(long mp);
+void delmac(struct macro *mp);
 
-long putmac (char c);
-
-long findmac (char* sname);
+struct macro *findmac (char* sname);
 
 void toggle (char name, long onoff);
 

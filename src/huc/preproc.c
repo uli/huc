@@ -3,6 +3,8 @@
  *
  */
 
+//#define DEBUG_PREPROC
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -266,7 +268,7 @@ void dodefine (void)
 
 void doundef (void)
 {
-	long	mp;
+	struct macro *mp;
 	char	sname[NAMESIZE];
 
 	if (!symname(sname)) {
@@ -303,7 +305,7 @@ long ifline(void)
 {
 	FOREVER {
 		readline();
-		if (feof(input)) return(1);
+		if (!input || feof(input)) return(1);
 		if (match("#ifdef")) {
 			doifdef(YES);
 			continue;
@@ -425,11 +427,70 @@ long cpp (void)
 				gch ();
 			}
 			sname[k] = 0;
-			k = findmac (sname);
-			if (k) {
+			struct macro *mp;
+			mp = findmac (sname);
+			if (mp) {
+				char args[40][256];
+				int argc = 0;
+				int haveargs = 0;
+				/* If the macro wants arguments, substitute them.
+				   Unlike at the time of definition, here whitespace
+				   is permissible between the macro identifier and
+				   the opening parenthesis. */
+				if (mp->argc && match("(")) {
+					haveargs = 1;
+					for (;;) {
+						args[argc][0] = 0;
+						while (ch() != ',') {
+							char c = gch();
+							if (!c) {
+								error("missing closing paren");
+								return 0;
+							}
+							strncat(args[argc], &c, 1);
+							if (ch() == ')')
+								break;
+						}
+#ifdef DEBUG_PREPROC
+						printf("macro arg %s\n", args[argc]);
+#endif
+						argc++;
+						if (ch() == ')') {
+							gch();
+							break;
+						}
+						gch();
+					}
+				}
+				if (argc != mp->argc) {
+					error("wrong number of macro arguments");
+					return 0;
+				}
+
 				cpped = 1;
-				while ( (c = macq[k++]) )
-					keepch (c);
+				k = 0;
+				if (haveargs) {
+					int i;
+					char buf[256];
+					char *dp = mp->def;
+					buf[0] = 0;
+					for (i = 0; mp->argpos[i].arg != -1; i++) {
+						strncat(buf, dp, mp->argpos[i].pos - (dp - mp->def));
+						strcat(buf, args[mp->argpos[i].arg]);
+						dp = mp->def + mp->argpos[i].pos + strlen(mp->args[mp->argpos[i].arg]);
+					}
+					strcat(buf, dp);
+#ifdef DEBUG_PREPROC
+					printf("postproc %s\n", buf);
+#endif
+					for (i = 0; buf[i]; i++)
+						keepch(buf[i]);
+				}
+				else {
+					while ( (c = mp->def[k++]) )
+						keepch (c);
+					keepch(' ');
+				}
 			} else {
 				k = 0;
 				while ( (c = sname[k++]) )
@@ -465,8 +526,7 @@ void defmac(char* s)
 void addmac (void)
 {
 	char	sname[NAMESIZE];
-	long	k;
-	long	mp;
+	struct macro *mp;
 
 	if (!symname (sname)) {
 		illname ();
@@ -478,45 +538,113 @@ void addmac (void)
 		error("Duplicate define");
 		delmac(mp);
 	}
-	k = 0;
-	while (putmac (sname[k++]));
-/*	while ( (ch () == ' ' | ch () == 9) )
-		gch ();    */  /* Fixed - DS */
+	else
+		mp = &macq[macptr++];
+
+	mp->name = strdup(sname);
+
+	int argc = 0;
+	mp->args = malloc(sizeof(char *) * 40);
+	mp->args[0] = 0;
+	mp->argpos = malloc(sizeof(*mp->argpos) * 40);
+	/* Stuff within parentheses is only considered a list of arguments
+	   if there is no whitespace between the identifier and the opening
+	   paren. */
+	if (ch() == '(') {
+		gch();
+		for (;;) {
+			if (!symname(sname)) {
+				error("invalid macro argument");
+				delmac(mp);
+				return;
+			}
+#ifdef DEBUG_PREPROC
+			printf("arg %d %s\n", argc, sname);
+#endif
+			mp->args[argc++] = strdup(sname);
+			if (argc >= 40) {
+				error("too many arguments");
+				delmac(mp);
+				return;
+			}
+			mp->args[argc] = 0;
+			if (match(")"))
+				break;
+			if (!match(",")) {
+				error("expected comma");
+				delmac(mp);
+				return;
+			}
+		}
+	}
+	mp->argc = argc;
 
 	while ( (ch () == ' ') || (ch () == 9) )
 		gch ();
-	while (putmac (gch ()));
+	char c;
+	mp->def = malloc(256);
+	mp->def[0] = 0;
+	int pos = 0;
+	int count = 0;
+	for (;;) {
+		int found = 0;
+		int i;
+		for (i = 0; i < argc; i++) {
+			if (an(ch()) && amatch(mp->args[i], strlen(mp->args[i]))) {
+#ifdef DEBUG_PREPROC
+				printf("arg %d at offset %d\n", i, pos);
+#endif
+				strcat(mp->def, mp->args[i]);
+				mp->argpos[count].arg = i;
+				mp->argpos[count++].pos = pos;
+				mp->argpos[count].arg = -1;
+				mp->argpos[count].pos = -1;
+				pos += strlen(mp->args[i]);
+				found = 1;
+				break;
+			}
+		}
+		if (!found) {
+			c = gch();
+			if (!c)
+				break;
+			strncat(mp->def, &c, 1);
+			pos++;
+		}
+	}
+#ifdef DEBUG_PREPROC
+	printf("macdef %s\n", mp->def);
+#endif
 	if (macptr >= MACMAX)
 		error ("macro table full");
 }
 
-void delmac(long mp)
+void delmac(struct macro *mp)
 {
-	--mp; --mp;	/* step over previous null */
-	while (mp >= 0 && macq[mp]) macq[mp--] = '%';
+	if (mp->name)
+		free(mp->name);
+	mp->name = 0;
+	if (mp->def)
+		free(mp->def);
+	mp->def = 0;
+	if (mp->args)
+		free(mp->args);
+	mp->args = 0;
+	if (mp->argpos)
+		free(mp->argpos);
+	mp->argpos = 0;
 }
 	
-
-long putmac (char c)
-{
-	macq[macptr] = c;
-	if (macptr < MACMAX)
-		macptr++;
-	return (c);
-}
-
-long findmac (char* sname)
+struct macro *findmac (char* sname)
 {
 	long	k;
 
 	k = 0;
 	while (k < macptr) {
-		if (astreq (sname, macq + k, NAMEMAX)) {
-			while (macq[k++]);
-			return (k);
+		if (macq[k].name && astreq (sname, macq[k].name, NAMEMAX)) {
+			return (&macq[k]);
 		}
-		while (macq[k++]);
-		while (macq[k++]);
+		k++;
 	}
 	return (0);
 }

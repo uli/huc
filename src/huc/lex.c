@@ -156,7 +156,7 @@ void blanks (void )
 	FOREVER {
 		while (ch () == 0) {
 			preprocess ();
-			if (feof (input))
+			if (!input || feof (input))
 				break;
 		}
 		if (ch () == ' ')
