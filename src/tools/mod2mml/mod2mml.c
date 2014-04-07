@@ -381,10 +381,10 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 			outmem("\n");
 			charcnt[current_channel] = 0;
 		}
-		if (percussion_map[instrument]) {
+		if (percussion_map[instrument-1] != -1) {
 			channel[current_channel].percussion++;
 		}
-		if (channel[current_channel].percussion && percussion_map[instrument]) {
+		if (channel[current_channel].percussion && percussion_map[instrument-1] != -1) {
 			if (channel[current_channel].mode != 1) {
 				channel[current_channel].mode = 1;
 				outmem("@M1 ");
@@ -393,7 +393,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				/* XXX: Is this correct? We don't set it after all... */
 				channel[current_channel].instrument = instrument;
 			}
-			int drum = percussion_map[channel[current_channel].instrument];
+			int drum = percussion_map[channel[current_channel].instrument-1];
 			if (drum > 12 || drum < 1)
 				drum = 1;
 			outmem("%s ", alpha_to_disp[drum - 1]);
@@ -409,7 +409,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 				outmem("@M0 ");
 			}
 			if (instrument != channel[current_channel].instrument) {
-				outmem("@%d ", instrument_map[instrument]);
+				outmem("@%d ", instrument_map[instrument-1]);
 				channel[current_channel].instrument = instrument;
 				if (current_env[current_channel] != samples[instrument-1].envelope) {
 					outmem("@E%02d ", samples[instrument-1].envelope);
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[])
 	int i;
 	for (i = 0; i < 32; i++) {
 		instrument_map[i] = -1;
-		percussion_map[i] = 0;
+		percussion_map[i] = -1;
 	}
 
 	int c;
@@ -1082,7 +1082,7 @@ int main(int argc, char *argv[])
 					exit(1);
 				}
 				*eq = 0;
-				instrument_map[atoi(optarg)] = atoi(eq+1);
+				instrument_map[atoi(optarg)-1] = atoi(eq+1)-1;
 				break;
 			case 'd':
 				eq = strchr(optarg, '=');
@@ -1091,7 +1091,7 @@ int main(int argc, char *argv[])
 					exit(1);
 				}
 				*eq = 0;
-				percussion_map[atoi(optarg)] = atoi(eq+1);
+				percussion_map[atoi(optarg)-1] = atoi(eq+1)-1;
 				break;
 			case 'o':
 				strcpy(output_filename, optarg);
@@ -1164,23 +1164,23 @@ int main(int argc, char *argv[])
 		read_byte_array(input, signature, SIGNATURE_LENGTH);
 
 		/* setting default values in case of no known signature found */
-		nb_instrument = 15;
+		nb_instrument = 16;
 		nb_channel = 4;
 
 		if (!strncmp(signature, "M.K.", SIGNATURE_LENGTH)) {	/* Signature is egal to M.K. */
-			nb_instrument = 31;
+			nb_instrument = 32;
 		} else if (!strncmp(signature, "4CHN", SIGNATURE_LENGTH)) {
-			nb_instrument = 31;
+			nb_instrument = 32;
 		} else if (!strncmp(signature, "8CHN", SIGNATURE_LENGTH)) {
-			nb_instrument = 31;
+			nb_instrument = 32;
 			nb_channel = 8;
 		} else if (!strncmp(signature, "6CHN", SIGNATURE_LENGTH)) {
-			nb_instrument = 31;
+			nb_instrument = 32;
 			nb_channel = 6;
 		} else if (!strncmp(signature, "FLT4", SIGNATURE_LENGTH)) {
-			nb_instrument = 31;
+			nb_instrument = 32;
 		} else if (!strncmp(signature, "FLT8", SIGNATURE_LENGTH)) {
-			nb_instrument = 31;
+			nb_instrument = 32;
 			nb_channel = 8;
 		}
 #if DEBUG > 0
@@ -1231,7 +1231,7 @@ int main(int argc, char *argv[])
 				if (samples[i].length > 2) {
 					samples[i].length -= 2;
 					analyze_sample(&samples[i]);
-					if (autowave && samples[i].wave && !percussion_map[i] && instrument_map[i] == -1) {
+					if (autowave && samples[i].wave && percussion_map[i] != -1 && instrument_map[i] == -1) {
 #if DEBUG > 0
 						printf("autowaving to %d\n", custom_wave);
 #endif
