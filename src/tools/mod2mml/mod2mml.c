@@ -1285,7 +1285,7 @@ int main(int argc, char *argv[])
 				if (samples[i].length > 2) {
 					samples[i].length -= 2;
 					analyze_sample(&samples[i]);
-					if (autowave && samples[i].wave && percussion_map[i] != -1 && instrument_map[i] == -1) {
+					if (autowave && samples[i].wave && percussion_map[i] == -1 && instrument_map[i] == -1) {
 #if DEBUG > 0
 						printf("autowaving to %d\n", custom_wave);
 #endif
