@@ -1382,6 +1382,9 @@ int main(int argc, char *argv[])
 	int max = -1;
 	int max2 = -1;
 	for (i = 0; i < nb_channel; i++) {
+#if DEBUG > 1
+                printf("ch %d percmax %d\n", i, channel[i].percussion);
+#endif
 		if (channel[i].percussion) {
 			if (channel[i].percussion > max) {
 				max2 = max;
@@ -1475,7 +1478,7 @@ int main(int argc, char *argv[])
 				}
 			}
 			else if (!use_mml) {
-				fprintf(output, "_%s_wave%d:\n", track_name, i);
+				fprintf(output, "_%s_wave%d:\t; std wave %d\n", track_name, i, instrument_map[i]);
 				int j;
 				for (j = 0; j < 32; j++) {
 					if ((j & 7) == 0 && j != 31)
