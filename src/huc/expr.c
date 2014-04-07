@@ -840,10 +840,12 @@ void store (LVALUE *lval)
 		if (lval->indirect != 0)
 			putstk (lval->indirect);
 		else {
-			if (strcmp(lval->symbol->name, "vram") == 0)
+			if (lval->symbol && strcmp(lval->symbol->name, "vram") == 0)
 				out_ins(I_VPUTW, (long)NULL, (long)NULL);
-			else
+			else if (lval->symbol)
 				putmem (lval->symbol);
+			else
+				out_ins(I_STW, T_VALUE, lval->value);
 		}
 	}
 }
