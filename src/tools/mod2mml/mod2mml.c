@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
 
 #define DEBUG 0
 
@@ -31,6 +32,7 @@ unsigned char song_length;
 #define MAX_CHANNEL 8
 
 int nb_instrument;		/* maximum number of instrument available in the song */
+int used_instrument[32];
 int current_instrument;		/* current converted instrument */
 
 int current_row;		/* current position within the pattern */
@@ -222,6 +224,7 @@ void convert_period(int period, char *alpha, char *octave)
 
 char out_ch[MAX_CHANNEL][100000];
 char *out_ch_ptr[MAX_CHANNEL];
+int chan_map[MAX_CHANNEL];
 
 #define outmem(x...) out_ch_ptr[current_channel] += sprintf(out_ch_ptr[current_channel], x)
 
@@ -440,6 +443,39 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 
 }
 
+#undef outmem
+#define outmem(x...) out_ch_ptr[0] += sprintf(out_ch_ptr[0], x)
+void handle_note_st(int period, int instrument, int effect_id, int effect_data)
+{
+	int ins = instrument - 1;
+	used_instrument[ins] = 1;
+	if (instrument > 0 && percussion_map[ins] != -1) {
+		ins |= 0xe0;
+		channel[current_channel].percussion++;
+	}
+
+	if (period) {
+		sample_info *si = &samples[instrument-1];
+
+		/* Determine sample duration in rows from period
+		   and sample length. */
+		int samplerate = 7093789 /* Amiga clock (PAL, Hz) */
+				 / 2 / period;
+		int samplesperrow = samplerate / 60 /* vsync frequency (Hz) */
+				    * /* speed */ 6; /* vsyncs per row */
+		int ticks = si->length / samplesperrow;
+		if (si->repeat_at)
+			ticks = 255;
+#if DEBUG > 1
+		printf("sample %d len %d period %d ticks %d\n", instrument-1, si->length, period, ticks);
+#endif
+		outmem("; ch %d\n\t.db $%02x, %d\n\t.dw %d\n",
+			current_channel, ins, ticks, 3580000/samplerate);
+	}
+	else {
+		outmem("; ch %d rest\n\t.db $ff\n", current_channel);
+	}
+}
 /*****************************************************************************
 
     Function: convert_row_to_duration
@@ -1053,6 +1089,7 @@ int main(int argc, char *argv[])
 	char **oargv = argv;
 
 	int i;
+	int use_mml = 0;
 	for (i = 0; i < 32; i++) {
 		instrument_map[i] = -1;
 		percussion_map[i] = -1;
@@ -1068,10 +1105,11 @@ int main(int argc, char *argv[])
 			{"percussion", required_argument, 0, 'p'},
 			{"auto-wave", no_argument, 0, 'a'},
 			{"normalize-waves", no_argument, 0, 'n'},
+			{"mml", no_argument, 0, 's'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
-		c = getopt_long(argc, argv, "o:p:t:m:d:an", long_options, &option_index);
+		c = getopt_long(argc, argv, "o:p:t:m:d:ans", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -1108,6 +1146,9 @@ int main(int argc, char *argv[])
 			case 'n':
 				autowave_normalize = 1;
 				break;
+			case 's':
+				use_mml = 1;
+				break;
 			default:
 				abort();
 		}
@@ -1116,11 +1157,10 @@ int main(int argc, char *argv[])
 	for (i = 0; i < MAX_CHANNEL; i++)
 		out_ch_ptr[i] = out_ch[i];
 
-// handle_note = handle_note_display; /* We'll display each note encoutered by default */
-	handle_note = handle_note_mml;	/* We'll try to output mml stuff there :) */
-// handle_note = handle_note_d2z_mml; /* We'll *try* to output our new sound system */
-
-// finish_parsing = finish_d2z;
+	if (use_mml)
+		handle_note = handle_note_mml;
+	else
+		handle_note = handle_note_st;
 
 	nb_warning = 0;
 	unlink(LOG_FILENAME);
@@ -1138,14 +1178,28 @@ int main(int argc, char *argv[])
 			strrchr(output_filename, '.')[0] = '\0';
 		if (!track_name[0])
 			strcpy(track_name, output_filename);
-		strcat(output_filename, ".mml");
+		if (use_mml)
+			strcat(output_filename, ".mml");
+		else
+			strcat(output_filename, ".asm");
 	}
+	else if (!track_name[0]) {
+		if (strrchr(output_filename, '/'))
+			strcpy(track_name, strrchr(output_filename, '/') + 1);
+		else
+			strcpy(track_name, output_filename);
+		if (strrchr(track_name, '.'))
+			strrchr(track_name, '.')[0] = '\0';
+	}
+
 	unlink(output_filename);
 
 	output = fopen(output_filename, "w");
-	fprintf(output, ".TRACK %s\n", track_name);
-	fprintf(output, ".CHANNEL 0 Setup\n");
-	fprintf(output, "T60 V31 L16 ^D0\n\n");
+	if (use_mml) {
+		fprintf(output, ".TRACK %s\n", track_name);
+		fprintf(output, ".CHANNEL 0 Setup\n");
+		fprintf(output, "T60 V31 L16 ^D0\n\n");
+	}
 
 	while (input_filename) {	/* For each filename on command line ... */
 
@@ -1307,10 +1361,14 @@ int main(int argc, char *argv[])
 				handle_pattern(input,
 					       pattern_array[current_song_position]);
 				fprintf(output, "; Pattern %d\n", pattern_array[current_song_position]);
-				for (i = 0; i < nb_channel; i++) {
-					fprintf(output, "CH%dP%d=", i, pattern_array[current_song_position]);
+				for (i = 0; i < (use_mml ? nb_channel : 1); i++) {
+					if (use_mml)
+						fprintf(output, "CH%dP%d=", i, pattern_array[current_song_position]);
+					else
+						fprintf(output, "_%s_pat%d:\n", track_name, pattern_array[current_song_position]);
 					fputs(out_ch[i], output);
-					fputs("'\n", output);
+					if (use_mml)
+						fputs("'\n", output);
 					out_ch_ptr[i] = out_ch[i];
 					*out_ch_ptr[i] = 0;
 				}
@@ -1356,41 +1414,128 @@ int main(int argc, char *argv[])
 		else if (channel[current_channel].percussion) {
 			log_warning("Cannot allocate channel %d to noise channel.", current_channel);
 			/* Turn all @M1 to @M0. */
-			char *c;
-			for (c = out_ch[current_channel]; *c; c++) {
-				if (c[0] == '@' && c[1] == 'M' && c[2] == '1')
-					c[2] = '0';
+			if (use_mml) {
+				char *c;
+				for (c = out_ch[current_channel]; *c; c++) {
+					if (c[0] == '@' && c[1] == 'M' && c[2] == '1')
+						c[2] = '0';
+				}
 			}
 		}
-		fprintf(output, ".CHANNEL %d\tch_%d\n", outchan,
-			current_channel);
-		fprintf(output, "P15,15");
-		fputc('\n', output);
+		if (use_mml) {
+			fprintf(output, ".CHANNEL %d\tch_%d\n", outchan,
+				current_channel);
+			fprintf(output, "P15,15");
+			fputc('\n', output);
+		}
+		else {
+			chan_map[current_channel] = outchan - 1;
+			if (current_channel != 0)
+				continue;
+			fprintf(output, "_%s:\n", track_name);
+		}
 		for (current_song_position = 0;
 		     current_song_position < song_length;
 		     current_song_position++) {
-			fprintf(output, "(CH%dP%d)", current_channel, pattern_array[current_song_position]);
+			if (use_mml)
+				fprintf(output, "(CH%dP%d)", current_channel, pattern_array[current_song_position]);
+			else
+				fprintf(output, "\t.dw _%s_pat%d\n", track_name, pattern_array[current_song_position]);
 		}
-		fputc('\n', output);
+		if (use_mml)
+			fputc('\n', output);
+		else
+			fprintf(output, "\t.dw 0\n");
 	}
 
 	/* Output custom waves. */
-	for (i = 0; i < nb_instrument; i++) {
-		if (samples[i].wave && instrument_map[i] == samples[i].waveno) {
-			wave_info *w = samples[i].wave;
-			signed char *d = samples[i].data;
-			fprintf(output, ".Wave %d\n", samples[i].waveno);
-			int j, s;
-			for (j = 0; j < 32; j++) {
-				s = d[w->start + j];
-				if (autowave_normalize)
-					s = s * 128 / (w->vol + 1);
+	if (autowave || !use_mml) {
+		for (i = 0; i < nb_instrument; i++) {
+			if (!use_mml && !used_instrument[i])
+				continue;
 #if DEBUG > 1
-				printf("s %d wvol %d\n", s, w->vol);
+			printf("samples[i].wave %p i %d imap %d waveno %d\n", samples[i].wave, i, instrument_map[i], samples[i].waveno);
 #endif
-				fprintf(output, "%d%s", (s + 128) >> 3,
-					j == 31 ? "\n" : ", ");
+			if (samples[i].wave && instrument_map[i] == samples[i].waveno) {
+				wave_info *w = samples[i].wave;
+				signed char *d = samples[i].data;
+				if (use_mml)
+					fprintf(output, ".Wave %d\n", samples[i].waveno);
+				else
+					fprintf(output, "_%s_wave%d:\t; custom\n", track_name, i);
+				int j, s;
+				for (j = 0; j < 32; j++) {
+					s = d[w->start + j];
+					if (autowave_normalize)
+						s = s * 128 / (w->vol + 1);
+#if DEBUG > 1
+					printf("s %d wvol %d\n", s, w->vol);
+#endif
+					if (use_mml) {
+						fprintf(output, "%d%s", (s + 128) >> 3,
+							j == 31 ? "\n" : ", ");
+					}
+					else {
+						if ((j & 7) == 0 && j != 31)
+							fprintf(output, "\t.db ");
+						fprintf(output, "%d", (s + 128) >> 3);
+						if ((j & 7) == 7 || j == 31)
+							fprintf(output, "\n");
+						else
+							fprintf(output, ", ");
+					}
+				}
 			}
+			else if (!use_mml) {
+				fprintf(output, "_%s_wave%d:\n", track_name, i);
+				int j;
+				for (j = 0; j < 32; j++) {
+					if ((j & 7) == 0 && j != 31)
+						fprintf(output, "\t.db ");
+					assert(instrument_map[i]-1 < 45);
+					fprintf(output, "%d", standard_waves[instrument_map[i]][j]);
+					if ((j & 7) == 7 || j == 31)
+						fprintf(output, "\n");
+					else
+						fprintf(output, ", ");
+				}
+			}
+			if (!use_mml) {
+				int j;
+				fprintf(output, "_%s_vol%d: ; avg %d slen %d\n", track_name, i, samples[i].avg_env, samples[i].length);
+				for (j = 0; j < 16; j++) {
+					if ((j & 7) == 0 && j != 15)
+						fprintf(output, "\t.db ");
+                                        /* XXX: should normalization be on at all times? */
+					/* XXX: shouldn't this be log()? */
+					int val = sqrt(samples[i].env_data[j]) * 31 / sqrt(samples[i].max_env);
+					fprintf(output, "%d", val);
+					if ((j & 7) == 7 || j == 15)
+						fprintf(output, "\n");
+					else
+						fprintf(output, ", ");
+				}
+			}
+		}
+	}
+	if (!use_mml) {
+		fprintf(output, "_%s_wave_table:\n", track_name);
+		for (i = 0; i < nb_instrument; i++) {
+			if (!used_instrument[i])
+				fprintf(output, "\t.dw 0\n");
+			else
+				fprintf(output, "\t.dw _%s_wave%d\n", track_name, i);
+		}
+		fprintf(output, "_%s_chan_map:\n\t.db ", track_name);
+		for (i = 0; i < nb_channel; i++) {
+			fprintf(output, "%d%s", chan_map[i], i == nb_channel-1 ? "\n" : ", ");
+		}
+		fprintf(output, "_%s_vol_table:\n", track_name);
+		for (i = 0; i < nb_instrument; i++) {
+			if (!used_instrument[i])
+				fprintf(output, "\t.dw 0\n");
+			else
+				fprintf(output, "\t.dw _%s_vol%d\n", track_name, i);
 		}
 	}
 	fclose(output);

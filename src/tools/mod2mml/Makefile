@@ -18,7 +18,7 @@ all: $(EXE)
 
 
 $(EXE): $(OBJS) $(LIBS) $(HDRS)
-	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@ -lm
 	$(CP) $(EXE) $(BINDIR)
 
 #
