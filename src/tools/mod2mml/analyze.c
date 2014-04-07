@@ -339,11 +339,11 @@ cross:
 #if DEBUG > 0
 		printf("Best wave: %d\n", hiwave);
 #endif
-                /* If a suitable wave has been found, add it to the sample. */
-                if (hiwave != -1) {
-                        s->wave = (wave_info *)malloc(sizeof(wave_info));
-                        *s->wave = waves[hiwave];
-                }
-        }
+		/* If a suitable wave has been found, add it to the sample. */
+		if (hiwave != -1) {
+			s->wave = (wave_info *)malloc(sizeof(wave_info));
+			*s->wave = waves[hiwave];
+		}
+	}
 }
 

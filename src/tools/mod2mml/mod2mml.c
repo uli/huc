@@ -295,9 +295,9 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 		if (effect_data == 0)
 			break;
 
-        case FX_FLUSH:
-                /* handled further down */
-                break;
+	case FX_FLUSH:
+		/* handled further down */
+		break;
 
 	default:
 		nb_warning++;
@@ -370,12 +370,12 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 			last_instrument[current_channel] = -1;
 		}
 
-                if (effect_id == FX_FLUSH) {
-                        prev_octave[current_channel] = -1;
-                        charcnt[current_channel] = 0;
-                        rests[current_channel] = 0;
-                        return;
-                }
+		if (effect_id == FX_FLUSH) {
+			prev_octave[current_channel] = -1;
+			charcnt[current_channel] = 0;
+			rests[current_channel] = 0;
+			return;
+		}
 
 		if (++charcnt[current_channel] > 20) {
 			outmem("\n");
@@ -1243,7 +1243,7 @@ int main(int argc, char *argv[])
 					samples[i].length -= 2;
 			}
 			/* No user instrument mapping and no autodetected wave
-                           => take a wild guess. */
+			   => take a wild guess. */
 			if (instrument_map[i] == -1)
 				instrument_map[i] = i;
 		}
@@ -1318,7 +1318,6 @@ int main(int argc, char *argv[])
 				pattern_handled[pattern_array[current_song_position]] = 1;
 			}
 		}
-
 		fclose(input);
 
 		for (current_channel = 0;
