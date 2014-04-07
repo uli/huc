@@ -328,9 +328,9 @@ cross:
 		for (i = 0; i < wc; i++) {
 #if DEBUG > 0
 			printf("wave %d at %d: score %d (vol %d, dist %d, asymt %d, asymv %d)\n",
-#endif
 				i, waves[i].start, waves[i].score, waves[i].vol,
 				waves[i].end_dist, waves[i].asymmetry_time, waves[i].asymmetry_vol);
+#endif
 			if (waves[i].score > hiscore) {
 				hiscore = waves[i].score;
 				hiwave = i;
