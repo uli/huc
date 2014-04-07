@@ -1238,8 +1238,33 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-			   ( ((p[0]->code == I_LDW) || (p[0]->code == I_LDWI || p[0]->code == X_LDW_S || p[0]->code == X_LEA_S)) &&
-				 ((p[1]->code == I_LDW) || (p[1]->code == I_LDWI) || p[1]->code == X_LDW_S || p[1]->code == X_LEA_S) )
+			   ( (p[0]->code == I_LDW ||
+			      p[0]->code == I_LDWI ||
+			      p[0]->code == X_LDW_S ||
+			      p[0]->code == X_LEA_S ||
+			      p[0]->code == I_LDB ||
+			      p[0]->code == I_LDBP ||
+			      p[0]->code == I_LDBY ||
+			      p[0]->code == X_LDB ||
+			      p[0]->code == X_LDB_S ||
+			      p[0]->code == I_LDUB ||
+			      p[0]->code == I_LDUBP ||
+			      p[0]->code == X_LDUB ||
+			      p[0]->code == X_LDUB_S) &&
+			     (p[1]->code == I_LDW ||
+			      p[1]->code == I_LDWI ||
+			      p[1]->code == X_LDW_S ||
+			      p[1]->code == X_LEA_S ||
+			      p[1]->code == I_LDB ||
+			      p[1]->code == I_LDBP ||
+			      p[1]->code == I_LDBY ||
+			      p[1]->code == X_LDB ||
+			      p[1]->code == X_LDB_S ||
+			      p[1]->code == I_LDUB ||
+			      p[1]->code == I_LDUBP ||
+			      p[1]->code == X_LDUB ||
+			      p[1]->code == X_LDUB_S)
+			   )
 			{
 				/* remove code */
 				*p[1] = *p[0];
