@@ -199,6 +199,11 @@ __stbi	.macro
 	 sty	\1
 	.endm
 
+__stwz	.macro
+	 stz	\1
+	 stz	\1 + 1
+	.endm
+
 __stwp	.macro
 	 sax
 	 sta	[\1]

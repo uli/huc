@@ -1586,6 +1586,17 @@ void push_ins(INS *ins)
 				 nb = 1;
 			}
 
+			else if (p[0]->code == I_STWI &&
+				 p[0]->imm_type == T_VALUE &&
+				 p[0]->imm == 0) {
+				p[0]->code = I_STWZ;
+			}
+			else if (p[0]->code == I_STBI &&
+				 p[0]->imm_type == T_VALUE &&
+				 p[0]->imm == 0) {
+				p[0]->code = I_STBZ;
+			}
+
 			/* flush queue */
 			if (nb)
 			{

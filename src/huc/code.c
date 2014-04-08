@@ -405,6 +405,17 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_STWZ:
+		ot("__stwz\t");
+		out_type(type, data);
+		nl();
+		break;
+
+	case I_STBZ:
+		ot("stz\t");
+		out_type(type, data);
+		nl();
+		break;
 	case I_STWPS:
 		ol("__stwps");
 		break;

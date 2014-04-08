@@ -108,6 +108,8 @@
 #define I_ADDUB      75
 #define I_ADDBI_P    76
 #define I_INCB       77
+#define I_STWZ       78
+#define I_STBZ       79
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
