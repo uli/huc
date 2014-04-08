@@ -45,6 +45,28 @@ long cmp_operands(INS *p1,INS *p2)
 }
 
 
+static int is_load(INS *i)
+{
+	return i->code == I_LDB ||
+		i->code == I_LDBP ||
+		i->code == I_LDW ||
+		i->code == I_LDWI ||
+		i->code == I_LDWP ||
+		i->code == I_LDUB ||
+		i->code == I_LDUBP ||
+		i->code == I_LDYB ||
+		i->code == X_LDB ||
+		i->code == X_LDB_S ||
+		i->code == X_LDB_P ||
+		i->code == X_LDW_S ||
+		i->code == X_LDD_I ||
+		i->code == X_LDD_S_B ||
+		i->code == X_LDD_S_W ||
+		i->code == X_LDUB ||
+		i->code == X_LDUB_S ||
+		i->code == X_LDUB_P;
+}
+
 /* ----
  * push_ins()
  * ----
@@ -1586,15 +1608,22 @@ void push_ins(INS *ins)
 				 nb = 1;
 			}
 
-			else if (p[0]->code == I_STWI &&
-				 p[0]->imm_type == T_VALUE &&
-				 p[0]->imm == 0) {
-				p[0]->code = I_STWZ;
 			}
-			else if (p[0]->code == I_STBI &&
-				 p[0]->imm_type == T_VALUE &&
-				 p[0]->imm == 0) {
-				p[0]->code = I_STBZ;
+
+			else if (p[1]->code == I_STWI &&
+				 p[1]->imm_type == T_VALUE &&
+				 p[1]->imm == 0 &&
+				 is_load(p[0]) &&
+				 p[0]->code != X_LDB_P &&
+				 p[0]->code != X_LDUB_P) {
+				p[1]->code = I_STWZ;
+			else if (p[1]->code == I_STBI &&
+				 p[1]->imm_type == T_VALUE &&
+				 p[1]->imm == 0 &&
+				 is_load(p[0]) &&
+				 p[0]->code != X_LDB_P &&
+				 p[0]->code != X_LDUB_P) {
+				p[1]->code = I_STBZ;
 			}
 
 			/* flush queue */
