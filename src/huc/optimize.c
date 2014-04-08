@@ -1277,7 +1277,7 @@ void push_ins(INS *ins)
 //				nb = 1;
 //			}
 
-			/*  __stw a                  --> __ldw a
+			/*  __stw a                  --> __stw a
 			 *  __ldw a
 			 *
 			 */
