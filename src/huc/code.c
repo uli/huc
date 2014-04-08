@@ -713,6 +713,12 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_INCB:
+		ot("inc\t");
+		out_addr(type, data);
+		nl();
+		break;
+
 	case I_LABEL:
 		outlabel(data);
 		col();

@@ -297,14 +297,10 @@ void push_ins(INS *ins)
 		/* 4-instruction patterns */
 		if (q_nb >= 4)
 		{
-			/*  @_ldw_s i                  --> @_ldw_s  i
-			 *  __addwi 1                      @_incw_s i
+			/*  @_ldw/b/ub_s i             --> @_ldw/b/ub_s  i
+			 *  __addwi 1                      @_incw/b_s i
 			 *  @_stw_s i
 			 *  __subwi 1
-			 *
-			 *  ====
-			 *  bytes  :  8+ 7+ 9+ 7 = 31  -->  8+16 = 24
-			 *  cycles : 20+10+22+10 = 62  --> 20+24 = 44
 			 *
 			 */
 			if ((p[0]->code == I_SUBWI) &&
@@ -319,6 +315,21 @@ void push_ins(INS *ins)
 			{
 				/* replace code */
 				p[2]->code = X_INCW_S;
+				p[2]->data = p[3]->data;
+				p[2]->sym  = p[3]->sym;
+				nb = 2;
+			}
+			else if ((p[0]->code == I_SUBWI) &&
+				(p[1]->code == X_STB_S) &&
+				(p[2]->code == I_ADDWI) &&
+				(p[3]->code == X_LDB_S || p[3]->code == X_LDUB_S) &&
+				(p[0]->data == 1) &&
+				(p[2]->data == 1) &&
+				(p[1]->data == p[3]->data) &&
+				(p[1]->data <  255))
+			{
+				/* replace code */
+				p[2]->code = X_INCB_S;
 				p[2]->data = p[3]->data;
 				p[2]->sym  = p[3]->sym;
 				nb = 2;
@@ -877,9 +888,9 @@ void push_ins(INS *ins)
 				goto lv1_loop;
 			}
 
-			/*  __ldw   n                    -->   incw  n
-			 *  __addwi 1                        __ldw   n
-			 *  __stw   n
+			/*  __ldw/b/ub   n                    -->   incw/b  n
+			 *  __addwi 1                        __ldw/b/ub   n
+			 *  __stw/b/ub   n
 			 *
 			 *  ====
 			 *  bytes  :  6+ 7+ 6=19 -->       8 + 6=14
@@ -887,8 +898,8 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-				( (p[0]->code == I_STW) &&
-				  (p[2]->code == I_LDW) &&
+				( (p[0]->code == I_STW || p[0]->code == I_STB) &&
+				  (p[2]->code == I_LDW || p[2]->code == I_LDUB || p[2]->code == I_LDB) &&
 			 	  ( (p[1]->code == I_ADDWI) &&
 				    (p[1]->type == T_VALUE) &&
 				    (p[1]->data == 1) ) &&
@@ -898,17 +909,13 @@ void push_ins(INS *ins)
 				p[1]->code = p[2]->code;
 				p[1]->type = p[2]->type;
 				p[1]->data = p[2]->data;
-				p[2]->code = I_INCW;
+				p[2]->code = (p[0]->code == I_STW) ? I_INCW : I_INCB;
 				nb = 1;
 			}
 
-			/*  incw     n                  -->  __ldw   n
-			 *  __ldw    n                         incw  n
+			/*  incw/b     n                  -->  __ldw/b/ub   n
+			 *  __ldw/b/ub    n                         incw/b  n
 			 *  __subwi  1
-			 *
-			 *  ====
-			 *  bytes  :        8 + 6+ 7=21       -->  6+ 8      =14
-			 *  cycles :  (11->16)+10+12=(33->38) --> 10+(11->16)=(21->26)
 			 *
 			 */
 			else if
@@ -925,6 +932,22 @@ void push_ins(INS *ins)
 				p[2]->type = p[1]->type;
 				p[2]->data = p[1]->data;
 				p[1]->code = I_INCW;
+				nb = 1;
+			}
+			else if
+				( ( (p[0]->code == I_SUBWI) &&
+					(p[0]->type == T_VALUE) &&
+					(p[0]->data == 1) ) &&
+
+				  (p[1]->code == I_LDB || p[1]->code == I_LDUB) &&
+				  (p[2]->code == I_INCB) &&
+				  (cmp_operands(p[1], p[2]) == 1) )
+			{
+				/* replace code */
+				p[2]->code = p[1]->code;
+				p[2]->type = p[1]->type;
+				p[2]->data = p[1]->data;
+				p[1]->code = I_INCB;
 				nb = 1;
 			}
 
@@ -1943,6 +1966,12 @@ void gen_asm(INS *inst)
 
 	case X_INCW_S:
 		ot("__incw_s\t");
+		outdec(inst->data);
+		nl();
+		break;
+
+	case X_INCB_S:
+		ot("__incb_s\t");
 		outdec(inst->data);
 		nl();
 		break;

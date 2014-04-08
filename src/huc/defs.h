@@ -107,6 +107,7 @@
 #define I_ADDB       74
 #define I_ADDUB      75
 #define I_ADDBI_P    76
+#define I_INCB       77
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
@@ -135,6 +136,7 @@
 #define X_LDUB_P	0x10005
 #define X_ADDB_S	0x100C1
 #define X_ADDUB_S	0x100D1
+#define X_INCB_S	0x100E1
 
 #define	FOREVER	for(;;)
 #define	FALSE	0

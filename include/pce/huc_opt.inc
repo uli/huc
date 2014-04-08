@@ -400,6 +400,10 @@
 	.endif
 	.endm
 
+; XXX: the semantics of this are ridiculous: It assumes the value of
+; the incremented variable to be in AX, the memory location to
+; be incremented and the previous value retained in AX, making it
+; necessary to spill A.
 ; incw_s
 ;
 	.macro __incw_s
@@ -416,6 +420,18 @@
 	 inc    A
 	 sta	[__sp],Y
 .x_\@:
+	 pla
+	.endm
+
+; incb_s
+;
+	.macro __incb_s
+
+	 pha
+	 ldy    #\1
+	 txa
+	 inc    A
+	 sta	[__sp],Y
 	 pla
 	.endm
 
