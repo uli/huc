@@ -829,6 +829,26 @@ __lbnen	.macro
 	 bne	\1
 	.endm
 
+__cmpwi_eq .macro
+	cpx	#low(\1)
+	clx
+	bne	.f\@
+	cmp	#high(\1)
+	bne	.f\@
+	ldx	#1
+.f\@:	cla
+	.endm
+
+__cmpwi_ne .macro
+	cpx	#low(\1)
+	clx
+	bne	.t\@
+	cmp	#high(\1)
+	beq	.f\@
+.t\@:	ldx	#1
+.f\@:	cla
+	.endm
+
 __call	.macro
 	 call   \1
 	.endm

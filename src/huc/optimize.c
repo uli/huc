@@ -910,6 +910,22 @@ void push_ins(INS *ins)
 				goto lv1_loop;
 			}
 
+			else if (p[0]->code == I_JSR &&
+				 (!strcmp((char *)p[0]->data, "eqzp") ||
+				  !strcmp((char *)p[0]->data, "nezp")) &&
+				 p[1]->code == I_LDWI &&
+				 p[2]->code == I_STW &&
+				 p[2]->type == T_SYMBOL &&
+				 !strcmp((char *)p[2]->data, "_temp"))
+			{
+				*p[2] = *p[1];
+				if (!strcmp((char *)p[0]->data, "eqzp"))
+					p[2]->code = I_CMPWI_EQ;
+				else
+					p[2]->code = I_CMPWI_NE;
+				nb = 2;
+			}
+
 			/*  __ldw/b/ub   n                    -->   incw/b  n
 			 *  __addwi 1                        __ldw/b/ub   n
 			 *  __stw/b/ub   n

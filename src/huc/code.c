@@ -692,6 +692,18 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_CMPWI_EQ:
+		ot("__cmpwi_eq\t");
+		out_type(type, data);
+		nl();
+		break;
+
+	case I_CMPWI_NE:
+		ot("__cmpwi_ne\t");
+		out_type(type, data);
+		nl();
+		break;
+
 	case I_BANK:
 		ot(".bank\t");
 		switch (type) {

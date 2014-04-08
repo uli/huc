@@ -110,6 +110,8 @@
 #define I_INCB       77
 #define I_STWZ       78
 #define I_STBZ       79
+#define I_CMPWI_EQ   80
+#define I_CMPWI_NE   81
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
