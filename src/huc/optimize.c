@@ -1624,6 +1624,13 @@ void push_ins(INS *ins)
 				 nb = 1;
 			}
 
+			/*  __notw         --> __notw
+			 *  __tstw
+			 *
+			 */
+			else if	((p[0]->code == I_TSTW) &&
+				 (p[1]->code == I_NOTW)) {
+				 nb = 1;
 			}
 
 			else if (p[1]->code == I_STWI &&
@@ -1633,6 +1640,7 @@ void push_ins(INS *ins)
 				 p[0]->code != X_LDB_P &&
 				 p[0]->code != X_LDUB_P) {
 				p[1]->code = I_STWZ;
+			}
 			else if (p[1]->code == I_STBI &&
 				 p[1]->imm_type == T_VALUE &&
 				 p[1]->imm == 0 &&
