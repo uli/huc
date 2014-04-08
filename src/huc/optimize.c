@@ -1633,6 +1633,16 @@ void push_ins(INS *ins)
 				 nb = 1;
 			}
 
+			/*  __cmpwi_*         --> __cmpwi_*
+			 *  __tstw
+			 *
+			 */
+			else if	((p[0]->code == I_TSTW) &&
+				 (p[1]->code == I_CMPWI_EQ ||
+				  p[1]->code == I_CMPWI_NE)) {
+				 nb = 1;
+			}
+
 			else if (p[1]->code == I_STWI &&
 				 p[1]->imm_type == T_VALUE &&
 				 p[1]->imm == 0 &&
