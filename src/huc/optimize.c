@@ -340,7 +340,7 @@ void push_ins(INS *ins)
 			 *  __ldwi  j
 			 *  jsr     umul
 			 */
-			if ((p[0]->code == I_JSR && p[0]->type == T_LIB && !strcmp((char*)p[0]->data, "umul")) &&
+			else if ((p[0]->code == I_JSR && p[0]->type == T_LIB && !strcmp((char*)p[0]->data, "umul")) &&
 				(p[1]->code == I_LDWI && p[1]->type == T_VALUE) &&
 				(p[2]->code == I_PUSHW) &&
 				(p[3]->code == I_LDWI && p[3]->type == T_VALUE))
@@ -355,7 +355,7 @@ void push_ins(INS *ins)
 			 *  __st{b|w}ps
 			 *
 			 */
-			if ((p[0]->code == I_STWPS || p[0]->code == I_STBPS) &&
+			else if ((p[0]->code == I_STWPS || p[0]->code == I_STBPS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 				(p[3]->code == I_LDWI))
@@ -372,7 +372,7 @@ void push_ins(INS *ins)
 			 * __addwi i
 			 * __stbps
 			 */
-			if (p[0]->code == I_STBPS &&
+			else if (p[0]->code == I_STBPS &&
 			    p[1]->code == I_ADDWI &&
 			    p[2]->code == X_LDB_P &&
 			    p[3]->code == I_PUSHW)
