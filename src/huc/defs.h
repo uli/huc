@@ -112,6 +112,8 @@
 #define I_STBZ       79
 #define I_CMPWI_EQ   80
 #define I_CMPWI_NE   81
+#define I_STBP       82
+#define I_STWP       83
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

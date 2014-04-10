@@ -67,6 +67,23 @@ static int is_load(INS *i)
 		i->code == X_LDUB_P;
 }
 
+static int is_sprel(INS *i)
+{
+	return	i->code == X_LEA_S ||
+		i->code == X_PEA_S ||
+		i->code == X_LDB_S ||
+		i->code == X_LDUB_S ||
+		i->code == X_LDW_S ||
+		i->code == X_LDD_S_B ||
+		i->code == X_LDD_S_W ||
+		i->code == X_STB_S ||
+		i->code == X_STW_S ||
+		i->code == X_INCW_S ||
+		i->code == X_ADDW_S ||
+		i->code == X_STBI_S ||
+		i->code == X_STWI_S;
+}
+
 /* ----
  * push_ins()
  * ----
@@ -1815,23 +1832,9 @@ level_2:
 							j -= Q_SIZE;
 
 						/* check instruction */
-						switch (q_ins[j].code) {
-						case X_LEA_S:
-						case X_PEA_S:
-						case X_LDB_S:
-						case X_LDUB_S:
-						case X_LDW_S:
-						case X_LDD_S_B:
-						case X_LDD_S_W:
-						case X_STB_S:
-						case X_STW_S:
-						case X_INCW_S:
-						case X_ADDW_S:
-						case X_STBI_S:
-						case X_STWI_S:
+						if (is_sprel(&q_ins[j])) {
 							/* adjust stack offset */
 							q_ins[j].data -= 2;
-							break;
 						}
 					}
 
@@ -1859,6 +1862,29 @@ level_2:
 				}
 			}
 		}			
+
+		if (q_nb >= 3) {
+			/* pushw/<load>/st*ps --> stw __ptr/<load>/st*p __ptr */
+			/* This cannot be done earlier because it screws up
+			   the reordering optimization above. */
+			if ((q_ins[q_wr].code == I_STBPS ||
+			     q_ins[q_wr].code == I_STWPS) &&
+			    is_load(&q_ins[q_wr-1]) &&
+			    q_ins[q_wr-2].code == I_PUSHW)
+			{
+				q_ins[q_wr-2].code = I_STW;
+				q_ins[q_wr-2].type = T_PTR;
+				/* We just removed a push, adjust SP-relative
+				   addresses. */
+				if (is_sprel(&q_ins[q_wr-1]))
+					q_ins[q_wr-1].data -= 2;
+				if (q_ins[q_wr].code == I_STBPS)
+					q_ins[q_wr].code = I_STBP;
+				else
+					q_ins[q_wr].code = I_STWP;
+				q_ins[q_wr].type = T_PTR;
+			}
+		}
 	}
 }
 

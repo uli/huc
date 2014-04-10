@@ -348,6 +348,12 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_STBP:
+		ot("__stbp\t");
+		out_addr(type, data);
+		nl();
+		break;
+
 	case I_LDW:
 		ot("__ldw\t");
 
@@ -374,6 +380,12 @@ void gen_code(INS *tmp)
 
 	case I_LDWP:
 		ot("__ldwp\t");
+		out_addr(type, data);
+		nl();
+		break;
+
+	case I_STWP:
+		ot("__stwp\t");
 		out_addr(type, data);
 		nl();
 		break;
