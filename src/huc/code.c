@@ -402,6 +402,8 @@ void gen_code(INS *tmp)
 
 	case I_STW:
 		ot("__stw\t");
+		if (type == T_PTR)
+			outstr("<");
 		out_addr(type, data);
 		nl();
 		break;
