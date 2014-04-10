@@ -470,7 +470,7 @@ void push_ins(INS *ins)
 			 *  cycles : 49+4+65 =118      --> 12
 			 *
 			 */
-			if ((p[0]->code == I_SUBWS) &&
+			else if ((p[0]->code == I_SUBWS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 	
@@ -491,7 +491,7 @@ void push_ins(INS *ins)
 			 *  cycles : 49+4+51 =104      --> 10
 			 *
 			 */
-			if ((p[0]->code == I_ANDWS) &&
+			else if ((p[0]->code == I_ANDWS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 	
@@ -512,7 +512,7 @@ void push_ins(INS *ins)
 			 *  cycles : 49+4+51 =104      --> 10
 			 *
 			 */
-			if ((p[0]->code == I_ORWS) &&
+			else if ((p[0]->code == I_ORWS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 	
@@ -529,7 +529,7 @@ void push_ins(INS *ins)
 			 *  __st{b|w}ps
 			 *
 			 */
-			if ((p[0]->code == I_STWPS || p[0]->code == I_STBPS) &&
+			else if ((p[0]->code == I_STWPS || p[0]->code == I_STBPS) &&
 				(p[1]->code == I_LDWI) &&
 				(p[2]->code == I_PUSHW) &&
 	
@@ -546,7 +546,7 @@ void push_ins(INS *ins)
 			 *  jsr asl/lsr/asr
 			 *
 			 */
-			if (p[0]->code == I_JSR &&
+			else if (p[0]->code == I_JSR &&
 			    (!strcmp((char *)p[0]->data, "asl")||
 			     !strcmp((char *)p[0]->data, "lsr") ||
 			     !strcmp((char *)p[0]->data, "asr")) &&
@@ -600,7 +600,7 @@ void push_ins(INS *ins)
 			 *  cycles : 49+10+43 =102      --> 18
 			 *
 			 */
-			if ((p[0]->code == I_ADDWS) &&
+			else if ((p[0]->code == I_ADDWS) &&
 				(p[1]->code == I_LDW ||
 				 p[1]->code == I_LDB ||
 				 p[1]->code == I_LDUB ||
@@ -633,7 +633,7 @@ void push_ins(INS *ins)
 			 *  cycles : 49+10+65 =124      --> 18
 			 *
 			 */
-			if ((p[0]->code == I_SUBWS) &&
+			else if ((p[0]->code == I_SUBWS) &&
 				(p[1]->code == I_LDW) &&
 				(p[2]->code == I_PUSHW))
 			{
@@ -1041,7 +1041,7 @@ void push_ins(INS *ins)
 			 *  cycles : 29+29 = 58         --> 29
 			 *
 			 */
-			if ((p[0]->code == I_ADDMI) &&
+			else if ((p[0]->code == I_ADDMI) &&
 				(p[1]->code == I_ADDMI) &&
 	
 				(p[0]->type == T_STACK) &&
