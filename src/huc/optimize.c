@@ -1719,7 +1719,10 @@ void push_ins(INS *ins)
 		    (q_ins[q_wr].code == I_STWPS ||
 		     q_ins[q_wr].code == I_STBPS ||
 		     q_ins[q_wr].code == I_CALLS ||
-		     q_ins[q_wr].code == I_ADDWS))
+		     q_ins[q_wr].code == I_ADDWS ||
+		     q_ins[q_wr].code == I_ORWS ||
+		     q_ins[q_wr].code == I_EORWS ||
+		     q_ins[q_wr].code == I_ANDWS))
 		{
 			/* browse back the instruction list and
 			 * etablish a stack history
@@ -1824,6 +1827,15 @@ void push_ins(INS *ins)
 									break;
 								case I_ADDWS:
 									q_ins[q_wr].code = I_ADDWI;
+									break;
+								case I_ORWS:
+									q_ins[q_wr].code = I_ORWI;
+									break;
+								case I_EORWS:
+									q_ins[q_wr].code = I_EORWI;
+									break;
+								case I_ANDWS:
+									q_ins[q_wr].code = I_ANDWI;
 									break;
 								default:
 									abort();

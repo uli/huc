@@ -788,6 +788,13 @@ __andw	.macro
 	 and	\1+1
 	.endm	
 
+__eorwi	.macro
+	 sax
+	 eor	#low(\1)
+	 sax
+	 eor	#high(\1)
+	.endm
+
 __eorws	.macro
 	 sax
 	 eor	[__stack]
