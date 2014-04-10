@@ -125,7 +125,7 @@ void push_ins(INS *ins)
 	if (optimize >= 1)
 	{
 		INS *p[Q_SIZE];
-		long  i, j;
+		int  i, j;
 		long  nb;
 
 	lv1_loop:
@@ -1693,10 +1693,6 @@ void push_ins(INS *ins)
 		}
 	}
 
-/*
- * label not used....
-level_2:
-*/
 	/* optimization level 2 - instruction re-scheduler,
 	 * change instruction order to allow direct assignments
 	 * rather than stack based assignments :
