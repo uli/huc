@@ -1715,10 +1715,11 @@ void push_ins(INS *ins)
 		long  jp;
 
 		/* check last instruction */
-		if ((q_nb > 1) &&
-		   ((q_ins[q_wr].code == I_STWPS) ||
-			(q_ins[q_wr].code == I_STBPS) ||
-			(q_ins[q_wr].code == I_CALLS)))
+		if (q_nb > 1 &&
+		    (q_ins[q_wr].code == I_STWPS ||
+		     q_ins[q_wr].code == I_STBPS ||
+		     q_ins[q_wr].code == I_CALLS ||
+		     q_ins[q_wr].code == I_ADDWS))
 		{
 			/* browse back the instruction list and
 			 * etablish a stack history
@@ -1800,6 +1801,11 @@ void push_ins(INS *ins)
 						   )
 							break;
 
+						if (q_ins[j].code == X_PEA_S &&
+						    q_ins[q_wr].code != I_STBPS &&
+						    q_ins[q_wr].code != I_STWPS)
+							break;
+
 						/* change stwps into stw_s/stw */
 						if (q_ins[j].code == X_PEA_S) {
 							if (q_ins[q_wr].code == I_STBPS)
@@ -1809,10 +1815,19 @@ void push_ins(INS *ins)
 							q_ins[q_wr].data =  q_ins[j].data;
 						}
 						else {
-							if (q_ins[q_wr].code == I_STBPS)
-								q_ins[q_wr].code =  I_STB;
-							else
-								q_ins[q_wr].code =  I_STW;
+							switch (q_ins[q_wr].code) {
+								case I_STBPS:
+									q_ins[q_wr].code = I_STB;
+									break;
+								case I_STWPS:
+									q_ins[q_wr].code = I_STW;
+									break;
+								case I_ADDWS:
+									q_ins[q_wr].code = I_ADDWI;
+									break;
+								default:
+									abort();
+							}
 							/* Use data from the preceding ldwi. */
 							q_ins[q_wr].type = q_ins[jp].type;
 							q_ins[q_wr].data =  q_ins[jp].data;
