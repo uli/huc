@@ -1061,8 +1061,8 @@ void push_ins(INS *ins)
 			 *
 			 */
 			else if
-			   ((p[0]->code == I_ADDWI) &&
-				(p[1]->code == I_ADDWI))
+			   ((p[0]->code == I_ADDWI && p[0]->type == T_VALUE) &&
+				(p[1]->code == I_ADDWI && p[1]->type == T_VALUE))
 			{
 				/* replace code */
 				p[1]->data += p[0]->data;
@@ -1361,7 +1361,7 @@ void push_ins(INS *ins)
 			   ((p[0]->code == I_ADDWI || p[0]->code == I_ASLWI ||
 			     p[0]->code == I_LSRWI || p[0]->code == I_ASRWI ||
 			     p[0]->code == I_SUBWI) &&
-				(p[0]->data == 0))
+			    p[0]->data == 0 && p[0]->type == T_VALUE)
 			{
 				/* remove code */
 				nb = 1;
