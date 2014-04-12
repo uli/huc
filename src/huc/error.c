@@ -15,15 +15,14 @@ void error (char *ptr)
 	FILE *tempfile;
 
 	if (output == NULL) {
-		printf("internal error : %s\n", ptr);
-		return;
+		fprintf(stderr, "%s\n", ptr);
+		exit(1);
 	}
 
 	tempfile = output;
-	output = stdout;
+	output = stderr;
 	doerror(ptr);
 	output = tempfile;
-	doerror(ptr);
 	errcnt++;
 	if (errcnt > 3) {
 	        errcnt = 0;
