@@ -691,15 +691,14 @@ _load_tile:
 _load_map.6:
 
 	  tstw	mapwidth
-	  lbeq	.l6
+	  beq	.l6
 	  tstw	mapheight
-	  lbeq	.l6
+	  beq	.l6
 
     ; ----
     ; adjust map y coordinate
     ;
-	  ldy	<__arg_idx
-	__plw	<_bx
+	  lda	<_bh
 	  bmi	.l2
 .l1:	  cmpw	mapheight,<_bx
 	  blo	.l3
@@ -715,29 +714,27 @@ _load_map.6:
     ; adjust map x coordinate
     ;
 .l3:	  stb	<_bl,<_ch
-	__plw	<_bx
-	  sty	<__arg_idx
+	  lda	<_di+1
 	  bmi	.l5
-.l4:	  cmpw	mapwidth,<_bx
+.l4:	  cmpw	mapwidth,<_di
 	  blo	.l7
-	  subw	mapwidth,<_bx
+	  subw	mapwidth,<_di
 	  bra	.l4
 	  ; --
-.l5:	  lda	<_bh
+.l5:	  lda	<_di+1
 	  bpl	.l7
-	  addw	mapwidth,<_bx
+	  addw	mapwidth,<_di
 	  bra	.l5
 
     ; ----
     ; exit
     ;
-.l6:	  sub	#4,<__arg_idx
-	  rts
+.l6:	  rts
 
     ; ----
     ; ok
     ;
-.l7:	  stb	<_bl,<_cl
+.l7:	  stb	<_di,<_cl
 	  jmp	load_map
 
 ; spr_set(char num)

@@ -79,7 +79,7 @@ static char *pragma_init[] = {
 	"fastcall fade_color(word color_reg, word ax, byte acc)",
 	/* map lib funcs */
 	"fastcall scan_map_table(word si, word ax, word cx)",
-	"fastcall load_map(byte al, byte ah, word, word, byte dl, byte dh)",
+	"fastcall load_map(byte al, byte ah, word di, word bx, byte dl, byte dh)",
 	"fastcall set_map_data(word acc)",
 	"fastcall set_map_data(farptr bl:si, word ax, word acc)",
 	"fastcall set_map_data(farptr bl:si, word ax, word dx, byte acc)",
