@@ -1648,3 +1648,6 @@ _abort:
 
 _exit:
 	  .db 0x63
+
+_dump_screen:
+	.db 0x33

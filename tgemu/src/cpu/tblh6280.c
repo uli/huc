@@ -10,6 +10,8 @@
 
 ******************************************************************************/
 
+void dump_screen(void);
+
 #undef	OP
 #define OP(nnn) static __inline__ void h6280_##nnn(void)
 
@@ -84,7 +86,7 @@ OP(0c3) { int to,from,length;			      TDD;		   } // 6*l+17 TDD  XFER
 OP(0e3) { int to,from,length,alternate;       TIA;		   } // 6*l+17 TIA  XFER
 
 OP(013) { int tmp; h6280_ICount -= 4; RD_IMM; ST1;		   } // 4 ST1
-OP(033) {       							  ILL;		   } // 2 ???
+OP(033) { dump_screen();			  ILL;		   } // 2 ???
 OP(053) { int tmp; h6280_ICount -= 5; RD_IMM; TAM;		   } // 5 TAM  IMM
 OP(073) { int to,from,length;    			  TII;		   } // 6*l+17 TII  XFER
 OP(093) { int tmp,tmp2; h6280_ICount -= 8; RD_IMM2; RD_ABS; TST; } // 8 TST  IMM,ABS
