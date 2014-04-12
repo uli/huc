@@ -3,6 +3,14 @@
  *
  */
 
+//#define DEBUG_OPTIMIZER
+
+#ifdef DEBUG_OPTIMIZER
+#define ODEBUG(x...) printf(x...)
+#else
+#define ODEBUG(x...)
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,6 +36,9 @@ extern long arg_stack_flag;
 
 long cmp_operands(INS *p1,INS *p2)
 {
+#ifdef DEBUG_OPTIMIZER
+	printf("cmp");dump_ins(p1);dump_ins(p2);
+#endif
 	if (p1->type != p2->type)
 		return(0);
 
@@ -92,6 +103,9 @@ static int is_sprel(INS *i)
 
 void push_ins(INS *ins)
 {
+#ifdef DEBUG_OPTIMIZER
+	printf("push "); dump_ins(ins);
+#endif
 	/* check queue size */
 	if (q_nb == Q_SIZE)
 	{
@@ -137,6 +151,9 @@ void push_ins(INS *ins)
 		for (i = 0, j = q_wr; i < nb; i++) {
 			/* save pointer */
 			p[i] = &q_ins[j];
+#ifdef DEBUG_OPTIMIZER
+			printf("%d ", i); dump_ins(p[i]);
+#endif
 
 			/* next */
 			j -= 1;
@@ -1879,6 +1896,7 @@ void push_ins(INS *ins)
 						if (j >= Q_SIZE)
 							j -= Q_SIZE;
 
+						ODEBUG("re");
 						push_ins(&q_ins[j]);
 					}
 					break;
