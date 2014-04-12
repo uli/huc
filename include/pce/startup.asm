@@ -268,6 +268,13 @@ ovlentry:
 	ldx  #$ff
 	txs
 
+ .ifdef LINK_malloc
+	__ldwi	__heap_start
+	__pushw
+	__ldwi	1024
+	call	___malloc_init
+ .endif
+
 	map  _main
 	jsr  _main
 	bra  *
@@ -732,6 +739,13 @@ scdmsg4:  .db  "Super CDROM System card"
 	stz   clock_mm
 	stz   clock_ss
 	stz   clock_tt
+
+ .ifdef LINK_malloc
+	__ldwi	__heap_start
+	__pushw
+	__ldwi	1024
+	call	___malloc_init
+ .endif
 
 	map   _main
 	jsr   _main 		; go!

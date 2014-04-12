@@ -532,7 +532,7 @@ void dumpglbs (void )
 static void dumparg(void)
 {
 	if (globals_h_in_process != 1) {
-		outstr("__arg:\n");
+		outstr("__heap_start:\n");
 	}
 }
 
