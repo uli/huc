@@ -1897,5 +1897,17 @@ gfx_getaddr:
 
 	 .bank	LIB1_BANK
 
+_set_map_tile_type:
+	stx	maptiletype
+	rts
 
+_set_map_tile_base:
+	__lsrwi 4
+	stx	maptilebase
+	sta	maptilebase+1
+	rts
 
+_set_map_pals.1:
+	stb	<_bl, mapctablebank
+	__stw	<_si, mapctable
+	rts
