@@ -217,16 +217,13 @@ _load_font.3:
 ; ----
 
 _put_digit.3:
-	  ldy	<__arg_idx
-	__plb
+	  lda	<_cl
 	  jsr	_put.xy
 	  bra	_put_digit.main
 _put_digit.2:
-	  ldy	<__arg_idx
 	  jsr	_put.vram
 _put_digit.main:
-	__plb
-	  sty	<__arg_idx
+	  lda	<_dl
 _put_digit.sub:
 	  cmp	#10
 	  blo	.l1
@@ -255,16 +252,13 @@ _put.vram:
 ; ----
 
 _put_char.3:
-	  ldy	<__arg_idx
-	__plb
+	  lda	<_cl
 	  jsr	_put.xy
 	  bra	_put_char.main
 _put_char.2:
-	  ldy	<__arg_idx
 	  jsr	_put.vram
 _put_char.main:
-	__plb
-	  sty	<__arg_idx
+	  lda	<_dl
 	  ; --
 	  cmp	#32
 	  bhs	.l1
@@ -283,19 +277,16 @@ _put_char.main:
 ; ----
 
 _put_raw.3:
-	  ldy	<__arg_idx
-	__plb
+	  lda	<_cl
 	  jsr	_put.xy
 	  bra	_put_raw.main
 _put_raw.2:
-	  ldy	<__arg_idx
 	  jsr	_put.vram
 _put_raw.main:
-	__plb
+	  lda	<_dl
 	  sta	video_data_l
-	__plb
+	  lda	<_dh
 	  sta	video_data_h
-	  sty	<__arg_idx
 	  rts
 
 ; put_number(int number, char n, int offset)
