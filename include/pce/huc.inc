@@ -9,7 +9,6 @@
            .zp
 __sp
 __stack    .ds 2
-__arg_idx  .ds 1
 __temp     .ds 8
 __ptr      .ds 2
 __fbank    .ds 1

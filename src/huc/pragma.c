@@ -20,11 +20,6 @@
 #define TYPE_WORD		0x02
 #define TYPE_FARPTR		0x03
 #define TYPE_DWORD		0x04
-#define TYPE_AUTO		0x10
-#define TYPE_AUTO_BYTE	0x11
-#define TYPE_AUTO_WORD	0x12
-#define TYPE_AUTO_FAR	0x13
-#define TYPE_AUTO_DWORD	0x14
 
 /* locals */
 static struct fastcall  ftemp;
@@ -283,8 +278,8 @@ void new_fastcall(void )
 			if (*cmdptr != ',')
 				ptr->argtype[i]  = TYPE_ACC;
 			else {
-				ptr->argtype[i] |= TYPE_AUTO;
-				ptr->argsize += ptr->argtype[i] & 0x0F;
+				error("fastcall register missing");
+				return;
 			}
 		}
 		else {

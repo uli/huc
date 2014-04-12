@@ -78,8 +78,6 @@
 #define I_VGETW      45
 #define I_VPUTW      46
 #define I_NARGS      47
-#define I_PHB        48
-#define I_PHW        49
 #define I_INCW       50
 #define I_ANDWI      51
 #define I_ORWI       52

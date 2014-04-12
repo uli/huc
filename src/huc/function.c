@@ -386,7 +386,6 @@ void callfunction (char *ptr)
 	long i, j;
 	long nb;
 	long adj;
-	long idx;
 	long	nargs;
 	long cnt;
 	int max_fc_arg = 0;	/* highest arg with a fastcall inside */
@@ -489,7 +488,7 @@ void callfunction (char *ptr)
 		/* flush arg instruction stacks */
 		if (nb) {
 			/* fastcall */
-			for (i = 0, j = 0, adj = 0, idx = fast->argsize; i < cnt; i++) {
+			for (i = 0, j = 0, adj = 0; i < cnt; i++) {
 				/* flush arg stack (except for farptr and dword args) */
 				if ((fast->argtype[j] != 0x03) &&
 					(fast->argtype[j] != 0x04))
@@ -534,14 +533,6 @@ void callfunction (char *ptr)
 						SPILLW(fast->argname[j+2])
 					}
 					j += 2;
-					break;
-				case 0x11: /* auto byte */
-					out_ins_ex(I_PHB, T_VALUE, idx, T_VALUE, (idx==fast->argsize) ? idx : 0);
-					idx -= 1;
-					break;
-				case 0x12: /* auto word */
-					out_ins_ex(I_PHW, T_VALUE, idx, T_VALUE, (idx==fast->argsize) ? idx : 0);
-					idx -= 2;
 					break;
 				case 0x00: /* acc */
 					if (i < max_fc_arg)

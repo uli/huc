@@ -634,26 +634,6 @@ void gen_code(INS *tmp)
 		ol("__pushw");
 		break;
 
-	case I_PHB:
-		ot("__phb\t");
-		outdec(data);
-		if (imm) {
-			outstr(",");
-			outdec(imm);
-		}
-		nl();
-		break;
-
-	case I_PHW:
-		ot("__phw\t");
-		outdec(data);
-		if (imm) {
-			outstr(",");
-			outdec(imm);
-		}
-		nl();
-		break;
-
 	case I_POPW:
 		ol("__popw");
 		break;
