@@ -6,12 +6,13 @@
 
 int main(int argc, char **argv)
 {
-    int res, fd;
+    int res;
+    if (argc != 2)
+	abort();
 	fprintf(stderr, "loading ROM\n");
 	res = load_rom(argv[1], 0, 0);
 	if (res != 1) {
 		fprintf(stderr, "failed to load ROM: %d\n", res);
-		close(fd);
 		return -1;
 	}
     unsigned char *pixels = malloc(480*272*2);
@@ -31,7 +32,6 @@ int main(int argc, char **argv)
     fprintf(stderr, "system_reset\n");
     system_reset();
 	
-	int skip = 0;
 	while (1) {
 			bitmap.data = pixels;
 			system_frame(0);
