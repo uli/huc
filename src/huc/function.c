@@ -366,6 +366,18 @@ void getarg (long t, int syntax, int otag)
  *	of HL
  *
  */
+#define SPILLB(a) { \
+	spilled_args[sparg_idx] = (a); \
+	spilled_arg_sizes[sparg_idx++] = 1; \
+	out_ins(I_SAVEB, 0, 0); \
+}
+
+#define SPILLW(a) { \
+	spilled_args[sparg_idx] = (a); \
+	spilled_arg_sizes[sparg_idx++] = 2; \
+	out_ins(I_SAVEW, 0, 0); \
+}
+
 void callfunction (char *ptr)
 {
 	extern char *new_string(long, char *);
@@ -377,6 +389,13 @@ void callfunction (char *ptr)
 	long idx;
 	long	nargs;
 	long cnt;
+	int max_fc_arg = 0;	/* highest arg with a fastcall inside */
+	/* args spilled to the native stack */
+	const char *spilled_args[MAX_FASTCALL_ARGS];
+	/* byte sizes of spilled args */
+	int spilled_arg_sizes[MAX_FASTCALL_ARGS];
+	int sparg_idx = 0;	/* index into spilled_args[] */
+	int uses_acc = 0;	/* does callee use acc? */
 
 	cnt = 0;
 	nargs = 0;
@@ -422,11 +441,20 @@ void callfunction (char *ptr)
 			break;
 		/* fastcall func */
 		if (nb) {
+			int nfc = func_call_stack;
+
 			if (nargs)
 				stkp = stkp - INTSIZE;
 			arg_stack(arg_idx++);
 			expression (NO);
 			flush_ins();
+
+			/* Check if we had a fastcall in our argument. */
+			if (nfc < func_call_stack) {
+				/* Remember the last argument with an FC. */
+				if (max_fc_arg < arg_idx - 1)
+					max_fc_arg = arg_idx - 1;
+			}
 		}
 		/* standard func */
 		else {
@@ -460,16 +488,6 @@ void callfunction (char *ptr)
 
 		/* flush arg instruction stacks */
 		if (nb) {
-			/* error checking */
-			if (fast->flags & 0x02) {
-				if (func_call_stack != call_stack_ref) {
-					char tmp[NAMESIZE+80];
-					sprintf(tmp, "funcs can't be called from "
-								 "inside '%s' func call", ptr);
-					error(tmp);
-				}
-			}
-
 			/* fastcall */
 			for (i = 0, j = 0, adj = 0, idx = fast->argsize; i < cnt; i++) {
 				/* flush arg stack (except for farptr and dword args) */
@@ -479,20 +497,42 @@ void callfunction (char *ptr)
 					arg_flush(arg_idx + i, adj);
 				}
 	
-				/* store arg */
+				/* Either store the argument in its designated
+				   location, or save it on the (native) stack
+				   if there is another fastcall ahead. */
 				switch (fast->argtype[j]) {
 				case 0x01: /* byte */
-					out_ins(I_STB, T_SYMBOL, (long)fast->argname[j]);
+					if (i < max_fc_arg)
+						SPILLB(fast->argname[j])
+					else
+						out_ins(I_STB, T_SYMBOL, (long)fast->argname[j]);
 					break;
 				case 0x02: /* word */
-					out_ins(I_STW, T_SYMBOL, (long)fast->argname[j]);
+					if (i < max_fc_arg)
+						SPILLW(fast->argname[j])
+					else
+						out_ins(I_STW, T_SYMBOL, (long)fast->argname[j]);
 					break;
 				case 0x03: /* farptr */
 					arg_to_fptr(fast, j,  arg_idx + i, adj);
+					if (i < max_fc_arg) {
+						out_ins(I_LDUB, T_SYMBOL, (long)fast->argname[j]);
+						SPILLB(fast->argname[j])
+						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j+1]);
+						SPILLW(fast->argname[j+1])
+					}
 					j += 1;
 					break;
 				case 0x04: /* dword */
 					arg_to_dword(fast, j, arg_idx + i, adj);
+					if (i < max_fc_arg) {
+						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j]);
+						SPILLW(fast->argname[j])
+						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j+1]);
+						SPILLW(fast->argname[j+1])
+						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j+2]);
+						SPILLW(fast->argname[j+2])
+					}
 					j += 2;
 					break;
 				case 0x11: /* auto byte */
@@ -504,6 +544,9 @@ void callfunction (char *ptr)
 					idx -= 2;
 					break;
 				case 0x00: /* acc */
+					if (i < max_fc_arg)
+						SPILLW(0)
+					uses_acc = 1;
 					break;
 			 	default:
 					error("fastcall internal error");
@@ -538,6 +581,29 @@ void callfunction (char *ptr)
 		gnargs(ptr, cnt);
 
 	/* call function */
+	/* Reload fastcall arguments spilled to the native stack. */
+	if (sparg_idx) {
+		/* Reloading corrupts acc, so we need to save it if it
+		   is used by the callee. */
+		if (uses_acc)
+			out_ins(I_STW, T_LITERAL, (long)"<__temp");
+
+		for (i = sparg_idx-1; i>-1; i--) {
+			if (spilled_arg_sizes[i] == 1) {
+				out_ins(I_RESB, 0, 0);
+				out_ins(I_STB, T_SYMBOL, (long)spilled_args[i]);
+			}
+			else {
+				out_ins(I_RESW, 0, 0);
+				if (spilled_args[i])
+					out_ins(I_STW, T_SYMBOL, (long)spilled_args[i]);
+			}
+		}
+
+		if (uses_acc)
+			out_ins(I_LDW, T_LITERAL, (long)"<__temp");
+	}
+
 	if (ptr == NULL)
 		callstk (nargs);
 	else {

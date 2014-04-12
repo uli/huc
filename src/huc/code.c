@@ -212,6 +212,9 @@ static void out_addr(long type, long data)
 	case T_VALUE:
 		outdec(data);
 		break;
+	case T_STACK:
+		outstr("__stack");
+		break;
 	}
 }
 
@@ -356,18 +359,7 @@ void gen_code(INS *tmp)
 
 	case I_LDW:
 		ot("__ldw\t");
-
-		switch (type) {
-		case T_SYMBOL:
-			outsymbol((char *)data);
-			break;
-		case T_LABEL:
-			outlabel(data);
-			break;
-		case T_STACK:
-			outstr("__stack");
-			break;
-		}
+		out_addr(type, data);
 		nl();
 		break;
 
@@ -664,6 +656,22 @@ void gen_code(INS *tmp)
 
 	case I_POPW:
 		ol("__popw");
+		break;
+
+	case I_SAVEW:
+		ol("__phax");
+		break;
+
+	case I_RESW:
+		ol("__plax");
+		break;
+
+	case I_SAVEB:
+		ol("phx");
+		break;
+
+	case I_RESB:
+		ol("plx");
 		break;
 
 	case I_TSTW:

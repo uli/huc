@@ -115,6 +115,10 @@
 #define I_STBP       82
 #define I_STWP       83
 #define I_EORWI      84
+#define I_SAVEW      85
+#define I_SAVEB      86
+#define I_RESW       87
+#define I_RESB       88
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
@@ -349,14 +353,16 @@ struct const_array {
 
 /* fastcall func struct */
 
+#define MAX_FASTCALL_ARGS 8
+
 struct fastcall {
 	struct fastcall *next;
 	char   fname[NAMESIZE];
 	long    nargs;
 	long    argsize;
 	long    flags;
-	char   argtype[8];
-	char   argname[8][NAMESIZE];
+	char   argtype[MAX_FASTCALL_ARGS];
+	char   argname[MAX_FASTCALL_ARGS][NAMESIZE];
 };
 
 SYMBOL *find_member(TAG_SYMBOL *tag, char *sname);
