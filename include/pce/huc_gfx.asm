@@ -315,19 +315,13 @@ _put_number.4:	maplibfunc	lib2_put_number.4
 ; ----
 
 _put_hex.4:
-	  ldy	<__arg_idx
-	__plb
+	  lda	<_bl
 	  jsr	_put.xy
 	  bra	_put_hex.main
 _put_hex.3:
-	  ldy	<__arg_idx
 	  jsr	_put.vram
 _put_hex.main:
-	__plb	<_cl,1
-	__plw	<_dx
-	  sty	<__arg_idx
-	  ; --
-	  txa
+	  ldx	<_cl
 	  beq	.l3
 .l1:	  cpx	#5
 	  blo	.l2
@@ -372,16 +366,12 @@ _put_hex.main:
 ; ----
 
 _put_string.3:
-	  ldy	<__arg_idx
-	__plb
+	  lda	<_bl
 	  jsr	_put.xy
 	  bra	_put_string.main
 _put_string.2:
-	  ldy	<__arg_idx
 	  jsr	_put.vram
 _put_string.main:
-	__plw	<_si
-	  sty	<__arg_idx
 	  bra	.l3
 	  ; --
 .l1:	  cmp	#32
@@ -1536,17 +1526,13 @@ _gfx_line.5:
 ; ----
 
 lib2_put_number.4:
-	  ldy	<__arg_idx
-	__plb
+	  lda	<_bl
 	  jsr	_put.xy
 	  bra	putnum.main
 lib2_put_number.3:
-	  ldy	<__arg_idx
 	  jsr	_put.vram
 putnum.main:
-	__plb	<_cl,1
-	__plw	<_dx
-	  sty	<__arg_idx
+	  ldx	<_cl
 	  ; --
 	  stz	<_al ; sign flag
 	  dex
