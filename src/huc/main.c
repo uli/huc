@@ -224,6 +224,8 @@ int main (int argc,char* argv[])
 			cmode = 1;
 			glbflag = 1;
 			litlab = getlabel ();
+			member_table_index = 0;
+			tag_table_index = 0;
 
 			/* Macros and globals have to be reset for each
 			   file, so we have to define the defaults all over
