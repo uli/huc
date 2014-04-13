@@ -8,7 +8,7 @@ _foo.2:
   rts
 #endasm
 
-#pragma fastcall foo(word, byte)
+#pragma fastcall foo(word ax, byte)
 
 main()
 {
