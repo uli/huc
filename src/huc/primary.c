@@ -413,7 +413,7 @@ int const_expr(long *num, char *end1, char *end2)
 	        return 0;
         }
 	blanks();
-	if (!sstreq(end1) && !(end2 && sstreq(end2))) {
+	if (end1 && !sstreq(end1) && !(end2 && sstreq(end2))) {
 		error("unexpected character after constant expression");
 		return 0;
 	}

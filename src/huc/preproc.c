@@ -18,6 +18,7 @@
 #include "preproc.h"
 #include "sym.h"
 #include "code.h"
+#include "primary.h"
 
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
@@ -283,7 +284,7 @@ void doundef (void)
 void preprocess (void)
 {
 	if (ifline()) return;
-	while (cpp());
+	while (cpp(NO));
 }
 
 void doifdef (long ifdef)
@@ -298,10 +299,22 @@ void doifdef (long ifdef)
 	if (k != ifdef) skiplevel = iflevel;
 }
 
+static void doif (void)
+{
+	long num;
+	blanks();
+	++iflevel;
+	if (skiplevel) return;
+	const_expr(&num, NULL, NULL);
+	if (!num)
+		skiplevel = iflevel;
+}
+
 long ifline(void)
 {
 	FOREVER {
 		readline();
+cont_no_read:
 		if (!input || feof(input)) return(1);
 		if (match("#ifdef")) {
 			doifdef(YES);
@@ -309,6 +322,13 @@ long ifline(void)
 		} else if (match("#ifndef")) {
 			doifdef(NO);
 			continue;
+		} else if (match("#if")) {
+			/* need to preprocess the argument because it may
+			   contain macros */
+			cpp(YES);
+			doif();
+			/* const_expr() already read the next line */
+			goto cont_no_read;
 		} else if (match("#else")) {
 			if (iflevel) {
 				if (skiplevel == iflevel) skiplevel = 0;
@@ -341,22 +361,28 @@ void noiferr(void)
 }
 
 
-long cpp (void)
+long cpp (int subline)
 {
 	long	k;
 	char	c, sname[NAMESIZE];
 	long	tog;
 	long	cpped;		/* non-zero if something expanded */
+	long llptr;
 
 	cpped = 0;
 	/* don't expand lines with preprocessor commands in them */
-	if (!cmode || line[0] == '#') {
+	if (!subline && (!cmode || line[0] == '#')) {
 		/* except #inc/#def commands */
 		if (!match("#inc") && !match("#def"))
 			return(0);
 	}
 
-	mptr = lptr = 0;
+	mptr = 0;
+	if (subline)
+		llptr = lptr;	/* start wherever we are right now */
+	else
+		llptr = lptr = 0;	/* do the whole line */
+
 	while (ch ()) {
 		if ((ch () == ' ') | (ch () == 9)) {
 			keepch (' ');
@@ -499,9 +525,10 @@ long cpp (void)
 	keepch (0);
 	if (mptr >= MPMAX)
 		error ("line too long");
-	lptr = mptr = 0;
-	while ( (line[lptr++] = mline[mptr++]) );
-	lptr = 0;
+	/* copy cooked input back to where we got the raw input from */
+	strcpy(&line[llptr], mline);
+	/* ...and continue processing at that point */
+	lptr = llptr;
 	return(cpped);
 }
 

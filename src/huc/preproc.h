@@ -25,7 +25,7 @@ long ifline(void);
 
 void noiferr(void);
 
-long cpp (void);
+long cpp (int);
 
 long keepch (char c);
 
