@@ -475,31 +475,39 @@ long cpp (int subline)
 				   is permissible between the macro identifier and
 				   the opening parenthesis. */
 				if (mp->argc && match("(")) {
-					haveargs = 1;
-					for (;;) {
-						args[argc][0] = 0;
-						while (ch() != ',') {
-							char c = gch();
-							if (!c) {
-								error("missing closing paren");
-								return 0;
+					if (mp->argc == -1) {
+						if (!match(")")) {
+							error("missing closing paren");
+							return 0;
+						}
+					}
+					else {
+						haveargs = 1;
+						for (;;) {
+							args[argc][0] = 0;
+							while (ch() != ',') {
+								char c = gch();
+								if (!c) {
+									error("missing closing paren");
+									return 0;
+								}
+								strncat(args[argc], &c, 1);
+								if (ch() == ')')
+									break;
 							}
-							strncat(args[argc], &c, 1);
-							if (ch() == ')')
-								break;
-						}
 #ifdef DEBUG_PREPROC
-						printf("macro arg %s\n", args[argc]);
+							printf("macro arg %s\n", args[argc]);
 #endif
-						argc++;
-						if (ch() == ')') {
+							argc++;
+							if (ch() == ')') {
+								gch();
+								break;
+							}
 							gch();
-							break;
 						}
-						gch();
 					}
 				}
-				if (argc != mp->argc) {
+				if (mp->argc != -1 && argc != mp->argc) {
 					error("wrong number of macro arguments");
 					return 0;
 				}
@@ -590,28 +598,32 @@ void addmac (void)
 	   paren. */
 	if (ch() == '(') {
 		gch();
-		for (;;) {
-			if (!symname(sname)) {
-				error("invalid macro argument");
-				delmac(mp);
-				return;
-			}
+		if (match(")"))
+			argc = -1;
+		else {
+			for (;;) {
+				if (!symname(sname)) {
+					error("invalid macro argument");
+					delmac(mp);
+					return;
+				}
 #ifdef DEBUG_PREPROC
-			printf("arg %d %s\n", argc, sname);
+				printf("arg %d %s\n", argc, sname);
 #endif
-			mp->args[argc++] = strdup(sname);
-			if (argc >= 40) {
-				error("too many arguments");
-				delmac(mp);
-				return;
-			}
-			mp->args[argc] = 0;
-			if (match(")"))
-				break;
-			if (!match(",")) {
-				error("expected comma");
-				delmac(mp);
-				return;
+				mp->args[argc++] = strdup(sname);
+				if (argc >= 40) {
+					error("too many arguments");
+					delmac(mp);
+					return;
+				}
+				mp->args[argc] = 0;
+				if (match(")"))
+					break;
+				if (!match(",")) {
+					error("expected comma");
+					delmac(mp);
+					return;
+				}
 			}
 		}
 	}
