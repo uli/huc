@@ -132,7 +132,7 @@
 #define X_LEA_S		0x10021
 #define X_PEA		0x10030
 #define X_PEA_S		0x10031
-#define X_PUSHW_A	0x10040
+#define X_PUSHW_A	0x10040	/* XXX: unused? */
 #define X_STB_S		0x10051
 #define X_STW_S		0x10061
 #define X_STBI_S	0x10071

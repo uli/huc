@@ -6,6 +6,8 @@
 #ifndef _CODE_H
 #define _CODE_H
 
+#include "defs.h"
+
 extern long segment;
 
 void gdata (void );
