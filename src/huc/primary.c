@@ -335,6 +335,8 @@ static int parse3(long *num)
 		op = '+';
 	else if (match("~"))
 		op = '~';
+	else if (match("!"))
+		op = '!';
 	else
 		op = 0;
 
@@ -345,6 +347,8 @@ static int parse3(long *num)
 		*num = -num2;
 	else if (op == '~')
 		*num = ~num2;
+	else if (op == '!')
+		*num = !num2;
 	else
 		*num = num2;
 	return 1;
