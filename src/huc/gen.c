@@ -16,6 +16,7 @@
 #include "gen.h"
 #include "expr.h"
 #include "const.h"
+#include "error.h"
 
 static char *needargs[] = {
 	"vreg",
@@ -204,6 +205,8 @@ void farpeek(SYMBOL *ptr)
  */
 void immed (long type, long data)
 {
+	if (type == T_VALUE && (data < -32768 || data > 65535))
+		warning(W_GENERAL, "large integer truncated");
 	out_ins(I_LDWI, type, data);
 }
 
