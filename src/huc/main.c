@@ -398,18 +398,6 @@ void parse (void )
 			doasmdef ();
 			continue;
 		}
-		else if (match ("#define")) {
-			dodefine();
-			continue;
-		}
-		else if (match ("#undef")) {
-			doundef();
-			continue;
-		}
-		else if (match ("#pragma")) {
-			dopragma();
-			continue;
-		}
 		
 		if (!startup_incl) {
 			inc_startup();

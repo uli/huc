@@ -344,15 +344,17 @@ cont_no_read:
 				--iflevel;
 			} else noiferr();
 			continue;
-		} else if (match("#define")) {
-			dodefine();
-			continue;
-		} else if (match("#undef")) {
-			doundef();
-			continue;
-		} else if (match("#pragma")) {
-			dopragma();
-			continue;
+		} else if (!skiplevel) {
+			if (match("#define")) {
+				dodefine();
+				continue;
+			} else if (match("#undef")) {
+				doundef();
+				continue;
+			} else if (match("#pragma")) {
+				dopragma();
+				continue;
+			}
 		}
 		if (!skiplevel) return(0);
 	}
