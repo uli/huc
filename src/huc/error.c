@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "defs.h"
 #include "data.h"
 #include "error.h"
@@ -21,7 +22,7 @@ void error (char *ptr)
 
 	tempfile = output;
 	output = stderr;
-	doerror(ptr);
+	doerror(ptr, 0);
 	output = tempfile;
 	errcnt++;
 	if (errcnt > 3) {
@@ -31,11 +32,24 @@ void error (char *ptr)
         }
 }
 
-void doerror(char* ptr)
+void warning(int type, char *text)
+{
+	FILE *tfp;
+	assert(type > 0);
+	tfp = output;
+	output = stderr;
+	doerror(text, type);
+	output = tfp;
+}
+
+void doerror(char* ptr, int type)
 {
 	long k;
-        comment ();
-        outstr(" ERROR: ");
+	comment ();
+	if (!type)
+		outstr("error: ");
+	else
+		outstr("warning: ");
         if (inclsp)
           outstr(inclstk_name[inclsp-1]);
         else

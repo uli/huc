@@ -376,4 +376,6 @@ struct lvalue {
 };
 #define LVALUE struct lvalue
 
+#define W_GENERAL 1
+
 #endif
