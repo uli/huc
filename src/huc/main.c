@@ -37,6 +37,8 @@
 
 static char **link_libs = 0;
 static int link_lib_ptr;
+static char **infiles = 0;
+static int infile_ptr;
 
 static char *lib_to_file(char *lib)
 {
@@ -75,8 +77,8 @@ int main (int argc,char* argv[])
 	asmdefs[0] = '\0';
 
 	while ( (p = *argv++) ) {
-		if (*p == '-') while (*++p)
-			switch(*p) {
+		if (*p == '-') {
+			while (*++p) switch(*p) {
 				case 't': case 'T':
 					ctext = 1;
 					break;
@@ -182,23 +184,29 @@ int main (int argc,char* argv[])
 				default:
 					usage(oldargv[0]);
 			}
-			else break;
+		}
+		else {
+			infiles = realloc(infiles, (infile_ptr + 2) * sizeof(*infiles));
+			infiles[infile_ptr++] = p;
+			infiles[infile_ptr] = 0;
+		}
 	}
 
 	smacptr = macptr;
-	if (!p)
+	if (!infiles)
 		usage(oldargv[0]);
 	printf(HUC_VERSION);
 	printf("\n");
 	init_path();
 	/* Remember the first file, it will be used as the base for the
 	   output file name unless there is a user-specified outfile. */
-	pp = p;
+	p = pp = infiles[0];
 	/* Labels count is not reset for each file because labels are
 	   global and conflicts would arise. */
 	nxtlab = 0;
 	defpragma();
 	link_lib = link_libs;
+	infile_ptr = 1;
 	/* Remember where the global assembler defines end so we can
 	   reset to that point for each file. */
 	/* XXX: Even if we don't repeat the local asm defines, they
@@ -288,7 +296,7 @@ int main (int argc,char* argv[])
 			fputc('\n', stderr);
 			exit(1);
 		}
-		p = *argv;
+		p = infiles[infile_ptr];
 		if (!p && link_lib && *link_lib) {
 			/* No more command-line files, continue with
 			   libraries. */
@@ -300,7 +308,7 @@ int main (int argc,char* argv[])
 			link_lib++;
 		}
 		else
-			argv++;
+			infile_ptr++;
 		first = 0;
 	}
 	dumparg();
