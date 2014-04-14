@@ -181,6 +181,18 @@ int main (int argc,char* argv[])
 					p--;
 					break;
 
+				case 'm':
+					if (!strcmp(p+1, "small")) {
+						strcat(asmdefs, "SMALL\t= 1\n");
+						p += 5;
+					}
+					else {
+unknown_option:
+						fprintf(stderr, "unknown option %s\n", p);
+						exit(1);
+					}
+					break;
+
 				default:
 					usage(oldargv[0]);
 			}
