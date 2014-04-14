@@ -12,14 +12,14 @@ do
 	nocompiles=0
 	passes=0
 	test "$d" == "large" && opt="-DSTACK_SIZE=1024"
-	test "$d" == "small" && opt="-ASMALL=1 -DSTACK_SIZE=256 -DSMALL"
-	test "$d" == "norec" && opt="-DSTACK_SIZE=1024 -DNORECURSE -r"
+	test "$d" == "small" && opt="-msmall -DSTACK_SIZE=256 -DSMALL"
+	test "$d" == "norec" && opt="-DSTACK_SIZE=1024 -DNORECURSE -fno-recursive"
 	test "$d" == "noopt" && opt="-DSTACK_SIZE=1024 -O0"
 	echo "testing $d"
 	for i in $tests
 	do
 		echo -en "$d\t$i: "
-		if ! ../src/huc/huc -DNO_LABEL_VALUES $opt $i >/dev/null ; then
+		if ! ../src/huc/huc -DNO_LABEL_VALUES $opt $i -lmalloc >/dev/null ; then
 			echo NOCOMPILE
 			../src/huc/huc $opt $i
 			exit

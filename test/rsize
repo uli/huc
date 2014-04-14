@@ -5,7 +5,7 @@ do
 	../src/huc/huc "$i" >/dev/null
 	s="${i%.c}.s"
 	large=`wc -l <"$s"`
-	../src/huc/huc -r "$i" >/dev/null
+	../src/huc/huc -fno-recursive "$i" >/dev/null
 	norec=`wc -l <"$s"`
 	cut=`grep "_lend:" "$s"|wc -l`
 	norec=$((norec - cut * 5))

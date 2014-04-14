@@ -1,4 +1,4 @@
-#pragma recurse
+#pragma recursive
 int f(int a,int *y)
 {
   int x;
