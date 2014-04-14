@@ -305,7 +305,9 @@ static void doif (void)
 	blanks();
 	++iflevel;
 	if (skiplevel) return;
+	lex_stop_at_eol = 1;
 	const_expr(&num, NULL, NULL);
+	lex_stop_at_eol = 0;
 	if (!num)
 		skiplevel = iflevel;
 }

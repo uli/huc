@@ -151,10 +151,12 @@ long amatch (char* lit, long len)
 	return (0);
 }
 
+int lex_stop_at_eol = 0;
+
 void blanks (void )
 {
 	FOREVER {
-		while (ch () == 0) {
+		while (ch () == 0 && !lex_stop_at_eol) {
 			preprocess ();
 			if (!input || feof (input))
 				break;

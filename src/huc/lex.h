@@ -27,4 +27,6 @@ long amatch (char* lit, long len);
 
 void blanks (void);
 
+extern int lex_stop_at_eol;
+
 #endif
