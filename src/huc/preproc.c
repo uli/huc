@@ -9,16 +9,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "code.h"
 #include "defs.h"
 #include "data.h"
 #include "error.h"
 #include "io.h"
 #include "lex.h"
 #include "optimize.h"
+#include "pragma.h"
 #include "preproc.h"
-#include "sym.h"
-#include "code.h"
 #include "primary.h"
+#include "sym.h"
 
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
@@ -342,6 +343,15 @@ cont_no_read:
 				if (skiplevel == iflevel) skiplevel = 0;
 				--iflevel;
 			} else noiferr();
+			continue;
+		} else if (match("#define")) {
+			dodefine();
+			continue;
+		} else if (match("#undef")) {
+			doundef();
+			continue;
+		} else if (match("#pragma")) {
+			dopragma();
 			continue;
 		}
 		if (!skiplevel) return(0);
