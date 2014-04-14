@@ -497,15 +497,14 @@ void outdec (long number)
 /* Newer version, shorter and certainly faster */
 void outdec(long number)
 {
- char s[10];
+ char s[21];
  int i = 0;
 
- sprintf(s,"%d",(int)number);
+ sprintf(s,"%ld", number);
 
  while (s[i])
    outbyte(s[i++]);
-
- }
+}
 
 /*
  *  Output an hexadecimal unsigned number to the assembler file
