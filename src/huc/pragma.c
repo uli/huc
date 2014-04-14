@@ -205,9 +205,9 @@ void parse_pragma(void )
 	if (strcmp(sname, "fastcall") == 0)
 		new_fastcall();
 /*		new_fastcall(sname); */
-	else if (!strcmp(sname, "norecurse"))
+	else if (!strcmp(sname, "no_recursive"))
 		norecurse = 1;
-	else if (!strcmp(sname, "recurse"))
+	else if (!strcmp(sname, "recursive"))
 		norecurse = 0;
 	/* others */
 	else

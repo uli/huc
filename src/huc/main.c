@@ -40,6 +40,8 @@ static int link_lib_ptr;
 static char **infiles = 0;
 static int infile_ptr;
 
+static int user_norecurse = 0;
+
 static char *lib_to_file(char *lib)
 {
 	int i;
@@ -162,8 +164,18 @@ int main (int argc,char* argv[])
 					else       optimize = atoi(++p);
 					break;
 
-				case 'r':
-					norecurse = 1;
+				case 'f':
+					p++;
+					if (!strcmp(p, "no-recursive")) {
+						user_norecurse = 1;
+						p += 11;
+					}
+					else if (!strcmp(p, "recursive")) {
+						user_norecurse = 0;
+						p += 8;
+					}
+					else
+						goto unknown_option;
 					break;
 
 				case 'l':
@@ -254,6 +266,7 @@ unknown_option:
 			litlab = getlabel ();
 			member_table_index = 0;
 			tag_table_index = 0;
+			norecurse = user_norecurse;
 
 			/* Macros and globals have to be reset for each
 			   file, so we have to define the defaults all over
