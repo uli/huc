@@ -23,44 +23,34 @@
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
 #define PATH_SEPARATOR '\\'
 #define PATH_SEPARATOR_STRING "\\"
+#define DEFAULT_DIRS "c:\\huc\\include\\pce"
 #else
 #define PATH_SEPARATOR '/'
 #define PATH_SEPARATOR_STRING "/"
+#define DEFAULT_DIRS "/usr/local/lib/huc/include/pce;" \
+	"/usr/local/huc/include/pce;" \
+	"/usr/local/share/huc/include/pce;" \
+	"/usr/local/include/pce;" \
+	"/usr/lib/huc/include/pce;" \
+	"/usr/share/huc/include/pce;" \
+	"/usr/include/pce"
 #endif
 
 /* locals */
-static char incpath[10][256];
+static char *incpath[10];
 
-const char *include_dir(void)
+static const char *include_path(void)
 {
-	static const char *default_dirs[] = {
-		"/usr/local/lib/huc/include/pce",
-		"/usr/local/huc/include/pce",
-		"/usr/local/share/huc/include/pce",
-		"/usr/local/include/pce",
-		"/usr/lib/huc/include/pce",
-		"/usr/share/huc/include/pce",
-		"/usr/include/pce",
-		NULL
-	};
-	char *p;
+	const char *p;
 	p = getenv("PCE_INCLUDE");
+	if (!p)
+		p = DEFAULT_DIRS;
+	return p;
+}
 
-	if (p == NULL) {
-		int i;
-		struct stat st;
-		for (i = 0; default_dirs[i]; i++) {
-			if (!stat(default_dirs[i], &st)) {
-				return default_dirs[i];
-			}
-		}
-		
-		if (!p)
-			return 0;
-	}
-	else
-		return p;
-	return 0;
+char **include_dirs(void)
+{
+	return incpath;
 }
 
 /*
@@ -72,7 +62,7 @@ init_path(void)
 	const char *p,*pl;
 	long	  i, l;
 
-	p = include_dir();
+	p = include_path();
 
 	for (i = 0; i < 10; i++) {
 		pl = strchr(p, ';');
@@ -82,15 +72,22 @@ init_path(void)
 		else
 			l = pl - p;
 		if (l) {
+			incpath[i] = (char *)malloc(l + 1);
 			strncpy(incpath[i], p, l);
 			p += l;
 			while (*p == ';')
 				p++;
-		}
-		incpath[i][l] = '\0';
-		if (l) {
+			incpath[i][l] = '\0';
 			if (incpath[i][l - 1] != PATH_SEPARATOR)
 				strcat(incpath[i],   PATH_SEPARATOR_STRING);
+#ifdef DEBUG_PREPROC
+			printf("incpath %s\n", incpath[i]);
+#endif
+		}
+		else {
+			if (incpath[i])
+				free(incpath[i]);
+			incpath[i] = 0;
 		}
 	}
 }

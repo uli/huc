@@ -39,6 +39,6 @@ struct macro *findmac (char* sname);
 
 void toggle (char name, long onoff);
 
-const char *include_dir(void);
+char **include_dirs(void);
 
 #endif

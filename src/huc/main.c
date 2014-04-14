@@ -17,6 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <sys/stat.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -39,9 +40,16 @@ static int link_lib_ptr;
 
 static char *lib_to_file(char *lib)
 {
+	int i;
 	static char libfile[FILENAMESIZE];
-	sprintf(libfile, "%s/%s.c", include_dir(), lib);
-	return libfile;
+	char **incd = include_dirs();
+	for (i = 0; incd[i]; i++) {
+		struct stat st;
+		sprintf(libfile, "%s/%s.c", incd[i], lib);
+		if (!stat(libfile, &st))
+			return libfile;
+	}
+	return 0;
 }
 static void dumparg(void);
 
@@ -285,6 +293,10 @@ int main (int argc,char* argv[])
 			/* No more command-line files, continue with
 			   libraries. */
 			p = lib_to_file(*link_lib);
+			if (!p) {
+				fprintf(stderr, "cannot find library %s\n", *link_lib);
+				exit(1);
+			}
 			link_lib++;
 		}
 		else
