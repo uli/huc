@@ -693,6 +693,10 @@ void addmac (void)
 	for (;;) {
 		int found = 0;
 		int i;
+		if (ch() == '/' && nch() == '/') {
+			kill();
+			break;
+		}
 		for (i = 0; i < argc; i++) {
 			if (an(ch()) && amatch(mp->args[i], strlen(mp->args[i]))) {
 #ifdef DEBUG_PREPROC
