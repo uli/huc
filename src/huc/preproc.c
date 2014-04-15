@@ -593,6 +593,7 @@ void addmac (void)
 	mp->args = malloc(sizeof(char *) * 40);
 	mp->args[0] = 0;
 	mp->argpos = malloc(sizeof(*mp->argpos) * 40);
+	mp->argpos[0].arg = -1;
 	/* Stuff within parentheses is only considered a list of arguments
 	   if there is no whitespace between the identifier and the opening
 	   paren. */
