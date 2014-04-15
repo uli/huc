@@ -60,6 +60,9 @@ init_path(void)
       int i;
       struct stat st;
       const char *default_dirs[] = {
+#ifdef WIN32
+	 "c:\\huc\\include\\pce",
+#else
          "/usr/local/lib/huc/include/pce",
          "/usr/local/huc/include/pce",
          "/usr/local/share/huc/include/pce",
@@ -67,6 +70,7 @@ init_path(void)
          "/usr/lib/huc/include/pce",
          "/usr/share/huc/include/pce",
          "/usr/include/pce",
+#endif
          NULL
       };
       for (i = 0; default_dirs[i]; i++) {

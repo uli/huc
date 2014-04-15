@@ -137,6 +137,9 @@ struct t_opcode pce_pseudo[23] = {
 };
 
 char *defdirs_pce[] = {
+#ifdef WIN32
+	"c:\\huc\\include\\pce",
+#else
 	"/usr/local/lib/huc/include/pce",
 	"/usr/local/huc/include/pce",
 	"/usr/local/share/huc/include/pce",
@@ -144,6 +147,7 @@ char *defdirs_pce[] = {
 	"/usr/lib/huc/include/pce",
 	"/usr/share/huc/include/pce",
 	"/usr/include/pce",
+#endif
 	NULL
 };
 

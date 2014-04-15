@@ -25,6 +25,9 @@ struct t_opcode nes_pseudo[11] = {
 };
 
 char *defdirs_nes[] = {
+#ifdef WIN32
+	"c:\\huc\\include\\nes",
+#else
 	"/usr/local/lib/huc/include/nes",
 	"/usr/local/huc/include/nes",
 	"/usr/local/share/huc/include/nes",
@@ -32,6 +35,7 @@ char *defdirs_nes[] = {
 	"/usr/lib/huc/include/nes",
 	"/usr/share/huc/include/nes",
 	"/usr/include/nes",
+#endif
 	NULL
 };
 
