@@ -410,9 +410,37 @@ static int parse6(long *num)
 	}
 }
 
+static int parse9(long *num)
+{
+	long num1, num2;
+
+	if (!parse6(&num1))
+		return 0;
+
+	for (;;) {
+		char op;
+		if (match("=="))
+			op = '=';
+		else if (match("!="))
+			op = '!';
+		else {
+			*num = num1;
+			return 1;
+		}
+
+		if (!parse6(&num2))
+			return 0;
+
+		if (op == '=')
+			num1 = num1 == num2;
+		else
+			num1 = num1 != num2;
+	}
+}
+
 int const_expr(long *num, char *end1, char *end2)
 {
-	if (!parse6(num)) {
+	if (!parse9(num)) {
 	        error("failed to evaluate constant expression");
 	        return 0;
         }
