@@ -710,6 +710,13 @@ void addmac (void)
 		}
 		if (!found) {
 			c = gch();
+			if (c == '\\') {
+				c = gch();
+				if (!c) {
+					readline();
+					c = gch();
+				}
+			}
 			if (!c)
 				break;
 			strncat(mp->def, &c, 1);
