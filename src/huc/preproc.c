@@ -288,13 +288,26 @@ void preprocess (void)
 	while (cpp(NO));
 }
 
+static int max_if_depth = 0;
+static int *had_good_elif = 0;
+
+static void bump_iflevel(void)
+{
+	++iflevel;
+	if (iflevel >= max_if_depth) {
+		max_if_depth = (max_if_depth + 1) * 2;
+		had_good_elif = realloc(had_good_elif, max_if_depth * sizeof(int));
+	}
+}
+
 void doifdef (long ifdef)
 {
 	char sname[NAMESIZE];
 	long k;
 
 	blanks();
-	++iflevel;
+	bump_iflevel();
+	had_good_elif[iflevel] = 0;
 	if (skiplevel) return;
 	k = symname(sname) && findmac(sname);
 	if (k != ifdef) skiplevel = iflevel;
@@ -304,13 +317,36 @@ static void doif (void)
 {
 	long num;
 	blanks();
-	++iflevel;
+	bump_iflevel();
+	had_good_elif[iflevel] = 0;
 	if (skiplevel) return;
 	lex_stop_at_eol = 1;
 	const_expr(&num, NULL, NULL);
 	lex_stop_at_eol = 0;
 	if (!num)
 		skiplevel = iflevel;
+}
+
+static void doelif (void)
+{
+	long num;
+	blanks();
+	if (skiplevel && skiplevel < iflevel)
+		return;
+	if (!skiplevel || had_good_elif[iflevel]) {
+		/* previous section was good, so we are not */
+		skiplevel = iflevel;
+		return;
+	}
+	lex_stop_at_eol = 1;
+	const_expr(&num, NULL, NULL);
+	lex_stop_at_eol = 0;
+	if (!num)
+		skiplevel = iflevel;
+	else {
+		had_good_elif[iflevel] = 1;
+		skiplevel = 0;
+	}
 }
 
 long ifline(void)
@@ -332,10 +368,19 @@ cont_no_read:
 			doif();
 			/* const_expr() already read the next line */
 			goto cont_no_read;
+		} else if (match("#elif")) {
+			/* need to preprocess the argument because it may
+			   contain macros */
+			cpp(YES);
+			doelif();
+			/* const_expr() already read the next line */
+			goto cont_no_read;
 		} else if (match("#else")) {
 			if (iflevel) {
-				if (skiplevel == iflevel) skiplevel = 0;
-				else if (skiplevel == 0) skiplevel = iflevel;
+				if (skiplevel == iflevel && !had_good_elif[iflevel])
+					skiplevel = 0;
+				else if (skiplevel == 0)
+					skiplevel = iflevel;
 			} else noiferr();
 			continue;
 		} else if (match("#endif")) {
