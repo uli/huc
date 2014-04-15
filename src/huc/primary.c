@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "defs.h"
 #include "data.h"
 #include "error.h"
@@ -389,6 +390,7 @@ long number (long val[])
 static int parse3(long *num)
 {
 	long num2;
+	int type, ident;
 	char op;
 
 	if (match("-"))
@@ -399,6 +401,13 @@ static int parse3(long *num)
 		op = '~';
 	else if (match("!"))
 		op = '!';
+	else if (match("(") && match_type(&type, &ident, NULL)) {
+		if (!match(")")) {
+			error("invalid type cast");
+			return 0;
+		}
+		op = 'c';
+	}
 	else
 		op = 0;
 
@@ -411,6 +420,30 @@ static int parse3(long *num)
 		*num = ~num2;
 	else if (op == '!')
 		*num = !num2;
+	else if (op == 'c') {
+		if (ident != POINTER) {
+			assert(sizeof(short) == 2);
+			switch (type) {
+				case CCHAR:
+					*num = (char)num2;
+					break;
+				case CUCHAR:
+					*num = (unsigned char)num2;
+					break;
+				case CINT:
+					*num = (short)num2;
+					break;
+				case CUINT:
+					*num = (unsigned short)num2;
+					break;
+				default:
+					error("unable to handle cast in constant expression");
+					return 0;
+			}
+		}
+		else
+			*num = num2;
+	}
 	else
 		*num = num2;
 	return 1;
