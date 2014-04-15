@@ -43,11 +43,13 @@ long expression_ex (LVALUE *lval, int comma, int norval)
 
 static int is_unsigned(LVALUE *lval)
 {
-	if (!lval->symbol)
+	if (lval->type && !(lval->type & CUNSIGNED))
 		return 0;
 	/* C only promotes operations with an unsigned int
 	   to unsigned, not unsigned char! */
-	if (lval->symbol->type == CUINT)
+	if (lval->type == CUINT)
+		return 1;
+	if (lval->symbol && lval->symbol->type == CUINT)
 		return 1;
 	return 0;
 }

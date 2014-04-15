@@ -24,6 +24,50 @@ static void ignore_ast(void)
         }
 }
 
+int match_type(int *type, int *ident, int *ptr_order)
+{
+	int have_sign = 0;
+	*type = 0;
+	assert(type && ident);
+	if (match("unsigned")) {
+		*type |= CUNSIGNED;
+		have_sign = 1;
+	}
+	else if (match("signed"))
+		have_sign = 1;
+
+	if (match("char"))
+		*type |= CCHAR;
+	else if (match("int") || match("short"))
+		*type |= CINT;
+	else if (match("void")) {
+		if (have_sign)
+			goto invalid_cast;
+		*type |= CVOID;
+	}
+	else {
+		if (have_sign)
+			*type |= CINT;
+		else	/* not a cast */
+			return 0;
+	}
+
+	*ident = VARIABLE;
+	if (ptr_order)
+		*ptr_order = 0;
+	while (match("*")) {
+		*ident = POINTER;
+		if (ptr_order)
+			(*ptr_order)++;
+	}
+
+	return 1;
+
+invalid_cast:
+	error("invalid type cast");
+	return 0;
+}
+
 long primary (LVALUE* lval, int comma)
 {
 	SYMBOL	*ptr;
@@ -35,12 +79,30 @@ long primary (LVALUE* lval, int comma)
 	lval->ptr_order = 0;
 	lval->symbol2 = 0;
 	if (match ("(")) {
-		indflg = 0;
-		/* need to use expression_ex() (not heir1()), otherwise
-		   the comma operator is not handled */
-		k = expression_ex (lval, comma, YES);
-		needbrack (")");
-		return (k);
+		int type, ident;
+		if (match_type(&type, &ident, &lval->ptr_order)) {
+			needbrack(")");
+			k = heir10(lval, comma);
+			if (k)
+				rvalue(lval);
+			if (ident != POINTER) {
+				gcast(type);
+				lval->ptr_type = 0;
+			}
+			else {
+				lval->ptr_type = type;
+			}
+			lval->type = type;
+			return 0;
+		}
+		else {
+			indflg = 0;
+			/* need to use expression_ex() (not heir1()), otherwise
+			   the comma operator is not handled */
+			k = expression_ex (lval, comma, YES);
+			needbrack (")");
+			return (k);
+		}
 	}
 	if (amatch("sizeof", 6)) {
 	        int have_paren;
