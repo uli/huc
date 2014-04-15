@@ -515,6 +515,7 @@ long cpp (int subline)
 				char args[40][256];
 				int argc = 0;
 				int haveargs = 0;
+				int nest = 0;
 				/* If the macro wants arguments, substitute them.
 				   Unlike at the time of definition, here whitespace
 				   is permissible between the macro identifier and
@@ -530,15 +531,22 @@ long cpp (int subline)
 						haveargs = 1;
 						for (;;) {
 							args[argc][0] = 0;
-							while (ch() != ',') {
+							while (ch() != ',' || nest > 0) {
 								char c = gch();
+								if (c == '(') {
+									nest++;
+								}
 								if (!c) {
 									error("missing closing paren");
 									return 0;
 								}
 								strncat(args[argc], &c, 1);
-								if (ch() == ')')
-									break;
+								if (ch() == ')') {
+									if (nest)
+										nest--;
+									else
+										break;
+								}
 							}
 #ifdef DEBUG_PREPROC
 							printf("macro arg %s\n", args[argc]);
