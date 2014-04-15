@@ -720,3 +720,21 @@ void scale_const(int type, int otag, long *size) {
             break;
     }
 }
+
+void gcast(int type)
+{
+	switch (type) {
+		case CCHAR:
+			out_ins(I_CASTS8, 0, 0);
+			break;
+		case CUCHAR:
+			out_ins(I_CASTU8, 0, 0);
+			break;
+		case CINT:
+		case CUINT:
+		case CVOID:
+			break;
+		default:
+			abort();
+	};
+}

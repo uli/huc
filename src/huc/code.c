@@ -756,6 +756,14 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_CASTU8:
+		ol("cla");
+		break;
+
+	case I_CASTS8:
+		ol("__extw");
+		break;
+
 	default:
 		gen_asm(tmp);
 		break;
