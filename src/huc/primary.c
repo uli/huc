@@ -599,6 +599,25 @@ long spechar(void )
 	        }
 	        return n;
 	}
+	else if (c == 'x') {
+		int n = 0, i;
+		gch();
+		for (i = 0; i < 2; i++) {
+			c = gch();
+			if (c >= 'a' && c <= 'f')
+				c = c - 'a' + 10;
+			else if (c >= 'A' && c <= 'F')
+				c = c - 'A' + 10;
+			else if (c >= '0' && c <= '9')
+				c = c - '0';
+			else {
+				error("invalid hex character");
+				return 0;
+			}
+			n = (n << 4) | c;
+		}
+		return n;
+	}
 	else if (c == EOS) return(c);
 
 	gch();
