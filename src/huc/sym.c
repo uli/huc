@@ -103,14 +103,14 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				}
 			}
 			else if (is_struct) {
-				add_member(sname, id, typ, mtag->size, stor);
+				add_member(sname, id, typ, mtag->size, stor, otag);
 				if (id == POINTER)
 					typ = CUINT;
 				scale_const(typ, otag, &k);
 				mtag->size += k;
 			}
 			else {
-				add_member(sname, id, typ, 0, stor);
+				add_member(sname, id, typ, 0, stor, otag);
 				if (id == POINTER)
 					typ = CUINT;
 				scale_const(typ, otag, &k);

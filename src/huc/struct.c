@@ -56,7 +56,7 @@ SYMBOL *find_member(TAG_SYMBOL *tag, char *sname) {
  * @param storage
  * @return 
  */
-void add_member(char *sname, char identity, char type, int offset, int storage_class) {
+void add_member(char *sname, char identity, char type, int offset, int storage_class, int otag) {
     char *buffer_ptr;
     SYMBOL *symbol;
     if (member_table_index >= NUMMEMB) {
@@ -70,6 +70,8 @@ void add_member(char *sname, char identity, char type, int offset, int storage_c
     symbol->type = type;
     symbol->storage = storage_class;
     symbol->offset = offset;
+    if (type == CSTRUCT)
+	    symbol->tagidx = otag;
 
     member_table_index++;
 }
