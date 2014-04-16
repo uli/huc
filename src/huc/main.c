@@ -31,6 +31,7 @@
 #include "optimize.h"
 #include "pragma.h"
 #include "preproc.h"
+#include "primary.h"
 #include "pseudo.h"
 #include "sym.h"
 #include "struct.h"
@@ -439,44 +440,19 @@ void parse (void )
 long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 {
 	long err;
-	int otag;
-	int sflag;
-	char sname[NAMESIZE];
-	int sign = CSIGNED;
+	struct type t;
 
 	blanks();
 
-	if ((sflag=amatch("struct", 6)) || amatch("union", 5)) {
-		if (symname(sname) == 0) { // legal name ?
-			illname();
-		}
-		if ((otag=find_tag(sname)) == -1) { // structure not previously defined
-			otag = define_struct(sname, stclass, sflag);
-		}
-		err = declglb(CSTRUCT, stclass, mtag, otag, is_struct);
+	if (match_type(&t, NO, YES)) {
+		if (t.type == CSTRUCT && t.otag == -1)
+			t.otag = define_struct(t.sname, stclass, !!(t.flags & F_STRUCT));
+		err = declglb(t.type, stclass, mtag, t.otag, is_struct);
 	}
-	else {
-		/* we don't do optimizations that would require "volatile" */
-		amatch("volatile", 8);
-		if (amatch("unsigned", 8)) {
-			sign = CUNSIGNED;
-			blanks();	/* XXX: necessary? */
-		}
-		if (amatch("signed", 6) && sign == CUNSIGNED)
-			error("conflicting signedness");
-		if (amatch("char", 4))
-			err = declglb(CCHAR | sign, stclass, mtag, NULL_TAG, is_struct);
-		else if (amatch("short", 5)) {
-			amatch("int", 3);
-			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
-		}
-		else if (amatch("int", 3) || amatch("void", 4))
-			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
-		else if (stclass == PUBLIC && sign != CUNSIGNED)
-			return(0);
-		else
-			err = declglb(CINT | sign, stclass, mtag, NULL_TAG, is_struct);
-	}
+	else if (stclass == PUBLIC)
+		return(0);
+	else
+		err = declglb(CINT, stclass, mtag, NULL_TAG, is_struct);
 
 	if (err == 2) /* function */
 		return 1;
