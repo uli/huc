@@ -502,6 +502,16 @@ __addwi	.macro
 	.endif
 	.endm	
 
+; pceas workaround; the regular __addwi doesn't work if the argument is
+; symbolic because the code size changes as it is resolved.
+__addwi_sym	.macro
+	 clc
+	 sax
+	 adc	#low(\1)
+	 sax
+	 adc	#high(\1)
+	.endm
+
 __mulwi	.macro
 	.if (\1 = 2)
 	 __aslw

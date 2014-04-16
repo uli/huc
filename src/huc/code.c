@@ -447,10 +447,17 @@ void gen_code(INS *tmp)
 	case I_ADDWI:
 	case I_ADDBI:
 		if (code == I_ADDBI)
-			ot("__addbi\t");
+			ot("__addbi");
 		else
-			ot("__addwi\t");
-
+			ot("__addwi");
+		/* Assembler workaround; pceas doesn't like if the code
+		   size changes as it resolved a symbol, so we use the
+		   variant without ".if"s if there is a symbol involved. */
+		if (type == T_SYMBOL ||
+		    type == T_LITERAL ||
+		    type == T_STRING)
+			outstr("_sym");
+		outstr("\t");
 		out_type(type, data);
 		nl();
 		break;
