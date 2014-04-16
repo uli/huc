@@ -286,7 +286,7 @@ struct tag_symbol {
 
 /* input line */
 
-#define	LINESIZE	150
+#define	LINESIZE	384
 #define	LINEMAX	(LINESIZE-1)
 #define	MPMAX	LINEMAX
 
