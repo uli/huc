@@ -14,7 +14,7 @@ do
 	test "$d" == "large" && opt="-DSTACK_SIZE=1024"
 	test "$d" == "small" && opt="-msmall -DSTACK_SIZE=256 -DSMALL"
 	test "$d" == "norec" && opt="-DSTACK_SIZE=1024 -DNORECURSE -fno-recursive"
-	test "$d" == "noopt" && opt="-DSTACK_SIZE=1024 -O0"
+	test "$d" == "noopt" && opt="-DSTACK_SIZE=1024 -O0 -DNOOPT"
 	echo "testing $d"
 	for i in $tests
 	do
