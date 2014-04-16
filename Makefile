@@ -16,6 +16,7 @@ $(SUBDIRS):
 
 install:
 	cp -p bin/* /usr/local/bin
+	mkdir -p /usr/include/pce
 	cp -pr include/pce/* /usr/include/pce/
 
 package:
