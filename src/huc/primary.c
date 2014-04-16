@@ -543,11 +543,39 @@ static int parse6(long *num)
 	}
 }
 
-static int parse9(long *num)
+static int parse7(long *num)
 {
 	long num1, num2;
 
 	if (!parse6(&num1))
+		return 0;
+
+	for (;;) {
+		char op;
+		if (match("<<"))
+			op = 'l';
+		else if (match(">>"))
+			op = 'r';
+		else {
+			*num = num1;
+			return 1;
+		}
+
+		if (!parse6(&num2))
+			return 0;
+
+		if (op == 'l')
+			num1 <<= num2;
+		else
+			num1 >>= num2;
+	}
+}
+
+static int parse9(long *num)
+{
+	long num1, num2;
+
+	if (!parse7(&num1))
 		return 0;
 
 	for (;;) {
@@ -561,7 +589,7 @@ static int parse9(long *num)
 			return 1;
 		}
 
-		if (!parse6(&num2))
+		if (!parse7(&num2))
 			return 0;
 
 		if (op == '=')
