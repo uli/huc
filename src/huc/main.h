@@ -25,5 +25,7 @@ void errorsummary (void );
 char extension(char *s);
 long assemble(char *s);
 
+void dotypedef(void);
+
 #endif
 

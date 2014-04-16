@@ -88,3 +88,6 @@ extern long top_level_stkp;
 extern int norecurse;
 extern long locals_ptr;
 extern char current_fn[];
+
+extern struct type *typedefs;
+extern int typedef_ptr;

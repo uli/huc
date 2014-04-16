@@ -91,3 +91,6 @@ long	errs;
 
 int norecurse = 0;
 long locals_ptr;
+
+struct type *typedefs;
+int typedef_ptr = 0;

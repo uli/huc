@@ -268,6 +268,7 @@ unknown_option:
 			member_table_index = 0;
 			tag_table_index = 0;
 			norecurse = user_norecurse;
+			typedef_ptr = 0;
 
 			/* Macros and globals have to be reset for each
 			   file, so we have to define the defaults all over
@@ -417,6 +418,8 @@ void parse (void )
 		}
 		else if (amatch ("const",5))
 			dodcls(CONST, NULL_TAG, 0);
+		else if (amatch("typedef", 7))
+			dotypedef();
 		else if (dodcls(PUBLIC, NULL_TAG, 0)) ;
 		else if (match ("#asm"))
 			doasm ();
@@ -465,6 +468,23 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 	return(1);
 }
 
+void dotypedef(void)
+{
+	struct type t;
+	if (!match_type(&t, YES, NO)) {
+		error("unknown type");
+		kill();
+		return;
+	}
+	if (!symname(t.sname)) {
+		error("invalid type name");
+		kill();
+		return;
+	}
+	typedefs = realloc(typedefs, (typedef_ptr + 1) * sizeof(struct type));
+	typedefs[typedef_ptr++] = t;
+	ns();
+}
 
 /*
  *	dump the literal pool

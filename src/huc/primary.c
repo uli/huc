@@ -30,9 +30,18 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 	char n[NAMESIZE];
 	int have_sign = 0;
 	int sflag;
+	int i;
+	static int anon_struct_cnt = 0;
 	t->type = 0;
 	t->flags = 0;
 	t->otag = -1;
+
+	for (i = 0; i < typedef_ptr; i++) {
+		if (amatch(typedefs[i].sname, strlen(typedefs[i].sname))) {
+			*t = typedefs[i];
+			goto ret_do_ptr;
+		}
+	}
 
 	if (amatch("register", 8))
 		t->flags |= F_REGISTER;
@@ -104,6 +113,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 	t->ident = VARIABLE;
 	t->ptr_order = 0;
 
+ret_do_ptr:
 	if (do_ptr)
 		while (match("*")) {
 			t->ident = POINTER;
