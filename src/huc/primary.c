@@ -25,42 +25,74 @@ static void ignore_ast(void)
         }
 }
 
-int match_type(int *type, int *ident, int *ptr_order)
+int match_type(struct type *t, int do_ptr)
 {
+	char n[NAMESIZE];
 	int have_sign = 0;
-	*type = 0;
-	assert(type && ident);
-	if (match("unsigned")) {
-		*type |= CUNSIGNED;
-		have_sign = 1;
-	}
-	else if (match("signed"))
-		have_sign = 1;
+	t->type = 0;
+	t->flags = 0;
+	t->otag = 0;
 
-	if (match("char"))
-		*type |= CCHAR;
-	else if (match("int") || match("short"))
-		*type |= CINT;
-	else if (match("void")) {
-		if (have_sign)
-			goto invalid_cast;
-		*type |= CVOID;
+	if (amatch("register", 8))
+		t->flags |= F_REGISTER;
+	if (amatch("const", 5))
+		t->flags |= F_CONST;
+
+	if (amatch("struct", 6) || amatch("union", 5)) {
+		/* compound */
+		if (symname(n)) {
+			t->otag = find_tag(n);
+			if (t->otag < 0) {
+				error("unknown struct name");
+				junk();
+				return 0;
+			}
+			t->type = CSTRUCT;
+		}
+		else {
+			error("illegal struct name");
+			junk();
+			return 0;
+		}
 	}
 	else {
-		if (have_sign)
-			*type |= CINT;
-		else	/* not a cast */
-			return 0;
+		/* scalar */
+		if (amatch("unsigned", 8)) {
+			t->type |= CUNSIGNED;
+			have_sign = 1;
+		}
+		else if (amatch("signed", 6))
+			have_sign = 1;
+
+		if (amatch("char", 4))
+			t->type |= CCHAR;
+		else if (amatch("int", 3))
+			t->type |= CINT;
+		else if (amatch("short", 5)) {
+			amatch("int", 3);
+			t->type |= CINT;
+		}
+		else if (amatch("void", 4)) {
+			if (have_sign)
+				goto invalid_cast;
+			t->type |= CVOID;
+		}
+		else {
+			if (have_sign)
+				t->type |= CINT;
+			else	/* not a cast */
+				return 0;
+		}
 	}
 
-	*ident = VARIABLE;
-	if (ptr_order)
-		*ptr_order = 0;
-	while (match("*")) {
-		*ident = POINTER;
-		if (ptr_order)
-			(*ptr_order)++;
-	}
+	t->ident = VARIABLE;
+	t->ptr_order = 0;
+
+	if (do_ptr)
+		while (match("*")) {
+			t->ident = POINTER;
+			t->ptr_order++;
+		}
 
 	return 1;
 
@@ -80,20 +112,21 @@ long primary (LVALUE* lval, int comma)
 	lval->ptr_order = 0;
 	lval->symbol2 = 0;
 	if (match ("(")) {
-		int type, ident;
-		if (match_type(&type, &ident, &lval->ptr_order)) {
+		struct type t;
+		if (match_type(&t, YES)) {
 			needbrack(")");
 			k = heir10(lval, comma);
 			if (k)
 				rvalue(lval);
-			if (ident != POINTER) {
-				gcast(type);
+			if (t.ident != POINTER) {
+				gcast(t.type);
 				lval->ptr_type = 0;
 			}
 			else {
-				lval->ptr_type = type;
+				lval->ptr_type = t.type;
 			}
-			lval->type = type;
+			lval->type = t.type;
+			lval->ptr_order = t.ptr_order;
 			return 0;
 		}
 		else {
@@ -390,7 +423,7 @@ long number (long val[])
 static int parse3(long *num)
 {
 	long num2;
-	int type, ident;
+	struct type t;
 	char op;
 
 	if (match("-"))
@@ -401,7 +434,7 @@ static int parse3(long *num)
 		op = '~';
 	else if (match("!"))
 		op = '!';
-	else if (match("(") && match_type(&type, &ident, NULL)) {
+	else if (match("(") && match_type(&t, YES)) {
 		if (!match(")")) {
 			error("invalid type cast");
 			return 0;
@@ -421,9 +454,9 @@ static int parse3(long *num)
 	else if (op == '!')
 		*num = !num2;
 	else if (op == 'c') {
-		if (ident != POINTER) {
+		if (t.ident != POINTER) {
 			assert(sizeof(short) == 2);
-			switch (type) {
+			switch (t.type) {
 				case CCHAR:
 					*num = (char)num2;
 					break;

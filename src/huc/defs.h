@@ -380,4 +380,14 @@ struct lvalue {
 
 #define W_GENERAL 1
 
+struct type {
+	int type;
+	int ident;
+	int ptr_order;
+	int otag;
+	int flags;
+};
+#define F_REGISTER 1
+#define F_CONST 2
+
 #endif
