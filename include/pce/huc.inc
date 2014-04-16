@@ -628,6 +628,15 @@ __addmi	.macro
 	.endif
 	.endm	
 
+__addmi_sym .macro
+	 tay			; 2
+	 clc			; 2
+	 lda	<\2		; 4
+	 adc	#low(\1)	; 2
+	 sta	<\2		; 4
+	 tya			; 2 => 16
+	.endm
+
  .else ; SMALL
 
 __addmi1 .macro		; 10(14)
@@ -641,7 +650,7 @@ __submi1 .macro			; 14(18)
 	 ldy <\1		; 4
 	 bne .x\@		; 4(2)
 	 dec <\1+1		; 0(6)
-.x\@
+.x\@:
 	 dec <\1		; 6
 	.endm
 
@@ -676,6 +685,19 @@ __addmi	.macro
 	.endif
 	.endif
 	.endm	
+
+__addmi_sym .macro
+	 tay			; 2
+	 clc			; 2
+	 lda	<\2		; 4
+	 adc	#low(\1)	; 2
+	 sta	<\2		; 4
+	 lda	<\2+1		; 4
+	 adc	#high(\1)	; 2
+	 sta	<\2+1		; 4
+	 tya			; 2 => 20(24) / 26
+	.endm
+
  .endif ; SMALL
 
 __subw	.macro
