@@ -133,46 +133,14 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 			argstk -= INTSIZE;
 			*fixup[argstk/INTSIZE] += argtop;
 		} else {
-			int sign = CSIGNED;
-			if (amatch("register", 8)) {
-				/* ignore */
-			}
-			if (amatch("struct", 6)) {
-				if (symname(n)) {
-					int otag = find_tag(n);
-					if (otag < 0) {
-						error("unknown struct name");
-						junk();
-					}
-					else {
-						getarg(CSTRUCT, KR, otag);
-						ns();
-					}
-				}
-				else {
-					error("illegal struct name");
-					junk();
-				}
+			struct type t;
+			if (match_type(&t, NO)) {
+				getarg(t.type, KR, t.otag);
+				ns();
 			}
 			else {
-				if (amatch("unsigned", 8))
-					sign = CUNSIGNED;
-				if (amatch("signed", 6) && sign == CUNSIGNED)
-					error("conflicting signedness");
-				if (amatch ("char", 4)) {
-					getarg (CCHAR | sign, KR, 0);
-					ns ();
-				} else if (amatch ("short", 5)) {
-					amatch("int", 3);
-					getarg (CINT | sign, KR, 0);
-					ns();
-				} else if (amatch ("int", 3) || sign == CUNSIGNED) {
-					getarg (CINT | sign, KR, 0);
-					ns ();
-				} else {
-					error ("wrong number args");
-					break;
-				}
+				error ("wrong number args");
+				break;
 			}
 		}
 	}
