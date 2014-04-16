@@ -756,12 +756,8 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
-	case I_CASTU8:
+	case I_EXTUW:
 		ol("cla");
-		break;
-
-	case I_CASTS8:
-		ol("__extw");
 		break;
 
 	default:

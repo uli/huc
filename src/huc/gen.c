@@ -725,10 +725,10 @@ void gcast(int type)
 {
 	switch (type) {
 		case CCHAR:
-			out_ins(I_CASTS8, 0, 0);
+			out_ins(I_EXTW, 0, 0);
 			break;
 		case CUCHAR:
-			out_ins(I_CASTU8, 0, 0);
+			out_ins(I_EXTUW, 0, 0);
 			break;
 		case CINT:
 		case CUINT:

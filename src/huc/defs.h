@@ -117,8 +117,7 @@
 #define I_SAVEB      86
 #define I_RESW       87
 #define I_RESB       88
-#define I_CASTS8     89
-#define I_CASTU8     90
+#define I_EXTUW      89
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
