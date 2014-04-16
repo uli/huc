@@ -105,7 +105,7 @@ file_open(char *name, char *mode)
 	long	  i;
 
 	for (i = 0; i < 10; i++) {
-		if (strlen(incpath[i])) {
+		if (incpath[i] && strlen(incpath[i])) {
 			strcpy(testname, incpath[i]);
 			strcat(testname, name);
 			strcpy(inclstk_name[inclsp], testname);
