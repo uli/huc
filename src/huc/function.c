@@ -16,6 +16,7 @@
 #include "lex.h"
 #include "optimize.h"
 #include "pragma.h"
+#include "primary.h"
 #include "pseudo.h"
 #include "stmt.h"
 #include "sym.h"
@@ -84,67 +85,28 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	memset(fixup, 0, sizeof(fixup));
 	while (!match (")")) {
 		/* check if we have an ANSI argument */
-		int sign = CSIGNED;
-		if (amatch("register", 8)) {
-			/* ignore */
-		}
-		if (amatch("const", 5)) {
-			/* ignore */
-		}
-		if (amatch("struct", 6) || amatch("union", 5)) {
-			if (symname(n)) {
-				int otag = find_tag(n);
-				if (otag < 0) {
-					error("unknown struct name");
-					junk();
-				}
-				else {
-					getarg(CSTRUCT, ANSI, otag);
-					nbarg++;
-				}
-			}
-			else {
-				error("illegal struct name");
-				junk();
-			}
-		}
-		else {
-			if (amatch("unsigned", 8))
-				sign = CUNSIGNED;
-			if (amatch("signed", 6) && sign == CUNSIGNED)
-				error("conflicting signedness");
-			if (amatch("char", 4)) {
-				getarg(CCHAR | sign, ANSI, 0);
-				nbarg++;
-			} else if (amatch("short", 5)) {
-				amatch("int", 3);
-				getarg(CINT | sign, ANSI, 0);
-				nbarg++;
-			} else if (amatch("int", 3)) {
-				getarg(CINT | sign, ANSI, 0);
-				nbarg++;
-			} else if (amatch("void", 4)) {
+		struct type t;
+		if (match_type(&t, NO)) {
+			if (t.type == CVOID) {
 				if (match(")"))
 					break;
-				getarg(CVOID, ANSI, 0);
-				nbarg++;
-			} else if (sign == CUNSIGNED) {
-				getarg(CINT | sign, ANSI, 0);
-				nbarg++;
-			} else {
-				/* no valid type, assuming K&R argument */
-				if (symname (n)) {
-					if (findloc (n))
-						multidef (n);
-					else {
-						addloc (n, 0, 0, argstk, AUTO, INTSIZE);
-						argstk = argstk + INTSIZE;
-						nbarg++;
-					}
-				} else {
-					error ("illegal argument name");
-					junk ();
+			}
+			getarg(t.type, ANSI, t.otag);
+			nbarg++;
+		}
+		else {
+			/* no valid type, assuming K&R argument */
+			if (symname (n)) {
+				if (findloc (n))
+					multidef (n);
+				else {
+					addloc (n, 0, 0, argstk, AUTO, INTSIZE);
+					argstk = argstk + INTSIZE;
+					nbarg++;
 				}
+			} else {
+				error ("illegal argument name");
+				junk ();
 			}
 		}
 		blanks ();
