@@ -56,9 +56,19 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			strcpy(t->sname, n);
 		}
 		else {
-			error("illegal struct name");
-			junk();
-			return 0;
+			blanks();
+			if (ch() == '{') {
+				sprintf(t->sname, "__anon_struct%d", anon_struct_cnt++);
+				t->otag = define_struct(t->sname, DEFAUTO, sflag);
+				t->type = CSTRUCT;
+				if (sflag)
+				t->flags |= F_STRUCT;
+			}
+			else {
+				error("illegal struct name");
+				junk();
+				return 0;
+			}
 		}
 	}
 	else {
