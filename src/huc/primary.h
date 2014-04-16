@@ -19,7 +19,7 @@ long readqstr (void );
 long readstr (void );
 long spechar(void );
 
-int match_type(struct type *, int do_ptr);
+int match_type(struct type *, int do_ptr, int allow_unk_compound);
 
 #endif
 

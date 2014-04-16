@@ -25,13 +25,13 @@ static void ignore_ast(void)
         }
 }
 
-int match_type(struct type *t, int do_ptr)
+int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 {
 	char n[NAMESIZE];
 	int have_sign = 0;
 	t->type = 0;
 	t->flags = 0;
-	t->otag = 0;
+	t->otag = -1;
 
 	if (amatch("register", 8))
 		t->flags |= F_REGISTER;
@@ -42,7 +42,7 @@ int match_type(struct type *t, int do_ptr)
 		/* compound */
 		if (symname(n)) {
 			t->otag = find_tag(n);
-			if (t->otag < 0) {
+			if (t->otag < 0 && !allow_unk_compound) {
 				error("unknown struct name");
 				junk();
 				return 0;
@@ -113,7 +113,7 @@ long primary (LVALUE* lval, int comma)
 	lval->symbol2 = 0;
 	if (match ("(")) {
 		struct type t;
-		if (match_type(&t, YES)) {
+		if (match_type(&t, YES, NO)) {
 			needbrack(")");
 			k = heir10(lval, comma);
 			if (k)
@@ -434,7 +434,7 @@ static int parse3(long *num)
 		op = '~';
 	else if (match("!"))
 		op = '!';
-	else if (match("(") && match_type(&t, YES)) {
+	else if (match("(") && match_type(&t, YES, NO)) {
 		if (!match(")")) {
 			error("invalid type cast");
 			return 0;

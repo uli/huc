@@ -86,7 +86,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	while (!match (")")) {
 		/* check if we have an ANSI argument */
 		struct type t;
-		if (match_type(&t, NO)) {
+		if (match_type(&t, NO, NO)) {
 			if (t.type == CVOID) {
 				if (match(")"))
 					break;
@@ -134,7 +134,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 			*fixup[argstk/INTSIZE] += argtop;
 		} else {
 			struct type t;
-			if (match_type(&t, NO)) {
+			if (match_type(&t, NO, NO)) {
 				getarg(t.type, KR, t.otag);
 				ns();
 			}
