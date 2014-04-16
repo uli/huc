@@ -118,6 +118,7 @@
 #define I_RESW       87
 #define I_RESB       88
 #define I_EXTUW      89
+#define I_DEF        90
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
@@ -322,6 +323,7 @@ struct macro {
 #define	STDO	8
 #define	STFOR	9
 #define	STSWITCH	10
+#define STGOTO	11
 
 #define DEFLIB	""
 
@@ -393,4 +395,9 @@ struct type {
 #define F_VOLATILE 4
 #define F_STRUCT 8	/* set if CSTRUCT is struct, not union */
 
+struct clabel {
+	char name[NAMESIZE];
+	int stkp;
+	int label;
+};
 #endif

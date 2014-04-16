@@ -477,8 +477,15 @@ void gen_code(INS *tmp)
 		break;
 
 	case I_ADDMI:
-		ot("__addmi\t");
-		outdec(data);
+		ot("__addmi");
+		if (type == T_LITERAL) {
+			outstr("_sym\t");
+			outstr((char *)data);
+		}
+		else {
+			outstr("\t");
+			outdec(data);
+		}
 		outstr(",__stack");
 		nl();
 		break;
@@ -765,6 +772,13 @@ void gen_code(INS *tmp)
 
 	case I_EXTUW:
 		ol("cla");
+		break;
+
+	case I_DEF:
+		outstr((char *)data);
+		outstr(" .equ ");
+		outdec(imm);
+		nl();
 		break;
 
 	default:

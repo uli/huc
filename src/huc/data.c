@@ -94,3 +94,6 @@ long locals_ptr;
 
 struct type *typedefs;
 int typedef_ptr = 0;
+
+struct clabel *clabels;
+int clabel_ptr = 0;

@@ -123,6 +123,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 		return;
 
 	stkp = 0;
+	clabel_ptr = 0;
 	argtop = argstk;
 	while (argstk) {
 		/* We only know the final argument offset once we have parsed

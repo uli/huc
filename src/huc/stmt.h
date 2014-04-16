@@ -22,6 +22,8 @@ void dodefault (void );
 void doreturn (void );
 void dobreak (void );
 void docont (void );
+void dolabel (char *name);
+void dogoto (void);
 void dumpsw (long *ws);
 void test (long label, long ft);
 

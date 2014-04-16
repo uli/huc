@@ -4,6 +4,8 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -127,6 +129,10 @@ void stst (void )
 		docont ();
 		ns ();
 		lastst = STCONT;
+	} else if (amatch ("goto", 4)) {
+		dogoto();
+		ns();
+		lastst = STGOTO;
 	} else if (match (";"))
 		;
 	else if (amatch ("case", 4)) {
@@ -141,15 +147,20 @@ void stst (void )
 	} else if (match ("{"))
 		compound (NO);
 	else {
-		expression (YES);
-/*		if (match (":")) {
-			dolabel ();
-			lastst = statement (NO);
-		} else {
-*/			ns ();
+		int slptr = lptr;
+		char lbl[NAMESIZE];
+		if (symname(lbl) && ch() == ':') {
+			gch();
+			dolabel(lbl);
+			lastst = statement(NO);
+		}
+		else {
+			lptr = slptr;
+			expression (YES);
+			ns ();
 			lastst = STEXP;
-/*		}
-*/	}
+		}
+	}
 }
 
 /*
@@ -424,6 +435,76 @@ void docont (void )
         	else
 		jump (ptr[WSTEST]);
 }
+
+void dolabel (char *name)
+{
+	int i;
+	for (i = 0; i < clabel_ptr; i++) {
+		if (!strcmp(clabels[i].name, name)) {
+			/* This label has been goto'd to before.
+			   We have to create a stack pointer offset EQU
+			   that describes the stack pointer difference from
+			   the goto to here. */
+			sprintf(name, "LL%d_stkp", clabels[i].label);
+			/* XXX: memleak */
+			out_ins_ex(I_DEF, T_LITERAL, (long)strdup(name),
+				   T_VALUE, stkp - clabels[i].stkp);
+			/* From now on, clabel::stkp contains the relative
+			   stack pointer at the location of the label. */
+			clabels[i].stkp = stkp;
+			gnlabel(clabels[i].label);
+			printf("old label %s stkp %ld\n", clabels[i].name, stkp);
+			return;
+		}
+	}
+	/* This label has not been referenced before, we need to create a
+	   new entry. */
+	clabels = realloc(clabels, (clabel_ptr+1) * sizeof(struct clabel));
+	strcpy(clabels[clabel_ptr].name, name);
+	clabels[clabel_ptr].stkp = stkp;
+	clabels[clabel_ptr].label = getlabel();
+	printf("new label %s id %d stkp %ld\n", name, clabels[clabel_ptr].label, stkp);
+	gnlabel(clabels[clabel_ptr].label);
+	clabel_ptr++;
+}
+
+void dogoto (void)
+{
+	int i;
+	char sname[NAMESIZE];
+	if (!symname(sname)) {
+		error("invalid label name");
+		return;
+	}
+	for (i = 0; i < clabel_ptr; i++) {
+		if (!strcmp(clabels[i].name, sname)) {
+			/* This label has already been defined. All we have
+			   to do is to adjust the stack pointer and jump. */
+			printf("goto found label %s id %d stkp %d\n", sname, clabels[i].label, clabels[i].stkp);
+			modstk(clabels[i].stkp);
+			jump(clabels[i].label);
+			return;
+		}
+	}
+
+	/* This label has not been defined yet. We have to create a new
+	   entry in the label array. We also don't know yet what the relative
+	   SP will be at the label, so we have to emit a stack pointer
+	   operation with a symbolic operand that will be defined to the
+	   appropriate value at the label definition. */
+	clabels = realloc(clabels, (i+1) * sizeof(*clabels));
+	strcpy(clabels[i].name, sname);
+	/* Save our relative SP in the label entry; this will be corrected
+	   to the label's relative SP at the time of definition. */
+	clabels[i].stkp = stkp;
+	clabels[i].label = getlabel();
+	sprintf(sname, "LL%d_stkp", clabels[i].label);
+	/* XXX: memleak */
+	out_ins(I_ADDMI, T_LITERAL, (long)strdup(sname));
+	jump(clabels[i].label);
+	clabel_ptr++;
+}
+
 
 /*
  *	dump switch table
