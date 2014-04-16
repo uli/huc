@@ -71,7 +71,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 				t->otag = define_struct(t->sname, DEFAUTO, sflag);
 				t->type = CSTRUCT;
 				if (sflag)
-				t->flags |= F_STRUCT;
+					t->flags |= F_STRUCT;
 			}
 			else {
 				error("illegal struct name");
