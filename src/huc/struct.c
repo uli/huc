@@ -79,13 +79,15 @@ void add_member(char *sname, char identity, char type, int offset, int storage_c
 int define_struct(char *sname, int storage, int is_struct) {
     TAG_SYMBOL *symbol;
     char *buffer_ptr;
+    int tti;
 
     //tag_table_index++;
     if (tag_table_index >= NUMTAG) {
         error("struct table overflow");
         return 0;
     }
-    symbol = &tag_table[tag_table_index++];
+    tti = tag_table_index++;
+    symbol = &tag_table[tti];
     buffer_ptr = symbol->name;
     while (an(*buffer_ptr++ = *sname++));
     symbol->size = 0;
@@ -93,9 +95,9 @@ int define_struct(char *sname, int storage, int is_struct) {
 
     needbrack("{");
     while (!match("}")) {
-        if (!dodcls(storage, &tag_table[tag_table_index-1], is_struct))
+        if (!dodcls(storage, &tag_table[tti], is_struct))
             break;
     };
     symbol->number_of_members = member_table_index - symbol->member_idx;
-    return tag_table_index-1;
+    return tti;
 }
