@@ -29,16 +29,19 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 {
 	char n[NAMESIZE];
 	int have_sign = 0;
+	int sflag;
 	t->type = 0;
 	t->flags = 0;
 	t->otag = -1;
 
 	if (amatch("register", 8))
 		t->flags |= F_REGISTER;
+	if (amatch("volatile", 8))
+		t->flags |= F_VOLATILE;
 	if (amatch("const", 5))
 		t->flags |= F_CONST;
 
-	if (amatch("struct", 6) || amatch("union", 5)) {
+	if ((sflag = amatch("struct", 6)) || amatch("union", 5)) {
 		/* compound */
 		if (symname(n)) {
 			t->otag = find_tag(n);
@@ -48,6 +51,8 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 				return 0;
 			}
 			t->type = CSTRUCT;
+			if (sflag)
+				t->flags |= F_STRUCT;
 		}
 		else {
 			error("illegal struct name");

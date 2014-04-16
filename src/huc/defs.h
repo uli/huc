@@ -389,5 +389,7 @@ struct type {
 };
 #define F_REGISTER 1
 #define F_CONST 2
+#define F_VOLATILE 4
+#define F_STRUCT 8	/* set if CSTRUCT is struct, not union */
 
 #endif
