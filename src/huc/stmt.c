@@ -71,47 +71,23 @@ long stdecl (void)
 
 long doldcls(long stclass)
 {
-        int otag;
-        int sflag;
         char sname[NAMESIZE];
-        int sign = CSIGNED;
+        struct type t;
 	blanks();
 	/* we don't do optimizations that would require "volatile" */
-	amatch("volatile", 8);
-	if (amatch("unsigned", 8))
-	        sign = CUNSIGNED;
-        if (amatch("signed", 6) && sign == CUNSIGNED)
-                error("conflicting signedness");
-        if ((sflag=amatch("struct", 6)) || amatch("union", 5)) {
-            if (symname(sname) == 0) { // legal name ?
-                illname();
-            }
-            if ((otag=find_tag(sname)) == -1) { // structure not previously defined
-                otag = define_struct(sname, stclass, sflag);
-            }
-            declloc(CSTRUCT, stclass, otag);
-        }
-	else if (amatch("char", 4))
-		declloc(CCHAR | sign, stclass, -1);
-        else if (amatch("short", 5)) {
-                amatch("int", 3);
-                declloc(CINT | sign, stclass, -1);
-        }
-	else if (amatch("int", 3))
-		declloc(CINT | sign, stclass, -1);
-        else if (amatch("void", 4)) {
-                blanks();
-                if (ch() != '*') {
-                        error("illegal type \"void\"");
-                        junk();
-                        return 0;
-                }
-                declloc(CINT, stclass, -1);
-        }
-	else if (stclass == LSTATIC || stclass == DEFAUTO)
-		declloc(CINT | sign, stclass, -1);
-        else if (sign == CUNSIGNED)
-                declloc(CINT | sign, stclass, -1);
+	if (match_type(&t, NO, YES)) {
+		if (t.type == CSTRUCT && t.otag == -1)
+			t.otag = define_struct(sname, stclass, !!(t.flags & F_STRUCT));
+		if (t.type == CVOID) {
+			blanks();
+			if (ch() != '*') {
+				error("illegal type \"void\"");
+				junk();
+				return 0;
+			}
+		}
+		declloc(t.type, stclass, t.otag);
+	}
 	else
 		return(0);
 	ns();
