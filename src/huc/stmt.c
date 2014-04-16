@@ -71,13 +71,12 @@ long stdecl (void)
 
 long doldcls(long stclass)
 {
-        char sname[NAMESIZE];
         struct type t;
 	blanks();
 	/* we don't do optimizations that would require "volatile" */
 	if (match_type(&t, NO, YES)) {
 		if (t.type == CSTRUCT && t.otag == -1)
-			t.otag = define_struct(sname, stclass, !!(t.flags & F_STRUCT));
+			t.otag = define_struct(t.sname, stclass, !!(t.flags & F_STRUCT));
 		if (t.type == CVOID) {
 			blanks();
 			if (ch() != '*') {

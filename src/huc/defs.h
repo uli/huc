@@ -386,6 +386,7 @@ struct type {
 	int ptr_order;
 	int otag;
 	int flags;
+	char sname[NAMESIZE];
 };
 #define F_REGISTER 1
 #define F_CONST 2

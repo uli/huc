@@ -53,6 +53,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			t->type = CSTRUCT;
 			if (sflag)
 				t->flags |= F_STRUCT;
+			strcpy(t->sname, n);
 		}
 		else {
 			error("illegal struct name");
