@@ -19,12 +19,6 @@
 
 extern char current_fn[];
 
-static void ignore_ast(void)
-{
-        while (match("*")) {
-        }
-}
-
 int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 {
 	char n[NAMESIZE];
@@ -166,38 +160,23 @@ long primary (LVALUE* lval, int comma)
 	}
 	if (amatch("sizeof", 6)) {
 	        int have_paren;
+	        struct type t;
 		indflg = 0;
 		have_paren = match("(");
-		if (amatch("int", 3) || amatch("short", 5)) {
-		        /* int* same size as int */
-		        ignore_ast();
-			immed (T_VALUE, INTSIZE);
-                }
-		else if (amatch("char", 4)) {
-		        if (match("*")) {
-		                ignore_ast();
-		                immed(T_VALUE, INTSIZE);
-                        }
-                        else
-				immed (T_VALUE, 1);
-                }
-                else if (amatch("struct", 6)) {
-                        if (symname(sname)) {
-                                int tag = find_tag(sname);
-                                if (tag == -1)
-                                        error("unknown struct");
-                                else {
-                                        if (match("*")) {
-                                                ignore_ast();
-                                                immed(T_VALUE, INTSIZE);
-                                        }
-                                        else
-                                                immed(T_VALUE, tag_table[tag].size);
-                                }
-                        }
-                        else
-                                error("missing struct name");
-                }
+		if (match_type(&t, YES, NO)) {
+			if (t.ident == POINTER)
+				immed(T_VALUE, INTSIZE);
+			else if (t.type == CSTRUCT)
+				immed(T_VALUE, tag_table[t.otag].size);
+			else if (t.type == CINT || t.type == CUINT)
+				immed(T_VALUE, INTSIZE);
+			else if (t.type == CCHAR || t.type == CUCHAR)
+				immed(T_VALUE, 1);
+			else {
+				error("internal error: sizeof type unknown");
+				return 0;
+			}
+		}
 		else if (symname(sname)) {
 		        if (!strcmp("__func__", sname) ||
 			    !strcmp("__FUNCTION__", sname))
