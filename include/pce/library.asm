@@ -1492,6 +1492,8 @@ strncpy_loop:
 ;
 _memcpy.3:
 	__stw	<_ax
+	  ora	<_al
+	  beq	.done
 	__ldw	<_di
 	__stw	<_bx
 .cpylp:	  lda	[_si]
@@ -1502,18 +1504,20 @@ _memcpy.3:
 	  tstw	<_ax
 	  bne	.cpylp
 	__ldw	<_bx
-	  rts
+.done:	  rts
 
 ; _memset(char *s [di], int c [bx], int n [acc])
 _memset.3:
 	__stw	<_ax
+	  ora	<_al
+	  beq	.done
 .setlp:   lda	<_bx
 	  sta	[_di]
 	  incw	<_di
 	  decw	<_ax
 	  tstw	<_ax
 	  bne	.setlp
-	  rts
+.done:	  rts
 
 ; ----
 ; _memcmp(char *dest [di], char *src [si], int count [acc])
@@ -1523,6 +1527,8 @@ _memset.3:
 ;
 _memcmp.3:
 	__stw	<_ax
+	  ora	<_al
+	  beq	.done
 .cmplp:	  lda	[_di]
 	  sub	[_si]
 	  bmi	.minus
@@ -1539,7 +1545,7 @@ _memcmp.3:
 	  tstw	<_ax
 	  bne	.cmplp
 	  clx
-	  rts
+.done:	  rts
 
 ; ----
 ; _strcmp(char *dest [di], char *src [si])
