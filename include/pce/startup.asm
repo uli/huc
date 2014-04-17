@@ -124,7 +124,14 @@ ram_vsync_hndl	.ds   25
 ram_hsync_hndl	.ds   25
 	.endif	; (CDROM)
 
-;北盵 STARTUP CODE ]北北北北北北北北北北北北北北北北北北北北北北北北北北北北北北
+	.ifdef HUC
+user_vsync_hook	.ds	2
+user_hsync_hook	.ds	2
+	.zp
+user_irq_enable	.ds	1
+	.endif
+
+; [ STARTUP CODE ]
 
 ; Let's prepare this secondary libray bank first, for use later.
 ; The reason, as you will see, is because code for a given function
@@ -847,24 +854,18 @@ _irq1:
 	lda  <vdc_crl
 	sta   video_data_l
 	; --
-	bbs5 <irq_m,.l3
+	bbs5 <irq_m,.hsync
 	; --
 	jsr  _vsync_hndl
 	; --
-.l3:	bbr4 <irq_m,.l4
-	jsr  user_vsync		; call user vsync routine
-.l4:
     ; ----
     ; hsync interrupt
     ;
 .hsync:
 	bbr2 <vdc_sr,.exit
-	bbs7 <irq_m,.l5
+	bbs7 <irq_m,.exit
 	; --
 	jsr  _hsync_hndl
-	; --
-.l5:	bbr6 <irq_m,.exit
-	jsr  user_hsync		; call user handler
 
     ; ----
     ; exit interrupt
@@ -878,17 +879,17 @@ _irq1:
 	pla
 	rti
 
+       .endif	; !(CDROM)
     ; ----
     ; user routine hooks
     ;
 user_irq1:
 	jmp   [irq1_jmp]
 user_hsync:
-	jmp   [hsync_hook]
+	jmp   [user_hsync_hook]
 user_vsync:
-	jmp   [vsync_hook]
+	jmp   [user_vsync_hook]
 
-       .endif	; !(CDROM)
 
 
 ; ----
@@ -897,6 +898,9 @@ user_vsync:
 ; Handle VSYNC interrupts
 ; ----
 _vsync_hndl:
+	bbr0 <user_irq_enable,.l4
+	jsr  user_vsync		; call user vsync routine
+.l4:
        .if  !(CDROM)
 	ldx   disp_cr		; check display state (on/off)
 	bne  .l1
@@ -961,7 +965,9 @@ _vsync_hndl:
     ; hsync scrolling handler
     ;
 _hsync_hndl:
-	ldy   s_idx
+	bbr1 <user_irq_enable,.l1
+	jsr  user_hsync		; call user handler
+.l1:	ldy   s_idx
 	bpl  .r1
 	; --
 	lda  <vdc_crl
