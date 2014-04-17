@@ -32,7 +32,7 @@ do
 		else
 			echo "FAIL (exit code $?)"
 			mkdir -p failtraces
-			mv "${i%.c}".{sym,lst,s,pce} failtraces/
+			mv "${i%.c}".{sym,s,pce} failtraces/
 			fails=$((fails + 1))
 		fi
 	done
