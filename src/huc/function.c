@@ -61,6 +61,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	char n[NAMESIZE];
 	SYMBOL *ptr;
 	long  nbarg;
+	int is_irq_handler = 0;
 
 	if (sname) {
 		strcpy(current_fn, sname);
@@ -118,6 +119,9 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 			break;
 	}
 
+	if (amatch("__irq", 5))
+		is_irq_handler = 1;
+
 	/* ignore function prototypes */
 	if (match(";"))
 		return;
@@ -162,9 +166,14 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 
 	flush_ins(); /* David, .proc directive support */
 	gtext();
-	ot (".proc ");
+	if (is_irq_handler)
+		ol(".bank LIB1_BANK");
+	else
+		ot(".proc ");
 	prefix ();
 	outstr (current_fn);
+	if (is_irq_handler)
+		outstr(":");
 	nl ();
 
 	if (nbarg)      /* David, arg optimization */
@@ -181,7 +190,8 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	modstk (nbarg * INTSIZE);
 	gret (); /* generate the return statement */
 	flush_ins();    /* David, optimize.c related */
-	ol (".endp");   /* David, .endp directive support */
+	if (!is_irq_handler)
+		ol (".endp");   /* David, .endp directive support */
 
 	/* Add space for fixed-address locals to .bss section. */
 	if (norecurse && locals_ptr < 0) {
