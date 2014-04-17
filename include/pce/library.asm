@@ -1649,6 +1649,23 @@ _mem_mapdatabank:
 	tam #3
 	rts
 
+_irq_set_vsync_handler:
+	sei
+	stx	user_vsync_hook
+	sta	user_vsync_hook+1
+	cli
+	rts
+
+_irq_enable_user_irq:
+	txa
+	tsb	<user_irq_enable
+	rts
+
+_irq_disable_user_irq:
+	txa
+	trb	<user_irq_enable
+	rts
+
 _abort:
 	  .db 0xe2
 

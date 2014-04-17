@@ -115,3 +115,6 @@
 #pragma fastcall set_map_pals(farptr bl:si)
 void set_map_tile_type(unsigned char);
 void set_map_tile_base(unsigned int vaddr);
+
+#define IRQ_VSYNC	1
+#define IRQ_HSYNC	2
