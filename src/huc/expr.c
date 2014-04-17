@@ -25,7 +25,7 @@
 
 void expression (int comma)
 {
-	LVALUE lval[1];
+	LVALUE lval[1] = {{0}};
 	expression_ex(lval, comma, NO);
 }
 
