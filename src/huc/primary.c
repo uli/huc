@@ -343,7 +343,8 @@ long primary (LVALUE* lval, int comma)
 			if (ptr && (ptr->ident == FUNCTION)) {
 				lval->symbol = (SYMBOL *)ptr;
 				lval->indirect = 0;
-				return (0);
+				immed(T_SYMBOL, (long)ptr->name);
+				return 0;
 			}
 			error("undeclared variable");
 		}
