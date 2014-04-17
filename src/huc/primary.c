@@ -456,11 +456,22 @@ long number (long val[])
 	return (1);
 }
 
+static int parse0(long *num)
+{
+	if (!const_expr(num, ")", NULL))
+		return 0;
+	if (!match(")"))
+		error("internal error");
+	return 1;
+}
+
 static int parse3(long *num)
 {
 	long num2;
 	struct type t;
 	char op;
+	char n[NAMESIZE];
+	int have_paren = 0;
 
 	if (match("-"))
 		op = '-';
@@ -470,17 +481,26 @@ static int parse3(long *num)
 		op = '~';
 	else if (match("!"))
 		op = '!';
-	else if (match("(") && match_type(&t, YES, NO)) {
-		if (!match(")")) {
-			error("invalid type cast");
-			return 0;
+	else if (match("(")) {
+		if (match_type(&t, YES, NO)) {
+			if (!match(")")) {
+				error("invalid type cast");
+				return 0;
+			}
+			op = 'c';
 		}
-		op = 'c';
+		else {
+			have_paren = 1;
+			op = 0;
+		}
 	}
 	else
 		op = 0;
 
-	if (!number(&num2) && !pstr(&num2))
+	if (!(have_paren && parse0(&num2)) &&
+	    !number(&num2) &&
+	    !pstr(&num2) &&
+	    !(symname(n) && find_enum(n, &num2)))
 		return 0;
 
 	if (op == '-')
