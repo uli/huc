@@ -364,12 +364,14 @@ void doswitch (void )
 void docase (void )
 {
 	long	val;
+	char n[NAMESIZE];
 
 	val = 0;
 	if (readswitch ()) {
 		if (!number (&val))
 			if (!pstr (&val))
-				error ("bad case label");
+				if (!(symname(n) && find_enum(n, &val)))
+					error ("bad case label");
 		addcase (val);
 		if (!match (":"))
 			error ("missing colon");
