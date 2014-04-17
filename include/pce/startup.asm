@@ -650,23 +650,19 @@ dontloadprog:
 					; SCD on regular CDROM system
 	  tam	  #PAGE(scdmsg1)
 
-	  __ldwi  scdmsg1
-	  __phw   2,2
+	  __stwi  <_si, scdmsg1
 	  __ldwi  $0180
 	  call    _put_string.2
 
-	  __ldwi  scdmsg2
-	  __phw   2,2
+	  __stwi  <_si, scdmsg2
 	  __ldwi  $0200
 	  call    _put_string.2
 
-	  __ldwi  scdmsg3
-	  __phw   2,2
+	  __stwi  <_si, scdmsg3
 	  __ldwi  $0383
 	  call    _put_string.2
 
-	  __ldwi  scdmsg4
-	  __phw   2,2
+	  __stwi  <_si, scdmsg4
 	  __ldwi  $0403
 	  call    _put_string.2
 
