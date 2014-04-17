@@ -1,5 +1,6 @@
 /*	File data.h: 2.2 (84/11/27,16:26:11) */
 
+#include <stdio.h>
 
 #include "defs.h"
 
