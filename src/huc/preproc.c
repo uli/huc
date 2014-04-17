@@ -74,7 +74,7 @@ init_path(void)
 		else
 			l = pl - p;
 		if (l) {
-			incpath[i] = (char *)malloc(l + 1);
+			incpath[i] = (char *)malloc(l + 2);
 			strncpy(incpath[i], p, l);
 			p += l;
 			while (*p == ';')
