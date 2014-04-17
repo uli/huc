@@ -569,20 +569,26 @@ long cpp (int subline)
 				k = 0;
 				if (haveargs) {
 					int i;
-					char buf[256];
+					char *buf = malloc(1);
+					buf[0] = 0;
 					char *dp = mp->def;
 					buf[0] = 0;
 					for (i = 0; mp->argpos[i].arg != -1; i++) {
+						buf = realloc(buf, strlen(buf) +
+								   mp->argpos[i].pos - (dp - mp->def) +
+								   strlen(args[mp->argpos[i].arg]) + 1);
 						strncat(buf, dp, mp->argpos[i].pos - (dp - mp->def));
 						strcat(buf, args[mp->argpos[i].arg]);
 						dp = mp->def + mp->argpos[i].pos + strlen(mp->args[mp->argpos[i].arg]);
 					}
+					buf = realloc(buf, strlen(buf) + strlen(dp) + 1);
 					strcat(buf, dp);
 #ifdef DEBUG_PREPROC
 					printf("postproc %s\n", buf);
 #endif
 					for (i = 0; buf[i]; i++)
 						keepch(buf[i]);
+					free(buf);
 				}
 				else {
 					while ( (c = mp->def[k++]) )
@@ -643,9 +649,9 @@ void addmac (void)
 	mp->name = strdup(sname);
 
 	int argc = 0;
-	mp->args = malloc(sizeof(char *) * 40);
+	mp->args = malloc(sizeof(char *) * 1);
 	mp->args[0] = 0;
-	mp->argpos = malloc(sizeof(*mp->argpos) * 40);
+	mp->argpos = malloc(sizeof(*mp->argpos) * 1);
 	mp->argpos[0].arg = -1;
 	/* Stuff within parentheses is only considered a list of arguments
 	   if there is no whitespace between the identifier and the opening
@@ -664,6 +670,7 @@ void addmac (void)
 #ifdef DEBUG_PREPROC
 				printf("arg %d %s\n", argc, sname);
 #endif
+				mp->args = realloc(mp->args, sizeof(char *) * (argc + 2));
 				mp->args[argc++] = strdup(sname);
 				if (argc >= 40) {
 					error("too many arguments");
@@ -686,7 +693,7 @@ void addmac (void)
 	while ( (ch () == ' ') || (ch () == 9) )
 		gch ();
 	char c;
-	mp->def = malloc(256);
+	mp->def = malloc(1);
 	mp->def[0] = 0;
 	int pos = 0;
 	int count = 0;
@@ -702,7 +709,9 @@ void addmac (void)
 #ifdef DEBUG_PREPROC
 				printf("arg %d at offset %d\n", i, pos);
 #endif
+				mp->def = realloc(mp->def, strlen(mp->def) + strlen(mp->args[i]) + 1);
 				strcat(mp->def, mp->args[i]);
+				mp->argpos = realloc(mp->argpos, sizeof(*mp->argpos) * (count + 2));
 				mp->argpos[count].arg = i;
 				mp->argpos[count++].pos = pos;
 				mp->argpos[count].arg = -1;
@@ -723,6 +732,7 @@ void addmac (void)
 			}
 			if (!c)
 				break;
+			mp->def = realloc(mp->def, strlen(mp->def) + 2);
 			strncat(mp->def, &c, 1);
 			pos++;
 		}
