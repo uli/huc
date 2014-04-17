@@ -9,6 +9,7 @@
 #include "defs.h"
 #include "data.h"
 #include "code.h"
+#include "enum.h"
 #include "error.h"
 #include "expr.h"
 #include "gen.h"
@@ -86,6 +87,11 @@ long doldcls(long stclass)
 				junk();
 				return 0;
 			}
+		}
+		if (t.type == CENUM) {
+			if (t.otag == -1)
+				t.otag = define_enum(t.sname, stclass);
+			t.type = enum_types[t.otag].base;
 		}
 		declloc(t.type, stclass, t.otag);
 	}

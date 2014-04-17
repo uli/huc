@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "defs.h"
 #include "data.h"
+#include "enum.h"
 #include "error.h"
 #include "expr.h"
 #include "gen.h"
@@ -69,6 +70,28 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			}
 			else {
 				error("illegal struct name");
+				junk();
+				return 0;
+			}
+		}
+	}
+	else if (amatch("enum", 4)) {
+		t->type = CENUM;
+		if (symname(n)) {
+			/* This may or may not find an enum type, but if
+			   it doesn't it's not necessarily an error. */
+			t->otag = find_enum_type(n);
+			strcpy(t->sname, n);
+		}
+		else {
+			blanks();
+			if (ch() == '{') {
+				/* anonymous enum */
+				t->otag = define_enum(NULL, DEFAUTO);
+				t->sname[0] = 0;
+			}
+			else {
+				illname();
 				junk();
 				return 0;
 			}
@@ -226,6 +249,14 @@ long primary (LVALUE* lval, int comma)
 		return 0;
 	}
 	if (symname (sname)) {
+		if (find_enum(sname, num)) {
+			indflg = 0;
+			lval->value = num[0];
+			lval->symbol = 0;
+			lval->indirect = 0;
+			immed(T_VALUE, *num);
+			return 0;
+		}
 		ptr = findloc (sname);
 		if (ptr) {
 			/* David, patched to support

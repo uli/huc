@@ -97,3 +97,10 @@ int typedef_ptr = 0;
 
 struct clabel *clabels;
 int clabel_ptr = 0;
+
+struct enum_s *enums;
+int enum_ptr = 0;
+struct enum_type *enum_types;
+int enum_type_ptr = 0;
+
+int user_short_enums = 1;

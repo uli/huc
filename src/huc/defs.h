@@ -228,6 +228,7 @@ struct tag_symbol {
 #define	CINT	2
 #define CVOID	3
 #define CSTRUCT	4
+#define CENUM   5
 #define CSIGNED 0
 #define CUNSIGNED 8
 #define CUINT (CINT | CUNSIGNED)
@@ -400,4 +401,15 @@ struct clabel {
 	int stkp;
 	int label;
 };
+
+struct enum_s {
+	char name[NAMESIZE];
+	int value;
+};
+struct enum_type {
+	char name[NAMESIZE];
+	int start;
+	int base;
+};
+
 #endif

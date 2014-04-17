@@ -94,3 +94,10 @@ extern int typedef_ptr;
 
 extern struct clabel *clabels;
 extern int clabel_ptr;
+
+extern struct enum_s *enums;
+extern int enum_ptr;
+extern struct enum_type *enum_types;
+extern int enum_type_ptr;
+
+extern int user_short_enums;

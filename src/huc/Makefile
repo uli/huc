@@ -14,7 +14,7 @@ HDRS = code.h data.h defs.h error.h gen.h lex.h preproc.h pseudo.h sym.h while.h
 OBJS = code.o const.o data.o error.o expr.o \
        function.o gen.o io.o lex.o main.o \
        optimize.o pragma.o preproc.o primary.o pseudo.o \
-       stmt.o sym.o while.o struct.o
+       stmt.o sym.o while.o struct.o enum.o
 EXE = huc$(EXESUFFIX)
 
 all: $(EXE)

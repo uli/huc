@@ -22,6 +22,7 @@
 #include "data.h"
 #include "code.h"
 #include "const.h"
+#include "enum.h"
 #include "error.h"
 #include "function.h"
 #include "gen.h"
@@ -175,6 +176,14 @@ int main (int argc,char* argv[])
 						user_norecurse = 0;
 						p += 8;
 					}
+					else if (!strcmp(p, "no-short-enums")) {
+						user_short_enums = 0;
+						p += 13;
+					}
+					else if (!strcmp(p, "short-enums")) {
+						user_short_enums = 1;
+						p += 10;
+					}
 					else
 						goto unknown_option;
 					break;
@@ -269,6 +278,8 @@ unknown_option:
 			tag_table_index = 0;
 			norecurse = user_norecurse;
 			typedef_ptr = 0;
+			enum_ptr = 0;
+			enum_type_ptr = 0;
 
 			/* Macros and globals have to be reset for each
 			   file, so we have to define the defaults all over
@@ -450,6 +461,11 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 	if (match_type(&t, NO, YES)) {
 		if (t.type == CSTRUCT && t.otag == -1)
 			t.otag = define_struct(t.sname, stclass, !!(t.flags & F_STRUCT));
+		else if (t.type == CENUM) {
+			if (t.otag == -1)
+				t.otag = define_enum(t.sname, stclass);
+			t.type = enum_types[t.otag].base;
+		}
 		err = declglb(t.type, stclass, mtag, t.otag, is_struct);
 	}
 	else if (stclass == PUBLIC)
@@ -475,6 +491,17 @@ void dotypedef(void)
 		error("unknown type");
 		kill();
 		return;
+	}
+	if (t.type == CENUM) {
+		if (t.otag == -1) {
+			if (use_short_enums)
+				warning(W_GENERAL,
+					"typedef to undefined enum; "
+					"assuming base type int");
+			t.type = CINT;
+		}
+		else
+			t.type = enum_types[t.otag].base;
 	}
 	if (!symname(t.sname)) {
 		error("invalid type name");
