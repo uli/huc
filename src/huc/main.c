@@ -494,7 +494,7 @@ void dotypedef(void)
 	}
 	if (t.type == CENUM) {
 		if (t.otag == -1) {
-			if (use_short_enums)
+			if (user_short_enums)
 				warning(W_GENERAL,
 					"typedef to undefined enum; "
 					"assuming base type int");
