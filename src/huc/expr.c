@@ -717,8 +717,8 @@ long heir11 (LVALUE *lval, int comma)
 				gpush ();
 			expression (YES);
 			needbrack ("]");
-			if (ptr->type == CINT || ptr->type == CUINT || ptr->ptr_order > 1 ||
-			    (ptr->ident == ARRAY && ptr->ptr_order > 0))
+			if (ptr->type == CINT || ptr->type == CUINT || lval->ptr_order > 1 ||
+			    (ptr->ident == ARRAY && lval->ptr_order > 0))
 				gaslint ();
 			else if (ptr->type == CSTRUCT) {
 				int size = tag_table[ptr->tagidx].size;
@@ -730,13 +730,14 @@ long heir11 (LVALUE *lval, int comma)
 			if (!ptr->far)
 				gadd (NULL,NULL);
 			lval->symbol = 0;
-			if (ptr->ptr_order > 1 || (ptr->ident == ARRAY && ptr->ptr_order > 0))
+			if (lval->ptr_order > 1 || (ptr->ident == ARRAY && lval->ptr_order > 0))
 				lval->indirect = CUINT;
 			else
 				lval->indirect = ptr->type;
 			if (lval->ptr_order > 1)
 				lval->ptr_order--;
 			else {
+				lval->type = lval->ptr_type;
 				lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
 				lval->ptr_order = 0;
 			}
