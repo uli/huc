@@ -330,7 +330,9 @@ void dump_const (void )
 			while (size) {
 				k = const_val[j++];
 
-				if ((cptr->type == CCHAR || cptr->type == CUCHAR) && cptr->ident != POINTER) {
+				if ((cptr->type == CCHAR || cptr->type == CUCHAR) &&
+				     cptr->ident != POINTER &&
+				     !(cptr->ident == ARRAY && cptr->ptr_order > 0)) {
 					defbyte ();
 					const_size += 1;
 				} else {

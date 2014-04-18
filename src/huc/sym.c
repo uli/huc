@@ -55,8 +55,10 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				k = array_initializer(typ, id, stor);
 				if (k == -1)
 					return (1);
-				if (id == POINTER)
-					typ = CINT;
+				/* XXX: This doesn't really belong here, but I
+				   can't think of a better place right now. */
+				if (id == POINTER && (typ == CCHAR || typ == CUCHAR || typ == CVOID))
+					k *= INTSIZE;
 				if (k || (stor == EXTERN))
 					id = ARRAY;
 				else {
@@ -103,14 +105,14 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				}
 			}
 			else if (is_struct) {
-				add_member(sname, id, typ, mtag->size, stor, otag);
+				add_member(sname, id, typ, mtag->size, stor, otag, ptr_order);
 				if (id == POINTER)
 					typ = CUINT;
 				scale_const(typ, otag, &k);
 				mtag->size += k;
 			}
 			else {
-				add_member(sname, id, typ, 0, stor, otag);
+				add_member(sname, id, typ, 0, stor, otag, ptr_order);
 				if (id == POINTER)
 					typ = CUINT;
 				scale_const(typ, otag, &k);

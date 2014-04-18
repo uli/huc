@@ -330,7 +330,7 @@ long primary (LVALUE* lval, int comma)
 					}
 				}
 				lval->indirect = lval->ptr_type = ptr->type;
-				lval->ptr_order = lval->ptr_order;
+				lval->ptr_order = ptr->ptr_order;
 //				lval->ptr_type = 0;
                                 if (ptr->ident == VARIABLE && ptr->type == CSTRUCT)
                                         return 1;

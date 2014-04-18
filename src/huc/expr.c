@@ -737,9 +737,22 @@ long heir11 (LVALUE *lval, int comma)
 			if (lval->ptr_order > 1)
 				lval->ptr_order--;
 			else {
-				lval->type = lval->ptr_type;
-				lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
-				lval->ptr_order = 0;
+				blanks();
+				if (ptr->ident == ARRAY && ch() == '[') {
+					/* Back-to-back indexing: We loop
+					   right inside this function, so
+					   nobody else takes care of
+					   actually loading the pointer.  */
+					rvalue(lval);
+					lval->indirect = ptr->type;
+					lval->ptr_type = ptr->type;
+					lval->ptr_order = 0;
+				}
+				else {
+					lval->type = lval->ptr_type;
+					lval->ptr_type = 0;//VARIABLE; /* David, bug patch ?? */
+					lval->ptr_order = 0;
+				}
 			}
 			lval->symbol2 = ptr->far ? (SYMBOL *)ptr : (SYMBOL *)NULL;
 			k = 1;
