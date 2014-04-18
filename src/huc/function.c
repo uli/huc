@@ -62,6 +62,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	SYMBOL *ptr;
 	long  nbarg;
 	int is_irq_handler = 0;
+	int is_firq_handler = 0;
 
 	if (sname) {
 		strcpy(current_fn, sname);
@@ -119,7 +120,9 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 			break;
 	}
 
-	if (amatch("__irq", 5))
+	if (amatch("__firq", 6))
+		is_firq_handler = 1;
+	else if (amatch("__irq", 5))
 		is_irq_handler = 1;
 
 	/* ignore function prototypes */
@@ -166,15 +169,23 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 
 	flush_ins(); /* David, .proc directive support */
 	gtext();
-	if (is_irq_handler)
+	if (is_firq_handler) {
 		ol(".bank LIB1_BANK");
-	else
+		prefix(); outstr(current_fn); outstr(":"); nl();
+	}
+	else if (is_irq_handler) {
+		ol(".bank LIB1_BANK");
+		prefix(); outstr(current_fn); outstr(":"); nl();
+		ot("maplibfunc\t"); outstr(current_fn); nl();
+		ol("rts");
+		ot(".proc "); outstr(current_fn); nl();
+	}
+	else {
 		ot(".proc ");
-	prefix ();
-	outstr (current_fn);
-	if (is_irq_handler)
-		outstr(":");
-	nl ();
+		prefix ();
+		outstr (current_fn);
+		nl();
+	}
 
 	if (nbarg)      /* David, arg optimization */
 		gpusharg (0);
@@ -190,7 +201,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	modstk (nbarg * INTSIZE);
 	gret (); /* generate the return statement */
 	flush_ins();    /* David, optimize.c related */
-	if (!is_irq_handler)
+	if (!is_firq_handler)
 		ol (".endp");   /* David, .endp directive support */
 
 	/* Add space for fixed-address locals to .bss section. */
