@@ -78,7 +78,7 @@ static int is_ptrptr(LVALUE *lval)
 long heir1 (LVALUE *lval, int comma)
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 	char	fc;
 
 	k = heir1a (lval, comma);
@@ -149,7 +149,7 @@ long heir1a (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k, lab1, lab2;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir1b (lval, comma);
 	blanks ();
@@ -180,7 +180,7 @@ long heir1b (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k, lab;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir1c (lval, comma);
 	blanks ();
@@ -203,7 +203,7 @@ long heir1c (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k, lab;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir2 (lval, comma);
 	blanks ();
@@ -226,7 +226,7 @@ long heir2 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir3 (lval, comma);
 	blanks ();
@@ -251,7 +251,7 @@ long heir3 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
-	LVALUE lval2[1];
+	LVALUE lval2[1] = {{0}};
 
 	k = heir4 (lval, comma);
 	blanks ();
@@ -276,7 +276,7 @@ long heir4 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir5 (lval, comma);
 	blanks ();
@@ -309,7 +309,7 @@ long heir5 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir6 (lval, comma);
 	blanks ();
@@ -338,7 +338,7 @@ long heir6 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir7 (lval, comma);
 	blanks ();
@@ -414,7 +414,7 @@ long heir7 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir8 (lval, comma);
 	blanks ();
@@ -446,7 +446,7 @@ long heir8 (LVALUE *lval, int comma)
 /*long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir9 (lval, comma);
 	blanks ();
@@ -496,7 +496,7 @@ long heir9 (LVALUE *lval, int comma)
 /* long	lval[]; */
 {
 	long	k;
-	LVALUE	lval2[1];
+	LVALUE	lval2[1] = {{0}};
 
 	k = heir10 (lval, comma);
 	blanks ();
