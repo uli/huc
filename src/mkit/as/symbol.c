@@ -24,7 +24,6 @@ symhash(void)
 	for (i = 1; i <= symbol[0]; i++) {
 		c = symbol[i];
 		hash += c;
-		hash  = (hash << 3) + (hash >> 5) + c;
 	}
 
 	/* ok */

@@ -290,7 +290,6 @@ oplook(int *idx)
 		/* store char */
 		name[i++] = c;
 		hash += c;
-		hash  = (hash << 3) + (hash >> 5) + c;
 		(*idx)++;
 
 		/* break if '=' directive */
@@ -368,7 +367,6 @@ addinst(struct t_opcode *optbl)
 		for (i = 0; i < len; i++) {
 			c = *ptr++;
 			hash += c;
-			hash  = (hash << 3) + (hash >> 5) + c;
 		}
 
 		hash &= 0xFF;

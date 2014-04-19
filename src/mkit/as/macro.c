@@ -108,7 +108,6 @@ struct t_macro *macro_look(int *ip)
 			return (NULL);
 		name[l++] = c;
 		hash += c;
-		hash  = (hash << 3) + (hash >> 5) + c;
 		(*ip)++;
 	}
 	name[l] = '\0';
@@ -342,7 +341,6 @@ macro_install(void)
 	for (i = 1; i <= symbol[0]; i++) {
 		c = symbol[i];
 		hash += c;
-		hash  = (hash << 3) + (hash >> 5) + c;
 	}
 	hash &= 0xFF;
 
