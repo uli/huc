@@ -315,7 +315,7 @@ oplook(int *idx)
 	ptr = inst_tbl[hash & 0xFF];
 
 	while (ptr) {
-		if (!strcmp(name, ptr->name)) {
+		if (name[0] == ptr->name[0] && !strcmp(name, ptr->name)) {
 			opproc = ptr->proc;
 			opflg  = ptr->flag;
 			opval  = ptr->value;

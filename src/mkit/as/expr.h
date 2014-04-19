@@ -57,7 +57,7 @@ char *expr;	/* pointer to the expression string */
 char *expr_stack[16];	/* expression stack */
 struct t_symbol *expr_lablptr;	/* pointer to the lastest label */
 int expr_lablcnt;		/* number of label seen in an expression */
-char *keyword[8] = {	/* predefined functions */
+const char *keyword[8] = {	/* predefined functions */
 	"\7DEFINED",
 	"\4HIGH", "\3LOW",
 	"\4PAGE", "\4BANK",

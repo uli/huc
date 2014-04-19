@@ -632,24 +632,24 @@ check_keyword(void)
 	int op = 0;
 
 	/* check if its an assembler function */
-	if (!strcasecmp(symbol, keyword[0]))
+	if (symbol[0] == keyword[0][0] && !strcasecmp(symbol, keyword[0]))
 		op = OP_DEFINED;
-	else if (!strcasecmp(symbol, keyword[1]))
+	else if (symbol[0] == keyword[1][0] && !strcasecmp(symbol, keyword[1]))
 		op = OP_HIGH;
-	else if (!strcasecmp(symbol, keyword[2]))
+	else if (symbol[0] == keyword[2][0] && !strcasecmp(symbol, keyword[2]))
 		op = OP_LOW;
-	else if (!strcasecmp(symbol, keyword[3]))
+	else if (symbol[0] == keyword[3][0] && !strcasecmp(symbol, keyword[3]))
 		op = OP_PAGE;
-	else if (!strcasecmp(symbol, keyword[4]))
+	else if (symbol[0] == keyword[4][0] && !strcasecmp(symbol, keyword[4]))
 		op = OP_BANK;
-	else if (!strcasecmp(symbol, keyword[7]))
+	else if (symbol[0] == keyword[7][0] && !strcasecmp(symbol, keyword[7]))
 		op = OP_SIZEOF;
 	else {
 		if (machine->type == MACHINE_PCE) {
 			/* PCE specific functions */
-			if (!strcasecmp(symbol, keyword[5]))
+			if (symbol[0] == keyword[5][0] && !strcasecmp(symbol, keyword[5]))
 				op = OP_VRAM;
-			else if (!strcasecmp(symbol, keyword[6]))
+			else if (symbol[0] == keyword[6][0] && !strcasecmp(symbol, keyword[6]))
 				op = OP_PAL;
 		}
 	}
