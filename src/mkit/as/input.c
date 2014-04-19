@@ -80,8 +80,7 @@ readline(void)
 	int	temp;	/* temp used for line number conversion */
 
 start:
-	for (i = 0; i < LAST_CH_POS; i++)
-		prlnbuf[i] = ' ';
+	memset(prlnbuf, ' ', SFIELD);
 
 	/* if 'expand_macro' is set get a line from macro buffer instead */
 	if (expand_macro) {
@@ -175,12 +174,14 @@ start:
 		}
 	}
 
-	/* put source line number into prlnbuf */
-	i = 4;
-	temp = ++slnum;
-	while (temp != 0) {
-		prlnbuf[i--] = temp % 10 + '0';
-		temp /= 10;
+	if (list_level) {
+		/* put source line number into prlnbuf */
+		i = 4;
+		temp = ++slnum;
+		while (temp != 0) {
+			prlnbuf[i--] = temp % 10 + '0';
+			temp /= 10;
+		}
 	}
 
 	/* get a line */
@@ -206,12 +207,6 @@ start:
 		/* store char in the line buffer */
 		prlnbuf[i] = c;
 		i += (i < LAST_CH_POS) ? 1 : 0;
-
-		/* expand tab char to space */
-		if (c == '\t') {
-			prlnbuf[--i] = ' ';
-			i += (8 - ((i - SFIELD) % 8));
-		}
 
 		/* get next char */
 		c = getc(in_fp);
