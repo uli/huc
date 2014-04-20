@@ -127,6 +127,9 @@ ram_hsync_hndl	.ds   25
 	.ifdef HUC
 user_vsync_hook	.ds	2
 user_hsync_hook	.ds	2
+user_sp_save	.ds	2
+		.ds	32
+user_irq_stack:
 	.zp
 user_irq_enable	.ds	1
 	.endif
@@ -898,9 +901,16 @@ user_vsync:
 ; Handle VSYNC interrupts
 ; ----
 _vsync_hndl:
+       .ifdef HUC
 	bbr0 <user_irq_enable,.l4
+	__ldw <__sp
+	__stw user_sp_save
+	stw   #user_irq_stack, <__sp
 	jsr  user_vsync		; call user vsync routine
+	__ldw user_sp_save
+	__stw <__sp
 .l4:
+       .endif
        .if  !(CDROM)
 	ldx   disp_cr		; check display state (on/off)
 	bne  .l1
