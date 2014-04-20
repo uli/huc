@@ -92,6 +92,9 @@ static int is_sprel(INS *i)
 		i->code == X_INCW_S ||
 		i->code == X_ADDW_S ||
 		i->code == X_STBI_S ||
+		i->code == X_ADDB_S ||
+		i->code == X_ADDUB_S ||
+		i->code == X_INCB_S ||
 		i->code == X_STWI_S;
 }
 
