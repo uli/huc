@@ -1419,8 +1419,11 @@ void push_ins(INS *ins)
 				
 				(p[0]->data == p[1]->data))
 			{
-				/* remove code */
-				nb = 1;
+				if (p[0]->code == X_LDB_S)
+					p[0]->code = I_EXTW;
+				else
+					p[0]->code = I_EXTUW;
+				p[0]->type = p[0]->data = 0;
 			}
 
 			/*  @_lea_s i                   --> @_pea_s i
