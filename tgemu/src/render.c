@@ -104,10 +104,10 @@ int make_sprite_list(void)
 
     for(i = 0; i < 0x40; i += 1)
     {
-        ypos = sat[(i << 2) | (0)];
-        xpos = sat[(i << 2) | (1)];
-        name = sat[(i << 2) | (2)];
-        attr = sat[(i << 2) | (3)];
+        ypos = swap16(sat[(i << 2) | (0)]);
+        xpos = swap16(sat[(i << 2) | (1)]);
+        name = swap16(sat[(i << 2) | (2)]);
+        attr = swap16(sat[(i << 2) | (3)]);
 
         ypos &= 0x3FF;
         xpos &= 0x3FF;
@@ -223,10 +223,10 @@ void update_obj_pattern_cache(void)
         {
             if(obj_name_dirty[name] & (1 << y))
             {
-                b0 = vramw[(name << 6) + (y) + (0x00)];
-                b1 = vramw[(name << 6) + (y) + (0x10)];
-                b2 = vramw[(name << 6) + (y) + (0x20)];
-                b3 = vramw[(name << 6) + (y) + (0x30)];
+                b0 = swap16(vramw[(name << 6) + (y) + (0x00)]);
+                b1 = swap16(vramw[(name << 6) + (y) + (0x10)]);
+                b2 = swap16(vramw[(name << 6) + (y) + (0x20)]);
+                b3 = swap16(vramw[(name << 6) + (y) + (0x30)]);
 
                 for(x = 0; x < 0x10; x += 1)
                 {
@@ -327,7 +327,7 @@ void render_bg_8(int line)
     for(column = 0; column < end; column += 1)
     {
         /* Get attribute */
-        attr = nt[(column + nt_scroll) & playfield_row_mask];
+        attr = swap16(nt[(column + nt_scroll) & playfield_row_mask]);
 
         /* Extract name and palette bits */
         name = (attr & 0x07FF);
@@ -375,7 +375,7 @@ void render_bg_16(int line)
     for(column = 0; column < end; column += 1)
     {
         /* Get attribute */
-        attr = nt[(column + nt_scroll) & playfield_row_mask];
+        attr = swap16(nt[(column + nt_scroll) & playfield_row_mask]);
 
         /* Extract name and palette bits */
         name = (attr & 0x07FF);

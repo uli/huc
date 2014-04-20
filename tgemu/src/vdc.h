@@ -55,4 +55,12 @@ int vdc_ctrl_r(void);
 void vdc_data_w(int offset, int data);
 int vdc_data_r(int offset);
 
+#ifdef LSB_FIRST
+#define swap16(x) (x)
+#define swap32(x) (x)
+#else
+#define swap16(x) (uint16)(((x) >> 8) | ((x) << 8))
+#define swap32(x) (uint32)(((x) >> 24) | (((x) >> 8) & 0xff00) | (((x) << 8) & 0xff0000) | ((x) << 24))
+#endif
+
 #endif /* _VDC_H_ */

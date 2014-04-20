@@ -1,3 +1,4 @@
+#include <stdlib.h>
 
 #include "shared.h"
 #include "pcecrc.h"

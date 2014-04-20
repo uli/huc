@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "shared.h"
 #define SCR_W 320
@@ -12,10 +13,12 @@ char *rom_name;
 
 void fint(FILE *fp, int v)
 {
+        v = swap32(v);
 	fwrite(&v, 4, 1, fp);
 }
 void fshort(FILE *fp, short v)
 {
+        v = swap16(v);
 	fwrite(&v, 2, 1, fp);
 }
 
@@ -38,6 +41,11 @@ void dump_screen(void)
 	*strrchr(scrname, '.') = 0;
 	strcat(scrname, ".bmp");
 
+#ifndef LSB_FIRST
+	/* XXX: Is this guaranteed to work? man page doesn't say anything about
+	   overlapping source and destination. */
+	swab(pixels, pixels, SCR_W * SCR_H * 2);
+#endif
 	fp = fopen(scrname, "r");
 	if (!fp) {
 		fprintf(stderr, "no reference screen found, creating one\n");

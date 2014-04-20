@@ -119,10 +119,10 @@ void vdc_w(int offset, int data)
                         uint16 vram_word = (data << 8 | vram_data_latch);
 
                         /* Check if data is new or not */
-                        if(vram_word != vramw[(reg[0] & 0x7FFF)])
+                        if(vram_word != swap16(vramw[(reg[0] & 0x7FFF)]))
                         {
                             /* Write data to VRAM */
-                            vramw[(reg[0] & 0x7FFF)] = vram_word;
+                            vramw[(reg[0] & 0x7FFF)] = swap16(vram_word);
 
                             /* Mark pattern dirty tables */
                             MARK_BG_DIRTY(reg[0]);
@@ -243,11 +243,11 @@ void vdc_do_dma(void)
 
     /* Do VRAM -> VRAM transfer and update pattern caches */
     do {
-        uint16 temp = vramw[(sour & 0x7FFF)];
+        uint16 temp = swap16(vramw[(sour & 0x7FFF)]);
 
-        if(temp != vramw[(desr & 0x7FFF)])
+        if(temp != swap16(vramw[(desr & 0x7FFF)]))
         {
-            vramw[(desr & 0x7FFF)] = temp;
+            vramw[(desr & 0x7FFF)] = swap16(temp);
             MARK_BG_DIRTY(desr);
             MARK_OBJ_DIRTY(desr);
         }
