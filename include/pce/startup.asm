@@ -125,7 +125,7 @@ ram_hsync_hndl	.ds   25
 	.endif	; (CDROM)
 
 	.ifdef HUC
-user_vsync_hook	.ds	2
+user_vsync_hooks .ds	8
 user_hsync_hook	.ds	2
 user_sp_save	.ds	2
 		.ds	32
@@ -891,8 +891,7 @@ user_irq1:
 user_hsync:
 	jmp   [user_hsync_hook]
 user_vsync:
-	jmp   [user_vsync_hook]
-
+	jmp   [user_vsync_hooks, x]
 
 
 ; ----
@@ -906,7 +905,16 @@ _vsync_hndl:
 	__ldw <__sp
 	__stw user_sp_save
 	stw   #user_irq_stack, <__sp
-	jsr  user_vsync		; call user vsync routine
+	clx
+.loop	lda   user_vsync_hooks+1, x
+	beq   .end_user
+	phx
+	jsr   user_vsync		; call user vsync routine
+	plx
+	inx
+	inx
+	bra .loop
+.end_user:
 	__ldw user_sp_save
 	__stw <__sp
 .l4:

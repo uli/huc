@@ -1653,11 +1653,26 @@ _mem_mapdatabank:
 	cla
 	rts
 
-_irq_set_vsync_handler:
+_irq_add_vsync_handler:
+	stx	<__temp
+	clx
+.loop	ldy	user_vsync_hooks+1, x
+	beq	.found
+	inx
+	inx
+	cpx	#8
+	bne	.loop
+	ldx	#1
+	cla
+	rts
+.found  ldy	<__temp
 	sei
-	stx	user_vsync_hook
-	sta	user_vsync_hook+1
+	sta	user_vsync_hooks+1, x
+	tya
+	sta	user_vsync_hooks, x
 	cli
+	clx
+	cla
 	rts
 
 _irq_enable_user_irq:
