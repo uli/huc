@@ -1645,8 +1645,12 @@ lib2____builtin_ffs.1:
 	.bank LIB1_BANK
 
 _mem_mapdatabank:
+	tma #DATA_BANK
+	tay
 	txa
-	tam #3
+	tam #DATA_BANK
+	sxy
+	cla
 	rts
 
 _irq_set_vsync_handler:
