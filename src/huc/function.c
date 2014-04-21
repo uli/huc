@@ -125,9 +125,11 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	else if (amatch("__irq", 5))
 		is_irq_handler = 1;
 
-	/* ignore function prototypes */
-	if (match(";"))
+	if (match(";")) {
+		/* function prototype */
+		ptr = addglb (current_fn, FUNCTION, ret_type, 0, EXTERN, 0);
 		return;
+	}
 
 	stkp = 0;
 	clabel_ptr = 0;
@@ -161,6 +163,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 		else if (ptr->offset == FUNCTION)
 			multidef (current_fn);
 		else
+			/* XXX: sanity check? */
 			ptr->offset = FUNCTION;
 	} else
 		ptr = addglb (current_fn, FUNCTION, ret_type, FUNCTION, PUBLIC, 0);
