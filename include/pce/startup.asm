@@ -128,6 +128,8 @@ ram_hsync_hndl	.ds   25
 user_vsync_hooks .ds	8
 user_hsync_hook	.ds	2
 user_sp_save	.ds	2
+user_ptr_save	.ds	2
+user_temp_save	.ds	4
 		.ds	32
 user_irq_stack:
 	.zp
@@ -905,6 +907,12 @@ _vsync_hndl:
 	bbr0 <user_irq_enable,.l4
 	__ldw <__sp
 	__stw user_sp_save
+	__ldw <__ptr
+	__stw user_ptr_save
+	__ldw <__temp
+	__stw user_temp_save
+	__ldw <__temp+2
+	__stw user_temp_save+2
 	stw   #user_irq_stack, <__sp
 	clx
 .loop	lda   user_vsync_hooks+1, x
@@ -918,6 +926,12 @@ _vsync_hndl:
 .end_user:
 	__ldw user_sp_save
 	__stw <__sp
+	__ldw user_ptr_save
+	__stw <__ptr
+	__ldw user_temp_save
+	__stw <__temp
+	__ldw user_temp_save+2
+	__stw <__temp+2
 .l4:
        .endif
        .if  !(CDROM)
