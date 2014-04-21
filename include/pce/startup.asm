@@ -154,6 +154,7 @@ user_irq_enable	.ds	1
 
 	.data
 	.bank CONST_BANK,"Constants"
+	.org  $4000
 
 	.data
 	.bank DATA_BANK,"User Program"

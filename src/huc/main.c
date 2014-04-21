@@ -523,7 +523,7 @@ void dumplits (void )
 	if ((litptr == 0) && (const_nb == 0))
 		return;
 	outstr("\t.data\n");
-	outstr("\t.bank CONST_BANK\n\t.org $4000\n");
+	outstr("\t.bank CONST_BANK\n");
 	if (litptr) {
 		outlabel (litlab);
 		col ();
