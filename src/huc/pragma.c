@@ -23,7 +23,7 @@
 
 /* locals */
 static struct fastcall  ftemp;
-static struct fastcall *fastcall_tbl[256];
+struct fastcall *fastcall_tbl[256];
 static char   cmd[LINESIZE];
 static char  *cmdptr;
 

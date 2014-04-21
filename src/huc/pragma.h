@@ -16,5 +16,7 @@ long symget(char *sname);
 long strmatch(char *lit);
 void skip_blanks(void );
 
+extern struct fastcall *fastcall_tbl[256];
+
 #endif
 

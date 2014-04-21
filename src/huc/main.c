@@ -238,7 +238,6 @@ unknown_option:
 	/* Labels count is not reset for each file because labels are
 	   global and conflicts would arise. */
 	nxtlab = 0;
-	defpragma();
 	link_lib = link_libs;
 	infile_ptr = 1;
 	/* Remember where the global assembler defines end so we can
@@ -280,6 +279,8 @@ unknown_option:
 			typedef_ptr = 0;
 			enum_ptr = 0;
 			enum_type_ptr = 0;
+			memset(fastcall_tbl, 0, sizeof(fastcall_tbl));
+			defpragma();
 
 			/* Macros and globals have to be reset for each
 			   file, so we have to define the defaults all over
