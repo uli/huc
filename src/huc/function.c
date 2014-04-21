@@ -199,6 +199,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	statement(YES);
 	gnlabel(fexitlab);
 	modstk (nbarg * INTSIZE);
+	gtext();
 	gret (); /* generate the return statement */
 	flush_ins();    /* David, optimize.c related */
 	if (!is_firq_handler)
