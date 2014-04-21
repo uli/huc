@@ -286,13 +286,13 @@ unknown_option:
 			   file, so we have to define the defaults all over
 			   each time. */
 			defmac("__end\t__memory");
-			addglb("__memory", ARRAY, CCHAR, 0, EXTERN);
-			addglb("stack", ARRAY, CCHAR, 0, EXTERN);
+			addglb("__memory", ARRAY, CCHAR, 0, EXTERN, 0);
+			addglb("stack", ARRAY, CCHAR, 0, EXTERN, 0);
 			rglbptr = glbptr;
-			addglb ("etext", ARRAY, CCHAR, 0, EXTERN);
-			addglb ("edata", ARRAY, CCHAR, 0, EXTERN);
+			addglb ("etext", ARRAY, CCHAR, 0, EXTERN, 0);
+			addglb ("edata", ARRAY, CCHAR, 0, EXTERN, 0);
 			/* PCE specific externs */
-			addglb ("font_base", VARIABLE, CINT, 0, EXTERN);
+			addglb ("font_base", VARIABLE, CINT, 0, EXTERN, 0);
 			addglb_far("vdc", CINT);
 			addglb_far("vram", CCHAR);
 			/* end specific externs */

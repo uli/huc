@@ -898,8 +898,8 @@ do_inc_ex(long type)
 	for(i = strlen(label2), j = 0; i < NAMEMAX; i++)
 		label2[i] = str[j++];
 	label2[i] = '\0';
-	addglb(label2, ARRAY, CINT, 0, EXTERN);
-	addglb(label, ARRAY, CINT, 0, EXTERN);
+	addglb(label2, ARRAY, CINT, 0, EXTERN, 0);
+	addglb(label, ARRAY, CINT, 0, EXTERN, 0);
 
 	if(!match(",")) {
 		error("comma missing");

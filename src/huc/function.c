@@ -163,7 +163,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 		else
 			ptr->offset = FUNCTION;
 	} else
-		ptr = addglb (current_fn, FUNCTION, ret_type, FUNCTION, PUBLIC);
+		ptr = addglb (current_fn, FUNCTION, ret_type, FUNCTION, PUBLIC, 0);
 	ptr->ptr_order = ret_ptr_order;
 	ptr->tagidx = ret_otag;
 

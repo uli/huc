@@ -31,6 +31,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 	long	 k, id;
 	char sname[NAMESIZE];
 	int ptr_order;
+	SYMBOL *s;
 
 	for (;;) {
 		for (;;) {
@@ -49,8 +50,10 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				newfunc(sname, ptr_order, typ, otag);
 				return 2;
 			}
-			if (findglb (sname))
-				multidef (sname);
+			if ((s = findglb (sname))) {
+				if (s->storage != EXTERN)
+					multidef (sname);
+			}
 			if (match ("[")) {
 				k = array_initializer(typ, id, stor);
 				if (k == -1)
@@ -89,13 +92,13 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 						k *= tag_table[otag].size;
 				}
 				if (stor != CONST) {
-					SYMBOL *c = addglb (sname, id, typ, k, stor);
+					SYMBOL *c = addglb (sname, id, typ, k, stor, s);
 					if (typ == CSTRUCT)
 						c->tagidx = otag;
 					c->ptr_order = ptr_order;
 				}
 				else {
-					SYMBOL *c = addglb (sname, id, typ, k, CONST);
+					SYMBOL *c = addglb (sname, id, typ, k, CONST, s);
 					if (c) {
 						add_const(typ);
 						if (typ == CSTRUCT)
@@ -305,19 +308,25 @@ SYMBOL* findloc (char *sname)
 	return NULL;
 }
 
-SYMBOL *addglb (char* sname,char id,char typ,long value,long stor)
+SYMBOL *addglb (char* sname,char id,char typ,long value,long stor, SYMBOL *replace)
 {
 	char	*ptr;
 
-	cptr = findglb (sname);
-	if (cptr)
-		return (cptr);
-	if (glbptr >= ENDGLB) {
-		error ("global symbol table overflow");
-		return NULL;
+	if (!replace) {
+		cptr = findglb (sname);
+		if (cptr)
+			return (cptr);
+		if (glbptr >= ENDGLB) {
+			error ("global symbol table overflow");
+			return NULL;
+		}
+		cptr = glbptr;
+		glbptr++;
 	}
-	cptr = glbptr;
-	ptr = glbptr->name;
+	else
+		cptr = replace;
+
+	ptr = cptr->name;
 	while (an (*ptr++ = *sname++));
 	cptr->ident = id;
 	cptr->type = typ;
@@ -330,7 +339,6 @@ SYMBOL *addglb (char* sname,char id,char typ,long value,long stor)
 		cptr->size = INTSIZE;
 	else if (typ == CINT || typ == CUINT)
 		cptr->size *= 2;
-	glbptr++;
 	return (cptr);
 }
 
@@ -338,7 +346,7 @@ SYMBOL *addglb_far (char* sname, char typ)
 {
 	SYMBOL *ptr;
 
-	ptr = addglb(sname, ARRAY, typ, 0, EXTERN);
+	ptr = addglb(sname, ARRAY, typ, 0, EXTERN, 0);
 	if (ptr)
 		ptr->far = 1;
 	return (ptr);

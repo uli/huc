@@ -348,7 +348,7 @@ long primary (LVALUE* lval, int comma)
 			}
 			error("undeclared variable");
 		}
-		ptr = addglb (sname, FUNCTION, CINT, 0, PUBLIC);
+		ptr = addglb (sname, FUNCTION, CINT, 0, PUBLIC, 0);
 		indflg = 0;
 		lval->symbol = (SYMBOL *)ptr;
 		lval->indirect = 0;
