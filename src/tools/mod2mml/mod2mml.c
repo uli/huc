@@ -61,6 +61,9 @@ unsigned char pce_inst[64][32];	/* library builtin samples, normalized to 0..31 
 
 Channel_info channel[MAX_CHANNEL];	/* info concerning each of the channel */
 
+int instrument_user_vol[32];
+double instrument_transpose[32];
+
 void (*handle_note) (int, int, int, int);
 				/* The function that convert
 				 * the current note data into
@@ -455,6 +458,7 @@ void handle_note_st(int period, int instrument, int effect_id, int effect_data)
 	}
 
 	if (period) {
+		period = period / instrument_transpose[instrument-1];
 		sample_info *si = &samples[instrument-1];
 
 		/* Determine sample duration in rows from period
@@ -1101,6 +1105,24 @@ void get_map_int(char *optarg, int *map, int offidx, int offval)
 	free(arg);
 }
 
+void get_map_double(char *optarg, double *map, int offidx, int offval)
+{
+	char *eq;
+	char *arg = strdup(optarg);
+	char *t = strtok(arg, ",");
+	while (t) {
+		eq = strchr(t, '=');
+		if (!eq) {
+			fprintf(stderr, "invalid argument %s\n", t);
+			exit(1);
+		}
+		*eq = 0;
+		map[atoi(t)+offidx] = atof(eq+1)+offval;
+		t = strtok(NULL, ",");
+	}
+	free(arg);
+}
+
 int main(int argc, char *argv[])
 {
 	FILE *input, *output;	/* File to parse */
@@ -1111,6 +1133,8 @@ int main(int argc, char *argv[])
 	for (i = 0; i < 32; i++) {
 		instrument_map[i] = -1;
 		percussion_map[i] = -1;
+		instrument_transpose[i] = 1.0;
+		instrument_user_vol[i] = 31;
 	}
 
 	int c;
@@ -1123,10 +1147,12 @@ int main(int argc, char *argv[])
 			{"auto-wave", no_argument, 0, 'a'},
 			{"normalize-waves", no_argument, 0, 'n'},
 			{"mml", no_argument, 0, 's'},
+			{"instrument-volume", required_argument, 0, 'v'},
+			{"transpose-instrument", required_argument, 0, 'f'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
-		c = getopt_long(argc, argv, "o:p:t:m:d:ans", long_options, &option_index);
+		c = getopt_long(argc, argv, "o:p:t:m:d:ansv:f:", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -1153,6 +1179,12 @@ int main(int argc, char *argv[])
 				break;
 			case 's':
 				use_mml = 1;
+				break;
+			case 'v':
+				get_map_int(optarg, instrument_user_vol, -1, 0);
+				break;
+			case 'f':
+				get_map_double(optarg, instrument_transpose, -1, 0);
 				break;
 			default:
 				abort();
@@ -1510,7 +1542,7 @@ int main(int argc, char *argv[])
 						fprintf(output, "\t.db ");
                                         /* XXX: should normalization be on at all times? */
 					/* XXX: shouldn't this be log()? */
-					int val = sqrt(samples[i].env_data[j]) * 31 / sqrt(samples[i].max_env);
+					int val = sqrt(samples[i].env_data[j]) * instrument_user_vol[i] / sqrt(samples[i].max_env);
 					fprintf(output, "%d", val);
 					if ((j & 7) == 7 || j == 15)
 						fprintf(output, "\n");
