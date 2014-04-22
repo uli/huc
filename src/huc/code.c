@@ -56,7 +56,10 @@ time_t today;
 	outstr(ctime(&today));
 	outstr(";\n");
 	outstr("\n");
-	outstr("HUC\t= 1");
+	outstr("HUC\t= 1\n");
+	/* Reserve space for further global definitions. */
+	output_globdef = ftell(output);
+	outstr("                                                                           ");
 	nl ();
 }
 

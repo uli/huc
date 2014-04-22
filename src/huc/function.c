@@ -120,10 +120,24 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 			break;
 	}
 
-	if (amatch("__firq", 6))
+	if (amatch("__firq", 6)) {
+		/* Goes to LIB1_BANK for performance. */
 		is_firq_handler = 1;
-	else if (amatch("__irq", 5))
+		have_irq_handler++;
+	}
+	else if (amatch("__irq", 5)) {
+		/* Goes to regular code bank, with a mapping stub in
+		   LIB1_BANK. */
 		is_irq_handler = 1;
+		have_irq_handler++;
+	}
+	else if (amatch("__sirq", 6)) {
+		/* Same as __irq to us, but we need to inform the system
+		   interrupt handler that it needs extra context saving
+		   because it calls fastcall functions. */
+		is_irq_handler = 1;
+		have_sirq_handler++;
+	}
 
 	if (match(";")) {
 		/* function prototype */

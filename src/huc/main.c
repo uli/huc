@@ -57,7 +57,7 @@ static char *lib_to_file(char *lib)
 	}
 	return 0;
 }
-static void dumparg(void);
+static void dumpfinal(void);
 
 int main (int argc,char* argv[])
 {
@@ -317,7 +317,8 @@ unknown_option:
 				exit(1);
 			if (first && !openout ())
 				exit(1);
-			header();
+			if (first)
+				header();
 			asmdefines();
 //			gtext ();
 			parse ();
@@ -350,7 +351,7 @@ unknown_option:
 			infile_ptr++;
 		first = 0;
 	}
-	dumparg();
+	dumpfinal();
 	fclose(output);
 	if (!errs && !sflag) {
 		if (user_outfile[0])
@@ -586,11 +587,16 @@ void dumpglbs (void )
 	}
 }
 
-static void dumparg(void)
+static void dumpfinal(void)
 {
 	if (globals_h_in_process != 1) {
 		outstr("__heap_start:\n");
 	}
+	fseek(output, output_globdef, SEEK_SET);
+	if (have_irq_handler)
+		outstr("HAVE_IRQ = 1\n");
+	if (have_sirq_handler)
+		outstr("HAVE_SIRQ = 1\n");
 }
 
 /*
