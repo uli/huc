@@ -1653,6 +1653,7 @@ _mem_mapdatabank:
 	cla
 	rts
 
+	.ifdef HAVE_IRQ
 _irq_add_vsync_handler:
 	stx	<__temp
 	clx
@@ -1677,13 +1678,14 @@ _irq_add_vsync_handler:
 
 _irq_enable_user_irq:
 	txa
-	tsb	<user_irq_enable
+	tsb	<huc_irq_enable
 	rts
 
 _irq_disable_user_irq:
 	txa
-	trb	<user_irq_enable
+	trb	<huc_irq_enable
 	rts
+	.endif ; HAVE_IRQ
 
 _abort:
 	  .db 0xe2

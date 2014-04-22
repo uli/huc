@@ -125,16 +125,19 @@ ram_hsync_hndl	.ds   25
 	.endif	; (CDROM)
 
 	.ifdef HUC
+	.ifdef HAVE_IRQ
 user_vsync_hooks .ds	8
 user_hsync_hook	.ds	2
-user_sp_save	.ds	2
-user_ptr_save	.ds	2
-user_temp_save	.ds	4
-		.ds	32
-user_irq_stack:
-	.zp
-user_irq_enable	.ds	1
+huc_context	.ds	8
+	.ifdef HAVE_SIRQ
+huc_fc_context	.ds	20
 	.endif
+		.ds	32
+huc_irq_stack:
+	.zp
+huc_irq_enable	.ds	1
+	.endif ; HAVE_IRQ
+	.endif ; HUC
 
 ; [ STARTUP CODE ]
 
@@ -891,10 +894,12 @@ _irq1:
     ;
 user_irq1:
 	jmp   [irq1_jmp]
+       .ifdef HAVE_IRQ
 user_hsync:
 	jmp   [user_hsync_hook]
 user_vsync:
 	jmp   [user_vsync_hooks, x]
+       .endif
 
 
 ; ----
@@ -903,17 +908,13 @@ user_vsync:
 ; Handle VSYNC interrupts
 ; ----
 _vsync_hndl:
-       .ifdef HUC
-	bbr0 <user_irq_enable,.l4
-	__ldw <__sp
-	__stw user_sp_save
-	__ldw <__ptr
-	__stw user_ptr_save
-	__ldw <__temp
-	__stw user_temp_save
-	__ldw <__temp+2
-	__stw user_temp_save+2
-	stw   #user_irq_stack, <__sp
+       .ifdef HAVE_IRQ
+	bbr0 <huc_irq_enable,.l4
+	tii	__sp, huc_context, 8
+       .ifdef HAVE_SIRQ
+        tii	_bp, huc_fc_context, 20
+       .endif
+	stw   #huc_irq_stack, <__sp
 	clx
 .loop	lda   user_vsync_hooks+1, x
 	beq   .end_user
@@ -924,16 +925,12 @@ _vsync_hndl:
 	inx
 	bra .loop
 .end_user:
-	__ldw user_sp_save
-	__stw <__sp
-	__ldw user_ptr_save
-	__stw <__ptr
-	__ldw user_temp_save
-	__stw <__temp
-	__ldw user_temp_save+2
-	__stw <__temp+2
-.l4:
+	tii	huc_context, __sp, 8
+       .ifdef HAVE_SIRQ
+        tii	huc_fc_context, _bp, 20
        .endif
+.l4:
+       .endif ; HAVE_IRQ
        .if  !(CDROM)
 	ldx   disp_cr		; check display state (on/off)
 	bne  .l1
@@ -998,9 +995,15 @@ _vsync_hndl:
     ; hsync scrolling handler
     ;
 _hsync_hndl:
-	bbr1 <user_irq_enable,.l1
+       .ifdef HAVE_IRQ
+	bbr1 <huc_irq_enable,.l1
+	tii	__sp, huc_context, 8
+	stw   #huc_irq_stack, <__sp
 	jsr  user_hsync		; call user handler
-.l1:	ldy   s_idx
+	tii	huc_context, __sp, 8
+.l1:
+       .endif
+	ldy   s_idx
 	bpl  .r1
 	; --
 	lda  <vdc_crl
