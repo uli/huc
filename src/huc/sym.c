@@ -333,6 +333,7 @@ SYMBOL *addglb (char* sname,char id,char typ,long value,long stor, SYMBOL *repla
 	cptr->storage = stor;
 	cptr->offset = value;
 	cptr->size = value;
+	cptr->far = 0;
 	if (id == FUNCTION)
 		cptr->size = 0;
 	else if (id == POINTER)
