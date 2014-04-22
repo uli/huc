@@ -1242,6 +1242,12 @@ int main(int argc, char *argv[])
 		for (i = 0; i < argc; i++)
 			fprintf(output, "%s ", argv[i]);
 		fputc('\n', output);
+
+		fprintf(output, "_%s:\n", track_name);
+		fprintf(output, "\t.dw _%s_song\n", track_name);
+		fprintf(output, "\t.dw _%s_wave_table\n", track_name);
+		fprintf(output, "\t.dw _%s_vol_table\n", track_name);
+		fprintf(output, "\t.dw _%s_chan_map\n\n", track_name);
 	}
 
 	while (input_filename) {	/* For each filename on command line ... */
@@ -1466,7 +1472,7 @@ int main(int argc, char *argv[])
 			chan_map[current_channel] = outchan - 1;
 			if (current_channel != 0)
 				continue;
-			fprintf(output, "_%s:\n", track_name);
+			fprintf(output, "_%s_song:\n", track_name);
 		}
 		for (current_song_position = 0;
 		     current_song_position < song_length;
