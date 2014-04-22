@@ -31,9 +31,12 @@ unsigned char *st_chan_map;
 unsigned char **st_wave_table;
 unsigned char **st_vol_table;
 
+static unsigned char st_tick;
+
 void st_reset(void)
 {
 	unsigned char j, i;
+	irq_disable_user_irq(IRQ_VSYNC);
 	*psg_bal = 0xff;
 	*psg_lfoctrl = 0;
 	for (j = 0; j < 6; j++) {
@@ -49,6 +52,10 @@ void st_reset(void)
 	}
 	memset(current_wave, 0xff, sizeof(current_wave));
 	memset(st_chan_env_pos, 0, sizeof(st_chan_env_pos));
+	st_pattern_idx = 0;
+	st_row_idx = 0;
+	st_tick = 0;
+	irq_enable_user_irq(IRQ_VSYNC);
 }
 
 static void load_ins(unsigned char ins)
@@ -69,9 +76,8 @@ static void vsync_handler(void)
 			 __irq
 #endif
 {
-	static unsigned char cnt;
 	static unsigned char *pat;
-	static unsigned int freq;
+	unsigned int freq;
 	unsigned char chan;
 	unsigned char *chv;
 	unsigned char ins;
@@ -82,12 +88,11 @@ static void vsync_handler(void)
 	unsigned char save_bank;
 
 	save_bank = mem_mapdatabank(st_song_bank);
-	if ((cnt & 7) == 0) {
+	if ((st_tick & 7) == 0) {
 		if (st_row_idx == 0) {
 			pat = st_pattern_table[st_pattern_idx];
 			if (!pat) {
 				st_reset();
-				st_pattern_idx = 0;
 				pat = st_pattern_table[0];
 			}
 			st_pattern_idx++;
@@ -155,7 +160,7 @@ static void vsync_handler(void)
 		chan = st_chan_map[m];
 		*psg_ch = chan;
 		chv = st_chan_env[chan];
-		if ((cnt & 7) == 0) {
+		if ((st_tick & 7) == 0) {
 			if (!st_chan_len[chan]) {
 				st_chan_env_pos[chan] = 0xff;
 				*psg_ctrl = 0x80;
@@ -176,7 +181,7 @@ static void vsync_handler(void)
 			if (chv[l] > 31) {
 				put_string("s", 0, 12);
 				put_hex(chv, 4, 0, 13);
-				put_hex(cnt, 2, 5, 13);
+				put_hex(st_tick, 2, 5, 13);
 			}
 			put_number(chv[l], 3, 22,
 				   4 + m);
@@ -188,14 +193,14 @@ static void vsync_handler(void)
 	}
 	mem_mapdatabank(save_bank);
 #ifdef DEBUG_ST
-	put_hex(cnt, 2, 10, 0);
+	put_hex(st_tick, 2, 10, 0);
 #endif
-	++cnt;
+	++st_tick;
 }
 
 void st_init(void)
 {
-	st_reset();
+	irq_disable_user_irq(IRQ_VSYNC);
 	irq_add_vsync_handler(vsync_handler);
 }
 
@@ -205,9 +210,9 @@ void st_set_song(unsigned char song_bank, struct st_header *song_addr)
 	save = mem_mapdatabank(song_bank);
 	st_song_bank = song_bank;
 	st_pattern_table = song_addr->patterns;
-	st_pattern_idx = 0;
 	st_chan_map = song_addr->chan_map;
 	st_wave_table = song_addr->wave_table;
 	st_vol_table = song_addr->vol_table;
+	st_reset();
 	mem_mapdatabank(save);
 }
