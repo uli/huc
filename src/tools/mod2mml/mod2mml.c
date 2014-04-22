@@ -1086,7 +1086,8 @@ void handle_pattern(FILE * in, int pattern_number)
 void get_map_int(char *optarg, int *map, int offidx, int offval)
 {
 	char *eq;
-	char *t = strtok(optarg, ",");
+	char *arg = strdup(optarg);
+	char *t = strtok(arg, ",");
 	while (t) {
 		eq = strchr(t, '=');
 		if (!eq) {
@@ -1097,6 +1098,7 @@ void get_map_int(char *optarg, int *map, int offidx, int offval)
 		map[atoi(t)+offidx] = atoi(eq+1)+offval;
 		t = strtok(NULL, ",");
 	}
+	free(arg);
 }
 
 int main(int argc, char *argv[])
@@ -1112,7 +1114,6 @@ int main(int argc, char *argv[])
 	}
 
 	int c;
-	char *eq;
 	for(;;) {
 		static struct option long_options[] = {
 			{"track-name", required_argument, 0, 't'},
@@ -1203,6 +1204,12 @@ int main(int argc, char *argv[])
 		fprintf(output, ".TRACK %s\n", track_name);
 		fprintf(output, ".CHANNEL 0 Setup\n");
 		fprintf(output, "T60 V31 L16 ^D0\n\n");
+	}
+	else {
+		fprintf(output, "; ");
+		for (i = 0; i < argc; i++)
+			fprintf(output, "%s ", argv[i]);
+		fputc('\n', output);
 	}
 
 	while (input_filename) {	/* For each filename on command line ... */
