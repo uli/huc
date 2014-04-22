@@ -908,6 +908,22 @@ user_vsync:
 ; Handle VSYNC interrupts
 ; ----
 _vsync_hndl:
+       .if  !(CDROM)
+	ldx   disp_cr		; check display state (on/off)
+	bne  .l1
+	and   #$3F		; disable display
+	st0   #5		; update display control (bg/sp)
+	sta   video_data_l
+	bra  .l2
+	; --	
+       .endif
+.l1:	jsr   rcr_init		; init display list
+
+.l2:	st0   #7		; scrolling
+	stw   bg_x1,video_data
+	st0   #8
+	stw   bg_y1,video_data
+
        .ifdef HAVE_IRQ
 	bbr0 <huc_irq_enable,.l4
 	tii	__sp, huc_context, 8
@@ -931,21 +947,6 @@ _vsync_hndl:
        .endif
 .l4:
        .endif ; HAVE_IRQ
-       .if  !(CDROM)
-	ldx   disp_cr		; check display state (on/off)
-	bne  .l1
-	and   #$3F		; disable display
-	st0   #5		; update display control (bg/sp)
-	sta   video_data_l
-	bra  .l2
-	; --	
-       .endif
-.l1:	jsr   rcr_init		; init display list
-
-.l2:	st0   #7		; scrolling
-	stw   bg_x1,video_data
-	st0   #8
-	stw   bg_y1,video_data
 
 	; --
 	lda   clock_tt		; keep track of time
