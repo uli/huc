@@ -1083,6 +1083,22 @@ void handle_pattern(FILE * in, int pattern_number)
 	     (*handle_note)(0, 0, FX_FLUSH, 0);
 }
 
+void get_map_int(char *optarg, int *map, int offidx, int offval)
+{
+	char *eq;
+	char *t = strtok(optarg, ",");
+	while (t) {
+		eq = strchr(t, '=');
+		if (!eq) {
+			fprintf(stderr, "invalid argument %s\n", t);
+			exit(1);
+		}
+		*eq = 0;
+		map[atoi(t)+offidx] = atoi(eq+1)+offval;
+		t = strtok(NULL, ",");
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	FILE *input, *output;	/* File to parse */
@@ -1114,22 +1130,10 @@ int main(int argc, char *argv[])
 			break;
 		switch (c) {
 			case 'm':
-				eq = strchr(optarg, '=');
-				if (!eq) {
-					fprintf(stderr, "invalid instrument mapping %s\n", optarg);
-					exit(1);
-				}
-				*eq = 0;
-				instrument_map[atoi(optarg)-1] = atoi(eq+1)-1;
+				get_map_int(optarg, instrument_map, -1, -1);
 				break;
 			case 'd':
-				eq = strchr(optarg, '=');
-				if (!eq) {
-					fprintf(stderr, "invalid percussion mapping %s\n", optarg);
-					exit(1);
-				}
-				*eq = 0;
-				percussion_map[atoi(optarg)-1] = atoi(eq+1)-1;
+				get_map_int(optarg, percussion_map, -1, -1);
 				break;
 			case 'o':
 				strcpy(output_filename, optarg);
