@@ -25,7 +25,7 @@ unsigned char st_chan_len[6];
 
 unsigned char st_row_idx;
 unsigned char st_pattern_idx;
-unsigned char st_song_bank;
+unsigned int st_song_banks;
 unsigned char **st_pattern_table;
 unsigned char *st_chan_map;
 unsigned char **st_wave_table;
@@ -69,7 +69,7 @@ static void load_ins(unsigned char ins)
 	}
 }
 
-static void vsync_handler(void)
+static void vsync_handler(void) __mapcall
 #ifdef DEBUG_ST
 			 __sirq
 #else
@@ -85,9 +85,9 @@ static void vsync_handler(void)
 	unsigned char dummy;
 	unsigned char l, m;
 	unsigned char is_drum;
-	unsigned char save_bank;
+	unsigned int save_banks;
 
-	save_bank = mem_mapdatabank(st_song_bank);
+	save_banks = mem_mapdatabanks(st_song_banks);
 	if ((st_tick & 7) == 0) {
 		if (st_row_idx == 0) {
 			pat = st_pattern_table[st_pattern_idx];
@@ -191,7 +191,7 @@ static void vsync_handler(void)
 				st_chan_env_pos[chan] = l + 1;
 		}
 	}
-	mem_mapdatabank(save_bank);
+	mem_mapdatabanks(save_banks);
 #ifdef DEBUG_ST
 	put_hex(st_tick, 2, 10, 0);
 #endif
@@ -206,13 +206,20 @@ void st_init(void)
 
 void st_set_song(unsigned char song_bank, struct st_header *song_addr)
 {
-	unsigned char save;
-	save = mem_mapdatabank(song_bank);
-	st_song_bank = song_bank;
+	unsigned int save;
+	st_song_banks = ((song_bank + 1) << 8) | song_bank;
+	save = mem_mapdatabanks(st_song_banks);
+#ifdef DEBUG_ST
+	put_hex(save, 4, 0, 2);
+#endif
 	st_pattern_table = song_addr->patterns;
 	st_chan_map = song_addr->chan_map;
 	st_wave_table = song_addr->wave_table;
 	st_vol_table = song_addr->vol_table;
+#ifdef DEBUG_ST
+	put_hex(mem_mapdatabanks(save), 4, 5, 2);
+#else
+	mem_mapdatabanks(save);
+#endif
 	st_reset();
-	mem_mapdatabank(save);
 }
