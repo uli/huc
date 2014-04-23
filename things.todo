@@ -43,30 +43,6 @@ CLARIFICATION/ALTERATION OF EXISTING FUNCTION:
 Globals.h should probably not be implicitly included for HuCard images
 
 --------------
-NEW FEATURE:
-
-Sound player
-
-*** Already known:
-
-- how to manipulate sound channels, possibly except LFO and
-  noise (info may not be complete on these points)
-
-- choose music data format (Hudson, for compatibility between CDROM and HuCard)
-
-- PSG player in CDROM system card is understood
-
-*** Difficulties:
-
-- write player and patch it into a likely interrupt
-
-- how to create music data ?  (.mid converter ?  new language ?)
-
-- how to control voices separately for in-game sound effects
-  which occur over top of music (ie. programmatic interface ?
-  dynamic allocation of voices ?  partitioning of voices ?)
-
---------------
 EXPANSION OF CURRENT FUNCTIONALITY:
 
 CONST_BANK is 8KB, and gets filled with all the "const int array[] = {1.2};"
@@ -85,27 +61,3 @@ In the event that the CONST_BANK is empty, the DATA_BANK should be moved back
 by one.  Indeed, the CONST_BANK should be renamed to something like
 LOCALDATA_BANK since it is always mapped.
 
-
---------------
-OPTIMIZATION:
-
-For constructs such as:
-<variable> = 0;
-
-HuC generates:
-__ldwi 0
-__stw  <variable> (or __stx <variable)
-
-For the special case of the literal '0':
-(1) the '__ldwi 0' should be dropped
-(2) stx <variable> should be replaced with stz <variable>, OR
-__stw <variable> should be replaced with __stz <variable>
-(3) if __stz <variable> doesn't exist, it should be written
-
-UPDATES:
-- use stwz or __stwz
-- also check that the value isn't continuing such as it would
-  in the expression "a=b=c=0;"
-- not a big gain, so not a high priority
-
---------------
