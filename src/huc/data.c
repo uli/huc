@@ -108,3 +108,5 @@ int user_short_enums = 1;
 long output_globdef;
 int have_irq_handler;
 int have_sirq_handler;
+
+int need_map_call_bank;

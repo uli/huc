@@ -106,3 +106,5 @@ extern int user_short_enums;
 extern long output_globdef;
 extern int have_irq_handler;
 extern int have_sirq_handler;
+
+extern int need_map_call_bank;

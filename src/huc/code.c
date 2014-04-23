@@ -622,11 +622,21 @@ void gen_code(INS *tmp)
 	case I_CALL:
 		switch (type) {
 		case T_SYMBOL:
+			if (need_map_call_bank) {
+				ot("__map_callbank\t");
+				outsymbol((char *)data);
+				nl();
+			}
 			ot("  call\t");
 			outsymbol((char *)data);
 			if (imm) {
 				outstr(".");
 				outdec(imm);
+			}
+			if (need_map_call_bank) {
+				nl();
+				ot("__unmap_callbank\t");
+				outsymbol((char *)data);
 			}
 			break;
 		case T_LIB:

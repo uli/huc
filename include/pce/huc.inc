@@ -905,3 +905,22 @@ _load_background .macro
 	 batcpy #$0, \3, \4, \5
 	.endm
 
+__map_callbank .macro
+	.if (PAGE(\1) = 5)	; user function
+	tay
+	tma	#4
+	pha
+	lda	#_call_bank
+	tam	#4
+	tya
+	.endif
+	.endm
+
+__unmap_callbank .macro
+	.if (PAGE(\1) = 5)	; user function
+	tay
+	pla
+	tam	#4
+	tya
+	.endif
+	.endm
