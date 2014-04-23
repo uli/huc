@@ -118,3 +118,6 @@ void set_map_tile_base(unsigned int vaddr);
 
 #define IRQ_VSYNC	1
 #define IRQ_HSYNC	2
+
+unsigned char mem_mapdatabank(unsigned char new_bank);
+unsigned int mem_mapdatabanks(unsigned int new_banks);

@@ -1644,14 +1644,21 @@ lib2____builtin_ffs.1:
 	rts
 	.bank LIB1_BANK
 
-_mem_mapdatabank:
-	tma #DATA_BANK
-	tay
-	txa
+_mem_mapdatabanks:
+	tay		; y = new upper bank
+	tma #DATA_BANK+1; a = old upper bank
+	say		; y = old upper bank, a = new upper bank
+	tam #DATA_BANK+1
+do_mapdatabank:
+	tma #DATA_BANK	; a = old lower bank
+	sax		; x = old lower bank, a = new lower bank
 	tam #DATA_BANK
-	sxy
-	cla
+	tya		; a = old upper bank
 	rts
+_mem_mapdatabank:
+	cly
+	bra do_mapdatabank
+
 
 	.ifdef HAVE_IRQ
 _irq_add_vsync_handler:
