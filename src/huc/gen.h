@@ -58,6 +58,8 @@ void gule (int is_byte);
 void gugt (int is_byte);
 void guge (int is_byte);
 void gcast (int type);
+void gsei (void);
+void gcli (void);
 
 void scale_const(int type, int otag, long *size);
 

@@ -119,6 +119,8 @@
 #define I_RESB       88
 #define I_EXTUW      89
 #define I_DEF        90
+#define I_SEI        91
+#define I_CLI        92
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0

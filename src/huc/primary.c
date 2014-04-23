@@ -248,6 +248,15 @@ long primary (LVALUE* lval, int comma)
 		lval->indirect = 0;
 		return 0;
 	}
+	else if (amatch("__sei", 5) && match("(") && match(")")) {
+		gsei();
+		return 0;
+	}
+	else if (amatch("__cli", 5) && match("(") && match(")")) {
+		gcli();
+		return 0;
+	}
+
 	if (symname (sname)) {
 		if (find_enum(sname, num)) {
 			indflg = 0;

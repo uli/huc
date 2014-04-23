@@ -802,6 +802,14 @@ void gen_code(INS *tmp)
 		nl();
 		break;
 
+	case I_SEI:
+		ol("sei");
+		break;
+
+	case I_CLI:
+		ol("cli");
+		break;
+
 	default:
 		gen_asm(tmp);
 		break;

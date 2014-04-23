@@ -738,3 +738,12 @@ void gcast(int type)
 			abort();
 	};
 }
+
+void gsei(void)
+{
+	out_ins(I_SEI, 0, 0);
+}
+void gcli(void)
+{
+	out_ins(I_CLI, 0, 0);
+}
