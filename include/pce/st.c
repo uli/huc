@@ -33,6 +33,35 @@ unsigned char **st_vol_table;
 
 static unsigned char st_tick;
 
+void st_set_env(unsigned char chan, unsigned char *env)
+{
+	st_chan_env[chan] = env;
+}
+
+void st_load_wave(unsigned char chan, unsigned char *wave)
+{
+	unsigned char i;
+	__sei();
+	*psg_ch = chan;
+	for (i = 0; i < 32; i++) {
+		*psg_data = *wave;
+		wave++;
+	}
+	__cli();
+}
+
+void st_effect(unsigned char chan, unsigned int freq, unsigned char len)
+{
+	__sei();
+	st_chan_env_pos[chan] = 0;
+	st_chan_len[chan] = len;
+	*psg_ch = chan;
+	*psg_freqlo = freq & 0xff;
+	*psg_freqhi = freq >> 8;
+	*psg_chbal = 0xff;
+	__cli();
+}
+
 void st_reset(void)
 {
 	unsigned char j, i;
@@ -114,10 +143,10 @@ static void vsync_handler(void) __mapcall
 					current_wave[chan] = ins;
 				}
 #ifdef DEBUG_ST
-				put_hex(ins, 2, 10, 4 + j);
+				put_hex(ins, 2, 10, 4 + chan);
 #endif
 				pat++;
-				st_chan_len[chan] = *pat++;
+				st_chan_len[chan] = (*pat++) * 8;
 				freq = *pat++;
 				freq |= (*pat++) << 8;
 				st_chan_env_pos[chan] = 0;
@@ -128,7 +157,7 @@ static void vsync_handler(void) __mapcall
 					*psg_noise =
 					    0x80 | ((freq & 0xf) ^ 31);
 #ifdef DEBUG_ST
-					put_string("drum", 16, 4 + j);
+					put_string("drum", 16, 4 + chan);
 #endif
 					current_wave[chan] = -1;
 					st_chan_env_pos[chan] = 0;
@@ -144,35 +173,32 @@ static void vsync_handler(void) __mapcall
 					*psg_freqlo = freq & 0xff;
 					*psg_freqhi = freq >> 8;
 #ifdef DEBUG_ST
-					put_string("note", 16, 4 + j);
+					put_string("note", 16, 4 + chan);
 #endif
 					*psg_chbal = 0xff;
 				}
 #ifdef DEBUG_ST
-				put_number(freq, 5, 4, 4 + j);
+				put_number(freq, 5, 4, 4 + chan);
 #endif
 			}
 		}
 		st_row_idx = (st_row_idx + 1) & 0x3f;
 	}
 
-	for (m = 0; m < 4; m++) {
-		chan = st_chan_map[m];
+	for (chan = 0; chan < 6; chan++) {
 		*psg_ch = chan;
 		chv = st_chan_env[chan];
-		if ((st_tick & 7) == 0) {
-			if (!st_chan_len[chan]) {
-				st_chan_env_pos[chan] = 0xff;
-				*psg_ctrl = 0x80;
+		if (!st_chan_len[chan]) {
+			st_chan_env_pos[chan] = 0xff;
+			*psg_ctrl = 0x80;
 #ifdef DEBUG_ST
-				put_string("--", 23,
-					   4 + m);
-				put_string("--", 26,
-					   4 + m);
+			put_string("--", 23,
+				   4 + chan);
+			put_string("--", 26,
+				   4 + chan);
 #endif
-			} else {
-				st_chan_len[chan]--;
-			}
+		} else {
+			st_chan_len[chan]--;
 		}
 		l = st_chan_env_pos[chan];
 		if (l != 0xff) {
@@ -184,8 +210,8 @@ static void vsync_handler(void) __mapcall
 				put_hex(st_tick, 2, 5, 13);
 			}
 			put_number(chv[l], 3, 22,
-				   4 + m);
-			put_number(l, 2, 26, 4 + m);
+				   4 + chan);
+			put_number(l, 2, 26, 4 + chan);
 #endif
 			if (l < 15)
 				st_chan_env_pos[chan] = l + 1;
