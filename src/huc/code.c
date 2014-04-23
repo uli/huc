@@ -625,6 +625,10 @@ void gen_code(INS *tmp)
 			if (need_map_call_bank) {
 				ot("__map_callbank\t");
 				outsymbol((char *)data);
+				if (imm) {
+					outstr(".");
+					outdec(imm);
+				}
 				nl();
 			}
 			ot("  call\t");
@@ -637,6 +641,10 @@ void gen_code(INS *tmp)
 				nl();
 				ot("__unmap_callbank\t");
 				outsymbol((char *)data);
+				if (imm) {
+					outstr(".");
+					outdec(imm);
+				}
 			}
 			break;
 		case T_LIB:
