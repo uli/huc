@@ -7,11 +7,17 @@ The authors that built on these foundations and extended them greatly in the
 late 1990s and early 2000s have also generally neglected to specify the
 conditions under which their versions can be used and redistributed.  It is
 therefore next to impossible to make an exact statement on the legal status
-of this collection of software.
+of much of this collection of software, with the following exceptions:
 
-I wish I could give more helpful information here, but I can only speak for
-myself, and therefore the following license text ("Simplified BSD License")
-applies to the changes and additions made by Ulrich Hecht only:
+1. The MagicKit assembler's source code contains the statement: "This
+   program is freeware.  You are free to distribute, use and modifiy it as
+   you wish."
+2. The test suite emulator TGEmu is licensed under the GNU Public License.
+3. Most test cases have been adapted from the GNU Compiler Collection and
+   are licensed under the GNU Public License.
+
+The following license text ("Simplified BSD License") applies to any changes
+and additions made by Ulrich Hecht:
 
 Copyright (c) 2014, Ulrich Hecht
 All rights reserved.
