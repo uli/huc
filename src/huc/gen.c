@@ -258,7 +258,11 @@ void swapstk (void )
  */
 void gcall (char *sname, long nargs)
 {
+	if (need_map_call_bank)
+		out_ins_ex(I_MAPCBANK, T_SYMBOL, (long)sname, T_VALUE, nargs);
 	out_ins_ex(I_CALL, T_SYMBOL, (long)sname, T_VALUE, nargs);
+	if (need_map_call_bank)
+		out_ins_ex(I_UNMAPCBANK, T_SYMBOL, (long)sname, T_VALUE, nargs);
 }
 
 /*

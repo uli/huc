@@ -622,35 +622,37 @@ void gen_code(INS *tmp)
 	case I_CALL:
 		switch (type) {
 		case T_SYMBOL:
-			if (need_map_call_bank) {
-				ot("__map_callbank\t");
-				outsymbol((char *)data);
-				if (imm) {
-					outstr(".");
-					outdec(imm);
-				}
-				nl();
-			}
 			ot("  call\t");
 			outsymbol((char *)data);
 			if (imm) {
 				outstr(".");
 				outdec(imm);
 			}
-			if (need_map_call_bank) {
-				nl();
-				ot("__unmap_callbank\t");
-				outsymbol((char *)data);
-				if (imm) {
-					outstr(".");
-					outdec(imm);
-				}
-			}
 			break;
 		case T_LIB:
 			ot("  jsr\t");
 			outstr((char *)data);
 			break;
+		}
+		nl();
+		break;
+
+	case I_MAPCBANK:
+		ot("__map_callbank\t");
+		outsymbol((char *)data);
+		if (imm) {
+			outstr(".");
+			outdec(imm);
+		}
+		nl();
+		break;
+
+	case I_UNMAPCBANK:
+		ot("__unmap_callbank\t");
+		outsymbol((char *)data);
+		if (imm) {
+			outstr(".");
+			outdec(imm);
 		}
 		nl();
 		break;

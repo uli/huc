@@ -121,6 +121,8 @@
 #define I_DEF        90
 #define I_SEI        91
 #define I_CLI        92
+#define I_MAPCBANK   93
+#define I_UNMAPCBANK 94
 
 /* optimized pseudo instructions */
 #define X_MASK		0xFFFF0
