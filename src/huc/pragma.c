@@ -119,6 +119,7 @@ static char *pragma_init[] = {
 	"fastcall strncmp(word di, word si, word acc)",
 	"fastcall strlen(word si)",
 	"fastcall memcpy(word di, word si, word acc)",
+	"fastcall mempcpy(word di, word si, word acc)",
 	"fastcall memcmp(word di, word si, word acc)",
 	"fastcall memset(word di, word bx, word acc)",
 	/* CDROM funcs */

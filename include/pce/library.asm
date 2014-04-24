@@ -1506,6 +1506,13 @@ _memcpy.3:
 	__ldw	<_bx
 .done:	  rts
 
+; same as memcpy, but returns end of dest
+_mempcpy.3:
+	__stw	<_cx
+	jsr _memcpy.3
+	__addw	<_cx
+	rts
+
 ; _memset(char *s [di], int c [bx], int n [acc])
 _memset.3:
 	__stw	<_ax
