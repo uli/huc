@@ -22,6 +22,7 @@ unsigned char current_wave[6];
 unsigned char *st_chan_env[6];
 unsigned char st_chan_env_pos[6];
 unsigned char st_chan_len[6];
+unsigned char st_chan_disable_tune[6];
 
 unsigned char st_row_idx;
 unsigned char st_pattern_idx;
@@ -52,9 +53,10 @@ void st_load_wave(unsigned char chan, unsigned char *wave)
 
 void st_effect(unsigned char chan, unsigned int freq, unsigned char len)
 {
-	__sei();
+	st_chan_disable_tune[chan] = 1;
 	st_chan_env_pos[chan] = 0;
 	st_chan_len[chan] = len;
+	__sei();
 	*psg_ch = chan;
 	*psg_freqlo = freq & 0xff;
 	*psg_freqhi = freq >> 8;
@@ -81,6 +83,7 @@ void st_reset(void)
 	}
 	memset(current_wave, 0xff, sizeof(current_wave));
 	memset(st_chan_env_pos, 0, sizeof(st_chan_env_pos));
+	memset(st_chan_disable_tune, 0, sizeof(st_chan_disable_tune));
 	st_pattern_idx = 0;
 	st_row_idx = 0;
 	st_tick = 0;
@@ -134,7 +137,11 @@ static void vsync_handler(void) __mapcall
 			chv = st_chan_env[chan];
 			ins = *pat;
 			if (ins == 0xff) {
+				/* rest */
 				pat++;
+			} else if (st_chan_disable_tune[chan]) {
+				/* channel paused for sound effect */
+				pat += 4;
 			} else {
 				is_drum = (ins & 0xe0) == 0xe0;
 				if (!is_drum
@@ -190,6 +197,7 @@ static void vsync_handler(void) __mapcall
 		chv = st_chan_env[chan];
 		if (!st_chan_len[chan]) {
 			st_chan_env_pos[chan] = 0xff;
+			st_chan_disable_tune[chan] = 0;
 			*psg_ctrl = 0x80;
 #ifdef DEBUG_ST
 			put_string("--", 23,
