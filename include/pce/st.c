@@ -86,7 +86,7 @@ void st_effect_noise(unsigned char chan, unsigned char freq, unsigned char len)
 void st_reset(void)
 {
 	unsigned char j, i;
-	irq_disable_user_irq(IRQ_VSYNC);
+	irq_disable_user(IRQ_VSYNC);
 	*psg_bal = 0xff;
 	*psg_lfoctrl = 0;
 	for (j = 0; j < 6; j++) {
@@ -106,7 +106,7 @@ void st_reset(void)
 	st_pattern_idx = 0;
 	st_row_idx = 0;
 	st_tick = 0;
-	irq_enable_user_irq(IRQ_VSYNC);
+	irq_enable_user(IRQ_VSYNC);
 }
 
 static void load_ins(unsigned char ins)
@@ -253,7 +253,7 @@ static void vsync_handler(void) __mapcall
 
 void st_init(void)
 {
-	irq_disable_user_irq(IRQ_VSYNC);
+	irq_disable_user(IRQ_VSYNC);
 	irq_add_vsync_handler(vsync_handler);
 }
 

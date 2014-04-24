@@ -1683,12 +1683,12 @@ _irq_add_vsync_handler:
 	cla
 	rts
 
-_irq_enable_user_irq:
+_irq_enable_user:
 	txa
 	tsb	<huc_irq_enable
 	rts
 
-_irq_disable_user_irq:
+_irq_disable_user:
 	txa
 	trb	<huc_irq_enable
 	rts
