@@ -4,8 +4,8 @@
    All rights reserved.
    See LICENSE for details on use and redistribution. */
 
-#include "huc.h"
-#include "st.h"
+#include <huc.h>
+#include <st.h>
 
 const unsigned char *psg_ch = 0x800;
 const unsigned char *psg_bal = 0x801;
