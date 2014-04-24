@@ -1694,6 +1694,22 @@ _irq_disable_user:
 	rts
 	.endif ; HAVE_IRQ
 
+_timer_set:
+	stx	timer_cnt
+	rts
+_timer_start:
+	lda	#1
+	sta	timer_ctrl
+	rts
+_timer_stop:
+	stz	timer_ctrl
+	rts
+_timer_get:
+	lda	timer_cnt
+	and	#$7f
+	tax
+	cla
+	rts
 _irq_enable:
 	txa
 	sei

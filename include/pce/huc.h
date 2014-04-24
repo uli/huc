@@ -123,6 +123,11 @@ void set_map_tile_base(unsigned int vaddr);
 unsigned char mem_mapdatabank(unsigned char new_bank);
 unsigned int mem_mapdatabanks(unsigned int new_banks);
 
+void timer_set(unsigned char cnt);
+void timer_start(void);
+void timer_stop(void);
+unsigned char timer_get(void);
+
 void irq_enable_user(unsigned char irq);
 void irq_disable_user(unsigned char irq);
 
