@@ -57,6 +57,7 @@ void st_load_wave(unsigned char chan, unsigned char *wave)
 		wave++;
 	}
 	__cli();
+	current_wave[chan] = 0xff; /* force reload when tune plays */
 }
 
 void st_effect(unsigned char chan, unsigned int freq, unsigned char len)
