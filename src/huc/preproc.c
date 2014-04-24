@@ -122,7 +122,6 @@ file_open(char *name, char *mode)
  */
 void doinclude (void)
 {
-/*	char	*p; */
 	FILE	*inp2;
 
 	blanks ();
@@ -177,7 +176,6 @@ FILE* fixiname (void)
 {
 	char  c1, c2, *p, *ibp;
 	char  buf[LINESIZE];
-	char  buf2[LINESIZE*2];
 	FILE *fp;
 
 	ibp = &buf[0];
@@ -202,14 +200,7 @@ FILE* fixiname (void)
 	fp = NULL;
 	strcpy(inclstk_name[inclsp], buf);
 	if ((c1 == '<') || ((fp = fopen(buf, "r")) == NULL)) {
-		if (strlen(DEFLIB)) {
-			strcpy(buf2, DEFLIB);
-			strcat(buf2, buf);
-			strcpy(inclstk_name[inclsp], buf2);
-			fp = fopen(buf2, "r");
-		}
-		if (fp == NULL)
-			fp = file_open(buf, "r");
+		fp = file_open(buf, "r");
 	}
 	return(fp);
 }

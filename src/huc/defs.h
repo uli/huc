@@ -328,8 +328,6 @@ struct macro {
 #define	STSWITCH	10
 #define STGOTO	11
 
-#define DEFLIB	""
-
 /* pseudo instruction structure */
 
 typedef struct {
