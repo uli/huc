@@ -39,6 +39,14 @@ void st_set_env(unsigned char chan, unsigned char *env)
 	st_chan_env[chan] = env;
 }
 
+void st_set_vol(unsigned char chan, unsigned char left, unsigned char right)
+{
+	__sei();
+	*psg_ch = chan;
+	*psg_chbal = (left << 8) | right;
+	__cli();
+}
+
 void st_load_wave(unsigned char chan, unsigned char *wave)
 {
 	unsigned char i;
@@ -60,7 +68,6 @@ void st_effect(unsigned char chan, unsigned int freq, unsigned char len)
 	*psg_ch = chan;
 	*psg_freqlo = freq & 0xff;
 	*psg_freqhi = freq >> 8;
-	*psg_chbal = 0xff;
 	__cli();
 }
 

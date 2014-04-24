@@ -23,5 +23,6 @@ void st_reset(void);
 void st_set_song(unsigned char song_bank, struct st_header *song_addr);
 
 void st_set_env(unsigned char chan, unsigned char *env);
+void st_set_vol(unsigned char chan, unsigned char left, unsigned char right);
 void st_load_wave(unsigned char chan, unsigned char *wave);
 void st_effect(unsigned char chan, unsigned int freq, unsigned char len);
