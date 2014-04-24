@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "defs.h"
 #include "data.h"
 #include "code.h"
@@ -48,6 +49,8 @@ void arg_to_dword(struct fastcall *fast, long i, long arg, long adj);
 short *fixup[32];
 char current_fn[NAMESIZE];
 
+static int is_leaf_function;
+
 /*
  *	begin a function
  *
@@ -65,6 +68,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	int is_firq_handler = 0;
 	int save_norecurse = norecurse;
 	need_map_call_bank = 0;
+	is_leaf_function = 1;
 
 	if (sname) {
 		strcpy(current_fn, sname);
@@ -247,12 +251,20 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 
 	/* Add space for fixed-address locals to .bss section. */
 	if (norecurse && locals_ptr < 0) {
-		ot(".data"); nl();
-		ot(".bss"); nl();
-		ot("__"); outstr(current_fn); outstr("_loc: .ds ");
-		outdec(-locals_ptr); nl();
-		ot("__"); outstr(current_fn); outstr("_lend:"); nl();
-		ot(".code"); nl();
+		if (is_leaf_function) {
+			leaf_functions = realloc(leaf_functions, (leaf_cnt + 1) * sizeof(*leaf_functions));
+			leaf_functions[leaf_cnt++] = strdup(current_fn);
+			if (-locals_ptr > leaf_size)
+				leaf_size = -locals_ptr;
+		}
+		else {
+			ot(".data"); nl();
+			ot(".bss"); nl();
+			ot("__"); outstr(current_fn); outstr("_loc: .ds ");
+			outdec(-locals_ptr); nl();
+			ot("__"); outstr(current_fn); outstr("_lend:"); nl();
+			ot(".code"); nl();
+		}
 	}
 
 	nl ();
@@ -389,6 +401,8 @@ void callfunction (char *ptr)
 	int spilled_arg_sizes[MAX_FASTCALL_ARGS];
 	int sparg_idx = 0;	/* index into spilled_args[] */
 	int uses_acc = 0;	/* does callee use acc? */
+
+	is_leaf_function = 0;
 
 	cnt = 0;
 	nargs = 0;

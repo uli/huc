@@ -589,6 +589,17 @@ void dumpglbs (void )
 
 static void dumpfinal(void)
 {
+	int i;
+	if (leaf_cnt) {
+		outstr("leaf_loc: .ds ");
+		outdec(leaf_size);
+		nl();
+		for (i = 0; i < leaf_cnt; i++) {
+			outstr("__");
+			outstr(leaf_functions[i]);
+			outstr("_lend:\n");
+		}
+	}
 	if (globals_h_in_process != 1) {
 		outstr("__heap_start:\n");
 	}

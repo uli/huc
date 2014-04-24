@@ -108,3 +108,7 @@ extern int have_irq_handler;
 extern int have_sirq_handler;
 
 extern int need_map_call_bank;
+
+extern char **leaf_functions;
+extern int leaf_cnt;
+extern int leaf_size;

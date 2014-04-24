@@ -110,3 +110,7 @@ int have_irq_handler;
 int have_sirq_handler;
 
 int need_map_call_bank;
+
+char **leaf_functions = 0;
+int leaf_cnt = 0;
+int leaf_size = 0;
