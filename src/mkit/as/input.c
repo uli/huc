@@ -22,23 +22,10 @@ char   incpath[10][128];
 void
 init_path(void)
 {
-	char *p,*pl;
+	const char *p,*pl;
 	int	i, l;
 
-	p = getenv(machine->include_env);
-
-	if (p == NULL) {
-		int i;
-		struct stat st;
-		for (i = 0; machine->default_dirs[i]; i++) {
-			if (!stat(machine->default_dirs[i], &st)) {
-				p = machine->default_dirs[i];
-				break;
-			}
-		}
-		if (!p)
-			return;
-	}
+	p = getenv(machine->include_env) ? : machine->default_dir;
 
 	for (i = 0; i < 10; i++) {
 

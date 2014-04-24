@@ -136,20 +136,19 @@ struct t_opcode pce_pseudo[23] = {
 	{NULL, NULL, NULL, 0, 0, 0}
 };
 
-char *defdirs_pce[] = {
+const char defdirs_pce[] =
 #ifdef WIN32
-	"c:\\huc\\include\\pce",
+	"c:\\huc\\include\\pce"
 #else
-	"/usr/local/lib/huc/include/pce",
-	"/usr/local/huc/include/pce",
-	"/usr/local/share/huc/include/pce",
-	"/usr/local/include/pce",
-	"/usr/lib/huc/include/pce",
-	"/usr/share/huc/include/pce",
-	"/usr/include/pce",
+	"/usr/local/lib/huc/include/pce;" \
+	"/usr/local/huc/include/pce;" \
+	"/usr/local/share/huc/include/pce;" \
+	"/usr/local/include/pce;" \
+	"/usr/lib/huc/include/pce;" \
+	"/usr/share/huc/include/pce;" \
+	"/usr/include/pce"
 #endif
-	NULL
-};
+	;
 
 /* PCE machine description */
 struct t_machine pce = {

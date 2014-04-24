@@ -57,31 +57,19 @@ init_path(void)
    p = getenv("PCE_INCLUDE");
 
    if (p == NULL) {
-      int i;
-      struct stat st;
-      const char *default_dirs[] = {
+      p =
 #ifdef WIN32
 	 "c:\\huc\\include\\pce",
 #else
-         "/usr/local/lib/huc/include/pce",
-         "/usr/local/huc/include/pce",
-         "/usr/local/share/huc/include/pce",
-         "/usr/local/include/pce",
-         "/usr/lib/huc/include/pce",
-         "/usr/share/huc/include/pce",
-         "/usr/include/pce",
+         "/usr/local/lib/huc/include/pce;" \
+         "/usr/local/huc/include/pce;" \
+         "/usr/local/share/huc/include/pce;" \
+         "/usr/local/include/pce;" \
+         "/usr/lib/huc/include/pce;" \
+         "/usr/share/huc/include/pce;" \
+         "/usr/include/pce"
 #endif
-         NULL
-      };
-      for (i = 0; default_dirs[i]; i++) {
-         if (!stat(default_dirs[i], &st)) {
-            p = default_dirs[i];
-            break;
-         }
-      }
-
-      if (!p)
-         return;
+      ;
    }
 
    for (i = 1; i < 10; i++)

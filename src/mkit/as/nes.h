@@ -24,20 +24,19 @@ struct t_opcode nes_pseudo[11] = {
 	{NULL, NULL, NULL, 0, 0, 0}
 };
 
-char *defdirs_nes[] = {
+const char defdirs_nes[] =
 #ifdef WIN32
-	"c:\\huc\\include\\nes",
+	"c:\\huc\\include\\nes"
 #else
-	"/usr/local/lib/huc/include/nes",
-	"/usr/local/huc/include/nes",
-	"/usr/local/share/huc/include/nes",
-	"/usr/local/include/nes",
-	"/usr/lib/huc/include/nes",
-	"/usr/share/huc/include/nes",
-	"/usr/include/nes",
+	"/usr/local/lib/huc/include/nes;" \
+	"/usr/local/huc/include/nes;" \
+	"/usr/local/share/huc/include/nes;" \
+	"/usr/local/include/nes;" \
+	"/usr/lib/huc/include/nes;" \
+	"/usr/share/huc/include/nes;" \
+	"/usr/include/nes"
 #endif
-	NULL
-};
+	;
 
 /* NES machine description */
 struct t_machine nes = {
