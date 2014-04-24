@@ -63,6 +63,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	long  nbarg;
 	int is_irq_handler = 0;
 	int is_firq_handler = 0;
+	int save_norecurse = norecurse;
 	need_map_call_bank = 0;
 
 	if (sname) {
@@ -148,12 +149,22 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 			need_map_call_bank = 1;
 			continue;
 		}
+
+		if (amatch("__norecurse", 14)) {
+			norecurse = 1;
+			continue;
+		}
+		else if (amatch("__recurse", 9)) {
+			norecurse = 0;
+			continue;
+		}
 		break;
 	}
 
 	if (match(";")) {
 		/* function prototype */
 		ptr = addglb (current_fn, FUNCTION, ret_type, 0, EXTERN, 0);
+		norecurse = save_norecurse;
 		return;
 	}
 
@@ -247,6 +258,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 	nl ();
 	stkp = 0;
 	locptr = STARTLOC;
+	norecurse = save_norecurse;
 }
 
 /*
