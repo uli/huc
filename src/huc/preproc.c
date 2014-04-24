@@ -431,6 +431,8 @@ long cpp (int subline)
 	cpped = 0;
 	/* don't expand lines with preprocessor commands in them */
 	if (!subline && (!cmode || line[0] == '#')) {
+		if (sstreq("#include"))
+			return 0;
 		/* except #inc/#def commands */
 		if (!match("#inc") && !match("#def"))
 			return(0);
