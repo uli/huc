@@ -16,7 +16,7 @@ int main()
 	unsigned int i;
 	b = a;	/* need to use a non-const pointer to force use of __ptr */
 	irq_add_vsync_handler(v);
-	irq_enable_user_irq(IRQ_VSYNC);
+	irq_enable_user(IRQ_VSYNC);
 	for (i = 0; i < 60000; i++) {
 		/* Unrolling increases the chance of an interrupt
 		   occurring between writing __ptr and using it. */
