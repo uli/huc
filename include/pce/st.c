@@ -138,6 +138,13 @@ static void vsync_handler(void) __mapcall
 	unsigned char is_drum;
 	unsigned int save_banks;
 
+#ifdef PROFILE_ST
+	timer_stop();
+	irq_disable(IRQ_TIMER);
+	timer_set(127);
+	timer_start();
+#endif
+
 	save_banks = mem_mapdatabanks(st_song_banks);
 	if ((st_tick & 7) == 0) {
 		if (st_row_idx == 0) {
@@ -249,6 +256,11 @@ static void vsync_handler(void) __mapcall
 	put_hex(st_tick, 2, 10, 0);
 #endif
 	++st_tick;
+#ifdef PROFILE_ST
+	j = timer_get();
+	timer_stop();
+	put_number(127 - j, 4, 5, 1);
+#endif
 }
 
 void st_init(void)
