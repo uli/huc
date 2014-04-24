@@ -60,7 +60,7 @@ void st_load_wave(unsigned char chan, unsigned char *wave)
 	current_wave[chan] = 0xff; /* force reload when tune plays */
 }
 
-void st_effect(unsigned char chan, unsigned int freq, unsigned char len)
+void st_effect_wave(unsigned char chan, unsigned int freq, unsigned char len)
 {
 	st_chan_disable_tune[chan] = 1;
 	st_chan_env_pos[chan] = 0;
@@ -69,6 +69,17 @@ void st_effect(unsigned char chan, unsigned int freq, unsigned char len)
 	*psg_ch = chan;
 	*psg_freqlo = freq & 0xff;
 	*psg_freqhi = freq >> 8;
+	__cli();
+}
+
+void st_effect_noise(unsigned char chan, unsigned char freq, unsigned char len)
+{
+	st_chan_disable_tune[chan] = 1;
+	st_chan_env_pos[chan] = 0;
+	st_chan_len[chan] = len;
+	__sei();
+	*psg_ch = chan;
+	*psg_noise = 0x80 | (freq ^ 31);
 	__cli();
 }
 
