@@ -925,7 +925,7 @@ _vsync_hndl:
 	stw   bg_y1,video_data
 
        .ifdef HAVE_IRQ
-	bbr0 <huc_irq_enable,.l4
+	bbr3 <huc_irq_enable,.disabled
 	tii	__sp, huc_context, 8
        .ifdef HAVE_SIRQ
         tii	_bp, huc_fc_context, 20
@@ -945,7 +945,7 @@ _vsync_hndl:
        .ifdef HAVE_SIRQ
         tii	huc_fc_context, _bp, 20
        .endif
-.l4:
+.disabled:
        .endif ; HAVE_IRQ
 
 	; --
@@ -997,12 +997,12 @@ _vsync_hndl:
     ;
 _hsync_hndl:
        .ifdef HAVE_IRQ
-	bbr1 <huc_irq_enable,.l1
+	bbr4 <huc_irq_enable,.disabled
 	tii	__sp, huc_context, 8
 	stw   #huc_irq_stack, <__sp
 	jsr  user_hsync		; call user handler
 	tii	huc_context, __sp, 8
-.l1:
+.disabled:
        .endif
 	ldy   s_idx
 	bpl  .r1

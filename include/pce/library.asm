@@ -1694,6 +1694,22 @@ _irq_disable_user:
 	rts
 	.endif ; HAVE_IRQ
 
+_irq_enable:
+	txa
+	sei
+	ora	irq_disable
+	sta	irq_disable
+	cli
+	rts
+_irq_disable:
+	txa
+	eor	#$ff
+	sei
+	and	irq_disable
+	sta	irq_disable
+	cli
+	rts
+
 _abort:
 	  .db 0xe2
 

@@ -116,11 +116,15 @@
 void set_map_tile_type(unsigned char);
 void set_map_tile_base(unsigned int vaddr);
 
-#define IRQ_VSYNC	1
-#define IRQ_HSYNC	2
+#define IRQ_VSYNC	8
+#define IRQ_HSYNC	16
+#define IRQ_TIMER	4
 
 unsigned char mem_mapdatabank(unsigned char new_bank);
 unsigned int mem_mapdatabanks(unsigned int new_banks);
 
 void irq_enable_user(unsigned char irq);
 void irq_disable_user(unsigned char irq);
+
+void irq_enable(unsigned char irq);
+void irq_disable(unsigned char irq);
