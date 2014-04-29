@@ -16,7 +16,7 @@ EXE = mml$(EXESUFFIX)
 all: $(EXE)
 
 
-$(EXE): $(OBJS) $(LIBS) $(HDRS)
+$(EXE): $(OBJS) $(HDRS)
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
 	$(CP) $(EXE) $(BINDIR)
 
