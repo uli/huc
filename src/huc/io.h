@@ -18,7 +18,12 @@ long openout (void);
 void outfname (char *s);
 void fixname (char *s);
 long checkname (char *s);
+#ifdef osx
+void _kill (void);
+#define kill _kill
+#else
 void kill (void );
+#endif
 void unget_line (void);
 void readline (void);
 

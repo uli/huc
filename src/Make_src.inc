@@ -15,6 +15,10 @@ LDFLAGS = -g
 #
 # platform-specific stuff
 #
+ifeq "$(shell uname -s)" "Darwin"
+CFLAGS += -Dosx
+endif
+
 ifeq "$(origin DJGPP)" "undefined"
 
 # BASEDIR uses 'd' for path separator; we fix that here

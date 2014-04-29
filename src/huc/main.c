@@ -664,7 +664,7 @@ long assemble(char *s)
 #ifdef DJGPP
 	exe = "pceas.exe";
 	opts[i++] = "pceas.exe";
-#elif defined(linux) || defined(unix)
+#elif defined(linux) || defined(unix) || defined(osx)
 	exe = "pceas";
 	opts[i++] = "pceas";
 #elif defined(WIN32)
