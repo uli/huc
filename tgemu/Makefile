@@ -14,10 +14,12 @@ OBJS	= $(RESOBJS) game.o \
 
 LIBS	= -lz
 
-ARCH = $(shell uname -m)
+ARCH = $(shell uname -p)
 
 ifneq ($(ARCH), ppc)
+ifneq ($(ARCH), powerpc)
 ENDIAN = -DLSB_FIRST
+endif
 endif
 
 CFLAGS = -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE $(ENDIAN) -DFAST_MEM -O2 -g
