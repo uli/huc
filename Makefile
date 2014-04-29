@@ -4,8 +4,11 @@
 
 SUBDIRS = src tgemu
 
-all clean:
+all clean: bin
 	@$(MAKE) $(SUBDIRS) "COMMAND=$@"
+
+bin:
+	mkdir -p bin
 
 .PHONY: $(SUBDIRS)
 
