@@ -26,6 +26,7 @@
 #include "error.h"
 #include "function.h"
 #include "gen.h"
+#include "initials.h"
 #include "io.h"
 #include "lex.h"
 #include "main.h"
@@ -547,20 +548,140 @@ void dumplits (void )
 		dump_const ();
 }
 
+/**
+ * dump struct data
+ * @param symbol struct variable
+ * @param position position of the struct in the array, or zero
+ */
+void dump_struct(SYMBOL *symbol, int position) {
+	int i, number_of_members, value;
+	number_of_members = tag_table[symbol->tagidx].number_of_members;
+	for (i=0; i<number_of_members; i++) {
+		// i is the index of current member, get type
+		int member_type = member_table[tag_table[symbol->tagidx].member_idx + i].type;
+		if (member_type == CCHAR || member_type == CUCHAR) {
+			defbyte();
+		} else {
+			/* XXX: compound types? */
+			defword();
+		}
+		if (position < get_size(symbol->name)) {
+			// dump data
+			value = get_item_at(symbol->name, position*number_of_members+i, &tag_table[symbol->tagidx]);
+			outdec(value);
+		} else {
+			// dump zero, no more data available
+			outdec(0);
+		}
+		nl();
+	}
+}
+
+static int have_init_data = 0;
+/* Initialized data must be kept in one contiguous block; pceas does not
+   provide segments for that, so we keep the definitions and data in
+   separate buffers and dump them all together after the last input file. 
+ */
+#define DATABUFSIZE 65536
+static FILE *data = 0;
+char data_buf[DATABUFSIZE];
+static FILE *rodata = 0;
+char rodata_buf[DATABUFSIZE];
+
 /*
  *	dump all static variables
  */
 void dumpglbs (void )
 {
 	long i = 1;
+	int dim, list_size, line_count;
+	int j;
+	FILE *save = output;
+	if (!data)
+		data = fmemopen(data_buf, DATABUFSIZE, "w");
+	if (!rodata)
+		rodata = fmemopen(rodata_buf, DATABUFSIZE, "w");
 
+	/* This is done in several passes:
+	   Pass 0: Dump initialization data into const bank.
+	   Pass 1: Define space for uninitialized data.
+	   Pass 2: Define space for initialized data.
+	 */
 	if (glbflag) {
-		cptr = rglbptr;
-		while (cptr < glbptr) {
+		int pass = 0;
+next:
+		i = 1;
+		for (cptr = rglbptr; cptr < glbptr; cptr++) {
 			if (cptr->ident != FUNCTION) {
 //				ppubext(cptr);
-				if ((cptr->storage & WRITTEN) == 0) { /* Not yet written to file */
-					if (cptr->storage != EXTERN) {
+				if ((cptr->storage & WRITTEN) == 0 && /* Not yet written to file */
+				    cptr->storage != EXTERN) {
+					dim = cptr->offset;
+					if (find_symbol_initials(cptr->name)) { // has initials
+						/* dump initialization data */
+						if (pass == 1)	/* initialized data not handled in pass 1 */
+							continue;
+						else if (pass == 2) {
+							/* define space for initialized data */
+							output = data;
+							prefix ();
+							outstr (cptr->name);
+							outstr (":\t");
+							defstorage ();
+							outdec (cptr->size);
+							nl ();
+							cptr->storage |= WRITTEN;
+							output = save;
+							continue;
+						}
+						/* output initialization data into const bank */
+						output = rodata;
+						have_init_data = 1;
+						list_size = 0;
+						line_count = 0;
+						list_size = get_size(cptr->name);
+						if (cptr->type == CSTRUCT) {
+							list_size /= tag_table[cptr->tagidx].number_of_members;
+						}
+						if (dim == -1) {
+							dim = list_size;
+						}
+						for (j = 0; j < list_size; j++) {
+						    if (cptr->type == CSTRUCT) {
+							dump_struct(cptr, j);
+						    } else {
+							if (line_count % 10 == 0) {
+							    if (cptr->type == CCHAR || cptr->type == CUCHAR) {
+								defbyte();
+							    } else {
+								defword();
+							    }
+							}
+							if (j < list_size) {
+							    // dump data
+							    int value = get_item_at(cptr->name, j, &tag_table[cptr->tagidx]);
+							    outdec(value);
+							} else {
+							    // dump zero, no more data available
+							    outdec(0);
+							}
+							line_count++;
+							if (line_count % 10 == 0) {
+							    line_count = 0;
+							} else {
+							    if (j < list_size-1) {
+								outbyte( ',' );
+							    }
+							}
+						    }
+						}
+						nl();
+						output = save;
+					}
+					else {
+						if (pass == 0)
+							continue;
+						/* define space in bss */
 						if (i) {
 							i = 0;
 							nl();
@@ -578,13 +699,15 @@ void dumpglbs (void )
 			} else {
 //				fpubext(cptr);
 			}
-			cptr++;
 		}
+		if (++pass < 3)
+			goto next;
 	}
 	if (i) {
 		nl();
 		gdata();
 	}
+	output = save;
 }
 
 static void dumpfinal(void)
@@ -600,14 +723,30 @@ static void dumpfinal(void)
 			outstr("_lend:\n");
 		}
 	}
+	if (data) {
+		fclose(data);
+		outstr("huc_data:\n");
+		outstr(data_buf);
+		outstr("huc_data_end:\n");
+	}
 	if (globals_h_in_process != 1) {
 		outstr("__heap_start:\n");
+	}
+	if (rodata) {
+		fclose(rodata);
+		ol(".data");
+		ol(".bank CONST_BANK");
+		outstr("huc_rodata:\n");
+		outstr(rodata_buf);
+		outstr("huc_rodata_end:\n");
 	}
 	fseek(output, output_globdef, SEEK_SET);
 	if (have_irq_handler)
 		outstr("HAVE_IRQ = 1\n");
 	if (have_sirq_handler)
 		outstr("HAVE_SIRQ = 1\n");
+	if (have_init_data)
+		outstr("HAVE_INIT = 1\n");
 }
 
 /*
