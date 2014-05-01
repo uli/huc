@@ -112,3 +112,7 @@ extern int need_map_call_bank;
 extern char **leaf_functions;
 extern int leaf_cnt;
 extern int leaf_size;
+
+extern INITIALS initials_table[NUMGLBS];
+extern char initials_data_table[INITIALS_SIZE];      // 5kB space for initialisation data
+extern int initials_idx, initials_data_idx;

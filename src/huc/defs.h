@@ -369,6 +369,19 @@ struct fastcall {
 	char   argname[MAX_FASTCALL_ARGS][NAMESIZE];
 };
 
+// initialisation of global variables
+#define INIT_TYPE    NAMESIZE
+#define INIT_LENGTH  NAMESIZE+1
+#define INITIALS_SIZE 5*1024
+
+struct initials_table {
+	char name[NAMESIZE];	// symbol name
+	int type;               // type
+	int dim;                // length of data (possibly an array)
+    int data_len;               // index of tag or zero
+};
+#define INITIALS struct initials_table
+
 SYMBOL *find_member(TAG_SYMBOL *tag, char *sname);
 
 struct lvalue {

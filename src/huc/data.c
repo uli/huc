@@ -114,3 +114,7 @@ int need_map_call_bank;
 char **leaf_functions = 0;
 int leaf_cnt = 0;
 int leaf_size = 0;
+
+INITIALS initials_table[NUMGLBS];
+char initials_data_table[INITIALS_SIZE];      // 5kB space for initialisation data
+int initials_idx = 0, initials_data_idx = 0;
