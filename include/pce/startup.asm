@@ -284,6 +284,10 @@ ovlentry:
 	ldx  #$ff
 	txs
 
+ .ifdef HAVE_INIT
+	tii  huc_rodata, huc_data, huc_rodata_end-huc_rodata
+ .endif
+
  .ifdef LINK_malloc
 	__ldwi	__heap_start
 	__pushw
@@ -751,6 +755,10 @@ scdmsg4:  .db  "Super CDROM System card"
 	stz   clock_mm
 	stz   clock_ss
 	stz   clock_tt
+
+ .ifdef HAVE_INIT
+	tii  huc_rodata, huc_data, huc_rodata_end-huc_rodata
+ .endif
 
  .ifdef LINK_malloc
 	__ldwi	__heap_start
