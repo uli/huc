@@ -11,6 +11,7 @@
 #include "const.h"
 #include "error.h"
 #include "gen.h"
+#include "initials.h"
 #include "io.h"
 #include "lex.h"
 #include "primary.h"
@@ -18,6 +19,128 @@
 #include "sym.h"
 #include "function.h"
 #include "struct.h"
+
+/**
+ * evaluate one initializer, add data to table
+ * @param symbol_name
+ * @param type
+ * @param identity
+ * @param dim
+ * @param tag
+ * @return
+ */
+static int init(char *symbol_name, int type, int identity, int *dim, TAG_SYMBOL *tag) {
+    long value;
+    int number_of_chars;
+
+    if(identity == POINTER) {
+        error("initializing non-const pointers unimplemented");
+    }
+
+    if(qstr(&value)) {
+        if((identity == VARIABLE) || (type != CCHAR && type != CUCHAR))
+            error("found string: must assign to char pointer or array"); /* XXX: make this a warning? */
+        if (identity == POINTER) {
+		/* unimplemented */
+		printf("initptr %s value %ld\n", symbol_name, value);
+		abort();
+		//add_data_initials(symbol_name, CUINT, value, tag);
+	}
+	else {
+		number_of_chars = litptr - value;
+		*dim = *dim - number_of_chars;
+		while (number_of_chars > 0) {
+		    add_data_initials(symbol_name, CCHAR, litq[value++], tag);
+		    number_of_chars = number_of_chars - 1;
+		}
+	}
+    } else if (number(&value)) {
+	add_data_initials(symbol_name, CINT, value, tag);
+	*dim = *dim - 1;
+    } else if(qstr(&value)) {
+	add_data_initials(symbol_name, CCHAR, value, tag);
+	*dim = *dim - 1;
+    } else {
+	return 0;
+    }
+    return 1;
+}
+
+/**
+ * initialise structure
+ * @param tag
+ */
+void struct_init(TAG_SYMBOL *tag, char *symbol_name) {
+	int dim ;
+	int member_idx;
+
+	member_idx = tag->member_idx;
+	while (member_idx < tag->member_idx + tag->number_of_members) {
+		init(symbol_name, member_table[tag->member_idx + member_idx].type,
+			member_table[tag->member_idx + member_idx].ident, &dim, tag);
+		++member_idx;
+		if ((match(",") == 0) && (member_idx != (tag->member_idx + tag->number_of_members))) {
+			error("struct initialisaton out of data");
+			break ;
+		}
+	}
+}
+
+/**
+ * initialize global objects
+ * @param symbol_name
+ * @param type char or integer or struct
+ * @param identity
+ * @param dim
+ * @return 1 if variable is initialized
+ */
+int initials(char *symbol_name, int type, int identity, int dim, int otag) {
+    int dim_unknown = 0;
+    if(dim == 0) { // allow for xx[] = {..}; declaration
+	dim_unknown = 1;
+    }
+    if(match("=")) {
+	if (type != CCHAR && type != CUCHAR && type != CINT && type != CUINT && type != CSTRUCT) {
+		error("unsupported storage size");
+	}
+	// an array or struct
+	if(match("{")) {
+	    // aggregate initialiser
+	    if ((identity == POINTER || identity == VARIABLE) && type == CSTRUCT) {
+		// aggregate is structure or pointer to structure
+		dim = 0;
+		struct_init(&tag_table[otag], symbol_name);
+	    }
+	    else {
+		while((dim > 0) || (dim_unknown)) {
+		    if (identity == ARRAY && type == CSTRUCT) {
+			// array of struct
+			needbrack("{");
+			struct_init(&tag_table[otag], symbol_name);
+			--dim;
+			needbrack("}");
+		    }
+		    else {
+			if (init(symbol_name, type, identity, &dim, 0)) {
+			    dim_unknown++;
+			}
+		    }
+		    if(match(",") == 0) {
+			break;
+		    }
+		}
+		if(--dim_unknown == 0)
+		    identity = POINTER;
+	    }
+	    needbrack("}");
+	// single constant
+	} else {
+	    init(symbol_name, type, identity, &dim, 0);
+	}
+    }
+    return identity;
+}
+
 
 /*
  *	declare a static variable
@@ -55,7 +178,10 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 					multidef (sname);
 			}
 			if (match ("[")) {
-				k = array_initializer(typ, id, stor);
+				if (stor == CONST)
+					k = array_initializer(typ, id, stor);
+				else
+					k = needsub();
 				if (k == -1)
 					return (1);
 				/* XXX: This doesn't really belong here, but I
@@ -92,6 +218,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 						k *= tag_table[otag].size;
 				}
 				if (stor != CONST) {
+					id = initials(sname, typ, id, k, otag);
 					SYMBOL *c = addglb (sname, id, typ, k, stor, s);
 					if (typ == CSTRUCT)
 						c->tagidx = otag;
@@ -192,6 +319,8 @@ void declloc (long typ, long stclass, int otag)
 					k = INTSIZE;
 			}
 			if (stclass == LSTATIC) {
+				/* XXX: need to dump them, too... */
+				//j = initials(sname, typ, j, k, otag);
 				SYMBOL *c = addloc( sname, j, typ, k, LSTATIC, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
