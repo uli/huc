@@ -647,7 +647,7 @@ next:
 						if (dim == -1) {
 							dim = list_size;
 						}
-						for (j = 0; j < list_size; j++) {
+						for (j = 0; j < dim; j++) {
 						    if (cptr->type == CSTRUCT) {
 							dump_struct(cptr, j);
 						    } else {
@@ -670,7 +670,7 @@ next:
 							if (line_count % 10 == 0) {
 							    line_count = 0;
 							} else {
-							    if (j < list_size-1) {
+							    if (j < dim-1) {
 								outbyte( ',' );
 							    }
 							}
