@@ -742,7 +742,7 @@ static void dumpfinal(void)
 		outstr("huc_rodata_end:\n");
 	}
 	fseek(output, output_globdef, SEEK_SET);
-	if (have_irq_handler)
+	if (have_irq_handler || have_sirq_handler)
 		outstr("HAVE_IRQ = 1\n");
 	if (have_sirq_handler)
 		outstr("HAVE_SIRQ = 1\n");
