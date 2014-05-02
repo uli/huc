@@ -7,6 +7,7 @@
 #include "data.h"
 #include "defs.h"
 #include "code.h"
+#include "const.h"
 #include "error.h"
 #include "io.h"
 #include "lex.h"
@@ -23,12 +24,6 @@ static long  str_idx;
 /* protos */
 char *new_string(long und, char *a);
 void  do_inc_ex(long type);
-
-/* extern protos */
-void add_buffer(char *p, char c);
-void new_const(void);
-void add_const(long typ);
-
 
 /*
  * This source file includes all kind of stuff used to 'simulate' pseudo code
@@ -971,19 +966,19 @@ do_inc_ex(long type)
 	new_const();
 	const_val[const_val_idx++] = const_data_idx;	/* number of tile */
 	sprintf(str, "%i", nb_tile);
-	add_buffer(str, '(');
+	add_buffer(str, '(', 0);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile size */
 	sprintf(str, "%i", (int)type);
-	add_buffer(str, '(');
+	add_buffer(str, '(', 0);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile bank */
 	sprintf(str, "BANK(_%s)", label2);
-	add_buffer(str, '(');
+	add_buffer(str, '(', 0);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile addr */
 	sprintf(str, "     _%s", label2);
-	add_buffer(str, '(');
+	add_buffer(str, '(', 0);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = -(litptr + 1024);	/* pal idx table addr */
 	add_const(CINT);

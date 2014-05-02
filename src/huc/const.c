@@ -3,6 +3,11 @@
  *
  */
 
+/* XXX: This passes the initializer more or less verbatim to the assembler,
+   which unsurprisingly does not care much for C semantics, breaking stuff
+   like pointer arithmetic, and probably many non-trivial expressions.
+   Needs a rewrite. */
+
 #include <stdio.h>
 #include "defs.h"
 #include "data.h"
@@ -13,10 +18,6 @@
 #include "lex.h"
 #include "primary.h"
 #include "sym.h"
-
-/* protos */
-void add_buffer (char *p, char c);
-
 
 /*
  *	setup a new const array
@@ -181,6 +182,8 @@ long get_raw_value(char sep)
 	long   level;
 	long   flag;
 	long   start;
+	int is_address = 0;
+	int had_address = 0;
 
 	flag  = 0;
 	level = 0;
@@ -239,19 +242,38 @@ long get_raw_value(char sep)
 				flag = 0;
 			   *ptr  = '\0';
 				ptr  = tmp;
-				add_buffer(tmp, c);
+				had_address += add_buffer(tmp, c, is_address);
+				is_address = 0;
+				if ((c == '+' || c == '-') && had_address) {
+					/* Initializers are passed almost
+					   verbatim to the assembler, which
+					   doesn't know anything about types
+					   and thus doesn't know how to do
+					   pointer arithmetic correctly, so
+					   we don't allow it. */
+					error("pointer arithmetic in initializers not supported");
+					return 0;
+				}
 			}
 
 			/* add char */
-			if (const_data_idx < MAX_CONST_DATA)
+			if (c == '&') {
+				/* we want the succeeding identifier's address */
+				is_address = 1;
+				/* we need to remember that we had an address
+				   somewhere so we can barf if the identifier
+				   contains arithmetic */
+				had_address = 1;
+			}
+			else if (const_data_idx < MAX_CONST_DATA)
 				const_data[const_data_idx++] = c;
 		}
 		gch();
 	}
 	/* add buffer */
 	if (flag) {
-	   *ptr = '\0';
-		add_buffer(tmp, c);
+		*ptr = '\0';
+		add_buffer(tmp, c, is_address);
 	}
 	/* close string */
 	if (const_data_idx < MAX_CONST_DATA)
@@ -266,11 +288,29 @@ long get_raw_value(char sep)
  *  handle underscore
  *
  */
-void add_buffer (char *p, char c)
+int add_buffer (char *p, char c, int is_address)
 {
+	SYMBOL *s = 0;
 	/* underscore */
 	if (alpha(*p)) {
-		if (c != '(') {
+		s = findglb(p);
+		if (!s) {
+			error("undefined global");
+			return 0;
+		}
+		if (!is_address) {
+			/* Unless preceded by an address operator, we
+			   need to get the value, and it better be
+			   constant... */
+			p = get_const(s);
+			if (!p) {
+				error("non-constant initializer");
+				return 0;
+			}
+		}
+		else if (c != '(') {
+			/* If we want the address, we need an underscore
+			   prefix. */
 			if (const_data_idx < MAX_CONST_DATA)
 				const_data[const_data_idx++] = '_';
 		}
@@ -282,6 +322,9 @@ void add_buffer (char *p, char c)
 			const_data[const_data_idx++] = *p;
 		p++;
 	}
+
+	/* tell the caller if there were any addresses involved */
+	return (s && s->ident == POINTER) || is_address;
 }
 
 char *get_const(SYMBOL *s)
