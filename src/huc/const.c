@@ -287,6 +287,7 @@ void add_buffer (char *p, char c)
 char *get_const(SYMBOL *s)
 {
 	int i;
+	struct const_array *const_ptr;
 	if (const_nb) {
 		const_ptr = const_var;
 
