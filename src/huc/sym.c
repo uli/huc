@@ -174,9 +174,11 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				return 2;
 			}
 			if ((s = findglb (sname))) {
-				if (s->storage != EXTERN)
+				if (s->storage != EXTERN && !mtag)
 					multidef (sname);
 			}
+			if (mtag && find_member(mtag, sname))
+				multidef(sname);
 			if (match ("[")) {
 				if (stor == CONST)
 					k = array_initializer(typ, id, stor);

@@ -275,6 +275,7 @@ unknown_option:
 			glbflag = 1;
 			litlab = getlabel ();
 			member_table_index = 0;
+			memset(member_table, 0, sizeof(member_table));
 			tag_table_index = 0;
 			norecurse = user_norecurse;
 			typedef_ptr = 0;

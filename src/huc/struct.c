@@ -98,7 +98,11 @@ int define_struct(char *sname, int storage, int is_struct) {
     while (!match("}")) {
         if (!dodcls(storage, &tag_table[tti], is_struct))
             break;
+        /* We need to keep number_of_members up-to-date to make sure that
+           find_member() works so we can catch duplicate member names. */
+	symbol->number_of_members = member_table_index - symbol->member_idx;
     };
+    /* XXX: still necessary? */
     symbol->number_of_members = member_table_index - symbol->member_idx;
     return tti;
 }
