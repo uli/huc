@@ -33,6 +33,7 @@ unsigned char **st_wave_table;
 unsigned char **st_vol_table;
 
 static unsigned char st_tick;
+static unsigned int st_song_playing;
 
 void st_set_env(unsigned char chan, unsigned char *env)
 {
@@ -83,6 +84,16 @@ void st_effect_noise(unsigned char chan, unsigned char freq, unsigned char len)
 	__cli();
 }
 
+void st_play_song()
+{
+	st_song_playing = 1;
+}
+
+void st_stop_song()
+{
+	st_song_playing = 0;
+}
+
 void st_reset(void)
 {
 	unsigned char j, i;
@@ -106,6 +117,7 @@ void st_reset(void)
 	st_pattern_idx = 0;
 	st_row_idx = 0;
 	st_tick = 0;
+	st_song_playing = 0;
 	irq_enable_user(IRQ_VSYNC);
 }
 
@@ -146,7 +158,7 @@ static void vsync_handler(void) __mapcall
 #endif
 
 	save_banks = mem_mapdatabanks(st_song_banks);
-	if ((st_tick & 7) == 0) {
+	if ((st_tick & 7) == 0 && st_song_playing) {
 		if (st_row_idx == 0) {
 			pat = st_pattern_table[st_pattern_idx];
 			if (!pat) {
@@ -266,6 +278,7 @@ static void vsync_handler(void) __mapcall
 void st_init(void)
 {
 	irq_disable_user(IRQ_VSYNC);
+	st_pattern_table = 0;
 	irq_add_vsync_handler(vsync_handler);
 }
 
