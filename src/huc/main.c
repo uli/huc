@@ -649,7 +649,8 @@ next:
 						}
 						for (j = 0; j < dim; j++) {
 						    if (cptr->type == CSTRUCT) {
-							dump_struct(cptr, j);
+							dump_struct(cptr, j / get_size(cptr->name));
+							j += get_size(cptr->name) - 1;
 						    } else {
 							if (line_count % 10 == 0) {
 							    if (cptr->type == CCHAR || cptr->type == CUCHAR) {
