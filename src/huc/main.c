@@ -625,7 +625,8 @@ next:
 						else if (pass == 2) {
 							/* define space for initialized data */
 							output = data;
-							prefix ();
+							if (cptr->storage != LSTATIC)
+								prefix ();
 							outstr (cptr->name);
 							outstr (":\t");
 							defstorage ();
@@ -689,7 +690,8 @@ next:
 							nl();
 							gdata();
 						}
-						prefix ();
+						if (cptr->storage != LSTATIC)
+							prefix ();
 						outstr (cptr->name);
 						outstr (":\t");
 						defstorage ();

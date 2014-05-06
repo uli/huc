@@ -274,6 +274,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 void declloc (long typ, long stclass, int otag)
 {
 	long  k = 0, j;
+	long elements = 0;
 	char sname[NAMESIZE];
 	long  totalk = 0;
 
@@ -296,7 +297,7 @@ void declloc (long typ, long stclass, int otag)
 			if (findloc (sname))
 				multidef (sname);
 			if (match ("[")) {
-				k = needsub ();
+				elements = k = needsub ();
 				if (k) {
 					if (typ == CINT || typ == CUINT || j == POINTER)
 						k = k * INTSIZE;
@@ -307,8 +308,10 @@ void declloc (long typ, long stclass, int otag)
 					j = POINTER;
 					ptr_order++;
 					k = INTSIZE;
+					elements = 1;
 				}
 			} else {
+				elements = 1;
 				if ((typ == CCHAR || typ == CUCHAR) & (j != POINTER))
 					k = 1;
 				else if (typ == CSTRUCT) {
@@ -321,9 +324,31 @@ void declloc (long typ, long stclass, int otag)
 					k = INTSIZE;
 			}
 			if (stclass == LSTATIC) {
-				/* XXX: need to dump them, too... */
-				//j = initials(sname, typ, j, k, otag);
-				SYMBOL *c = addloc( sname, j, typ, k, LSTATIC, k);
+				/* Local statics are identified in two
+				   different ways: The human-readable
+				   identifier as given in the source text,
+				   and the internal label that is used in
+				   the assembly output.
+
+				   The initializer code wants the label, and
+				   it is also used to add a global to make
+				   sure the right amount of space is
+				   reserved in .bss and the initialized data
+				   is dumped eventually.
+
+				   addloc(), OTOH, wants the identifier so
+				   it can be found when referenced further
+				   down in the source text.  */
+				char lsname[NAMESIZE];
+				int label = getlabel();
+				sprintf(lsname, "LL%d", label);
+
+				j = initials(lsname, typ, j, k, otag);
+				/* NB: addglb() expects the number of
+				   elements, not a byte size.  */
+				addglb(lsname, j, typ, elements, LSTATIC, 0);
+
+				SYMBOL *c = addloc( sname, j, typ, label, LSTATIC, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
 				c->ptr_order = ptr_order;
@@ -346,8 +371,6 @@ void declloc (long typ, long stclass, int otag)
 		}
 		if (match("=")) {
 			long num[1];
-			if (stclass == LSTATIC)
-				error("initialization of static local variables unimplemented");
 			if (!norecurse)
 				stkp = modstk (stkp - totalk);
 			else
@@ -488,7 +511,6 @@ SYMBOL *addglb_far (char* sname, char typ)
 SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass, long size)
 {
 	char	*ptr;
-	long	k;
 
 	cptr = findloc (sname);
 	if (cptr)
@@ -503,18 +525,6 @@ SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass, long size)
 	cptr->ident = id;
 	cptr->type = typ;
 	cptr->storage = stclass;
-	if (stclass == LSTATIC) {
-		gdata();
-		ol(".bss");
-		outlabel(k = getlabel());
-		outstr(":\t");
-		defstorage();
-		outdec(size);
-		nl();
-		value = k;
-	}
-//	else
-//		value = galign(value);
 	cptr->offset = value;
 	cptr->size = size;
 	locptr++;
