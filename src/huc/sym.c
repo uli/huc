@@ -35,6 +35,8 @@ static int init(char *symbol_name, int type, int identity, int *dim, TAG_SYMBOL 
 
     if(identity == POINTER) {
         error("initializing non-const pointers unimplemented");
+        kill();
+        return 0;
     }
 
     if(qstr(&value)) {
