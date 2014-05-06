@@ -208,11 +208,7 @@ long primary (LVALUE* lval, int comma)
 				immed(T_VALUE, strlen(fname_copy) + 1);
 			else if ((ptr = findloc(sname)) ||
 				(ptr = findglb(sname))) {
-				if ((ptr->storage & ~WRITTEN) == LSTATIC)
-					error("sizeof local static");
 				k = ptr->size;
-                                if (ptr->type == CSTRUCT && ptr->ident != POINTER)
-                                        k = tag_table[ptr->tagidx].size;
 				immed (T_VALUE, k);
 			} else {
 				error("sizeof undeclared variable");
