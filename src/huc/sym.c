@@ -347,8 +347,12 @@ void declloc (long typ, long stclass, int otag)
 
 				j = initials(lsname, typ, j, k, otag);
 				/* NB: addglb() expects the number of
-				   elements, not a byte size.  */
-				addglb(lsname, j, typ, elements, LSTATIC, 0);
+				   elements, not a byte size.  Unless, of
+				   course, we have a CSTRUCT. *sigh* */
+				if (typ == CSTRUCT)
+					addglb(lsname, j, typ, k, LSTATIC, 0);
+				else
+					addglb(lsname, j, typ, elements, LSTATIC, 0);
 
 				SYMBOL *c = addloc( sname, j, typ, label, LSTATIC, k);
 				if (typ == CSTRUCT)

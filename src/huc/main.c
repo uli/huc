@@ -554,7 +554,8 @@ void dumplits (void )
  * @param symbol struct variable
  * @param position position of the struct in the array, or zero
  */
-void dump_struct(SYMBOL *symbol, int position) {
+int dump_struct(SYMBOL *symbol, int position) {
+	int dumped_bytes = 0;
 	int i, number_of_members, value;
 	number_of_members = tag_table[symbol->tagidx].number_of_members;
 	for (i=0; i<number_of_members; i++) {
@@ -562,9 +563,11 @@ void dump_struct(SYMBOL *symbol, int position) {
 		int member_type = member_table[tag_table[symbol->tagidx].member_idx + i].type;
 		if (member_type == CCHAR || member_type == CUCHAR) {
 			defbyte();
+			dumped_bytes += 1;
 		} else {
 			/* XXX: compound types? */
 			defword();
+			dumped_bytes += 2;
 		}
 		if (position < get_size(symbol->name)) {
 			// dump data
@@ -576,6 +579,7 @@ void dump_struct(SYMBOL *symbol, int position) {
 		}
 		nl();
 	}
+	return dumped_bytes;
 }
 
 static int have_init_data = 0;
@@ -648,10 +652,13 @@ next:
 						if (dim == -1) {
 							dim = list_size;
 						}
-						for (j = 0; j < dim; j++) {
+						int item;
+						/* dim is an item count for non-compound types and a byte size
+						   for compound types; dump_struct() wants an item number, so
+						   we have to count both to get the right members out. */
+						for (j = item = 0; j < dim; j++, item++) {
 						    if (cptr->type == CSTRUCT) {
-							dump_struct(cptr, j / get_size(cptr->name));
-							j += get_size(cptr->name) - 1;
+							j += dump_struct(cptr, item) - 1;
 						    } else {
 							if (line_count % 10 == 0) {
 							    if (cptr->type == CCHAR || cptr->type == CUCHAR) {
