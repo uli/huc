@@ -114,7 +114,7 @@ int initials(char *symbol_name, int type, int identity, int dim, int otag) {
 		struct_init(&tag_table[otag], symbol_name);
 	    }
 	    else {
-		while((dim > 0) || (dim_unknown)) {
+		while((dim > 0) || dim_unknown) {
 		    if (identity == ARRAY && type == CSTRUCT) {
 			// array of struct
 			needbrack("{");
@@ -131,8 +131,6 @@ int initials(char *symbol_name, int type, int identity, int dim, int otag) {
 			break;
 		    }
 		}
-		if(--dim_unknown == 0)
-		    identity = POINTER;
 	    }
 	    needbrack("}");
 	// single constant
