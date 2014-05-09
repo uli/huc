@@ -661,6 +661,7 @@ next:
 							j += dump_struct(cptr, item) - 1;
 						    } else {
 							if (line_count % 10 == 0) {
+							    nl();
 							    if (cptr->type == CCHAR || cptr->type == CUCHAR) {
 								defbyte();
 							    } else {
