@@ -890,9 +890,7 @@ do_inc_ex(long type)
 	strcpy(label, litq2);
 	strcpy(label2, litq2);
 	strcpy(str, "__data__");
-	for(i = strlen(label2), j = 0; i < NAMEMAX; i++)
-		label2[i] = str[j++];
-	label2[i] = '\0';
+	strcat(label2, str);
 	addglb(label2, ARRAY, CINT, 0, EXTERN, 0);
 	addglb(label, ARRAY, CINT, 0, EXTERN, 0);
 
@@ -966,19 +964,19 @@ do_inc_ex(long type)
 	new_const();
 	const_val[const_val_idx++] = const_data_idx;	/* number of tile */
 	sprintf(str, "%i", nb_tile);
-	add_buffer(str, '(', 0);
+	add_buffer(str, '(', 1);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile size */
 	sprintf(str, "%i", (int)type);
-	add_buffer(str, '(', 0);
+	add_buffer(str, '(', 1);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile bank */
 	sprintf(str, "BANK(_%s)", label2);
-	add_buffer(str, '(', 0);
+	add_buffer(str, '(', 1);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = const_data_idx;	/* tile addr */
 	sprintf(str, "     _%s", label2);
-	add_buffer(str, '(', 0);
+	add_buffer(str, '(', 1);
 	const_data[const_data_idx++] = '\0';
 	const_val[const_val_idx++] = -(litptr + 1024);	/* pal idx table addr */
 	add_const(CINT);

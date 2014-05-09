@@ -293,12 +293,12 @@ int add_buffer (char *p, char c, int is_address)
 	SYMBOL *s = 0;
 	/* underscore */
 	if (alpha(*p)) {
-		s = findglb(p);
-		if (!s) {
-			error("undefined global");
-			return 0;
-		}
 		if (!is_address) {
+			s = findglb(p);
+			if (!s) {
+				error("undefined global");
+				return 0;
+			}
 			/* Unless preceded by an address operator, we
 			   need to get the value, and it better be
 			   constant... */
