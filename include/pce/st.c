@@ -44,7 +44,7 @@ void st_set_vol(unsigned char chan, unsigned char left, unsigned char right)
 {
 	__sei();
 	*psg_ch = chan;
-	*psg_chbal = (left << 8) | right;
+	*psg_chbal = (left << 4) | right;
 	__cli();
 }
 
