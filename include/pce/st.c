@@ -53,6 +53,7 @@ void st_load_wave(unsigned char chan, unsigned char *wave)
 	unsigned char i;
 	__sei();
 	*psg_ch = chan;
+	*psg_ctrl = 0;
 	for (i = 0; i < 32; i++) {
 		*psg_data = *wave;
 		wave++;
@@ -126,6 +127,7 @@ static void load_ins(unsigned char ins)
 	unsigned char i;
 	unsigned char *data;
 	data = st_wave_table[ins];
+	*psg_ctrl = 0;
 	for (i = 0; i < 32; i++) {
 		*psg_data = *data;
 		data++;
