@@ -71,6 +71,7 @@ void st_effect_wave(unsigned char chan, unsigned int freq, unsigned char len)
 	*psg_ch = chan;
 	*psg_freqlo = freq & 0xff;
 	*psg_freqhi = freq >> 8;
+	*psg_noise = 0;
 	__cli();
 }
 
