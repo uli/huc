@@ -193,8 +193,9 @@ __stwi	.macro
 	.endm
 
 __stbi	.macro
-	 ldy	#low(\2)
-	 sty	\1
+	 ldx	#low(\2)
+	 stx	\1
+	 cla
 	.endm
 
 __stwz	.macro
