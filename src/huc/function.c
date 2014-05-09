@@ -747,7 +747,7 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 
 			/* check symbol type */
 			if (ins->code == I_LDW) {
-				if((nb < 2) || (sym->ident == VARIABLE) || (sym->ident == ARRAY))
+				if((nb < 2) || (sym->ident == VARIABLE))
 					err = 1;
 			}
 			else {
