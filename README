@@ -1,0 +1,92 @@
+* This is a work in progress. *
+
+This is a substantially improved version of the HuC PC Engine C development
+toolkit.  The following features have been added on top of HuC release 3.21:
+
+A. Toolchain features
+
+1. Language support
+- ANSI-style function declarations, including return types and function
+  prototypes (typing is not enforced)
+- struct and union support (adapted from SmallC-85)
+- anonymous structures and "typedef"
+- support for signed and unsigned scalars
+- support initialization of
+  - scalars (global, automatic local, and static local)
+  - arrays and compound types (constant and variable globals and static
+    locals)
+  - constant char pointers with string constants
+- type casting (except struct pointers)
+- void pointers
+- preprocessor features:
+  - function-like macros (i.e. macros with arguments)
+  - #if and #elif directives
+  - macro definition in function bodies
+- heap allocator (malloc() / free())
+- C++-style comments
+- support for function calls in argument lists of fastcall functions (e.g.
+  "memcpy(a, b, strlen(b) + 1);")
+- labels and "goto"
+
+2. Performance and code size improvements
+- "small stack" and "no recursion" options that cut down code size
+  and improve performance when these features are not needed
+- numerous optimizations of generated code, helper functions, and macros
+
+3. Quality assurance
+- automated test suite adapted from snes-sdk and extended to more than 470
+  test cases; supports verification of screen output
+- complete toolchain fixed to work on 64-bit host systems
+- tested and fixed for big-endian and 32-bit systems
+- fixed to work on Mac OS X (tested on PowerPC) and Cygwin
+- more than 70 bugs fixed in various components
+
+4. Other enhancements
+- support for interrupt handlers implemented in C
+- support for more than one input file
+- "library" support that includes C files from the include path
+- default #include paths
+- #incasm directive for seamless inclusion of data files in assembler format
+  with user-definable page mapping (useful with SimpleTracker and Squirrel)
+
+Among the limitations that still exist and may cause problems:
+
+- no support for initialization of:
+  - variable pointers
+  - pointers using array syntax (e.g. "const char *foo = {1, 2, 3};")
+  - arrays using string constants (e.g. "const char foo[] = "abc";")
+  - variable arrays with unspecified sizes (e.g. "int foo[] = ...")
+  - automatic local arrays (static ones work)
+- no passing or returning of structures by value (pointers work)
+- no type casting to struct pointers
+- no floating point support
+- no anonymous structs
+- no support for MinGW (Windows users are recommended to use Cygwin)
+
+There are also a couple more absent features that are not so likely to be
+missed:
+
+- no local union or struct _types_ (not variables)
+- sizeof does not permit dereferencing ("sizeof(*a)")
+- no bit fields
+
+B. Included libraries
+
+- HuC PSG driver removed except for initialization routine; it was missing
+  the part that, you know, makes sounds...
+- "SimpleTracker" PSG driver implemented in C
+- more consistent joypad button defines (as provided by the assembler)
+
+C. Tools
+
+- mod2mml implementation derived from Zeograd's unfinished tool that
+  produces SimpleTracker binary or Squirrel MML files from Protracker MOD
+  files:
+  - auto-detection of note length from sample size and pitch
+  - automated extraction of custom waveforms from samples
+  - partial auto-detection of volume envelopes
+  - user-definable mapping of waveform and percussion instruments
+  - per-instrument transposition and volume control
+- MML compiler from Develo CD
+- pceas updated to version 3.22
+- pceas symbol table rearranged to allow easier sorting by address
