@@ -18,7 +18,7 @@ long openout (void);
 void outfname (char *s);
 void fixname (char *s);
 long checkname (char *s);
-#ifdef osx
+#if defined(osx) || defined(__CYGWIN__)
 void _kill (void);
 #define kill _kill
 #else

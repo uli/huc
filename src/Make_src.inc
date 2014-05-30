@@ -18,6 +18,9 @@ LDFLAGS = -g
 ifeq "$(shell uname -s)" "Darwin"
 CFLAGS += -Dosx
 endif
+ifeq "$(shell uname -o)" "Cygwin"
+CFLAGS += -Wno-char-subscripts
+endif
 
 ifeq "$(origin DJGPP)" "undefined"
 
