@@ -65,8 +65,6 @@ pce_load_map(char *fname, int mode)
 			    header[7];
 		fsize -= 8;
 		fsize -= size;
-		if (fsize < 0)
-			break;
 
 		/* BODY chunk */
 		if (memcmp(header, "BODY", 4) == 0) {
@@ -97,9 +95,15 @@ pce_load_map(char *fname, int mode)
 			break;
 		}
 		else {
-			/* unsupported chunk */
-			fseek(fp, size, SEEK_CUR);
+			if (fsize > 0)
+			{
+				/* unsupported chunk */
+				fseek(fp, size, SEEK_CUR);
+			}
 		}
+
+		if(fsize < 0)
+			break;
 	}
 
 	/* close file */
