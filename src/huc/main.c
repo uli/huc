@@ -396,6 +396,11 @@ void usage(char* exename)
  */
 void parse (void )
 {
+	if (!startup_incl) {
+		inc_startup();
+		incl_globals();
+	}
+
 	while (1) {
 		blanks();
 		if (feof(input))
@@ -416,11 +421,6 @@ void parse (void )
 			continue;
 		}
 		
-		if (!startup_incl) {
-			inc_startup();
-			incl_globals();
-		}
-
 		if (amatch ("extern", 6))
 			dodcls(EXTERN, NULL_TAG, 0);
 		else if (amatch ("static",6)) {
