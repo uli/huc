@@ -1311,7 +1311,7 @@ _scroll:
 	  iny
 	  lda   [__sp],Y
 	  sta   scroll_xh,X
-	  addw	#10,<__sp
+	__addmi	#10,__sp
 	  rts
 
 ; scroll_disable(char num)

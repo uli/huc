@@ -1295,7 +1295,7 @@ setvdc:
 	sta	_vdc,X
 	tya
 	sta	_vdc+1,X
-.l2:	addw	#2,<__sp
+.l2:	__addmi	2,__sp
 	rts	
 	; -- reg $09
 .l3:	txa
