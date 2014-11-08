@@ -1,6 +1,7 @@
 #!/bin/bash
 export PCE_INCLUDE=`pwd`/../include/pce
-echo $PCE_INCLUDE
+export PCE_PCEAS=`pwd`/../bin/pceas
+echo $PCE_INCLUDE $PCE_PCEAS
 tests="$@"
 test -z "$tests" && tests="tests/*.c dg/*.c"
 test -n "$1" && tests="$@"
