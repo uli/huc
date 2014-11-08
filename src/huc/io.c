@@ -28,8 +28,10 @@ long openin (char *p)
 	strcpy(fname, p);
         strcpy(fname_copy, fname);
 	fixname (fname);
-	if (!checkname (fname))
+	if (!checkname (fname)) {
+	        fprintf(stderr, "%s: unknown file type\n", fname);
 		return (NO);
+        }
 	if ((input = fopen (fname, "r")) == NULL) {
 		perror(fname);
 		return (NO);
