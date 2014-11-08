@@ -252,7 +252,7 @@ unknown_option:
 		/* Truncate asm defines to the point where global
 		   defines end. */
 		asmdefs_global_end[0] = 0;
-		if (extension(p) == 'c') {
+		if (extension(p) == 'c' || extension(p) == 'C') {
 			glbptr = STARTGLB;
 			locptr = STARTLOC;
 			wsptr = ws;

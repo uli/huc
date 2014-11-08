@@ -113,7 +113,7 @@ long checkname (char *s)
 {
 	while (*s)
 		s++;
-	if (*--s != 'c')
+	if (*--s != 'c' && *s != 'C')
 		return (NO);
 	if (*--s != '.')
 		return (NO);
