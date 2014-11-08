@@ -812,18 +812,17 @@ long assemble(char *s)
 	i = 0;
 
 
-#ifdef DJGPP
-	exe = "pceas.exe";
-	opts[i++] = "pceas.exe";
+	exe = getenv("PCE_PCEAS");
+	if (!exe) {
+#if defined(DJGPP) || defined(WIN32)
+		exe = "pceas.exe";
 #elif defined(linux) || defined(unix) || defined(osx)
-	exe = "pceas";
-	opts[i++] = "pceas";
-#elif defined(WIN32)
-	exe = "pceas.exe";
-	opts[i++] = "pceas.exe";
+		exe = "pceas";
 #else
   #error Add calling sequence depending on your OS
 #endif
+	}
+	opts[i++] = exe;
 	switch (cdflag) {
 		case 1:
 			opts[i++] = "-cd";
