@@ -15,7 +15,7 @@ EXE = isolink$(EXESUFFIX)
 
 all: $(EXE)
 
-main.o: main.h
+main.o: main.h ../../include/overlay.h
 
 $(EXE): $(OBJS) $(LIBS) $(HDRS)
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
