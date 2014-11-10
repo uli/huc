@@ -109,6 +109,12 @@ void __malloc_init(void *heap, unsigned int len)
      msys.free->size = msys.heap->size = len - sizeof(struct unit);
 }
 
+extern char _heap_start;
+void __malloc_init2(void)
+{
+     __malloc_init(&_heap_start, 1024);
+}
+
 void compact(void)
 {
      msys.free = __compact(msys.heap, 0xffff);
