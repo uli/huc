@@ -190,7 +190,7 @@ file_write(FILE *outfile, FILE *infile, char * filename, int curr_filenum)
             if ((cderr_flag == 1) && (curr_filenum == 1))
             {
                buffer[(CDERR_OVERRIDE & 0x07FF)] = 1;
-               buffer[(CDERR_OVERLAY_NUM & 0x07FF)] = cderr_ovl;
+               buffer[(CDERR_OVERLAY_NUM & 0x07FF)] = cderr_ovl << 2;
             }
          }
          else if (i == DATA_SECTOR)

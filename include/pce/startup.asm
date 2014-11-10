@@ -208,7 +208,7 @@ ovlarray:	.ds	200
 ; this function, although he can pass values through the global
 ; variables which main() can use to decide what to do next.
 ;
-; An additional "Hook" area has now been defined at $4028,
+; An additional "Hook" area has now been defined at $402F,
 ; which is used at initial load time, in case a SCD overlay
 ; program is run on plain CDROM hardware, and the author
 ; wishes to override the default text error message by
@@ -289,10 +289,7 @@ ovlentry:
  .endif
 
  .ifdef LINK_malloc
-	__ldwi	__heap_start
-	__pushw
-	__ldwi	1024
-	call	___malloc_init
+	call ___malloc_init2
  .endif
 
 	map  _main
@@ -302,7 +299,7 @@ ovlentry:
 ;
 ; CDROM error message alternate load entry point
 ;
-	.org  $4028
+	.org  $402F
 
 cderr_override:		.db	0
 cderr_overlay_num:	.db	0
@@ -317,10 +314,7 @@ cdrom_err_load:
 	jmp	ram_vsync_hndl
 
 .load_cd_ovl:
-	lda	cderr_overlay_num
-	asl	A
-	asl	A
-	tay
+	ldy	cderr_overlay_num
 	lda	#DATA_BANK+$80
 	tam	#3
 	ldx	ovlarray,Y++
@@ -761,10 +755,7 @@ scdmsg4:  .db  "Super CDROM System card"
  .endif
 
  .ifdef LINK_malloc
-	__ldwi	__heap_start
-	__pushw
-	__ldwi	1024
-	call	___malloc_init
+	call ___malloc_init2
  .endif
 
 	map   _main
