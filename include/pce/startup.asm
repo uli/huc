@@ -766,6 +766,26 @@ scdmsg4:  .db  "Super CDROM System card"
 	jmp   main
        .endif	; HUC
 
+; XXX: if LINK_malloc or HAVE_INIT are defined the interrupt handlers start
+; a couple of bytes later.  When an overlay is loaded the handlers are not
+; relocated, causing a crash.  This hack makes sure the handlers are in the
+; same place in all cases.
+ .if (CDROM)
+ .ifndef HAVE_INIT
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+ .endif
+ .ifndef LINK_malloc
+	nop
+	nop
+	nop
+ .endif
+ .endif
 
 ; ----
 ; system
