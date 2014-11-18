@@ -22,11 +22,18 @@ SUPPORT_MOUSE	.equ	1
 START_BANK	.equ	0
 LIB1_BANK	.equ	START_BANK
 LIB2_BANK	.equ	START_BANK+1
+ .ifdef _SGX
+LIB3_BANK	.equ	START_BANK+2
+ .endif
 	       .ifdef HUC
 FONT_BANK	.equ	START_BANK+1
 
+ .ifdef _SGX
+CONST_BANK	 .equ	START_BANK+3
+ .else
 CONST_BANK	 .equ	START_BANK+2
-DATA_BANK	 .equ	START_BANK+3
+ .endif
+DATA_BANK	 .equ	CONST_BANK+1
 
 	       .else
 
@@ -148,6 +155,13 @@ huc_irq_enable	.ds	1
 ;
 ; The assembler must know beforehand what address etc. to use as a basis.
 ;
+
+	.ifdef _PAD
+	.data
+	.bank	$7e
+	.org	$a000
+	.endif
+
 	.data
 	.bank LIB2_BANK,"Base Library 2/Font"
 	.org  $6000
@@ -156,6 +170,11 @@ huc_irq_enable	.ds	1
 	.bank LIB2_BANK
 	.org  $A600
 
+	.ifdef _SGX
+	.code
+	.bank	LIB3_BANK,"Base Library 3"
+	.org	$a000
+	.endif
 
 	.data
 	.bank CONST_BANK,"Constants"
@@ -401,6 +420,9 @@ _init:
 
 	jsr   init_psg		; init sound
 	jsr   init_vdc		; init video
+	.ifdef _SGX
+	jsr   init_sgx_vdc
+	.endif
 	lda   #$1F		; init joypad
 	sta   joyena
 
@@ -1232,6 +1254,12 @@ font_table:
        .ifdef HUC
 	.include "huc.asm"
 	.include "huc_gfx.asm"
+	.ifdef _AC
+	.include "ac_lib.asm"
+	.endif
+	.ifdef _SGX
+	.include "sgx_gfx.asm"
+	.endif
 	.include "huc_math.asm"
 	.include "huc_bram.asm"
 	.include "huc_misc.asm"

@@ -36,12 +36,20 @@
 ; scanning twice.
 
 read_joypad:
+ .ifdef _SGX
+	maplibfunc  lib3_readjoy
+ .else
 	maplibfunc  lib2_readjoy
+ .endif
 	rts
 
+ .ifdef _SGX
+ 	.bank	LIB3_BANK
+lib3_readjoy:
+ .else
 	.bank	LIB2_BANK
-
 lib2_readjoy:
+ .endif
 	lda   joyena		; suppress reset during individual read
 	pha
 	stz   joyena

@@ -1188,7 +1188,11 @@ _xres	.equ 256
     ; ----
     ; VDC register table
     ;
-.table:	.db $05,$00,$00		; CR    control register
+.table:
+ .ifdef _SGX
+_sgx_init_point:
+ .endif
+	.db $05,$00,$00		; CR    control register
 	.db $06,$00,$00		; RCR   scanline interrupt counter
 	.db $07,$00,$00		; BXR   background horizontal scroll offset
 	.db $08,$00,$00		; BYR        "     vertical     "      "

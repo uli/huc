@@ -27,6 +27,50 @@ maplibfunc	.macro
 
 
 ;
+; MAPLIBFUNC2 - Re-map a library function into $A000-space if it's
+;              not in library bank #1
+;
+maplibfunc2	.macro
+	 sty	<hold_y
+	 tay
+	 tma  #page(\1)
+	 pha
+	 lda  #bank(\1)
+	 tam  #page(\1)
+	 tya
+	 ldy	<hold_y
+	 jsr  \1
+	 tay
+	 pla
+	 tam  #page(\1)
+	 tya
+	.endm
+
+
+;
+; MAPLIBFUNC3 - Re-map a library function into $A000-space if it's
+;              not in library bank #1
+;
+maplibfunc3	.macro
+	 sty	<hold_y
+	 tay
+	 tma  #05
+	 pha
+	 lda  #$F9
+	 tam  #page(\1)
+	 tya
+	 ldy	<hold_y
+	 jsr  \1
+	 tay
+	 pla
+	 tam  #page(\1)
+	 tya
+	.endm
+
+
+
+
+;
 ; STWZ - store a word-sized zero value at stated memory location
 ;
 stwz	.macro

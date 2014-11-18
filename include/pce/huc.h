@@ -133,3 +133,61 @@ void irq_disable_user(unsigned char irq);
 
 void irq_enable(unsigned char irq);
 void irq_disable(unsigned char irq);
+
+#ifdef _SGX
+
+/*
+ * SGX defines
+ */
+#define SGX						0x01
+#define VPC_WIN_A			0x00
+#define VPC_WIN_B			0x01
+#define	VPC_WIN_AB		0x02
+#define	VPC_WIN_NONE	0x03
+#define	VPC_NORM			0x00
+#define	VPC_SPR				0x04
+#define	VPC_INV_SPR		0x08
+#define VDC1_ON				0x01
+#define	VDC1_OFF			0x00
+#define VDC2_ON				0x02
+#define	VDC2_OFF			0x00
+#define VDC_ON				0x03
+#define	VDC_OFF				0x00
+
+#endif /* _SGX */
+
+#ifdef _AC
+
+/*
+ * Arcade Card defines
+ */
+#define AC_REG0	0x00
+#define AC_REG1	0x01
+#define AC_REG2	0x02
+#define AC_REG3	0x03
+
+/*
+ * Block Transfer defines for use with Arcade Call routines
+ */
+extern int XFER_TYPE,XFER_SRC,XFER_DEST,XFER_LEN,XFER_RTS;
+#define TIA_OP			0xE300
+#define TAI_OP			0xF300
+#define TIN_OP			0xD300
+#define TII_OP			0x7300
+#define TDD_OP			0xC300
+#define RTS				0x0060
+
+
+/*
+ * Fastcall function defines
+ */
+#include "AC.h"
+
+#endif /* _AC */
+
+#ifdef _SGX
+/*
+ * SGX fastcall functions
+ */
+#include "sgx.h"
+#endif /* _SGX */

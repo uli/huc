@@ -65,6 +65,92 @@ video_data_l .equ  video_data
 video_data_h .equ  video_data+1
 
 
+ .ifdef _SGX
+    ; ----
+    ; SGX VDC (Video Display Controller)
+
+sgx_videoport    .equ $0010
+
+sgx_video_reg    .equ  sgx_videoport
+sgx_video_reg_l  .equ  sgx_video_reg
+sgx_video_reg_h  .equ  sgx_video_reg+1
+
+sgx_video_data   .equ  sgx_videoport+2
+sgx_video_data_l .equ  sgx_video_data
+sgx_video_data_h .equ  sgx_video_data+1
+
+
+		; ----
+		; SGX VPC (Video Priority Controller)
+		
+sgx_vpcport			.equ	$0008		
+
+vpc_ctrl_1		.equ	sgx_vpcport
+vpc_ctrl_2		.equ	sgx_vpcport+1
+
+vpc_window_1		.equ	sgx_vpcport+2		
+vpc_window_1_l	.equ	vpc_window_1	
+vpc_window_1_h	.equ	vpc_window_1+1		
+		
+vpc_window_2		.equ	sgx_vpcport+4		
+vpc_window_2_l	.equ	vpc_window_2	
+vpc_window_2_h	.equ	vpc_window_2+1		
+
+vpc_vdc_redir		.equ	sgx_vpcport+6
+ .endif ; _SGX
+
+ .ifdef _AC
+; Arcade Card equates
+; ----
+
+_ac_port_1	.equ	$1A00
+_ac_reg_1	.equ	$1A02
+_ac_reg_1_low .equ _ac_reg_1
+_ac_reg_1_mid .equ _ac_reg_1+1
+_ac_reg_1_high .equ _ac_reg_1+2
+_ac_reg_1_offset_l .equ _ac_reg_1+3
+_ac_reg_1_offset_h .equ _ac_reg_1+4
+_ac_reg_1_incrmt_l .equ _ac_reg_1+5
+_ac_reg_1_incrmt_h .equ _ac_reg_1+6
+_ac_reg_1_control .equ _ac_reg_1+7
+
+
+_ac_port_2	.equ	$1A10
+_ac_reg_2	.equ	$1A12
+_ac_reg_2_low .equ _ac_reg_2
+_ac_reg_2_mid .equ _ac_reg_2+1
+_ac_reg_2_high .equ _ac_reg_2+2
+_ac_reg_2_offset_l .equ _ac_reg_2+3
+_ac_reg_2_offset_h .equ _ac_reg_2+4
+_ac_reg_2_incrmt_l .equ _ac_reg_2+5
+_ac_reg_2_incrmt_h .equ _ac_reg_2+6
+_ac_reg_2_control .equ _ac_reg_2+7
+
+
+_ac_port_3	.equ	$1A20
+_ac_reg_3	.equ	$1A22
+_ac_reg_3_low .equ _ac_reg_3
+_ac_reg_3_mid .equ _ac_reg_3+1
+_ac_reg_3_high .equ _ac_reg_3+2
+_ac_reg_3_offset_l .equ _ac_reg_3+3
+_ac_reg_3_offset_h .equ _ac_reg_3+4
+_ac_reg_3_incrmt_l .equ _ac_reg_3+5
+_ac_reg_3_incrmt_h .equ _ac_reg_3+6
+_ac_reg_3_control .equ _ac_reg_3+7
+
+
+_ac_port_4	.equ	$1A30
+_ac_reg_4	.equ	$1A32
+_ac_reg_4_low .equ _ac_reg_4
+_ac_reg_4_mid .equ _ac_reg_4+1
+_ac_reg_4_high .equ _ac_reg_4+2
+_ac_reg_4_offset_l .equ _ac_reg_4+3
+_ac_reg_4_offset_h .equ _ac_reg_4+4
+_ac_reg_4_incrmt_l .equ _ac_reg_4+5
+_ac_reg_4_incrmt_h .equ _ac_reg_4+6
+_ac_reg_4_control .equ _ac_reg_4+7
+ .endif ; _AC
+
     ; ----
     ; VCE (Video Color Encoder)
 
