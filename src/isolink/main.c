@@ -325,6 +325,10 @@ main(int argc, char *argv[])
    /* for existence, and creating an array which holds     */
    /* size and number of sectors                           */
    /********************************************************/
+   if (argc < 2) {
+      usage();
+      exit(1);
+   }
 
    for (i = 1; i < argc; i++)
    {
