@@ -1,4 +1,3 @@
-
 /*
 	Arcade card and SGX library example.
 	
@@ -15,12 +14,11 @@
 
 main()
 {
-	
+	unsigned char joyt;
+	unsigned char d_on, sd_on;
 	char i,j,k,l,m,n;
 	
-	
-		
-	disp_off();		/* <- I don't think this works.... */
+	disp_off();
 	spr_set();
 	spr_hide();
 	load_default_font();
@@ -56,12 +54,30 @@ main()
 	sgx_disp_on();
 				
 	put_string("Scrolling SGX layer ", 2, 6);
+	put_string("I  = Toggle normal display", 2, 8);
+	put_string("II = Toggle SGX display", 2, 9);
+	d_on = sd_on = 1;
 	for(;;)
 	{
 		for( j=0; j<0xff; j++)
 		{
 			vsync();
 			sgx_scroll( j , j);
+			joyt = joytrg(0);
+			if (joyt & JOY_I) {
+				d_on = !d_on;
+				if (d_on)
+					disp_on();
+				else
+					disp_off();
+			}
+			if (joyt & JOY_II) {
+				sd_on = !sd_on;
+				if (sd_on)
+					sgx_disp_on();
+				else
+					sgx_disp_off();
+			}
 		}
 	}		
 	
