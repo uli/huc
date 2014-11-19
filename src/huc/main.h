@@ -13,7 +13,7 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
-#define HUC_VERSION	"HuC (v3.21, 2005/04/09, Denki release)"
+#define HUC_VERSION	"HuC (v3.98-" GIT_VERSION ", " GIT_DATE ")"
 
 void FEvers(void );
 void usage(char* exename);
