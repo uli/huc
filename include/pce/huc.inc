@@ -13,7 +13,9 @@ __temp     .ds 4
 __ptr      .ds 2
 __fbank    .ds 1
 __fptr     .ds 2
-
+ .ifdef _LIB3
+maplibfunc_hold_a     .ds 1
+ .endif
 
 ; macros
 ; ----

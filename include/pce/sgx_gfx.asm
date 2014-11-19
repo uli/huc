@@ -17,7 +17,6 @@ _sgx_scroll_x			.ds 2
 sgx_vdc_sts			.ds 1
 sgx_vdc_reg 			.ds 1
 sgx_vdc_cr 			.ds 2
-hold_y				.ds 1
 		.bss
 
 _sgx_vdc			.ds 20*2
