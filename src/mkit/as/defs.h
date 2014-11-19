@@ -1,6 +1,6 @@
 
-#define NES_ASM_VERSION	("NES Assembler (v3.23 Beta, 5/09/2013, nop Release)")
-#define PCE_ASM_VERSION	("PC Engine Assembler (v3.23, 5/09/2013, nop Release)")
+#define NES_ASM_VERSION	("NES Assembler (v 3.23-" GIT_VERSION " Beta, " GIT_DATE ")")
+#define PCE_ASM_VERSION	("PC Engine Assembler (v 3.23-" GIT_VERSION ", " GIT_DATE ")")
 
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
