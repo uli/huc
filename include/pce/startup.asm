@@ -115,7 +115,9 @@ vsync_cnt:	.ds 1	; counter for 'wait_vsync' routine
 joybuf:		.ds 5	; 'delta' pad values collector
 joyhook:	.ds 2	; 'read_joypad' routine hook
 joycallback:	.ds 6	; joypad enhanced callback support
-disp_cr:	.ds 1   ; display control (1 = on, 0 = off)
+disp_cr:	.ds 1   ; display control
+			; HuCard: 1 = on, 0 = off
+			; CD-ROM: 2 = on, 1 = off, 0 = no change
 clock_hh	.ds 1	; system clock, hours since startup (0-255)
 clock_mm	.ds 1	; system clock, minutes since startup (0-59)
 clock_ss	.ds 1	; system clock, seconds since startup (0-59)
@@ -440,6 +442,7 @@ _init:
 	jsr   ex_dspon
 	jsr   ex_rcron
 	jsr   ex_irqon
+	stz	disp_cr
        .else
 
 	ldx   #4		; user vector table
@@ -964,6 +967,17 @@ _vsync_hndl:
 	sta   video_data_l
 	bra  .l2
 	; --	
+       .else
+        ; The CD-ROM version only acts if the display state has changed
+        ; (disp_cr != 0).
+        ldx	disp_cr
+        beq	.l1
+        stz	disp_cr
+        dex
+        beq	.m1
+        jsr	ex_dspon
+        bra	.l1
+.m1:	jsr	ex_dspoff
        .endif
 .l1:	jsr   rcr_init		; init display list
 
@@ -1290,7 +1304,11 @@ font_table:
        .ifdef HUC
 _disp_on:
 	ldx   disp_cr
-	lda   #1
+ .if (CDROM)
+	lda	#2
+ .else
+ 	lda	#1
+ .endif
 	sta   disp_cr
 	cla
 	rts
@@ -1310,7 +1328,12 @@ _disp_on:
        .ifdef HUC
 _disp_off:
 	ldx   disp_cr
-	stz   disp_cr
+ .if (CDROM)
+	lda	#1
+	sta	disp_cr
+ .else
+ 	stz	disp_cr
+ .endif
 	cla
 	rts
        .else
