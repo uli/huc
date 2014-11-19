@@ -156,35 +156,6 @@ void irq_disable(unsigned char irq);
 
 #endif /* _SGX */
 
-#ifdef _AC
-
-/*
- * Arcade Card defines
- */
-#define AC_REG0	0x00
-#define AC_REG1	0x01
-#define AC_REG2	0x02
-#define AC_REG3	0x03
-
-/*
- * Block Transfer defines for use with Arcade Call routines
- */
-extern int XFER_TYPE,XFER_SRC,XFER_DEST,XFER_LEN,XFER_RTS;
-#define TIA_OP			0xE300
-#define TAI_OP			0xF300
-#define TIN_OP			0xD300
-#define TII_OP			0x7300
-#define TDD_OP			0xC300
-#define RTS				0x0060
-
-
-/*
- * Fastcall function defines
- */
-#include "AC.h"
-
-#endif /* _AC */
-
 #ifdef _SGX
 /*
  * SGX fastcall functions
