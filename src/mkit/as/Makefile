@@ -46,3 +46,5 @@ $(TARGNES) : $(OBJS) $(LIBS)
 #
 include $(MAKETARG)
 
+clean::
+	rm -f $(TARGETS) $(BINDIR)/$(TARGPCE) $(BINDIR)/$(TARGNES)

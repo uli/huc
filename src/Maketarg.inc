@@ -8,7 +8,7 @@ clean::
 	$(RM) core
 	$(RM) *.o *.gcno *.gcda *.gcov
 ifneq "$(EXE)" ""
-	$(RM) $(EXE)
+	$(RM) $(EXE) $(BINDIR)/$(EXE)
 endif
 
 %.o: %.c
