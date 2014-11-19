@@ -104,12 +104,28 @@ int main (int argc,char* argv[])
 						p += 2;
 						break;
 					}
+					else if (strncmp(p, "sgx", 3) == 0) {
+						strcat(asmdefs, "_SGX = 1\n");
+						defmac("_SGX");
+						p += 2;
+						break;
+					}
+					/* fallthrough */
 				case 'S':
 					sflag = 1;
 					break;
 
 				/* defines to pass to assembler */
-				case 'a': case 'A':
+				case 'a':
+					if (strncmp(p, "acd", 3) == 0) {
+						cdflag = 2;	/* pass '-scd' to assembler */
+						strcat(asmdefs, "_AC = 1\n");
+						defmac("_AC");
+						p += 2;
+						break;
+					}
+					/* fallthrough */
+				case 'A':
 					bp = ++p;
 					if (!*p) usage(oldargv[0]);
 					while (*p && *p != '=') p++;
