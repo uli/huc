@@ -121,11 +121,13 @@ lib2_sgx_spr_set:
 ; spr_hide(char num)
 ; ----
 _sgx_spr_hide:
-		cly
+	cly
+	bra	sgx_spr_hide
 _sgx_spr_hide.1:
-		ldy #$01
-		maplibfunc_y	lib2_sgx_spr_hide
-		rts
+	ldy	#$01
+sgx_spr_hide:
+	maplibfunc_y	lib2_sgx_spr_hide
+	rts
 		
 	.bank LIB2_BANK	
 lib2_sgx_spr_hide		
@@ -166,11 +168,13 @@ _sgx_spr_hide.sub:
 ; spr_show(char num)
 ; ----
 _sgx_spr_show:
-		cly
+	cly
+	bra	sgx_spr_show
 _sgx_spr_show.1:
-		ldy #$01
-		maplibfunc_y	lib2_sgx_spr_show
-		rts
+	ldy #$01
+sgx_spr_show:
+	maplibfunc_y	lib2_sgx_spr_show
+	rts
 		
 	.bank LIB2_BANK	
 lib2_sgx_spr_show		
@@ -198,11 +202,13 @@ lib2_sgx_spr_show
 ; ----
 
 _sgx_satb_update.1:
-		ldy #1
+	ldy	#1
+	bra	sgx_satb_update
 _sgx_satb_update:
-		cly
-		maplibfunc_y	lib2_sgx_satb_update
-		rts
+	cly
+sgx_satb_update:
+	maplibfunc_y	lib2_sgx_satb_update
+	rts
 		
 	.bank LIB2_BANK	
 lib2_sgx_satb_update:		
