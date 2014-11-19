@@ -389,17 +389,27 @@ void usage(char* exename)
 {
 	fprintf(stderr,HUC_VERSION);
 	fprintf(stderr,"\n\n");
-	fprintf(stderr,"USAGE: %s [-options] infile\n\n", exename);
-	fprintf(stderr,"Options to compile step:\n");
-	fprintf(stderr,"-s/-S       : create asm output only (do not invoke assembler)\n");
-	fprintf(stderr,"-t/-T       : include text of 'C' in asm output/listings\n");
-	fprintf(stderr,"-Dsym[=val] : define symbol 'sym' when compiling\n");
-	fprintf(stderr,"-O[val]     : invoke optimization (level <value>)\n");
-	fprintf(stderr,"-cd/-scd    : create CDROM output\n");
-	fprintf(stderr,"-over(lay)  : create CDROM overlay section\n\n");
-	fprintf(stderr,"Options to assembler step:\n");
-	fprintf(stderr,"-Asym[=val] : define symbol 'sym' to assembler\n");
-	fprintf(stderr,"-v/-V       : verbose - maximum information in output files\n\n");
+	fprintf(stderr,"USAGE: %s [-options] infile\n", exename);
+	fprintf(stderr,"\nCompiler options:\n");
+	fprintf(stderr,"-Dsym[=val]       define symbol 'sym' when compiling\n");
+	fprintf(stderr,"-O[val]           invoke optimization (level <value>)\n");
+	fprintf(stderr,"-fno-recursive    optimize assuming non-recursive code\n");
+	fprintf(stderr,"-fno-short-enums  always use signed int for enums\n");
+	fprintf(stderr,"-msmall           use single-byte stack pointer\n");
+	fprintf(stderr,"\nOutput options:\n");
+	fprintf(stderr,"-s/-S             create asm output only (do not invoke assembler)\n");
+	fprintf(stderr,"\nLinker options:\n");
+	fprintf(stderr,"-lname            add library 'name.c' from include path\n");
+	fprintf(stderr,"-cd               create CD-ROM output\n");
+	fprintf(stderr,"-scd              create Super CD-ROM output\n");
+	fprintf(stderr,"-acd              create Arcade Card CD output\n");
+	fprintf(stderr,"-sgx              enable SuperGrafx support\n");
+	fprintf(stderr,"-over(lay)        create CD-ROM overlay section\n");
+	fprintf(stderr,"\nAssembler options:\n");
+	fprintf(stderr,"-Asym[=val]       define symbol 'sym' to assembler\n");
+	fprintf(stderr,"\nDebugging options:\n");
+	fprintf(stderr,"-t/-T             include C source code in assembler output/listings\n");
+	fprintf(stderr,"-v/-V             increase verbosity of output files (max. 2)\n\n");
 	exit(1);
 }
 
