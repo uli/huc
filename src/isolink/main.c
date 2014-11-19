@@ -291,7 +291,8 @@ zero_write(FILE *outfile, int sectors)
 void
 usage(void)
 {
-   printf("Usage: ISOLINK <outfile> <infile_1> <infile_2> -cderr <infile_n>. . .\n");
+   printf(ISOLINK_VERSION "\n");
+   printf("\nUsage: isolink <outfile> <infile_1> <infile_2> -cderr <infile_n>. . .\n");
    printf("\n\n");
    printf("-cderr :  Indicates that the following overlay is to be used \n");
    printf("          instead of the default text message when SCD programs\n");

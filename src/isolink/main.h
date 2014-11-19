@@ -1,5 +1,5 @@
 
-#define	ISOLINK_VERSION	"ISOLINK (v3.21, 2005/04/09, Denki Release)"
+#define	ISOLINK_VERSION	"isolink (v3.21-" GIT_VERSION ", " GIT_DATE")"
 
 
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
