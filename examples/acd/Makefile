@@ -1,11 +1,12 @@
 all: ac_test.iso
 
-CC = ../../bin/huc
+include ../Make_ex.inc
+
 SRC = ac_test.c
 
 CFLAGS ?= -acd -sgx -fno-recursive -msmall
 
-ac_test.iso: $(SRC) $(CC)
+ac_test.iso: $(SRC)
 	$(CC) $(CFLAGS) $(SRC) $(LIBS)
 	# inject pce_tile.bin at $E1000
 	dd if=pce_tile.bin of=$@ bs=`printf %d 0xe1000` seek=1

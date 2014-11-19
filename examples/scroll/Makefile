@@ -1,11 +1,12 @@
 all: scroll.pce
 
-CC = ../../bin/huc
+include ../Make_ex.inc
+
 SRC = scroll.c
 
 CFLAGS ?= -fno-recursive -msmall
 
-scroll.pce: $(SRC) $(CC)
+scroll.pce: $(SRC)
 	$(CC) $(CFLAGS) $(SRC) $(LIBS)
 
 clean:

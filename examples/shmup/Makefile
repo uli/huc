@@ -1,4 +1,5 @@
-CC = huc
+include ../Make_ex.inc
+
 CFLAGS = -msmall -fno-recursive
 LIBS = -lst
 
