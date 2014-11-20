@@ -363,7 +363,6 @@ struct fastcall {
 	struct fastcall *next;
 	char   fname[NAMESIZE];
 	long    nargs;
-	long    argsize;
 	long    flags;
 	char   argtype[MAX_FASTCALL_ARGS];
 	char   argname[MAX_FASTCALL_ARGS][NAMESIZE];

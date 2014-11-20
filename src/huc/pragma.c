@@ -231,7 +231,6 @@ void new_fastcall(void )
 	cnt = 0;
 	ptr->nargs = 0;
 	ptr->flags = 0;
-	ptr->argsize = 0;
 
 	/* get func name */
 	if(!symget(fname)) {
