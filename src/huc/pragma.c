@@ -13,16 +13,10 @@
 #include "lex.h"
 #include "pragma.h"
 #include "sym.h"
-
-/* defines */
-#define TYPE_ACC		0x00
-#define TYPE_BYTE		0x01
-#define TYPE_WORD		0x02
-#define TYPE_FARPTR		0x03
-#define TYPE_DWORD		0x04
+#include "fastcall.h"
 
 /* locals */
-static struct fastcall  ftemp;
+struct fastcall  ftemp;
 struct fastcall *fastcall_tbl[256];
 static char   cmd[LINESIZE];
 static char  *cmdptr;
