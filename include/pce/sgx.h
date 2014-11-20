@@ -11,7 +11,7 @@
  * sgx_vreg( char reg, int data )
  */
 #pragma fastcall sgx_vreg( byte acc );
-#pragma fastcall sgx_vreg( byte acc, word ax );
+void __fastcall sgx_vreg( unsigned char reg<al>, unsigned int data<cx> );
 
 /*
  * sgx_read_vram(word vram_offset);

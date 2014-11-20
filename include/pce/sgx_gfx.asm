@@ -510,7 +510,8 @@ _sgx_vreg.1:
 	  stx sgx_video_reg
 	  rts
 
-_sgx_vreg.2:	  
+_sgx_vreg.2:
+	  ldx <_al
 	  stx <sgx_vdc_reg
 	  stx sgx_video_reg
 
