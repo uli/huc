@@ -167,10 +167,14 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				id = POINTER;
 				ptr_order++;
 			}
+			if (amatch("__fastcall", 10)) {
+				newfunc(NULL, ptr_order, typ, otag, 1);
+				return 2;
+			}
 			if(!symname (sname))
 				illname ();
 			if (match("(")) {
-				newfunc(sname, ptr_order, typ, otag);
+				newfunc(sname, ptr_order, typ, otag, 0);
 				return 2;
 			}
 			if ((s = findglb (sname))) {

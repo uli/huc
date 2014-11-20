@@ -471,7 +471,7 @@ void parse (void )
 		else if (match("#def"))
 			dopsddef();
 		else
-			newfunc (NULL, 0, 0, 0);
+			newfunc (NULL, 0, 0, 0, 0);
 	}
 	if (optimize)
 		flush_ins();

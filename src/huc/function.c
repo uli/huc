@@ -11,6 +11,7 @@
 #include "code.h"
 #include "error.h"
 #include "expr.h"
+#include "fastcall.h"
 #include "function.h"
 #include "gen.h"
 #include "io.h"
@@ -59,33 +60,63 @@ static int is_leaf_function;
  *	modified version.  p.l. woods
  *
  */
-void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
+void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, int is_fastcall)
 {
 	char n[NAMESIZE];
 	SYMBOL *ptr;
-	long  nbarg;
+	long  nbarg = 0;
 	int is_irq_handler = 0;
 	int is_firq_handler = 0;
 	int save_norecurse = norecurse;
+	struct fastcall *fc;
+	long hash;
+	int fc_args;
 	need_map_call_bank = 0;
 	is_leaf_function = 1;
 
 	if (sname) {
+		/* At the opening parenthesis, declglb() found out that this
+		   is a function declaration and called us.  The function
+		   name has therefore already been parsed. */
 		strcpy(current_fn, sname);
 		strcpy(n, sname);
 	}
 	else {
-		/* No explicit return type. */
-		ret_type = CINT;
+		/* The function name has not been parsed yet. This can happen
+		   in two cases:
+		   - No return type: We were called from parse().
+		   - fastcall: declglb() found the __fastcall attribute after
+		     the type and called us. */
+		if (is_fastcall) {
+			fc = &ftemp;
+			/* fc->nargs is the number of declared arguments;
+			   fc_args is the number of arguments passed when
+			   calling the function, which can be higher than
+			   fc->nargs if types larger than 16 bits are used. */
+			fc->nargs = 0;
+			fc_args = 0;
+			fc->flags = 0;
+			if (match("__nop"))
+				fc->flags = 0x01;
+		}
+		else {
+			/* No explicit return type. */
+			ret_type = CINT;
+		}
 		if (!symname (n) ) {
 			error ("illegal function or declaration");
 			kill ();
 			return;
 		}
 		strcpy(current_fn, n);
+
 		if (!match ("("))
 			error ("missing open paren");
+
+		if (is_fastcall)
+			strcpy(fc->fname, n);
 	}
+
 	locptr = STARTLOC;
 	argstk = 0;
 	argtop = 0;
@@ -95,14 +126,101 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 		/* check if we have an ANSI argument */
 		struct type t;
 		if (match_type(&t, NO, NO)) {
+			int ptr_order;
+
 			if (t.type == CVOID) {
 				if (match(")"))
 					break;
 			}
-			getarg(t.type, ANSI, t.otag);
+
+			if (is_fastcall) {
+				if (match("far"))
+					fc->argtype[fc_args] = TYPE_FARPTR;
+				else {
+					if (t.type == CINT || t.type == CUINT)
+						fc->argtype[fc_args] = TYPE_WORD;
+					else
+						fc->argtype[fc_args] = TYPE_BYTE;
+					/* We'll change this to TYPE_WORD later
+					   if it turns out to be a pointer. */
+				}
+			}
+
+			ptr_order = getarg(t.type, ANSI, t.otag, is_fastcall);
+
+			if (is_fastcall) {
+				if (fc->argtype[fc_args] == TYPE_FARPTR) {
+					if (ptr_order < 1) {
+						error("far attribute to non-pointer type");
+						return;
+					}
+				}
+				else if (ptr_order)
+					fc->argtype[fc_args] = TYPE_WORD;
+
+				/* Parse the destination fastcall register
+				   in angle brackets. */
+				if (!match("<")) {
+					error("missing fastcall register");
+					kill();
+					return;
+				}
+				if (!symname(fc->argname[fc_args])) {
+					error("illegal fastcall register");
+					kill();
+					return;
+				}
+				if (fc->argtype[fc_args] == TYPE_FARPTR) {
+					/* We have the far pointer bank
+					   register, expecting ":". */
+					if (!match(":")) {
+						error("missing far pointer offset");
+						kill();
+						return;
+					}
+
+					/* Far pointers are handled as two
+					   arguments internally. */
+					fc_args++;
+					if (fc_args >= MAX_FASTCALL_ARGS) {
+						error("too many fastcall arguments");
+						kill();
+						return;
+					}
+
+					/* Far pointer offset register. */
+					if (!symname(fc->argname[fc_args])) {
+						error("illegal far pointer offset register");
+						return;
+					}
+					fc->argtype[fc_args] = TYPE_WORD;
+				}
+				if (!match(">")) {
+					error("missing closing angle bracket");
+					return;
+				}
+
+				if (!strcmp(fc->argname[fc_args], "acc")) {
+					fc->argtype[fc_args] = TYPE_ACC;
+				}
+			}
 			nbarg++;
+			if (is_fastcall) {
+				fc->nargs++;
+				fc_args++;
+				if (fc_args >= MAX_FASTCALL_ARGS) {
+					error("too many fastcall arguments");
+					kill();
+					return;
+				}
+			}
 		}
 		else {
+			if (is_fastcall) {
+				error("fastcall argument without type");
+				kill();
+				return;
+			}
 			/* no valid type, assuming K&R argument */
 			if (symname (n)) {
 				if (findloc (n))
@@ -169,6 +287,47 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 		/* function prototype */
 		ptr = addglb (current_fn, FUNCTION, ret_type, 0, EXTERN, 0);
 		norecurse = save_norecurse;
+
+		if (is_fastcall) {
+			/* XXX: pragma code sets flag 0x02 if there are
+			   memory arguments, but that's not used
+			   anywhere... */
+
+			int i;
+			for (i = 0; i < fc_args - 1; i++) {
+				if (fc->argtype[i] == TYPE_ACC) {
+					error("fastcall accumulator argument must come last");
+					kill();
+					return;
+				}
+			}
+
+			if (fastcall_look(n, fc->nargs, NULL)) {
+				error("fastcall already defined");
+				return;
+			}
+
+			/* insert function into fastcall table */
+			fc = (void *)malloc(sizeof(struct fastcall));
+			if (!fc) {
+				error("out of memory");
+				return;
+			}
+			*fc = ftemp;
+			hash = symhash(n);
+			fc->next = fastcall_tbl[hash];
+			fastcall_tbl[hash] = fc;
+		}
+
+		return;
+	}
+	else if (is_fastcall) {
+		error("__fastcall can only be used in prototypes");
+		return;
+	}
+
+	if (fastcall_look(n, nbarg, NULL)) {
+		error("implementation of fastcall functions in C not supported yet");
 		return;
 	}
 
@@ -186,7 +345,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
 		} else {
 			struct type t;
 			if (match_type(&t, NO, NO)) {
-				getarg(t.type, KR, t.otag);
+				getarg(t.type, KR, t.otag, is_fastcall);
 				ns();
 			}
 			else {
@@ -281,7 +440,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag)
  *	completely rewritten version.  p.l. woods
  *
  */
-void getarg (long t, int syntax, int otag)
+int getarg (long t, int syntax, int otag, int is_fastcall)
 {
 	long	j, legalname, address;
 	char	n[NAMESIZE];
@@ -291,7 +450,7 @@ void getarg (long t, int syntax, int otag)
 
 	FOREVER {
 		if (syntax == KR && argstk == 0)
-			return;
+			return ptr_order;
 		j = VARIABLE;
 		while (match ("*")) {
 			j = POINTER;
@@ -350,18 +509,22 @@ void getarg (long t, int syntax, int otag)
 		if (syntax == KR) {
 			argstk = argstk - INTSIZE;
 			if (endst ())
-				return;
+				return ptr_order;
 			if (!match (","))
 				error ("expected comma");
 		}
 		else {
 			blanks();
-			if (streq(line + lptr, ")") || streq(line + lptr, ","))
-				return;
+			if (streq(line + lptr, ")") ||
+			    streq(line + lptr, ",") ||
+			    (is_fastcall && streq(line +lptr, "<"))
+			   )
+				return ptr_order;
 			else
-				error ("expected comma or closing bracket");
+				error ("expected comma, closing bracket, or fastcall register");
 		}
 	}
+	return ptr_order;
 }
 
 /*
