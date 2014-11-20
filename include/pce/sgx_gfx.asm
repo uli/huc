@@ -1121,7 +1121,7 @@ lib2_sgx_scroll.2:
 		lda <_bl
 		sta sgx_video_data_l
 		sta <_sgx_scroll_y
-		lda <_ah
+		lda <_bh
 		sta sgx_video_data_h
 		sta <_sgx_scroll_y+1
 			
