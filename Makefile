@@ -4,8 +4,6 @@
 
 SUBDIRS = src tgemu examples
 
-examples: src
-
 all clean: bin
 	@$(MAKE) $(SUBDIRS) "COMMAND=$@"
 
@@ -28,4 +26,6 @@ package:
 	$(MAKE) clean
 	rm -f huc.zip
 	zip -R huc \* -x \*CVS\*
+
+examples: src
 
