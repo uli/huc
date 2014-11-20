@@ -139,7 +139,7 @@ static char *pragma_init[] = {
 };
 
 /* protos */
-long fastcall_look(char *fname, long nargs, struct fastcall **p);
+long fastcall_look(const char *fname, long nargs, struct fastcall **p);
 
 
 /* ----
@@ -416,7 +416,7 @@ void new_fastcall(void )
  *
  */
 long
-fastcall_look(char *fname, long nargs, struct fastcall **p)
+fastcall_look(const char *fname, long nargs, struct fastcall **p)
 {
 	struct fastcall *ptr;
 	struct fastcall *ref;
@@ -458,7 +458,7 @@ fastcall_look(char *fname, long nargs, struct fastcall **p)
  */
 
 long
-symhash(char *sym)
+symhash(const char *sym)
 {
 	long  i;
 	char c;
