@@ -6,96 +6,43 @@
  */
 
 
-/*
- * sgx_vreg( char reg )
- * sgx_vreg( char reg, int data )
- */
-#pragma fastcall sgx_vreg( byte acc );
+void __fastcall sgx_vreg( unsigned char reg<acc> );
 void __fastcall sgx_vreg( unsigned char reg<al>, unsigned int data<cx> );
 
-/*
- * sgx_read_vram(word vram_offset);
- */
-#pragma fastcall sgx_read_vram( word ax );
+void __fastcall sgx_read_vram( unsigned int vram_offset<ax> );
 
-/*
- * sgx_load_bat(int vaddr, int *bat_data, char w, char h)
- */
-#pragma fastcall sgx_load_bat(word di, farptr bl:si, byte cl, byte ch)
+void __fastcall sgx_load_bat(unsigned int vaddr<di>, int far *bat_data<bl:si>, unsigned char w<cl>, unsigned char h<ch>);
 
-/*
- * sgx_set_screen_size( char size )
- */
-#pragma fastcall sgx_set_screen_size( byte acc )
+void __fastcall sgx_set_screen_size( unsigned char size<acc> );
 
-/*
- * sgx_load_vram(int vaddr, int *data, int nb);
- */
-#pragma fastcall sgx_load_vram(word di, farptr bl:si, word cx)
+void __fastcall sgx_load_vram(unsigned int vaddr <di>, int far *data<bl:si>, int nb<cx>);
  
-/* 
- * sgx_set_tile_data(char *tile_ex [di])
- * sgx_set_tile_data(char *tile [bl:si], int nb_tile [cx], char *ptable [al:dx])
- */
-#pragma fastcall sgx_set_tile_data(word di)
-#pragma fastcall sgx_set_tile_data(farptr bl:si, word cx, farptr al:dx)
+void __fastcall sgx_set_tile_data(char *tile_ex<di>);
+void __fastcall sgx_set_tile_data(char far *tile<bl:si>, int nb_tile<cx>, char far *ptable<al:dx>);
 
  
-/*
- * sgx_set_map_data(int *ptr)
- * sgx_set_map_data(char *map [bl:si], int w [ax], int h)
- * sgx_set_map_data(char *map [bl:si], int w [ax], int h [dx], char wrap)
- */
-#pragma fastcall sgx_set_map_data(word acc)
-#pragma fastcall sgx_set_map_data(farptr bl:si, word ax, word acc)
-#pragma fastcall sgx_set_map_data(farptr bl:si, word ax, word dx, byte acc)
+void __fastcall sgx_set_map_data(int *ptr<acc>);
+void __fastcall sgx_set_map_data(char far *map<bl:si>, int w<ax>, int h<acc>);
+void __fastcall sgx_set_map_data(char far *map<bl:si>, int w<ax>, int h<dx>, char wrap<acc>);
 
-/* 
- * sgx_load_map(char x [al], char y [ah], int mx, int my, char w [dl], char h [dh])
- */ 
-#pragma fastcall sgx_load_map(byte al, byte ah, word di, word bx, byte dl, byte dh)
- 
- 
-/*
- * sgx_scroll( int X, int Y );
- */
-#pragma fastcall sgx_scroll(word ax, word bx)
+void __fastcall sgx_load_map(char x<al>, char y<ah>, int mx<di>, int my<bx>, char w<dl>, char h<dh>);
 
+void __fastcall sgx_scroll(int x<ax>, int y<bx>);
 
-/*
- * sgx_spr_set( char num );
- */
-#pragma fastcall sgx_spr_set( byte acc )
+void __fastcall sgx_spr_set( char num<acc> );
 
-/*
- * sgx_satb_update();
- */
-#pragma fastcall sgx_satb_update( byte acc )
+void sgx_satb_update(void);
+void __fastcall sgx_satb_update( unsigned char max<acc> );
 
-/*
- * sgx_spr_hide( char num );
- */
-#pragma fastcall sgx_spr_hide( byte acc )
+void __fastcall sgx_spr_hide( char num<acc> );
 
-/*
- * sgx_spr_show( char num );
- */
-#pragma fastcall sgx_spr_show( byte acc )
+void __fastcall sgx_spr_show( char num<acc> );
 
-/*
- * sgx_spr_ctrl(char mask, char value);
- */
-#pragma fastcall sgx_spr_ctrl(byte al, byte acc)
+void __fastcall sgx_spr_ctrl(char mask<al>, char value<acc>);
 
-/*
- * vpc_win_size( char window_num (& 0x01) , int size );
- */
-#pragma fastcall vpc_win_size(byte al, word bx)
+void __fastcall vpc_win_size(char window_num<al>, int size<bx>);
 
-/*
- * vpc_win_reg( char window_num (& 0x01) , char var );
- */
-#pragma fastcall vpc_win_reg(byte al, byte bl)
+void __fastcall vpc_win_reg(char window_num<al>, char var<bl>);
 
 
 /*
