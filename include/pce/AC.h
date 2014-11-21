@@ -69,7 +69,7 @@
  *	ac_cd_xfer( ac reg (byte), sector addr high(byte),sector addr low(word),
  *	            sectors (byte) )
  */
-#pragma fastcall ac_cd_xfer( byte bl, byte dl, word cx, byte al );
+void __fastcall ac_cd_xfer( unsigned char ac_reg<bl>, unsigned char sector_addr_h<cl>, unsigned int sector_addr_l<dx>, unsigned char sectors<al> );
 
 
 /*

@@ -235,12 +235,8 @@ lib3_ac_vce_copy.3:
 ; ----
 lib3_ac_cd_xfer.4:
 	
-	lda <_cl ;->low
-	ldx <_ch ;->mid
-	ldy <_dl ;->high
-	sty <_cl ;high->cl
+	ldx <_dh ;->mid
 	stx <_ch ; mid->ch
-	sta <_dl ; low->dl
 		
 		
 	;/* setup for MPR5 */
