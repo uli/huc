@@ -29,12 +29,6 @@ __remain  .ds 2
 ; REMARK : signed compatible
 ; ----
 
-                ; old version is 75 bytes long
-                ; new version is 31 bytes long (58% shorter :)
-		; DAVE: newer version 45 bytes but much faster
-		; best case was: 56 cycles (worst = 70)
-		; best case now: 45 cycles (worst = 59)
-
 eq:
    sax
    cmp [__stack]
@@ -73,9 +67,8 @@ eqb:
    bne eq_endno
    bra eq_endyes
 
-; streamlined version MACRO - uses zp ( <__temp ) instead of stack
-; returns A:X = 0 if false, FF00 if true
-; 15 bytes, best = 12 cycles; worst = 23
+; streamlined version - uses zp ( <__temp ) instead of stack
+; returns A:X = 0 if false, 1 if true
 	
 eqzp:
 	cmp   <__temp+1
@@ -114,7 +107,7 @@ eqbzp:
 ;       the word in A:X else nul
 ; ----
 
-ltb:
+ltb:	; XXX: missing optimized byte version
 lt:     ; signed version
    ldy #1
    cmp #$80
@@ -156,7 +149,7 @@ getA_ult:
 ult:    ; unsigned version
    ldy #1       ; false by default
 
-ult_y1: ; same thing but Y is assumed to be egal to 1
+ult_y1: ; same thing but Y is assumed to be equal to 1
 
    cmp [__stack],Y
    beq .lt_must_test_lobyte
@@ -218,7 +211,7 @@ ublt:    ; unsigned version
 ;       the word in A:X else nul
 ; ----
 
-gtb:
+gtb:	; XXX: missing optimized byte version
 gt:     ; signed version of >
    ldy #1
    cmp #$80
@@ -514,7 +507,7 @@ ubgezp:	jsr	ubltzp
 
 	; previous version called 'eq' as subroutine and returned
 	; opposite value; should be fully implemented for speed
-	; since '!=' is such a common operand
+	; since '!=' is such a common operator
 
 ne:
    sax
@@ -575,9 +568,8 @@ neb:
    cla
    rts
 
-; streamlined version MACRO - uses zp ( <__temp ) instead of stack
-; returns A:X = 0 if false, FF00 if true
-; 15 bytes, best = 12 cycles; worst = 23
+; streamlined version - uses zp ( <__temp ) instead of stack
+; returns A:X = 0 if false, 1 if true
 
 nezp:
 	cmp   <__temp+1
