@@ -1,26 +1,27 @@
 ;
 ; STARTUP.ASM  -  MagicKit standard startup code
 ;
- .list
- .ifdef _SGX
+.list
+
+.ifdef _SGX
 _LIB3 = 1
- .endif
- .ifdef _AC
+.endif
+.ifdef _AC
 _LIB3 = 1
- .endif
+.endif
 
 ; first, set MOUSE to default on:
 ;
 SUPPORT_MOUSE	.equ	1
 
-		.list
+.list
 
-		.ifdef HUC
-		 .include "huc.inc"      ; HUC
-		 .include "huc_opt.inc"
-		.endif	; HUC
+.ifdef HUC
+.include "huc.inc"
+.include "huc_opt.inc"
+.endif	; HUC
 
-		.include  "standard.inc" ; HUCARD
+.include  "standard.inc" ; HUCARD
 
 ; ----
 ; setup flexible boundaries for startup code
@@ -29,33 +30,33 @@ SUPPORT_MOUSE	.equ	1
 START_BANK	.equ	0
 LIB1_BANK	.equ	START_BANK
 LIB2_BANK	.equ	START_BANK+1
- .ifdef _LIB3
+.ifdef _LIB3
 LIB3_BANK	.equ	START_BANK+2
- .endif
-	       .ifdef HUC
+.endif
+
+.ifdef HUC
 FONT_BANK	.equ	START_BANK+1
 
- .ifdef _LIB3
+.ifdef _LIB3
 CONST_BANK	 .equ	START_BANK+3
- .else
+.else
 CONST_BANK	 .equ	START_BANK+2
- .endif
+.endif
 DATA_BANK	 .equ	CONST_BANK+1
 
-	       .else
-
+.else ; HUC
 ; HuC (because of .proc/.endp) does not use MAIN_BANK
 MAIN_BANK	.equ	START_BANK+2
-	       .endif	; HUC
+.endif	; HUC
 
 
 ; ----
 ; if FONT_VADDR is not specified, then specify it
 ; (VRAM address to load font into)
 ;
-	.ifndef	FONT_VADDR
+.ifndef	FONT_VADDR
 FONT_VADDR	.equ	$0800
-	.endif
+.endif
 
 ; ----
 ; system variables
@@ -66,11 +67,11 @@ zp_ptr1:	.ds 2
 
 		.bss
 
-	.if  (CDROM)	; CDROM def's in system.inc
+ .if  (CDROM)	; CDROM def's in system.inc
 
-		.include  "system.inc"
+ .include  "system.inc"
 
-	.else  		; ie HuCard
+.else  		; ie HuCard
 
 		.org	$2200
 user_jmptbl:		; user interrupt vectors
@@ -86,7 +87,6 @@ bg_x2:		.ds 2
 bg_y1:		.ds 2
 bg_y2:		.ds 2
 
-
 		.org	$2227
 joyena:		.ds 1	; soft reset enable (bit 0/pad 1, bit 1/pad2, etc.)
 joy:		.ds 5	; 'current' pad values (pad #1-5)
@@ -99,7 +99,7 @@ irq_cnt:	.ds 1	; VDC interrupt counter; increased 60 times per second
 vdc_mwr:	.ds 1
 vdc_dcr:	.ds 1
 
-	.endif
+.endif	; CDROM
 
 		.org	$2244
 scr_mode:	.ds 1	; screen mode and dimensions - set by <ex_scrmod>
@@ -131,33 +131,41 @@ joybuf6:	.ds 5
 joytmp:		.ds 5
 joytmp6:	.ds 5
 
-	.if (CDROM)
+.if (CDROM)
+
 ovl_running	.ds   1 ; overlay # that is currently running
 cd_super	.ds   1 ; Major CDROM version #
 irq_storea	.ds   1	; CDROM IRQ-specific handling stuff
 irq_storeb	.ds   1
 ram_vsync_hndl	.ds   25
 ram_hsync_hndl	.ds   25
-	.endif	; (CDROM)
 
-	.ifdef HUC
-	.ifdef HAVE_IRQ
+.endif	; (CDROM)
+
+.ifdef HUC
+
+.ifdef HAVE_IRQ
 user_vsync_hooks .ds	8
 user_hsync_hook	.ds	2
 huc_context	.ds	8
-	.ifdef HAVE_SIRQ
+
+.ifdef HAVE_SIRQ
 huc_fc_context	.ds	20
-	.endif
+.endif
+
 		.ds	32
 huc_irq_stack:
-	.zp
+
+		.zp
 huc_irq_enable	.ds	1
-	.endif ; HAVE_IRQ
-	.endif ; HUC
+
+.endif ; HAVE_IRQ
+
+.endif ; HUC
 
 ; [ STARTUP CODE ]
 
-; Let's prepare this secondary libray bank first, for use later.
+; Let's prepare the secondary library banks first, for use later.
 ; The reason, as you will see, is because code for a given function
 ; which sits together in a file, may have things in zero-page,
 ; bss, LIB1_BANK (ie. START_BANK), and LIB2_BANK.
@@ -165,25 +173,25 @@ huc_irq_enable	.ds	1
 ; The assembler must know beforehand what address etc. to use as a basis.
 ;
 
-	.ifdef _PAD
+.ifdef _PAD
 	.data
 	.bank	$7e
 	.org	$a000
-	.endif
+.endif
 
 	.data
 	.bank LIB2_BANK,"Base Library 2/Font"
 	.org  $6000
-	 .include "font.inc"
+	.include "font.inc"
 	.code
 	.bank LIB2_BANK
 	.org  $A600
 
-	.ifdef _LIB3
+.ifdef _LIB3
 	.code
 	.bank	LIB3_BANK,"Base Library 3"
 	.org	$a000
-	.endif
+.endif
 
 	.data
 	.bank CONST_BANK,"Constants"
@@ -192,6 +200,7 @@ huc_irq_enable	.ds	1
 	.data
 	.bank DATA_BANK,"User Program"
 	.org  $6000
+
 ;
 ; place overlay array here
 ; 50 entries, each containing
@@ -245,7 +254,7 @@ ovlarray:	.ds	200
     ; ----
     ; interrupt vectors
 
-       .if !(CDROM)
+.if !(CDROM)
 	.org  $FFF6
 
 	.dw _irq2
@@ -253,12 +262,12 @@ ovlarray:	.ds	200
 	.dw _timer
 	.dw _nmi
 	.dw _reset
-       .endif	; !(CDROM)
+.endif	; !(CDROM)
 
     ; ----
     ; develo startup code
 
-       .if (DEVELO)
+.if (DEVELO)
 	.org $6000
 
 	sei
@@ -268,7 +277,7 @@ _restart:
 	cla		; map the CD-ROM system bank
 	tam   #7
 	jmp   $4000	; back to the Develo shell
-       .endif	; (DEVELO)
+.endif	; (DEVELO)
 
 
 ; ----
@@ -286,14 +295,13 @@ _restart:
 ; assume MMR0, MMR1, MMR6, MMR7 are set.
 ; set others & reset stack pointer
 ;
-       .if (CDROM)
+.if (CDROM)
 	.org $C000
 
-; current overlay number that is running
-; this is overwritten by the isolink prgram; the load
-; statement must be the first in the block
-;
 ovlentry:
+        ; current overlay number that is running
+        ; this is overwritten by the isolink prgram; the load
+        ; statement must be the first in the block
 	lda  #1
 	sta  ovl_running
 
@@ -304,21 +312,21 @@ ovlentry:
 	lda  #_call_bank
 	tam  #4
 
-	.ifndef SMALL
+.ifndef SMALL
 	stw  #$4000,<__sp
-	.else
+.else
 	stw  #$3f00,<__sp
-	.endif
+.endif
 	ldx  #$ff
 	txs
 
- .ifdef HAVE_INIT
+.ifdef HAVE_INIT
 	tii  huc_rodata, huc_data, huc_rodata_end-huc_rodata
- .endif
+.endif
 
- .ifdef LINK_malloc
-	call ___malloc_init2
- .endif
+.ifdef LINK_malloc
+	call	___malloc_init2
+.endif
 
 	map  _main
 	jsr  _main
@@ -380,7 +388,7 @@ _boot:
 ;       Here, we will move the information to occupy
 ;       base memory at MMR $68 if appropriate
 ;
-	.if (CDROM = SUPER_CD)
+.if (CDROM = SUPER_CD)
 	 jsr   ex_getver	; check if SCD program running
 	 stx   cd_super		; on SCD hardware
 	 cpx   #3		; don't copy to _bank_base if
@@ -394,9 +402,9 @@ _boot:
 	 tam   #6
 	 tii   $4000,$C000,$2000 ; then load rest of program
 .nocopy:
-	.endif	; (CDROM = SUPER_CD)
+.endif	; (CDROM = SUPER_CD)
 
-       .else		; (ie. if HuCard...)
+.else		; (ie. if HuCard...)
 
 	.org  $E010
 _reset:
@@ -412,39 +420,38 @@ _reset:
 	stz   $2000		; clear all the RAM
 	tii   $2000,$2001,$1FFF
 
-       .endif	; (CDROM)
+.endif	; (CDROM)
 
     ; ----
     ; initialize the hardware
 
 _init:
-       .if (CDROM)
+.if (CDROM)
 	jsr   ex_dspoff
 	jsr   ex_rcroff
 	jsr   ex_irqoff
 	jsr   ad_reset
-       .else
+.else
 	stz   timer_ctrl	; init timer
-       .endif	; (CDROM)
+.endif	; (CDROM)
 
 	jsr   init_psg		; init sound
 	jsr   init_vdc		; init video
-	.ifdef _SGX
+.ifdef _SGX
 	jsr   init_sgx_vdc
-	.endif
+.endif
 	lda   #$1F		; init joypad
 	sta   joyena
 
     ; ----
     ; initialize interrupt vectors
 
-       .if  (CDROM)
-	jsr   ex_dspon
-	jsr   ex_rcron
-	jsr   ex_irqon
-	stz	disp_cr
-       .else
-
+.if  (CDROM)
+	jsr	ex_dspon
+	jsr	ex_rcron
+	jsr	ex_irqon
+	stz	disp_cr		; "no change"
+.else
 	ldx   #4		; user vector table
 	cly
 .l2:	lda   #LOW(_rti)
@@ -476,7 +483,7 @@ _init:
 	lda   #$01
 	sta   disp_cr
 
-       .endif	; (CDROM)
+.endif	; (CDROM)
 
     ; ----
     ; init TIA instruction in RAM (fast BLiTter to hardware)
@@ -495,15 +502,15 @@ _init:
 	stw   _rndseed,<_dx
 	jsr   srand
 
-       .if (CDROM)
-	.if (CDROM = SUPER_CD)
+.if (CDROM)
+.if (CDROM = SUPER_CD)
 	 lda   cd_super		; don't load the program if SCD
 	 cmp   #3		; program not running on SCD hrdware
 	 beq   loadprog
 	 lda   cderr_override
 	 lbeq  dontloadprog
 	 jmp   cdrom_err_load
-	.endif	; (SUPER_CD)
+.endif	; (SUPER_CD)
 
     ; ----
     ; load program
@@ -585,11 +592,12 @@ hsync_irq_ramhndlr:
 	.bank	LIB1_BANK
 
 _init_go:
-	.if (CDROM = SUPER_CD)
-dontloadprog:
-	.endif
 
-       .endif	; (CDROM)
+.if (CDROM = SUPER_CD)
+dontloadprog:
+.endif
+
+.endif	; (CDROM)
 
     ; ----
     ; jump to main routine
@@ -597,12 +605,13 @@ dontloadprog:
     ; ----
     ; load font
 
-       .ifdef HUC
-	.ifndef SMALL
+.ifdef HUC
+
+.ifndef SMALL
 	stw   #$4000,<__sp	; init stack ptr first
-	.else
+.else
 	stw   #$3f00,<__sp
-	.endif
+.endif
 
 	stw   #FONT_VADDR,<_di	; Load Font @ VRAM addr
 
@@ -619,12 +628,12 @@ dontloadprog:
 
 	jsr   _set_font_addr		; set VRAM
 
-       .if  (CDROM)
+.if (CDROM)
 	stb   #FONT_BANK+$80,<_bl	; guarantee FONT_BANK even if
 					; SCD on regular CDROM system
-       .else
+.else
 	stb   #FONT_BANK+_bank_base,<_bl
-       .endif
+.endif
 
 	stb   #96,<_cl
 	stb   _font_color+1,<_ah
@@ -652,7 +661,7 @@ dontloadprog:
 	; before executing it.  We remap the bank after completion,
 	; 'just in case'
 
-       .if  (CDROM)
+.if  (CDROM)
 	tma   #page(lib2_load_font)
 	pha
 	lda   #LIB2_BANK+$80
@@ -660,9 +669,9 @@ dontloadprog:
 	jsr   lib2_load_font
 	pla
 	tam   #page(lib2_load_font)
-       .else
+.else
 	jsr   load_font
-       .endif
+.endif
 
 	;
 	; END stolen font-load
@@ -686,8 +695,8 @@ dontloadprog:
     ; Super CDROM error message
     ; ----
 
-	.if (CDROM)
-	 .if (CDROM = SUPER_CD)
+.if (CDROM)
+.if (CDROM = SUPER_CD)
 	  lda  cd_super
 	  cmp  #3
 	  lbeq  .ok	; SCD running on Super system
@@ -728,17 +737,17 @@ scdmsg4:  .db  "Super CDROM System card"
 	  .bank LIB1_BANK
 
 .ok:
-	 .endif		; (CDROM = SUPER_CD)
+.endif		; (CDROM = SUPER_CD)
+.endif		; (CDROM)
 
-	.endif		; (CDROM)
-       .endif		; (HUC)
+.endif		; (HUC)
 
 
-       .ifdef SUPPORT_MOUSE
+.ifdef SUPPORT_MOUSE
 	jsr  mousinit		; check existence of mouse
-       .endif	; SUPPORT_MOUSE
+.endif	; SUPPORT_MOUSE
 
-       .if  (CDROM)
+.if  (CDROM)
 
 ; Now, install the RAM-based version of the
 ; interrupt-handlers and activate them
@@ -760,9 +769,9 @@ scdmsg4:  .db  "Super CDROM System card"
 	smb   #6,<irq_m		; enable new code
 	smb   #7,<irq_m		; disable system card code
 
-       .endif	; (CDROM)
+.endif	; (CDROM)
 
-       .ifdef HUC
+.ifdef HUC
     ; ----
     ; Map the final stuff before executing main()
     ; ----
@@ -782,21 +791,22 @@ scdmsg4:  .db  "Super CDROM System card"
 	stz   clock_ss
 	stz   clock_tt
 
- .ifdef HAVE_INIT
+.ifdef HAVE_INIT
 	tii  huc_rodata, huc_data, huc_rodata_end-huc_rodata
- .endif
+.endif
 
- .ifdef LINK_malloc
-	call ___malloc_init2
- .endif
+.ifdef LINK_malloc
+	call	___malloc_init2
+.endif
 
 	map   _main
 	jsr   _main 		; go!
 	bra   *
-       .else
+
+.else	; HUC
 	map   main
 	jmp   main
-       .endif	; HUC
+.endif	; HUC
 
 ; XXX: if LINK_malloc or HAVE_INIT are defined the interrupt handlers start
 ; a couple of bytes later.  When an overlay is loaded the handlers are not
@@ -825,7 +835,8 @@ scdmsg4:  .db  "Super CDROM System card"
 ; give back control to the Develo system
 ; ----
 
-       .if (DEVELO)
+.if (DEVELO)
+
 _system:
 	sei
 	csh
@@ -861,9 +872,10 @@ _system:
 	sta  <vdc_crl
 	sta   video_data_l
 	jmp   _restart		; restart
-       .endif	; (DEVELO)
 
-;±±±[ INTERRUPT CODE ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+.endif	; (DEVELO)
+
+; [INTERRUPT CODE]
 
 _rts:
 	rts
@@ -876,13 +888,13 @@ _rti:
 ; IRQ2 interrupt handler
 ; ----
 
-       .if !(CDROM)
+.if !(CDROM)
 _irq2:
 	bbs0 <irq_m,.user
 	rti
 .user:
 	jmp   [irq2_jmp]
-       .endif	; !(CDROM)
+.endif	; !(CDROM)
 
 ; ----
 ; irq1
@@ -890,7 +902,7 @@ _irq2:
 ; VDC interrupt handler
 ; ----
 
-       .if !(CDROM)
+.if !(CDROM)
 
 _irq1:
 	bbs1 <irq_m,user_irq1	; jump to the user irq1 vector if bit set
@@ -939,18 +951,21 @@ _irq1:
 	pla
 	rti
 
-       .endif	; !(CDROM)
+.endif	; !(CDROM)
+
+
     ; ----
     ; user routine hooks
     ;
 user_irq1:
 	jmp   [irq1_jmp]
-       .ifdef HAVE_IRQ
+
+.ifdef HAVE_IRQ
 user_hsync:
 	jmp   [user_hsync_hook]
 user_vsync:
 	jmp   [user_vsync_hooks, x]
-       .endif
+.endif
 
 
 ; ----
@@ -959,7 +974,8 @@ user_vsync:
 ; Handle VSYNC interrupts
 ; ----
 _vsync_hndl:
-       .if  !(CDROM)
+
+.if  !(CDROM)
 	ldx   disp_cr		; check display state (on/off)
 	bne  .l1
 	and   #$3F		; disable display
@@ -967,7 +983,7 @@ _vsync_hndl:
 	sta   video_data_l
 	bra  .l2
 	; --	
-       .else
+.else
         ; The CD-ROM version only acts if the display state has changed
         ; (disp_cr != 0).
         ldx	disp_cr
@@ -978,7 +994,8 @@ _vsync_hndl:
         jsr	ex_dspon
         bra	.l1
 .m1:	jsr	ex_dspoff
-       .endif
+.endif
+
 .l1:	jsr   rcr_init		; init display list
 
 .l2:	st0   #7		; scrolling
@@ -986,13 +1003,16 @@ _vsync_hndl:
 	st0   #8
 	stw   bg_y1,video_data
 
-       .ifdef HAVE_IRQ
+.ifdef HAVE_IRQ
+
 	bbr3 <huc_irq_enable,.disabled
 	tii	__sp, huc_context, 8
-       .ifdef HAVE_SIRQ
+.ifdef HAVE_SIRQ
         tii	_bp, huc_fc_context, 20
-       .endif
+.endif
+
 	stw   #huc_irq_stack, <__sp
+
 	clx
 .loop	lda   user_vsync_hooks+1, x
 	beq   .end_user
@@ -1002,12 +1022,14 @@ _vsync_hndl:
 	inx
 	inx
 	bra .loop
+
 .end_user:
 	tii	huc_context, __sp, 8
-       .ifdef HAVE_SIRQ
+.ifdef HAVE_SIRQ
         tii	huc_fc_context, _bp, 20
-       .endif
+.endif
 .disabled:
+
        .endif ; HAVE_IRQ
 
 	; --
@@ -1032,18 +1054,20 @@ _vsync_hndl:
 .lcltt:	sta   clock_tt
 	; --
 
-       .if  (CDROM)
+.if  (CDROM)
 	jsr   ex_colorcmd
+	; XXX: Why call this every vsync, when it's called from rand()
+	; as needed anyway?
 	inc   rndseed
 	jsr   randomize
-       .endif
+.endif
 
-       .ifdef SUPPORT_MOUSE
+.ifdef SUPPORT_MOUSE
 	lda   msflag		; if mouse supported, and exists
 	beq  .l3		; then read mouse instead of pad
 	jsr   mousread
 	bra  .out
-       .endif	; SUPPORT_MOUSE
+.endif	; SUPPORT_MOUSE
 
 .l3:	jsr   read_joypad	; else read joypad
 .out:	rts
@@ -1058,14 +1082,16 @@ _vsync_hndl:
     ; hsync scrolling handler
     ;
 _hsync_hndl:
-       .ifdef HAVE_IRQ
+
+.ifdef HAVE_IRQ
 	bbr4 <huc_irq_enable,.disabled
 	tii	__sp, huc_context, 8
 	stw   #huc_irq_stack, <__sp
 	jsr  user_hsync		; call user handler
 	tii	huc_context, __sp, 8
 .disabled:
-       .endif
+.endif
+
 	ldy   s_idx
 	bpl  .r1
 	; --
@@ -1212,7 +1238,8 @@ __rcr_off:
 ; timer interrupt handler
 ; ----
 
-       .if  !(CDROM)
+.if  !(CDROM)
+
 _timer_user:
 	jmp   [timer_jmp]
 _timer:
@@ -1228,7 +1255,7 @@ _timer:
 	pla
 	rti
 
-       .endif	; !(CDROM)
+.endif	; !(CDROM)
 
 ; ----
 ; nmi
@@ -1236,64 +1263,66 @@ _timer:
 ; NMI interrupt handler
 ; ----
 
-       .if  !(CDROM)
+.if  !(CDROM)
 _nmi:
 	bbs3 <irq_m,.user
 	rti
 .user:
 	jmp   [nmi_jmp]
+.endif	; !(CDROM)
 
-       .endif	; !(CDROM)
 
-
-;±±[ DATA ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [DATA]
 
 ; ----
 ; font
 ; ----
 
-	.ifdef HUC
+.ifdef HUC
 font_table:
 	 .dw font_1
 	 .dw font_2
 	 .dw font_1
 	 .dw font_1
+.endif	; HUC
 
-	.endif	; HUC
 
-
-;±±[ LIBRARY ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [LIBRARY]
 
 ; ----
 ; standard library
 ; ----
 
-	.include "library.asm"
-	.include "scroll.asm"
-	.include "math.asm"
+.include "library.asm"
+.include "scroll.asm"
+.include "math.asm"
 
-       .ifdef HUC
-	.include "huc.asm"
-	.include "huc_gfx.asm"
-	.ifdef _AC
-	.include "ac_lib.asm"
-	.endif
-	.ifdef _SGX
-	.include "sgx_gfx.asm"
-	.endif
-	.include "huc_math.asm"
-	.include "huc_bram.asm"
-	.include "huc_misc.asm"
-       .endif	; HUC
+.ifdef HUC
 
-       .ifdef SUPPORT_MOUSE
-        .include "mouse.asm"
-       .endif	; SUPPORT_MOUSE
+.include "huc.asm"
+.include "huc_gfx.asm"
 
-       .if (CDROM)
-	.include "cdrom.asm"
-       .else
-       .endif   ; CDROM
+.ifdef _AC
+.include "ac_lib.asm"
+.endif
+
+.ifdef _SGX
+.include "sgx_gfx.asm"
+.endif
+
+.include "huc_math.asm"
+.include "huc_bram.asm"
+.include "huc_misc.asm"
+
+.endif	; HUC
+
+.ifdef SUPPORT_MOUSE
+.include "mouse.asm"
+.endif	; SUPPORT_MOUSE
+
+.if (CDROM)
+.include "cdrom.asm"
+.endif   ; CDROM
 
 ; ----
 ; disp_on
@@ -1301,23 +1330,28 @@ font_table:
 ; enable display
 ; ----
 
-       .ifdef HUC
+.ifdef HUC
+
 _disp_on:
 	ldx   disp_cr
- .if (CDROM)
+.if (CDROM)
 	lda	#2
- .else
+.else
  	lda	#1
- .endif
+.endif
 	sta   disp_cr
 	cla
 	rts
-       .else
- disp_on:
+
+.else	; HUC
+
+disp_on:
 	lda   #1
 	sta   disp_cr
 	rts
-       .endif	; HUC
+
+.endif	; HUC
+
 
 ; ----
 ; disp_off
@@ -1325,22 +1359,26 @@ _disp_on:
 ; disable display
 ; ----
 
-       .ifdef HUC
+.ifdef HUC
+
 _disp_off:
 	ldx   disp_cr
- .if (CDROM)
+.if (CDROM)
 	lda	#1
 	sta	disp_cr
- .else
+.else
  	stz	disp_cr
- .endif
+.endif
 	cla
 	rts
-       .else
+
+.else	; HUC
+
  disp_off:
 	stz   disp_cr
 	rts
-       .endif	; HUC
+
+.endif	; HUC
 
 ; ----
 ; set_intvec
@@ -1359,7 +1397,7 @@ _disp_off:
 ;      Y =   "      "    high byte
 ; ----
 
-       .if  !(CDROM)
+.if  !(CDROM)
 
 set_intvec:
 	php
@@ -1383,7 +1421,8 @@ set_intvec:
 .exit:
 	plp
 	rts
-       .endif	; !(CDROM)
+
+.endif	; !(CDROM)
 
 ; ----
 ; wait_vsync
@@ -1398,9 +1437,9 @@ set_intvec:
 wait_vsync:
 	bbr1 <irq_m,.l1
 	cla			; return immediately if IRQ1 is redirected
-       .ifdef HUC
+.ifdef HUC
 	clx
-       .endif
+.endif
 	rts
 
 .l1:	sei			; disable interrupts
@@ -1423,9 +1462,11 @@ wait_vsync:
 	stz   irq_cnt		; reset system interrupt counter
 	inc   A			; return number of elapsed frames
 
-       .ifndef HUC
+.ifndef HUC
+
         rts
-       .else
+
+.else	; !HUC
 
     ; ----
     ; callback support
@@ -1472,17 +1513,7 @@ wait_vsync:
     ;
 .callback:
 	jmp   [joycallback+4]
-       .endif	; ndef HUC
 
-       .include  "joypad.asm"	; read joypad values
+.endif	; !HUC
 
-
-;±±[ USER PROGRAM ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-
-;	.nomlist
-;	.list
-
-	;...
-
-;	.endif
-
+.include  "joypad.asm"	; read joypad values
