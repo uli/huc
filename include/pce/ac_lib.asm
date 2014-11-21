@@ -513,7 +513,7 @@ lib3_ac_vram_dma.3:
 	adc #$40
 	sta <_al
 
-	; /* prep opcode for TIA block tranfer */
+	; prep opcode for TIA block transfer
 	lda #$E3
 	sta _XFER_TYPE+1
 	lda #$60
@@ -547,7 +547,7 @@ lib3_ac_vram_dma.3:
 	lda #$20
 	sta _XFER_LEN+1
 
-	; /* check to see if trasnfer size is 8k or less */
+	; check to see if transfer size is 8k or less
 __loop_ac_dma:
 	lda <_ch
 	beq __last_blck_2nd_chk

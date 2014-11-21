@@ -10,13 +10,13 @@
 
 
 /*
- *	Unused test. single 24bit arguement passing.
+ *	Unused test. single 24bit argument passing.
  */
 #pragma fastcall test( dword cl:ax|bx  ) nop;
 
 
 /*
- *	Arcaded card address reg function: 24bit value, 1 byte(high) and 1 word(mid/low). 
+ *	Arcade card address reg function: 24bit value, 1 byte(high) and 1 word(mid/low). 
  */ 
 
 #pragma fastcall ac_addr_reg0( byte ac_reg_1_high, word ac_reg_1_low ) nop;
