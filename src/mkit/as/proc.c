@@ -275,6 +275,9 @@ proc_reloc(void)
 	int i;
 	int addr;
 	int tmp;
+	int *bankleft = NULL;
+	int currentbank = 0;
+	int bank_base = 0;
 
 	if (proc_nb == 0)
 		return;
@@ -284,26 +287,82 @@ proc_reloc(void)
 	bank = max_bank + 1;
 	addr = 0;
 
+	bankleft = (int*)malloc(sizeof(int)*bank_limit);
+	if(!bankleft)
+	{
+		fatal_error("Not enough RAM to allocate banks!");
+		return;
+	}
+
+	for(i = 0; i < bank_limit; i++)
+		bankleft[i] = 0x2000;
+
+	proc_ptr = proc_first;
+
+ 	bank_base = bank;
 	/* alloc memory */
 	while (proc_ptr) {
 		/* proc */
 		if (proc_ptr->group == NULL) {
-			tmp = addr + proc_ptr->size;
-	
-			/* bank change */
-			if (tmp > 0x2000) {
-				bank++;
-				addr = 0;
-			}
-			if (bank > bank_limit) {
-				fatal_error("Not enough ROM space for procs!");
-				return;
+			int back_allocated = 0;
+			int check = 0;
+
+			for(check = 0; check < currentbank; check++)
+			{
+				if(bankleft[check] > proc_ptr->size)
+				{
+					proc_ptr->bank = check+bank_base;
+					proc_ptr->org = 0x2000 - bankleft[check];
+
+					bankleft[check] -= proc_ptr->size;
+
+					check = currentbank;
+					back_allocated = 1;
+				}
 			}
 
-			/* reloc proc */
-			proc_ptr->bank = bank;
-			proc_ptr->org = addr;
-			addr += proc_ptr->size;
+			if(!back_allocated)
+			{
+				tmp = addr + proc_ptr->size;
+			
+				/* bank change */
+				if (tmp > 0x2000) {
+					bankleft[currentbank] = 0x2000 - addr;
+					
+					currentbank++;
+					bank++;
+					addr = 0;
+				}
+			
+				if (bank > bank_limit) {
+					int total = 0;
+
+					fatal_error("Not enough ROM space for procs!");
+
+					for(i = 0; i < bank-bank_base; i++)
+					{
+						printf("Bank %d: %d free\n", i+bank_base, bankleft[i]);
+						total += bankleft[i];
+					}
+					printf("Total free space in all banks %d\n", total);
+
+					total = 0;
+					proc_ptr = proc_first;
+					while (proc_ptr) {
+						printf("Proc: %s Bank: 0x%X Size: %d\n", proc_ptr->name, proc_ptr->bank == 241 ? 0 : proc_ptr->bank, proc_ptr->size);
+						if(proc_ptr->bank == 241)
+							total += proc_ptr->size;
+						proc_ptr = proc_ptr->link;
+					}
+					printf("Total bytes that didn't fit in ROM %d\n", total);
+					return;
+				}
+	
+				/* reloc proc */
+				proc_ptr->bank = bank;
+				proc_ptr->org = addr;
+				addr += proc_ptr->size;
+			}
 		}
 
 		/* group */
@@ -319,6 +378,9 @@ proc_reloc(void)
 		proc_ptr->refcnt = 0;
 		proc_ptr = proc_ptr->link;
 	}
+
+	free(bankleft);
+	bankleft = NULL;
 
 	/* remap proc symbols */
 	for (i = 0; i < 256; i++) {
