@@ -40,23 +40,13 @@ eq:
 	bne eq_endno
 
 eq_endyes:
-.ifndef SMALL
-	addw	#2,<__stack	; don't push A/X; they are thrown away
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack	; don't push A/X; they are thrown away
 	ldx #1
 	cla
 	rts
 
 eq_endno:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	clx
 	cla
 	rts
@@ -132,12 +122,7 @@ lt_primary_minus:
 			; __temp and call ult
 
 cmp_false:
-.ifndef SMALL
-	addw	#2,<__stack	; OK to kill A/X
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	ldx	#0
 	cla
 	rts
@@ -163,14 +148,9 @@ ult_y1: ; same thing but Y is assumed to be equal to 1
 	; lobyte of the reg var < lobyte of the pushed var
 
 .lt_end:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
-
-	tya		; if Y was 1, return A=X=0 -> false
+	tya		; __addmi does not preserve Y
+	__addmi	2,__stack
+			; if Y was 1, return A=X=0 -> false
 	eor #$ff	; if Y was 0, return A=0, X=1 -> true
 	inc a
 	inc a
@@ -186,12 +166,7 @@ ublt:	; unsigned version
 	; lobyte of the reg var < lobyte of the pushed var
 
 .lt_end:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	ldx	#0
 	cla
 	rts
@@ -235,12 +210,7 @@ gt:	; signed version of >
 			; __temp and call ugt
 
 cmp_ok:
-.ifndef SMALL
-	addw	#2,<__stack	; OK to kill A/X
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	ldx #1
 	cla
 	rts
@@ -268,13 +238,8 @@ ugt_y1: ; unsigned version of >, assuming Y = 1
 	cly
 
 .gt_end:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
 	tya
+	__addmi	2,__stack
 	eor #$ff
 	inc a
 	inc a
@@ -286,22 +251,12 @@ ubgt:	; unsigned byte version of >
 	txa
 	cmp [__stack]
 	bcc .gt_true
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	clx
 	cla
 	rts
 .gt_true:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	ldx #1
 	cla
 	rts
@@ -410,6 +365,7 @@ ubgtzp:
 ;	the word in A:X else nul
 ; ----
 
+; XXX: can these be optimized?
 ge:	; signed version of >
 	jsr lt
 	sax
@@ -456,6 +412,7 @@ gebzp:	jsr	ltbzp
 ;	the word in A:X else nul
 ; ----
 
+; XXX: can these be optimized?
 uge:	; unsigned version of >
 	jsr ult
 	sax
@@ -518,23 +475,13 @@ ne:
 	bne .ne_endne
 
 .ne_endeq:
-.ifndef SMALL
-	addw	#2,<__stack	; don't push A/X; they are thrown away
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	clx
 	cla
 	rts
 
 .ne_endne:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi 2,__stack
 	ldx	#1
 	cla
 	rts
@@ -545,23 +492,13 @@ neb:
 	bne .ne_endne
 
 .ne_endeq:
-.ifndef SMALL
-	addw	#2,<__stack	; don't push A/X; they are thrown away
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	clx
 	cla
 	rts
 
 .ne_endne:
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	ldx	#1
 	cla
 	rts
@@ -606,6 +543,7 @@ nebzp:
 ;	the word in A:X else nul
 ; ----
 
+; XXX: can these be optimized?
 le:	; signed version
 	jsr gt
 	sax
@@ -652,6 +590,7 @@ lebzp:	jsr	gtbzp
 ;	the word in A:X else nul
 ; ----
 
+; XXX: can these be optimized?
 ule:	; unsigned version
 	jsr ugt
 	sax
@@ -718,14 +657,7 @@ asl:
 	lda <__temp
 
 .asl_end
-.ifndef SMALL
-	tay
-	addw #2,<__stack
-	tya
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	rts
 
 aslzp:
@@ -779,14 +711,7 @@ asr:
 	lda <__temp
 
 .asr_end
-.ifndef SMALL
-	tay
-	addw #2,<__stack
-	tya
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	rts
 
 asrzp:
@@ -824,14 +749,7 @@ lsr:
 	lda <__temp
 
 .lsr_end
-.ifndef SMALL
-	tay
-	addw #2,<__stack
-	tya
-.else
-	inc <__stack
-	inc <__stack
-.endif
+	__addmi	2,__stack
 	rts
 
 lsrzp:
@@ -933,12 +851,7 @@ umul:
 	__ldwp	__stack
 	__stw	<__temp   ; ax
 	  jsr	umul16
-.ifndef SMALL
-	  addw	#2,<__stack
-.else
-	  inc <__stack
-	  inc <__stack
-.endif
+	__addmi	2,__stack
 	__ldw	<__ptr
 	  rts
 
@@ -1082,12 +995,7 @@ udiv:
 	bne	.sdiv_begin
 	sta	<__remain
 
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc	<__stack
-	inc	<__stack
-.endif
+	__addmi	2,__stack
 	__ldw	<__temp
 
 	rts
@@ -1151,12 +1059,7 @@ umod:
 	bne	.umod_begin
 	sta	<__remain
 
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc	<__stack
-	inc	<__stack
-.endif
+	__addmi	2,__stack
 	__ldw	<__remain
 
 	rts
@@ -1194,12 +1097,7 @@ ___case:
 	__ldwp	__stack
 	__stw	<__ptr		; __ptr contain the address of the array
 
-.ifndef SMALL
-	addw	#2,<__stack
-.else
-	inc	<__stack
-	inc	<__stack
-.endif
+	__addmi	2,__stack
 
 .begin_case:
 	addw	#2,<__ptr
@@ -1210,12 +1108,7 @@ ___case:
 	addw	#-2,<__ptr
 	__ldwp	__ptr
 
-.ifndef SMALL
 	__addmi	-2,__stack
-.else
-	dec	<__stack
-	dec	<__stack
-.endif
 	__stwp	__stack
 
 	addw	#4,<__ptr
