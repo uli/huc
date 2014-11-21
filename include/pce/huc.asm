@@ -5,15 +5,15 @@
 ; ----
 ; local variables
 
-	  .bss
-_vdc      .ds 20*2
+	.bss
+_vdc	.ds 20*2
 
-          .zp
-__sign	  .ds 1
-__remain  .ds 2
+	.zp
+__sign		.ds 1
+__remain	.ds 2
 
-          .code
-          .mlist
+	.code
+.mlist
 
 ; ----
 ; eq
@@ -21,63 +21,63 @@ __remain  .ds 2
 ; test egality of two words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X equals 0 is the two args are egals
-;       else non nul
+;	else non nul
 ; ----
 ; REMARK : signed compatible
 ; ----
 
 eq:
-   sax
-   cmp [__stack]
-   bne eq_endno
+	sax
+	cmp [__stack]
+	bne eq_endno
 
-   ldy #1
-   sax
-   cmp [__stack],Y
-   bne eq_endno
+	ldy #1
+	sax
+	cmp [__stack],Y
+	bne eq_endno
 
 eq_endyes:
-  .ifndef SMALL
-   addw	#2,<__stack   ; don't push A/X; they are thrown away
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx #1
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack	; don't push A/X; they are thrown away
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx #1
+	cla
+	rts
 
 eq_endno:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   clx
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	clx
+	cla
+	rts
 
 eqb:
-   txa
-   cmp [__stack]
-   bne eq_endno
-   bra eq_endyes
+	txa
+	cmp [__stack]
+	bne eq_endno
+	bra eq_endyes
 
 ; streamlined version - uses zp ( <__temp ) instead of stack
 ; returns A:X = 0 if false, 1 if true
 	
 eqzp:
-	cmp   <__temp+1
-	bne   .x_ne
+	cmp	<__temp+1
+	bne	.x_ne
 	sax
-	cmp   <__temp
-	bne   .x_ne
+	cmp	<__temp
+	bne	.x_ne
 	cla
-	ldx   #1	; ensure Z flag not set
+	ldx	#1	; ensure Z flag not set
 	rts
 .x_ne:
 	cla
@@ -86,10 +86,10 @@ eqzp:
 
 eqbzp:
 	txa
-	cmp   <__temp
+	cmp	<__temp
 	cla
-	bne   .x_ne
-	ldx   #1
+	bne	.x_ne
+	ldx	#1
 	rts
 .x_ne:
 	clx
@@ -101,101 +101,100 @@ eqbzp:
 ; compare two words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non nul if pushed word is strictly lower than
-;       the word in A:X else nul
+;	the word in A:X else nul
 ; ----
 
 ltb:	; XXX: missing optimized byte version
-lt:     ; signed version
-   ldy #1
-   cmp #$80
-   bcs lt_primary_minus
+lt:	; signed version
+	ldy #1
+	cmp #$80
+	bcs lt_primary_minus
 
 	; if here, the A:X value is positive
 
-   sta <__temp
-   lda [__stack], Y
-   bmi cmp_ok   ; stack value is negative, so reply OK
+	sta <__temp
+	lda [__stack], Y
+	bmi cmp_ok	; stack value is negative, so reply OK
 
-   lda <__temp   ; stack value is also positive, so just go for the unsigned version
-   bra ult_y1
+	lda <__temp	; stack value is also positive, so just go for the unsigned version
+	bra ult_y1
 
-   
 lt_primary_minus:
 
 	; if here, the A:X value is negative
 
-   sta <__temp
-   lda [__stack], Y
-   bmi getA_ult ; stack value is also negative, so restore A val from
+	sta <__temp
+	lda [__stack], Y
+	bmi getA_ult ; stack value is also negative, so restore A val from
 			; __temp and call ult
 
 cmp_false:
-  .ifndef SMALL
-   addw	#2,<__stack	; OK to kill A/X
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx	#0
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack	; OK to kill A/X
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx	#0
+	cla
+	rts
 
 getA_ult:
-   lda <__temp
+	lda <__temp
 
-ult:    ; unsigned version
-   ldy #1       ; false by default
+ult:	; unsigned version
+	ldy #1	; false by default
 
 ult_y1: ; same thing but Y is assumed to be equal to 1
 
-   cmp [__stack],Y
-   beq .lt_must_test_lobyte
-   bcs cmp_ok
-   bra .lt_end ; hibyte of the reg var < hibyte of the pushed var
+	cmp [__stack],Y
+	beq .lt_must_test_lobyte
+	bcs cmp_ok
+	bra .lt_end ; hibyte of the reg var < hibyte of the pushed var
 
 .lt_must_test_lobyte:
-   sax
-   cmp [__stack]
-   beq .lt_end
-   bcs cmp_ok        ; set result to true
-                     ; lobyte of the reg var < lobyte of the pushed var
+	sax
+	cmp [__stack]
+	beq .lt_end
+	bcs cmp_ok	; set result to true
+	; lobyte of the reg var < lobyte of the pushed var
 
 .lt_end:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
 
-   tya          ; if Y was 1, return A=X=0 -> false
-   eor #$ff     ; if Y was 0, return A=0, X=1 -> true
-   inc a
-   inc a
-   tax
-   cla
-   rts
+	tya		; if Y was 1, return A=X=0 -> false
+	eor #$ff	; if Y was 0, return A=0, X=1 -> true
+	inc a
+	inc a
+	tax
+	cla
+	rts
 
-ublt:    ; unsigned version
-   txa
-   cmp [__stack]
-   beq .lt_end
-   bcs cmp_ok        ; set result to true
-                     ; lobyte of the reg var < lobyte of the pushed var
+ublt:	; unsigned version
+	txa
+	cmp [__stack]
+	beq .lt_end
+	bcs cmp_ok	; set result to true
+	; lobyte of the reg var < lobyte of the pushed var
 
 .lt_end:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx	#0
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx	#0
+	cla
+	rts
 
 
 
@@ -205,107 +204,107 @@ ublt:    ; unsigned version
 ; compare two words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non nul if pushed word is strictly greater than
-;       the word in A:X else nul
+;	the word in A:X else nul
 ; ----
 
 gtb:	; XXX: missing optimized byte version
-gt:     ; signed version of >
-   ldy #1
-   cmp #$80
-   bcs .gt_primary_minus
+gt:	; signed version of >
+	ldy #1
+	cmp #$80
+	bcs .gt_primary_minus
 
 	; if here, the A:X value is positive
 
-   sta <__temp
-   lda [__stack], Y
-   bmi cmp_false ; stack value is negative, so reply False
+	sta <__temp
+	lda [__stack], Y
+	bmi cmp_false ; stack value is negative, so reply False
 
-   lda <__temp   ; stack value is also positive, so just go for the unsigned version
-   bra ugt_y1   ; we spare one instruction, since we already have Y=1
+	lda <__temp	; stack value is also positive, so just go for the unsigned version
+	bra ugt_y1	; we spare one instruction, since we already have Y=1
 
 .gt_primary_minus:
 
 	; if here, the A:X value is negative
 
-   sta <__temp
-   lda [__stack], Y
-   bmi getA_ugt ; stack value is also negative, so restore A val from
+	sta <__temp
+	lda [__stack], Y
+	bmi getA_ugt ; stack value is also negative, so restore A val from
 			; __temp and call ugt
 
 cmp_ok:
-  .ifndef SMALL
-   addw	#2,<__stack	; OK to kill A/X
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx #1
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack	; OK to kill A/X
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx #1
+	cla
+	rts
 
-getA_ugt:       ; we grab back the value of A before entering the unsigned
+getA_ugt:	; we grab back the value of A before entering the unsigned
 		; version of >
-   lda <__temp
+	lda <__temp
 
-ugt:    ; unsigned version of >
+ugt:	; unsigned version of >
 
-   ldy #1
+	ldy #1
 
 ugt_y1: ; unsigned version of >, assuming Y = 1
 
-   cmp [__stack],Y
-   beq .gt_must_test_lobyte
-   bcs .gt_end ; hibyte of the reg var >= hibyte of the pushed var
-   cly
-   bra .gt_end
+	cmp [__stack],Y
+	beq .gt_must_test_lobyte
+	bcs .gt_end ; hibyte of the reg var >= hibyte of the pushed var
+	cly
+	bra .gt_end
 
 .gt_must_test_lobyte
-   sax
-   cmp [__stack]
-   bcs .gt_end       ; lobyte of the reg var >= lobyte of the pushed var
-   cly
+	sax
+	cmp [__stack]
+	bcs .gt_end	; lobyte of the reg var >= lobyte of the pushed var
+	cly
 
 .gt_end:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   tya
-   eor #$ff
-   inc a
-   inc a
-   tax
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	tya
+	eor #$ff
+	inc a
+	inc a
+	tax
+	cla
+	rts
 
-ubgt:    ; unsigned byte version of >
-   txa
-   cmp [__stack]
-   bcc .gt_true
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   clx
-   cla
-   rts
+ubgt:	; unsigned byte version of >
+	txa
+	cmp [__stack]
+	bcc .gt_true
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	clx
+	cla
+	rts
 .gt_true:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx #1
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx #1
+	cla
+	rts
 
 
 ; ----
@@ -405,29 +404,29 @@ ubgtzp:
 ; compare two signed words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non nul if pushed word is greater or egal to
-;       the word in A:X else nul
+;	the word in A:X else nul
 ; ----
 
-ge:     ; signed version of >
-    jsr lt
-    sax
-    dec a
-    dec a
-    eor #$ff
-    sax
-    rts
+ge:	; signed version of >
+	jsr lt
+	sax
+	dec a
+	dec a
+	eor #$ff
+	sax
+	rts
 
-geb:     ; signed byte version of >
-    jsr ltb
-    sax
-    dec a
-    dec a
-    eor #$ff
-    sax
-    rts
+geb:	; signed byte version of >
+	jsr ltb
+	sax
+	dec a
+	dec a
+	eor #$ff
+	sax
+	rts
 
 gezp:	jsr	ltzp
 	sax
@@ -451,29 +450,29 @@ gebzp:	jsr	ltbzp
 ; compare two unsigned signed words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non nul if pushed word is greater or egal to
-;       the word in A:X else nul
+;	the word in A:X else nul
 ; ----
 
-uge:    ; unsigned version of >
-    jsr ult
-    sax
-    dec a
-    dec a
-    eor #$ff
-    sax
-    rts
+uge:	; unsigned version of >
+	jsr ult
+	sax
+	dec a
+	dec a
+	eor #$ff
+	sax
+	rts
 
-ubge:    ; unsigned byte version of >
-    jsr ublt
-    sax
-    dec a
-    dec a
-    eor #$ff
-    sax
-    rts
+ubge:	; unsigned byte version of >
+	jsr ublt
+	sax
+	dec a
+	dec a
+	eor #$ff
+	sax
+	rts
 
 ugezp:	jsr	ultzp
 	sax
@@ -497,10 +496,10 @@ ubgezp:	jsr	ubltzp
 ; compare two words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non null if pushed word is different from
-;       the word in A:X else null
+;	the word in A:X else null
 ; ----
 ; REMARK : signed compatible
 ; ----
@@ -508,92 +507,91 @@ ubgezp:	jsr	ubltzp
 	; previous version called 'eq' as subroutine and returned
 	; opposite value; should be fully implemented for speed
 	; since '!=' is such a common operator
-
 ne:
-   sax
-   cmp [__stack]
-   bne .ne_endne
+	sax
+	cmp [__stack]
+	bne .ne_endne
 
-   ldy #1
-   sax
-   cmp [__stack],Y
-   bne .ne_endne
+	ldy #1
+	sax
+	cmp [__stack],Y
+	bne .ne_endne
 
 .ne_endeq:
-  .ifndef SMALL
-   addw	#2,<__stack   ; don't push A/X; they are thrown away
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   clx
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack	; don't push A/X; they are thrown away
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	clx
+	cla
+	rts
 
 .ne_endne:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx	#1
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx	#1
+	cla
+	rts
 
 neb:
-   txa
-   cmp [__stack]
-   bne .ne_endne
+	txa
+	cmp [__stack]
+	bne .ne_endne
 
 .ne_endeq:
-  .ifndef SMALL
-   addw	#2,<__stack   ; don't push A/X; they are thrown away
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   clx
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack	; don't push A/X; they are thrown away
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	clx
+	cla
+	rts
 
 .ne_endne:
-  .ifndef SMALL
-   addw	#2,<__stack
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   ldx	#1
-   cla
-   rts
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	ldx	#1
+	cla
+	rts
 
 ; streamlined version - uses zp ( <__temp ) instead of stack
 ; returns A:X = 0 if false, 1 if true
 
 nezp:
-	cmp   <__temp+1
-	bne   .x_ne
+	cmp	<__temp+1
+	bne	.x_ne
 	sax
-	cmp   <__temp
-	bne   .x_ne
+	cmp	<__temp
+	bne	.x_ne
 	cla
 	clx
 	rts
 .x_ne:
 	cla
-	ldx   #1   	; ensure Z flag not set
+	ldx	#1	; ensure Z flag not set
 	rts
 
 nebzp:
 	txa
-	cmp   <__temp
+	cmp	<__temp
 	cla
-	bne   .x_ne
+	bne	.x_ne
 	clx
 	rts
 .x_ne:
-	ldx   #1   	; ensure Z flag not set
+	ldx	#1	; ensure Z flag not set
 	rts
 
 ; ----
@@ -602,29 +600,29 @@ nebzp:
 ; compare two signed words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non nul if pushed word is lower or egal to
-;       the word in A:X else nul
+;	the word in A:X else nul
 ; ----
 
-le:     ; signed version
-    jsr gt
-    sax
-    eor #$ff
-    inc a
-    inc a
-    sax
-    rts
+le:	; signed version
+	jsr gt
+	sax
+	eor #$ff
+	inc a
+	inc a
+	sax
+	rts
 
-leb:     ; signed version
-    jsr gtb
-    sax
-    eor #$ff
-    inc A       ; assuming that A=1 if true
-    inc a
-    sax
-    rts
+leb:	; signed version
+	jsr gtb
+	sax
+	eor #$ff
+	inc a		; assuming that A=1 if true
+	inc a
+	sax
+	rts
 
 lezp:	jsr	gtzp
 	sax
@@ -648,29 +646,29 @@ lebzp:	jsr	gtbzp
 ; compare two unsigned words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : word A:X is non nul if pushed word is lower or egal to
-;       the word in A:X else nul
+;	the word in A:X else nul
 ; ----
 
-ule:    ; unsigned version
-    jsr ugt
-    sax
-    eor #$ff
-    inc A       ; assuming that A=1 if true
-    inc a
-    sax
-    rts
+ule:	; unsigned version
+	jsr ugt
+	sax
+	eor #$ff
+	inc A	; assuming that A=1 if true
+	inc a
+	sax
+	rts
 
-uble:    ; unsigned byte version
-    jsr ubgt
-    sax
-    eor #$ff
-    inc A       ; assuming that A=255 if true
-    inc a
-    sax
-    rts
+uble:	; unsigned byte version
+	jsr ubgt
+	sax
+	eor #$ff
+	inc A	; assuming that A=255 if true
+	inc a
+	sax
+	rts
 
 ulezp:	jsr	ugtzp
 	sax
@@ -694,56 +692,57 @@ ublezp:	jsr	ubgtzp
 ; shift the pushed word left by the register word
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : Register word egals the previous pushed value
-;       shifted left by A:X
+;	shifted left by A:X
 ; ----
-; REMARK : only the lower byte of the right operand is taken in account
-;          signed compatible
+; REMARK :	only the lower byte of the right operand is taken in account
+;		signed compatible
 ; ----
 asl:
-   stx <__temp
-   __ldwp __stack
-   ldy <__temp
-   beq .asl_end
-   sta <__temp
-   sax
+	stx <__temp
+	__ldwp __stack
+	ldy <__temp
+	beq .asl_end
+	sta <__temp
+	sax
 
 .asl_begin
-   asl a
-   rol <__temp
-   dey
-   bne .asl_begin
+	asl a
+	rol <__temp
+	dey
+	bne .asl_begin
 
-   sax
-   lda <__temp
+	sax
+	lda <__temp
+
 .asl_end
-  .ifndef SMALL
-   tay
-   addw #2,<__stack
-   tya
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   rts
+.ifndef SMALL
+	tay
+	addw #2,<__stack
+	tya
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	rts
 
 aslzp:
-   beq .asl_end
-   sta <__temp
-   sax
+	beq .asl_end
+	sta <__temp
+	sax
 
 .asl_begin
-   asl a
-   rol <__temp
-   dey
-   bne .asl_begin
+	asl a
+	rol <__temp
+	dey
+	bne .asl_begin
 
-   sax
-   lda <__temp
+	sax
+	lda <__temp
 .asl_end
-   rts
+	rts
 
 
 ; ----
@@ -752,103 +751,104 @@ aslzp:
 ; shift the pushed word right by the register word
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : Register word egals the previous pushed value
-;       shifted right by A:X
+;	shifted right by A:X
 ; ----
-; REMARK : only the lower byte of the right operand is taken in account
-;          signed compatible
+; REMARK :	only the lower byte of the right operand is taken in account
+;		signed compatible
 ; ----
 asr:
-   stx <__temp
-   __ldwp __stack
-   ldy <__temp
-   beq .asr_end
-   sta <__temp
-   sax
+	stx <__temp
+	__ldwp __stack
+	ldy <__temp
+	beq .asr_end
+	sta <__temp
+	sax
 
 .asr_begin
-   cpx #$80
-   ror <__temp
-   ror a
+	cpx #$80
+	ror <__temp
+	ror a
 
-   dey
-   bne .asr_begin
+	dey
+	bne .asr_begin
 
-   sax
-   lda <__temp
+	sax
+	lda <__temp
+
 .asr_end
-  .ifndef SMALL
-   tay
-   addw #2,<__stack
-   tya
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   rts
+.ifndef SMALL
+	tay
+	addw #2,<__stack
+	tya
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	rts
 
 asrzp:
-   beq .asr_end
-   sta <__temp
-   sax
+	beq .asr_end
+	sta <__temp
+	sax
 
 .asr_begin
-   cpx #$80
-   ror <__temp
-   ror a
+	cpx #$80
+	ror <__temp
+	ror a
+	dey
+	bne .asr_begin
 
-   dey
-   bne .asr_begin
-
-   sax
-   lda <__temp
+	sax
+	lda <__temp
 .asr_end
-   rts
+	rts
 
 lsr:
-   stx <__temp
-   __ldwp __stack
-   ldy <__temp
-   beq .lsr_end
-   sta <__temp
-   sax
+	stx <__temp
+	__ldwp __stack
+	ldy <__temp
+	beq .lsr_end
+	sta <__temp
+	sax
 
 .lsr_begin
-   lsr <__temp
-   ror a
-   dey
-   bne .lsr_begin
+	lsr <__temp
+	ror a
+	dey
+	bne .lsr_begin
 
-   sax
-   lda <__temp
+	sax
+	lda <__temp
+
 .lsr_end
-  .ifndef SMALL
-   tay
-   addw #2,<__stack
-   tya
-  .else
-   inc <__stack
-   inc <__stack
-  .endif
-   rts
+.ifndef SMALL
+	tay
+	addw #2,<__stack
+	tya
+.else
+	inc <__stack
+	inc <__stack
+.endif
+	rts
 
 lsrzp:
-   beq .lsr_end
-   sta <__temp
-   sax
+	beq .lsr_end
+	sta <__temp
+	sax
 
 .lsr_begin
-   lsr <__temp
-   ror a
-   dey
-   bne .lsr_begin
+	lsr <__temp
+	ror a
+	dey
+	bne .lsr_begin
 
-   sax
-   lda <__temp
+	sax
+	lda <__temp
 .lsr_end
-   rts
+	rts
 
 ; ----
 ; smul
@@ -856,38 +856,37 @@ lsrzp:
 ; multiply two SIGNED words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : Register word egals the previous pushed value
-;       multiplied by A:X
+;	multiplied by A:X
 ; ----
 
 smul:
-        stz <__sign      ; until we call umul, __sign keeps the sign parity
+	stz	<__sign	; until we call umul, __sign keeps the sign parity
 			; of operand
-	cmp #$80
-        bcc smul_no_invert_primary
+	cmp	#$80
+	bcc	smul_no_invert_primary
 
 	__negw
 
-	inc <__sign      ; __sign ++
+	inc	<__sign	; __sign ++
 
 smul_no_invert_primary:
+	sta	<__temp
+	ldy	#1
+	lda	[__stack],Y
+	cmp	#$80
+	bcc	smul_no_invert_secondary
 
-	sta <__temp
-	ldy #1
-	lda [__stack],Y
-	cmp #$80
-        bcc smul_no_invert_secondary
-
-	inc <__sign      ; this time, no optimisation possible, IMHO :)
+	inc	<__sign	; this time, no optimisation possible, IMHO :)
 			; are you sure? :))
-	stx <__temp+1
+	stx	<__temp+1
 
-	lda [__stack]
+	lda	[__stack]
 	tax
-	lda [__stack],Y ; we assumed Y = 1 since we set it at the beginning of
-                        ; smul_no_invert_primary
+	lda	[__stack],Y	; we assumed Y = 1 since we set it at the
+				; beginning of smul_no_invert_primary
 	__negw
 	sta [__stack],Y
 	sax
@@ -896,18 +895,17 @@ smul_no_invert_primary:
 	ldx <__temp+1
 
 smul_no_invert_secondary:
-
 	lda <__sign
 	pha
-        lda <__temp      ; saved at the beginning of smul_no_invert_primary
+	lda <__temp	; saved at the beginning of smul_no_invert_primary
 			; where we're sure we passed
 
-        jsr umul
+	jsr umul
 
 	say
 	pla
 	and #$01
-        beq smul_end
+	beq smul_end
 
 	say
 	__negw
@@ -924,7 +922,7 @@ smul_end:
 ; multiply two UNSIGNED words
 ; ----
 ; IN :  First word on the C stack
-;       Another word in A:X
+;	Another word in A:X
 ; ----
 ; OUT : Register word egals the previous pushed value
 ;       multiplied by A:X
@@ -935,18 +933,20 @@ umul:
 	__ldwp	__stack
 	__stw	<__temp   ; ax
 	  jsr	umul16
-	.ifndef SMALL
+.ifndef SMALL
 	  addw	#2,<__stack
-	.else
+.else
 	  inc <__stack
 	  inc <__stack
-	.endif
+.endif
 	__ldw	<__ptr
 	  rts
+
 umul16:
 	  lda	<__temp+3
 	  ora	<__temp+1
 	  beq	umul8
+
 	  stwz	<__ptr
 	  ldy	#16
 
@@ -956,7 +956,9 @@ umul16:
 	  addw	<__temp,<__ptr
 .l2:	  dey
 	  bne	.l1
+
 	  rts
+
 umul8:
 	  lda	<__temp+2
 	  sta	<__ptr+1
@@ -989,50 +991,48 @@ umul8:
 ; ----
 
 sdiv:
-	stz <__sign      ; until we call udiv, __sign keeps the sign parity
+	stz	<__sign	; until we call udiv, __sign keeps the sign parity
 			; of operand
-	cmp #$80
-	bcc sdiv_no_invert_primary
+	cmp	#$80
+	bcc	sdiv_no_invert_primary
 
 	__negw
 
-	inc <__sign      ; __sign ++
+	inc	<__sign	; __sign ++
 
 sdiv_no_invert_primary:
+	sta	<__temp
+	ldy	#1
+	lda	[__stack],Y
+	cmp	#$80
+	bcc	sdiv_no_invert_secondary
 
-	sta <__temp
-	ldy #1
-	lda [__stack],Y
-	cmp #$80
-        bcc sdiv_no_invert_secondary
+	inc	<__sign
 
-	inc <__sign
+	stx	<__temp+1
 
-	stx <__temp+1
-
-	lda [__stack]
+	lda	[__stack]
 	tax
-	lda [__stack],Y ; we assumed Y = 1 since we set it at the beginning of
-			; sdiv_no_invert_primary
+	lda	[__stack],Y	; we assumed Y = 1 since we set it at the beginning of
+				; sdiv_no_invert_primary
 	__negw
-	sta [__stack],Y
+	sta	[__stack],Y
 	sax
-	sta [__stack]
+	sta	[__stack]
 
-	ldx <__temp+1
+	ldx	<__temp+1
 
 sdiv_no_invert_secondary:
-
-	lda <__sign
+	lda	<__sign
 	pha
-	lda <__temp      ; saved at the beginning of sdiv_no_invert_primary
+	lda	<__temp	; saved at the beginning of sdiv_no_invert_primary
 			; where we're sure we passed
-	jsr udiv
+	jsr	udiv
 
 	say
 	pla
-	and #$01
-	beq sdiv_end
+	and	#$01
+	beq	sdiv_end
 
 	say
 	__negw
@@ -1056,39 +1056,39 @@ sdiv_end:
 ; ----
 
 udiv:
-	__stw   <__ptr
-	__ldwp  __stack
-	__stw   <__temp
+	__stw	<__ptr
+	__ldwp	__stack
+	__stw	<__temp
 
-	lda     #0
-	sta     <__remain+1
-	ldy     #16
-.sdiv_begin:    asl     <__temp
-	rol     <__temp+1
-	rol     a
-	rol     <__remain+1
+	lda	#0
+	sta	<__remain+1
+	ldy	#16
+.sdiv_begin:	asl	<__temp
+	rol	<__temp+1
+	rol	a
+	rol	<__remain+1
 	pha
-	cmp     <__ptr
-	lda     <__remain+1
-	sbc     <__ptr+1
-	bcc     .sdiv_end
-	sta     <__remain+1
+	cmp	<__ptr
+	lda	<__remain+1
+	sbc	<__ptr+1
+	bcc	.sdiv_end
+	sta	<__remain+1
 	pla
-	sbc     <__ptr
+	sbc	<__ptr
 	pha
-	inc     <__temp
-.sdiv_end:      pla
+	inc	<__temp
+.sdiv_end:	pla
 	dey
-	bne     .sdiv_begin
-	sta     <__remain
+	bne	.sdiv_begin
+	sta	<__remain
 
-	.ifndef SMALL
+.ifndef SMALL
 	addw	#2,<__stack
-	.else
-	inc <__stack
-	inc <__stack
-	.endif
-	__ldw <__temp
+.else
+	inc	<__stack
+	inc	<__stack
+.endif
+	__ldw	<__temp
 
 	rts
 
@@ -1106,32 +1106,32 @@ udiv:
 ; ----
 
 smod:
-	stz <__sign
-	__stw <__ptr
-	__ldwp __stack
-	cmp #$80
-	bcc .skip1
-	inc <__sign
+	stz	<__sign
+	__stw	<__ptr
+	__ldwp	__stack
+	cmp	#$80
+	bcc	.skip1
+	inc	<__sign
 	__negw
-	__stwp __stack
-.skip1:	__ldw <__ptr
-	cmp #$80
-	bcc .skip2
+	__stwp	__stack
+.skip1:	__ldw	<__ptr
+	cmp	#$80
+	bcc	.skip2
 	__negw
-.skip2:	jsr umod
-	ldy <__sign
-	beq .noinv
+.skip2:	jsr	umod
+	ldy	<__sign
+	beq	.noinv
 	__negw
 .noinv:	rts
 
 umod:
-        __stw   <__ptr
-        __ldwp  __stack
-        __stw   <__temp
+	__stw	<__ptr
+	__ldwp	__stack
+	__stw	<__temp
 
-        lda	#0
- 	sta	<__remain+1
- 	ldy	#16
+	lda	#0
+	sta	<__remain+1
+	ldy	#16
 .umod_begin:	asl	<__temp
 	rol	<__temp+1
 	rol	a
@@ -1151,13 +1151,13 @@ umod:
 	bne	.umod_begin
 	sta	<__remain
 
-	.ifndef SMALL
-	 addw	#2,<__stack
-	.else
-	 inc <__stack
-	 inc <__stack
-	.endif
-        __ldw <__remain
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc	<__stack
+	inc	<__stack
+.endif
+	__ldw	<__remain
 
 	rts
 
@@ -1188,58 +1188,58 @@ umod:
 ; ----
 ; REMARK : Also use __remain variable as a temporary value
 ; ----
-___case:
-  __stw <__remain ; store the value to check to
-  __ldwp __stack
-  __stw <__ptr ; __ptr contain the address of the array
 
-  .ifndef SMALL
-  addw #2,<__stack
-  .else
-  inc <__stack
-  inc <__stack
-  .endif
+___case:
+	__stw	<__remain	; store the value to check to
+	__ldwp	__stack
+	__stw	<__ptr		; __ptr contain the address of the array
+
+.ifndef SMALL
+	addw	#2,<__stack
+.else
+	inc	<__stack
+	inc	<__stack
+.endif
 
 .begin_case:
-  addw #2,<__ptr
-  __ldwp __ptr
-  __tstw
-  __lbeq .end_case_default
+	addw	#2,<__ptr
+	__ldwp	__ptr
+	__tstw
+	__lbeq	.end_case_default
 
-  addw  #-2,<__ptr
+	addw	#-2,<__ptr
+	__ldwp	__ptr
 
-  __ldwp __ptr
+.ifndef SMALL
+	__addmi	-2,__stack
+.else
+	dec	<__stack
+	dec	<__stack
+.endif
+	__stwp	__stack
 
-  .ifndef SMALL
-  __addmi -2,__stack
-  .else
-  dec <__stack
-  dec <__stack
-  .endif
-  __stwp __stack
+	addw	#4,<__ptr
 
-  addw  #4,<__ptr
+	__ldw	<__remain
 
-  __ldw <__remain
+	jsr	eq
+	__tstw
+	__lbeq	.begin_case
 
-  jsr eq
-  __tstw
-  __lbeq .begin_case
+	addw	#-2,<__ptr
+	__ldwp	__ptr
+	__stw	<__temp
 
-  addw  #-2,<__ptr
-  __ldwp __ptr
-  __stw <__temp
+	jmp	[__temp]
 
-  jmp [__temp]
-
-.end_case_default:      ; if we haven't found any corresponding value
+.end_case_default:	; if we haven't found any corresponding value
 			; then we jump to the default supplied label
 
-  addw   #-2,<__ptr
-  __ldwp __ptr
-  __stw <__temp
+	addw	#-2,<__ptr
+	__ldwp	__ptr
+	__stw	<__temp
 
-  jmp [__temp]
+	jmp	[__temp]
 
 
 ; ----
