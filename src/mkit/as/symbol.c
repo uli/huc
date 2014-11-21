@@ -120,14 +120,15 @@ struct t_symbol *stlook(int flag)
 
 			/* new symbol */
 			if (sym == NULL) {
-				if (flag) {
+				if (flag == 1) {
 					sym = stinstall(0, 1);
 					sym_flag = 1;
 				}
 			}
 		}
 		else {
-			error("Local symbol not allowed here!");
+			if (flag != 2)
+				error("Local symbol not allowed here!");
 			return (NULL);
 		}
 	}
@@ -145,7 +146,7 @@ struct t_symbol *stlook(int flag)
 
 		/* new symbol */
 		if (sym == NULL) {
-			if (flag) {
+			if (flag == 1) {
 				sym = stinstall(hash, 0);
 				sym_flag = 1;
 			}

@@ -1,6 +1,6 @@
 
 /* ASSEMBLE.C */
-void assemble(void);
+void assemble(int do_label);
 int  oplook(int *idx);
 void addinst(struct t_opcode *optbl);
 int  check_eol(int *ip);

@@ -359,7 +359,7 @@ main(int argc, char **argv)
 
 		/* assemble */
 		while (readline() != -1) {
-			assemble();
+			assemble(0);
 			if (loccnt > 0x2000) {
 				loccnt&=0x1fff;
 				page++;

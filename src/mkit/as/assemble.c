@@ -21,7 +21,7 @@ int continued_line;	/* set when a line is the continuation of another line */
  * translate source line to machine language
  */
 void
-assemble(void)
+assemble(int do_label)
 {
 	struct t_line *ptr;
 	char *buf;
@@ -159,9 +159,15 @@ assemble(void)
 	if ((j == 0) || ((i != SFIELD) && (c != ':')))
 		i = SFIELD;
 	else {
-		if (colsym(&i) != 0)
-			if ((lablptr = stlook(1)) == NULL)
+		if (colsym(&i) != 0) {
+			if (!do_label && !stlook(2)) {
+				/* Unless it is already defined we're supposed
+				   to assume it is not a label. */
+				i = SFIELD;
+			}
+			else if ((lablptr = stlook(1)) == NULL)
 				return;
+		}
 		if ((lablptr) && (prlnbuf[i] == ':'))
 			i++;
 	}
@@ -203,6 +209,11 @@ assemble(void)
 	ip = i;
 	flag = oplook(&ip);
 	if (flag < 0) {
+		if (flag == -1 && !do_label) {
+			/* try again, maybe it's a label */
+			assemble(1);
+			return;
+		}
 		labldef(loccnt, 1);
 		if ((flag == -1))
 			error("Unknown instruction!");
