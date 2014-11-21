@@ -32,8 +32,8 @@ do
         for rec in "" "-fno-recursive"
         do
           set -x
-          $HUC -vv $init_eins $small $rec -over -${sys} overlay1.c $eins >/dev/null
-          $HUC -vv $init_zwei $small $rec -over -${sys} overlay2.c $zwei >/dev/null
+          $HUC $init_eins $small $rec -over -${sys} overlay1.c $eins >/dev/null
+          $HUC $init_zwei $small $rec -over -${sys} overlay2.c $zwei >/dev/null
           $ISOLINK overlay.iso overlay1.ovl overlay2.ovl >/dev/null
           set +x
           mednafen overlay.cue >/dev/null

@@ -764,8 +764,10 @@ static void dumpfinal(void)
 	if (data) {
 		fclose(data);
 		outstr("huc_data:\n");
+		outstr("___huc_data:\n");
 		outstr(data_buf);
 		outstr("huc_data_end:\n");
+		outstr("___huc_data_end:\n");
 	}
 	if (globals_h_in_process != 1) {
 		outstr("__heap_start:\n");
@@ -775,8 +777,10 @@ static void dumpfinal(void)
 		ol(".data");
 		ol(".bank CONST_BANK");
 		outstr("huc_rodata:\n");
+		outstr("___huc_rodata:\n");
 		outstr(rodata_buf);
 		outstr("huc_rodata_end:\n");
+		outstr("___huc_rodata_end:\n");
 	}
 	fseek(output, output_globdef, SEEK_SET);
 	if (have_irq_handler || have_sirq_handler)
