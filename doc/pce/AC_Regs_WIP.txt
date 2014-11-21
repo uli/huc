@@ -1,0 +1,186 @@
+
+
+  
+    AC Address Registers
+    --------------------
+    
+      Four sets of memory mapped registers: $1A00-1A0A, $1A10-1A1A, $1A20-1A2A, $1A30-1A3A
+    
+    
+        byte 0/1:     Data read/write registers.                
+                                            
+        byte 2/3/4:   Base address of the 2megabyte range. Format is 24bit: low, middle, high byte.
+    
+        byte 5/6:     Offset register. Format is 16bit LSB/MSB.
+    
+        byte 7/8:     Increment register. Format is 16bit LSB/MSB.
+    
+        byte 9:       Control register.
+    
+                      7654 3210    All eight bits of the Control register.
+                      |||| |||+--- auto-increment enabled for INC reg (byte 7/8) (0: Disable / 1: enabled)  
+                      |||| ||+---- Offset register (byte5/6), (to be) added to the base address. (0: Disable / 1: enabled)
+                      |||| |+----- Treat byte7/8 as signed value (inc reg)  (0: Not signed / 1:Signed )
+                      |||| +------ Treat byte5/6 as signed vlue (offset reg) (0: Not signed / 1:Signed )
+                      |||+-------- Increment select. Apply INC register to base or offset (0: offset / 1: Base ) **
+                      |++--------- Offset Trigger
+                      |             00: none **
+                      |             01: add offset on low byte write (5)
+                      |             10: add offset on high byte write (6)
+                      |             11: both **
+                      +----------- Data port size (0: byte / 1: word) ** 
+         
+        byte $A:      Manual Offset Trigger. Any write to this register triggers adding the offset to the base address.
+        
+        
+    Desciption:
+    
+      Data port
+      ---------
+
+             The DATA port register acts as an address register. It uses the value of the Base register for the address
+            calculation, to point into AC memory. All access to the AC memory goes through these register sets. Depending
+            on which bits are set in the control reg, different address calculation configurations can be used. You can
+            have the Offset register index the Base register. You can also configure to have either the Base or the Offset
+            register auto incremented or decremented on access to these Data registers.
+            
+ 
+      Offset
+      ------
+      
+             The Offset register is basically a 'window' or 'index' register. It can be configured to be added to the Base
+            register at the time of address calculation for memory fetch/store operations. It does *not* accumulate back
+            into the Base register on every Data register access. When D1 of Control register is set, it functions as above.
+            
+             There are some other behaviors that can be applied with Offset register. With Byte $A, you can have the Offset
+            register value added to the Base register. This is different than above and happens on each instance of writing
+            to register Byte $A. This is a manual triggered add function. The value written to Byte $A is irrelevant. The 
+            Base address accumulates the Offset register's value.
+            
+             If D6/D5 of the Control register are set to anything other than %00, the above add function is applied to Data
+            port access. In some instances, this is redundant as it acts the same as the Increment register. But it can be
+            configured so that the addition takes place on only one byte of the Data register set. This can be useful for
+            incrementing on WORD size read/writes.
+            
+             Control register bit D3 defines how the 16bit value of the Offset register is used. If this bit is set, the
+            Offset register value is treated as a signed number. This applies both to indexing function and add functions.
+                        
+ 
+ 
+      Signed extension
+      ----------------
+      
+             Control register bits D2 and D3 effect how Offset and Increment register values are treated. When set to signed,
+            the value is 2's complement.
+            
+             Signed status shouldn't have any effect when the Increment reg is added to Offset register. Both are 16bit and
+            added normally as signed with or without the signed status. Where the bit does come into play, is when either
+            the Increment or Offset register (or both) are added to the Base register. Since Base is a 24bit value, and the
+            Offset and Increment register values are 16bit, these are signed extended to 24bit before being applied to the
+            Base register.
+          
+    
+      Auto-increment
+      --------------
+      
+             When the Control register bit D0 is set, auto-increment function takes place upon every read/write of the Data
+            register set. 
+            
+             The Increment register holds the value, to be added to another register. Control bit D4 sets which register is
+            going to be 'incremented': the Base or Offset register.
+            
+             Control register bit D2 sets whether the Increment register value is sign extened to 24bit or not, when adding
+            to the Base register.
+    
+    
+      Offset increment
+      ----------------
+        
+             When Control register bit D4 is set to 'Offset', the Increment register is added to Offset register. The Base
+            register isn't effect. Fatal Fury Special uses this AC register block as a 16bit down counter.
+            
+              ; Byte7/8 = $ffff (-1)
+              ; Byte9 = %101 (offset auto-increment on, Byte7/8 treated as signed, )
+              lda $1a10     ; <- Triggers the auto-increment
+              lda $1a15
+              ora $1a16     ; <- if both LSB and MSB of Offset is $0000, then loop finished.
+              bne loop
+              rts 
+              
+            First read ($1a10) increments Offset by -1. ORing LSB/MSB of Offset, if the result sets the Z flag (both are 00)
+            then finish, else jump back (continue loop). 
+            
+
+
+    AC General Registers
+    --------------------
+
+      These registers have specific memory locations and not groups like the previous mentioned set of registers.
+
+          
+        $1AE0: Byte 0-3     A 32bit register. Format: lowest,low, mid, high byte.
+        
+        $1AE4: Byte 0       Amount to shift the 32bit register. Lower 4 bits/nybble value is signed.
+        
+        $1AE5: Byte 0       Amount to rotate the 32bit register. Lower 4 bits/nybble value is signed.
+        
+        $1AEC: Byte 0-1     Should return $00/00.         
+
+        $1AFE: Byte 0       When read, gives the version number of the Arcade Card.
+        
+        $1AFF: Byte 0       Arcade Card ID = $51. Use to detect the card.
+
+
+    Desciption:
+      
+      Shift register
+      --------------
+            
+             The last byte ($1AE3) is a latch. When this is written to, all four bytes are copied into an internal
+            32bit register. Reading back from this last byte, also activates the latch mechanism. I.e. you can write
+            to one of the lower 3 bytes, and then read from the last byte to update the register. The value in the 
+            32bit register is always treated as unsigned when the shift logic is applied.
+            
+      Shift/Rotate
+      ------------
+        
+             The register is 8bits, but only the lower 4bits are used for the shift/rotate operation. The upper 4bits
+            are still held in the register, and can be read back. The lower four bits are signed, so it controls the 
+            direction of the shift/rotate. Only writing to these two registers activates the shift mechanism/logic. 
+
+
+    AC Bank Data Registers
+    ----------------------
+
+      Four banks of Data registers mirrored through out 8k. Each bank corresponds to one of four Address register sets.
+
+          
+        Bank $40          Data registers 0/1 of $1A00 mirrored in the 8k bank.
+
+        Bank $41          Data registers 0/1 of $1A10 mirrored in the 8k bank.
+
+        Bank $42          Data registers 0/1 of $1A20 mirrored in the 8k bank.
+
+        Bank $43          Data registers 0/1 of $1A30 mirrored in the 8k bank.
+
+
+    Desciption:
+      
+      Mirrored Registers
+      ------------------
+            
+             The mirrored registers served a specific purpose. They allow you to use the Txx block transfer instructions
+            with the Data register ports. The are no port-to-port block xfer instructions. In order to get AC port reads
+            to VDC port writes, you need a special Txx instruction that just doesn't exist. A clever work around is to
+            organize a set of ports, so that you can read them out in sequential fashion - like that of normal sequential
+            linear addressing.
+            
+             These ports, are mirrored one after another for a single 8k block. It works both for VDC->AC and AC->VDC,
+            although the bigger benefit is actually for transfering to VRAM. Each bank of $40-43 corresponds to one of four
+            sets of AC Data registers. This also means you are limited up to 8k in a Txx single instance. So you'd have to
+            you remap the *same* bank number to the next page register(s), for larger than 8k transfers. If you want to xfer
+            data to vram, you use the normal TIA instruction. And reading from VRAM to AC, you use the TAI instruction.
+            
+            
+
+
