@@ -40,7 +40,7 @@ assemble(int do_label)
 	/* macro definition */
 	if (in_macro) {
 		i = SFIELD;
-		if (colsym(&i))
+		if (do_label && colsym(&i))
 			if (prlnbuf[i] == ':')
 				i++;
 		while (isspace(prlnbuf[i]))
