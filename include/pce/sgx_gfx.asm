@@ -76,12 +76,12 @@ sgx_scr_height .ds 1
 
 	 .code
 
-;±±[ library 3 code ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [library 3 code]
 
 	.include "lib3_versions.asm"
 
 
-;±±[ SPRITE CODE ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [SPRITE CODE]
 
 ; sgx_spr_set(char num)
 ; ----
@@ -486,7 +486,7 @@ lib2_sgx_spr_pri:
 
 
 
-;±±[ VDC CODE ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [VDC CODE]
 
 
 ; sgx_detect()
@@ -923,7 +923,7 @@ lib2_sgx_bg_off:
 	.bank LIB1_BANK
 
 
-;±±[ VPC CODE ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [VPC CODE]
 
 
 ; vpc_win_size( char window_num (& 0x01) , int size );
@@ -1030,7 +1030,7 @@ lib2_vpc_win_reg.2:
 
 		
 
-;±±[ BACKGROUND CODE ]±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+; [BACKGROUND CODE]
 
 
 ; sgx_load_map(char x [al], char y [ah], int mx, int my, char w [dl], char h [dh])
