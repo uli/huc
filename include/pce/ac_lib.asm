@@ -167,7 +167,7 @@ lib3_ac_vram_copy.main:
 		tay
 		stz $0000,x
 		cpx #$10
-		stz vdc_reg	;<$F7
+		stz <vdc_reg
 		lda <_bl
 		sta $0002,x
 		lda <_bh
@@ -330,7 +330,7 @@ lib3_ac_vram_xfer.5:
 
 	; /* setup vram write address. Save current VDC reg. */
 	cla
-	;sta <$F7		;need to due SGX equiv
+	;sta <vdc_reg		;need to due SGX equiv
 	sta $0010
 	lda <_bl
 	sta $0012
@@ -338,7 +338,7 @@ lib3_ac_vram_xfer.5:
 	sta $0013
 		
 	lda #$02
-	;sta <$F7		;need to due SGX equiv
+	;sta <vdc_reg		;need to due SGX equiv
 	sta $0010
 	jmp __loop_ac_vram
 
@@ -379,7 +379,7 @@ lib3_ac_vram_xfer.4:
 
 	; /* setup vram write address. Save current VDC reg. */
 	cla
-	sta <$F7
+	sta <vdc_reg
 	st0 #$00
 	lda <_bl
 	sta $0002
@@ -387,7 +387,7 @@ lib3_ac_vram_xfer.4:
 	sta $0003
 		
 	lda #$02
-	sta <$F7
+	sta <vdc_reg
 	st0 #$02
 
 	; /* main loop. Decrements until by fourth arguement */
@@ -531,7 +531,7 @@ lib3_ac_vram_dma.3:
 		
 	; /* setup vram write address */
 	cla
-	sta <$F7
+	sta <vdc_reg
 	st0 #$00
 	lda <_bl
 	sta $0002
@@ -539,7 +539,7 @@ lib3_ac_vram_dma.3:
 	sta $0003
 		
 	lda #$02
-	sta <$F7
+	sta <vdc_reg
 	st0 #$02
 
 	; /* Setup fixed length outside main loop. */
