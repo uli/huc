@@ -78,6 +78,7 @@ _ac_vram_copy.4:
 	.ifdef _SGX
 _ac_vram_copy.5:
 		ldy #7
+		bra maplib3_group_3
 	.endif
 
 
