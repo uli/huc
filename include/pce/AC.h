@@ -91,12 +91,11 @@ void __fastcall ac_vce_copy( unsigned char ac_reg<al>, unsigned int start_color<
 /*
  * Block Transfer defines for use with Arcade Call routines
  */
-extern int XFER_TYPE,XFER_SRC,XFER_DEST,XFER_LEN,XFER_RTS;
 #define TIA_OP			0xE300
 #define TAI_OP			0xF300
 #define TIN_OP			0xD300
 #define TII_OP			0x7300
 #define TDD_OP			0xC300
-#define RTS				0x0060
+#define RTS			0x0060
 
 #endif /* _AC_H */

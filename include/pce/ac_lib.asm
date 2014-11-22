@@ -3,11 +3,11 @@
 ; Tomaitheous '07
 
 	.data
-_XFER_TYPE:	.ds 2
-_XFER_SRC:	.ds 2
-_XFER_DEST:	.ds 2
-_XFER_LEN:	.ds 2
-_XFER_RTS:	.ds 2
+XFER_TYPE:	.ds 2
+XFER_SRC:	.ds 2
+XFER_DEST:	.ds 2
+XFER_LEN:	.ds 2
+XFER_RTS:	.ds 2
 	.code
 
 	.bank	LIB1_BANK
@@ -299,25 +299,25 @@ lib3_ac_vram_xfer.5:
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
-	sta	_XFER_TYPE+1
+	sta	XFER_TYPE+1
 	lda	#$60
-	sta	_XFER_RTS
+	sta	XFER_RTS
 
 	; load length. Not needed in the main loop.
 	lda	<dl
 	asl a			;convert words to bytes
-	sta	_XFER_LEN
-	stz	_XFER_LEN+1
+	sta	XFER_LEN
+	stz	XFER_LEN+1
 
 	; load source address. Not need in main loop.
-	stz	_XFER_SRC
+	stz	XFER_SRC
 	lda	#$C0
-	sta	_XFER_SRC+1
+	sta	XFER_SRC+1
 
 	; load destination address (only need to do this once)
 	lda	#$12
-	sta	_XFER_DEST
-	stz	_XFER_DEST+1
+	sta	XFER_DEST
+	stz	XFER_DEST+1
 
 	; setup vram write address. Save current VDC reg.
 	cla
@@ -346,25 +346,25 @@ lib3_ac_vram_xfer.4:
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
-	sta	_XFER_TYPE+1
+	sta	XFER_TYPE+1
 	lda	#$60
-	sta	_XFER_RTS
+	sta	XFER_RTS
 
 	; load length. Not needed in the main loop.
 	lda	<dl
 	asl a			; convert words to bytes
-	sta	_XFER_LEN
-	stz	_XFER_LEN+1
+	sta	XFER_LEN
+	stz	XFER_LEN+1
 
 	; load source address. Not need in main loop.
-	stz	_XFER_SRC
+	stz	XFER_SRC
 	lda	#$C0
-	sta	_XFER_SRC+1
+	sta	XFER_SRC+1
 
 	; load destination address (only need to do this once)
 	lda	#$02
-	sta	_XFER_DEST
-	stz	_XFER_DEST+1
+	sta	XFER_DEST
+	stz	XFER_DEST+1
 
 	; setup vram write address. Save current VDC reg.
 	cla
@@ -401,7 +401,7 @@ __loop_ac_vram:
 	tam	#$06
 
 	; call XFER instruction
-	jsr	_XFER_TYPE+1
+	jsr	XFER_TYPE+1
 
 	; restore bank and interrupts
 	pla
@@ -418,8 +418,8 @@ __last_chunk:
 	; load length. This is less than base value in dl so use cl instead
 	lda	<cl
 	asl a
-	sta	_XFER_LEN
-	stz	_XFER_LEN+1
+	sta	XFER_LEN
+	stz	XFER_LEN+1
 
 	; setup correct bank and disable interrupts
 	sei
@@ -429,7 +429,7 @@ __last_chunk:
 	tam	#$06
 
 	; call XFER instruction
-	jsr	_XFER_TYPE+1
+	jsr	XFER_TYPE+1
 
 	; restore bank and interrupts
 	pla
@@ -455,19 +455,19 @@ lib3_ac_vram_dma.4:
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
-	sta	_XFER_TYPE+1
+	sta	XFER_TYPE+1
 	lda	#$60
-	sta	_XFER_RTS
+	sta	XFER_RTS
 
 	; load source address. Not need in main loop. [XXX: Huh?]
-	stz	_XFER_SRC
+	stz	XFER_SRC
 	lda	#$C0
-	sta	_XFER_SRC+1
+	sta	XFER_SRC+1
 
 	; load destination address (only need to do this once)
 	lda	#$12
-	sta	_XFER_DEST
-	stz	_XFER_DEST+1
+	sta	XFER_DEST
+	stz	XFER_DEST+1
 
 	; setup vram write address
 	cla
@@ -483,9 +483,9 @@ lib3_ac_vram_dma.4:
 	sta	$0010
 
 	; Setup fixed length outside main loop.
-	stz	_XFER_LEN
+	stz	XFER_LEN
 	lda	#$20
-	sta	_XFER_LEN+1
+	sta	XFER_LEN+1
 	jmp	__loop_ac_dma
 .endif
 
@@ -500,19 +500,19 @@ lib3_ac_vram_dma.3:
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
-	sta	_XFER_TYPE+1
+	sta	XFER_TYPE+1
 	lda	#$60
-	sta	_XFER_RTS
+	sta	XFER_RTS
 
 	; load source address. Not need in main loop.
-	stz	_XFER_SRC
+	stz	XFER_SRC
 	lda	#$C0
-	sta	_XFER_SRC+1
+	sta	XFER_SRC+1
 
 	; load destination address (only need to do this once)
 	lda	#$02
-	sta	_XFER_DEST
-	stz	_XFER_DEST+1
+	sta	XFER_DEST
+	stz	XFER_DEST+1
 
 	; setup vram write address
 	cla
@@ -528,9 +528,9 @@ lib3_ac_vram_dma.3:
 	st0	#$02
 
 	; Setup fixed length outside main loop.
-	stz	_XFER_LEN
+	stz	XFER_LEN
 	lda	#$20
-	sta	_XFER_LEN+1
+	sta	XFER_LEN+1
 
 	; check to see if transfer size is 8k or less
 __loop_ac_dma:
@@ -560,7 +560,7 @@ __oversize_8k_LL1:
 	tam	#$06
 
 	; call XFER instruction
-	jsr	_XFER_TYPE+1
+	jsr	XFER_TYPE+1
 
 	; restore bank and interrupts
 	pla
@@ -580,9 +580,9 @@ __last_block_dma:
 	lda	<cl
 	asl a
 	rol	<ch
-	sta	_XFER_LEN
+	sta	XFER_LEN
 	lda	<ch
-	sta	_XFER_LEN+1
+	sta	XFER_LEN+1
 
 	; setup correct bank and disable interrupts
 	sei
@@ -592,7 +592,7 @@ __last_block_dma:
 	tam	#$06
 
 	; call XFER instruction
-	jsr	_XFER_TYPE+1
+	jsr	XFER_TYPE+1
 
 	; restore bank and interrupts
 	pla
