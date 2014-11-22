@@ -1065,8 +1065,8 @@ lib2_init_vdc:
 ; ----
 ; default screen resolution
 ;
-.ifndef _xres
-_xres	.equ 256
+.ifndef xres
+xres	.equ 256
 .endif
 
 	; ----
@@ -1100,10 +1100,10 @@ _xres	.equ 256
 	; ----
 	; set the screen mode
 	;
-.if (_xres < 268)
+.if (xres < 268)
 	lda	#(0 | XRES_SOFT)
 .else
-.if (_xres < 356)
+.if (xres < 356)
 	lda	#(1 | XRES_SOFT)
 .else
 	lda	#(2 | XRES_SOFT)
@@ -1114,7 +1114,7 @@ _xres	.equ 256
 
 ;	.if (CDROM)
 ;
-;	ldx	#_xres/8
+;	ldx	#xres/8
 ;	ldy	#30
 ;	jsr	ex_scrmod
 ;	lda	#$01
@@ -1180,7 +1180,7 @@ _xres	.equ 256
 	; ----
 	; save screen infos
 	;
-	stw	#_xres,scr_width	; resolution
+	stw	#xres,scr_width	; resolution
 	stw	#224,scr_height
 	; --
 	lda	#BGMAP_SIZE_64x32	; virtual size
@@ -1199,9 +1199,9 @@ _sgx_init_point:
 	.db $08,$00,$00		; BYR        "     vertical     "      "
 	.db $09,$10,$00		; MWR	size of the virtual screen
 	.db $0A			; HSR +
-	HSR _xres		;     |			[$02,$02]
+	HSR xres		;     |			[$02,$02]
 	.db $0B			; HDR | display size
-	HDR _xres		;     | and synchro	[$1F,$04]
+	HDR xres		;     | and synchro	[$1F,$04]
 	.db $0C,$02,$17		; VPR |
 	.db $0D,$DF,$00		; VDW |
 	.db $0E,$0C,$00		; VCR +
