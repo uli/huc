@@ -14,22 +14,22 @@
 ; ----
 
 divu8:
-	lda   <_al
-	asl   A
-	sta   <_cl
+	lda	<_al
+	asl a
+	sta	<_cl
 	cla
-	ldy   #8
+	ldy	#8
 .l1:
-	rol   A
-	cmp   <_bl
-	bcc   .l2
-	sbc   <_bl
+	rol a
+	cmp	<_bl
+	bcc	.l2
+	sbc	<_bl
 .l2:
-	rol   <_cl
+	rol	<_cl
 	dey
-	bne   .l1
+	bne	.l1
 
-	sta   <_dl
+	sta	<_dl
 	rts
 
 
@@ -39,25 +39,27 @@ divu8:
 ; 16-bit unsigned division by 10
 ; ----
 ; OUT : _DX = _DX / 10
-;	  A = _DX % 10
+;	A = _DX % 10
 ; ----
 
 divu10:
-	  ldy	#16
-  	  cla
-	  asl	<_dl
-  	  rol	<_dh
-.l1:  	  rol	a
-  	  cmp	#10
-  	  blo	.l2
-  	  sbc	#10
-.l2:	  rol	<_dl
-  	  rol	<_dh
-	  dey
-  	  bne	.l1
-	  rts
+	ldy	#16
+	cla
+	asl	<_dl
+	rol	<_dh
+.l1:	rol	a
+	cmp	#10
+	blo	.l2
+	sbc	#10
+.l2:	rol	<_dl
+	rol	<_dh
+	dey
+	bne	.l1
+	rts
 
-	.if (!CDROM)
+
+.if (!CDROM)
+
 ; ----
 ; mulu8
 ; ----
@@ -67,23 +69,23 @@ divu10:
 ; ----
 
 mulu8:
-	lda   <_bl
-	sta   <_ch
+	lda	<_bl
+	sta	<_ch
 
 	cla
-	ldy   #8
+	ldy	#8
 .l1:
-	asl   A
-	rol   <_ch
-	bcc   .next
-	add   <_al
-	bcc   .next
-	inc   <_ch
+	asl a
+	rol	<_ch
+	bcc	.next
+	add	<_al
+	bcc	.next
+	inc	<_ch
 .next:
 	dey
-	bne   .l1
+	bne	.l1
 
-	sta   <_cl
+	sta	<_cl
 	rts
 
 
@@ -96,29 +98,31 @@ mulu8:
 ; ----
 
 mulu16:
-	lda   <_ah
-	ora   <_bh
-	bne   .l1
+	lda	<_ah
+	ora	<_bh
+	bne	.l1
 
-	stwz  <_dx		;  8-bit multiplication
-	jmp   mulu8
+	stwz	<_dx		; 8-bit multiplication
+	jmp	mulu8
 
-.l1:	stw   <_bx,<_dx		; 16-bit multiplication
-	stwz  <_cx
-	ldy   #16
+.l1:	stw	<_bx,<_dx	; 16-bit multiplication
+	stwz	<_cx
+	ldy	#16
 
-.l2:	aslw  <_cx
-	rolw  <_dx
-	bcc   .l3
+.l2:	aslw	<_cx
+	rolw	<_dx
+	bcc	.l3
 
-	addw  <_ax,<_cx
-	bcc   .l3
-	incw  <_dx
+	addw	<_ax,<_cx
+	bcc	.l3
+	incw	<_dx
 
 .l3:	dey
-	bne   .l2
+	bne	.l2
 	rts
-	.endif
+
+.endif ; (!CDROM)
+
 
 ; ----
 ; mulu32
@@ -129,23 +133,23 @@ mulu16:
 ; ----
 
 mulu32:
-	stw   <_cx,<_si
-	stw   <_dx,<_di
-	stwz  <_cx
-	stwz  <_dx
-	ldy   #32
+	stw	<_cx,<_si
+	stw	<_dx,<_di
+	stwz	<_cx
+	stwz	<_dx
+	ldy	#32
 .loop:
-	aslw  <_cx
-	rolw  <_dx
-	rolw  <_si
-	rolw  <_di
-	bcc   .next
+	aslw	<_cx
+	rolw	<_dx
+	rolw	<_si
+	rolw	<_di
+	bcc	.next
 
-	addw  <_ax,<_cx
-	adcw  <_bx,<_dx
+	addw	<_ax,<_cx
+	adcw	<_bx,<_dx
 .next:
 	dey
-	bne   .loop
+	bne	.loop
 	rts
 
 
@@ -177,6 +181,7 @@ srand:
 .exit:
 	rts
 
+
 ; ----
 ; rand
 ; ----
@@ -198,17 +203,17 @@ randomize:
 
 	lda	_rndn1	; rotate 3 bits right
 	ldx	_rndn2
-	ror	A
+	ror a
 	sax
-	ror	A
+	ror a
 	sax
-	ror	A
+	ror a
 	sax
-	ror	A
+	ror a
 	sax
-	ror	A
+	ror a
 	sax
-	ror	A
+	ror a
 	stx	_rndn1
 	sta	_rndn2
 
@@ -225,7 +230,7 @@ randomize:
 	eor	[_rndzp]
 	sta	_rndn1
 
-	incw	<_rndzp	; don't use every consecutive byte
+	incw	<_rndzp		; don't use every consecutive byte
 
 	lda	<_rndzp+1	; reset pointer to $e000 if > $f400
 	cmp	#$f4
@@ -242,11 +247,12 @@ randomize:
 ; ----
 ; return a random number in the interval 0 <= x < A
 ; ----
-; IN  : A = range (1 - 128)
+; IN :	A = range (1 - 128)
 ; ----
 ; OUT : A = random number
 ; ----
 ;
+
 random:
 	pha
 	jsr	rand
@@ -259,7 +265,7 @@ random:
 	and	#$7f
 	rts
 
-.l1:	; asl	A
+.l1:	; asl a
 	sta	<_al
 	lda	<_dl
 	sta	<_bl
@@ -267,4 +273,3 @@ random:
 
 	lda	<_ch
 	rts
-
