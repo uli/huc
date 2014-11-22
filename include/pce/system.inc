@@ -151,11 +151,11 @@ psg_driver	= $E0E1
 ; that have their equivalent in the CD-ROM BIOS.
 ;
 
-		.if (CDROM)
+.if (CDROM)
 mulu8		= ma_mul8u
 mulu16		= ma_mul16u
 set_intvec	= ex_setvec
-		.endif
+.endif
 
 ; --------
 ; This block defines PSG BIOS function
