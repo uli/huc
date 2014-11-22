@@ -257,11 +257,11 @@ ovlarray:	.ds	200
 .if !(CDROM)
 	.org  $FFF6
 
-	.dw _irq2
-	.dw _irq1
-	.dw _timer
-	.dw _nmi
-	.dw _reset
+	.dw irq2
+	.dw irq1
+	.dw timer
+	.dw nmi
+	.dw reset
 .endif	; !(CDROM)
 
     ; ----
@@ -271,9 +271,9 @@ ovlarray:	.ds	200
 	.org $6000
 
 	sei
-	map  _reset
-	jmp  _reset
-_restart:
+	map  reset
+	jmp  reset
+restart:
 	cla		; map the CD-ROM system bank
 	tam   #7
 	jmp   $4000	; back to the Develo shell
@@ -369,7 +369,7 @@ cdrom_err_load:
 	bne	.error
 	lda	#$80
 	tam	#2
-	jmp	_boot
+	jmp	.boot
 
 .error:	jmp	cd_boot		; Can't load - reboot CDROM system card
 	
@@ -378,7 +378,7 @@ cdrom_err_load:
 ; Proper Boot-time entry point
 ;
 	.org  $4070
-_boot:
+.boot:
 	stz   $2680		; clear program RAM
 	tii   $2680,$2681,$197F
 
@@ -407,7 +407,7 @@ _boot:
 .else		; (ie. if HuCard...)
 
 	.org  $E010
-_reset:
+reset:
 	sei			; disable interrupts 
 	csh			; select the 7.16 MHz clock
 	cld			; clear the decimal flag 
@@ -425,7 +425,6 @@ _reset:
     ; ----
     ; initialize the hardware
 
-_init:
 .if (CDROM)
 	jsr   ex_dspoff
 	jsr   ex_rcroff
@@ -454,18 +453,18 @@ _init:
 .else
 	ldx   #4		; user vector table
 	cly
-.l2:	lda   #LOW(_rti)
+.l2:	lda   #LOW(rti)
 	sta   user_jmptbl,Y
 	iny
-	lda   #HIGH(_rti)
+	lda   #HIGH(rti)
 	sta   user_jmptbl,Y
 	iny
 	dex
 	bne   .l2
 
-	stw   #_reset,soft_reset ; soft reset
-	stw   #_rts,vsync_hook   ; user vsync routine
-	stw   #_rts,hsync_hook   ; user hsync routine
+	stw   #reset,soft_reset ; soft reset
+	stw   #rts,vsync_hook   ; user vsync routine
+	stw   #rts,hsync_hook   ; user hsync routine
 
 	lda   #$01		 ; enable interrupts
 	sta   irq_disable
@@ -523,7 +522,7 @@ _init:
 loadprog:
 	lda   ovlentry+1	; current overlay (as written by ISOLINK)
 	cmp   #1		; is it initial overlay ?
-	lbne  _init_go		; if not initial overlay, somebody else already
+	lbne  init_go		; if not initial overlay, somebody else already
 				; loaded us completely; do not try to load remainder
 				; (ie. executing CDROM error overlay)
 
@@ -538,7 +537,7 @@ loadprog:
 	stw   #(_nb_bank-2)*4,<ax
 	jsr   cd_read
 	cmp   #$00
-	lbeq  _init_go
+	lbeq  init_go
 
 	; ----
 	jmp   cd_boot		; reset
@@ -562,11 +561,11 @@ vsync_irq_ramhndlr:
 	pha			; 1
 	tma   #6		; 2
 	sta   irq_storea	; 3
-	lda   #BANK(_vsync_hndl) ;  2
+	lda   #BANK(vsync_hndl) ;  2
 	tam   #6		; 2
 	pla			; 1
 	pha			; 1
-	jsr   _vsync_hndl	; 3
+	jsr   vsync_hndl	; 3
 	lda   irq_storea	; 3
 	tam   #6		; 2
 	pla			; 1
@@ -578,11 +577,11 @@ hsync_irq_ramhndlr:
 	pha			; 1
 	tma   #6		; 2
 	sta   irq_storeb	; 3
-	lda   #BANK(_hsync_hndl) ;  2
+	lda   #BANK(hsync_hndl) ;  2
 	tam   #6		; 2
 	pla			; 1
 	pha			; 1
-	jsr   _hsync_hndl	; 3
+	jsr   hsync_hndl	; 3
 	lda   irq_storeb	; 3
 	tam   #6		; 2
 	pla			; 1
@@ -591,7 +590,7 @@ hsync_irq_ramhndlr:
 
 	.bank	LIB1_BANK
 
-_init_go:
+init_go:
 
 .if (CDROM = SUPER_CD)
 dontloadprog:
@@ -837,7 +836,7 @@ scdmsg4:  .db  "Super CDROM System card"
 
 .if (DEVELO)
 
-_system:
+system:
 	sei
 	csh
 	cld
@@ -871,15 +870,15 @@ _system:
 	lda   #$C8
 	sta  <vdc_crl
 	sta   video_data_l
-	jmp   _restart		; restart
+	jmp   restart		; restart
 
 .endif	; (DEVELO)
 
 ; [INTERRUPT CODE]
 
-_rts:
+rts:
 	rts
-_rti:
+rti:
 	rti
 
 ; ----
@@ -889,7 +888,7 @@ _rti:
 ; ----
 
 .if !(CDROM)
-_irq2:
+irq2:
 	bbs0 <irq_m,.user
 	rti
 .user:
@@ -904,7 +903,7 @@ _irq2:
 
 .if !(CDROM)
 
-_irq1:
+irq1:
 	bbs1 <irq_m,user_irq1	; jump to the user irq1 vector if bit set
 	; --
 	pha			; save registers
@@ -928,7 +927,7 @@ _irq1:
 	; --
 	bbs5 <irq_m,.hsync
 	; --
-	jsr  _vsync_hndl
+	jsr  vsync_hndl
 	; --
     ; ----
     ; hsync interrupt
@@ -937,7 +936,7 @@ _irq1:
 	bbr2 <vdc_sr,.exit
 	bbs7 <irq_m,.exit
 	; --
-	jsr  _hsync_hndl
+	jsr  hsync_hndl
 
     ; ----
     ; exit interrupt
@@ -969,11 +968,11 @@ user_vsync:
 
 
 ; ----
-; _vsync_hndl
+; vsync_hndl
 ; ----
 ; Handle VSYNC interrupts
 ; ----
-_vsync_hndl:
+vsync_hndl:
 
 .if  !(CDROM)
 	ldx   disp_cr		; check display state (on/off)
@@ -1074,14 +1073,14 @@ _vsync_hndl:
 
 
 ; ----
-; _hsync_hndl
+; hsync_hndl
 ; ----
 ; Handle HSYNC interrupts
 ; ----
     ; ----
     ; hsync scrolling handler
     ;
-_hsync_hndl:
+hsync_hndl:
 
 .ifdef HAVE_IRQ
 	bbr4 <huc_irq_enable,.disabled
@@ -1200,8 +1199,7 @@ rcr6:	lda   s_bottom,X
 ; enable scanline interrupt
 ; ----
 
-  rcr_on:
- _rcr_on:
+_rcr_on:
  	lda   #5
 	sta  <vdc_reg
 __rcr_on:
@@ -1218,8 +1216,7 @@ __rcr_on:
 ; disable scanline interrupt
 ; ----
 
-  rcr_off:
- _rcr_off:
+_rcr_off:
 	lda   #5
 	sta  <vdc_reg
 __rcr_off:
@@ -1240,10 +1237,10 @@ __rcr_off:
 
 .if  !(CDROM)
 
-_timer_user:
+timer_user:
 	jmp   [timer_jmp]
-_timer:
-	bbs2 <irq_m,_timer_user
+timer:
+	bbs2 <irq_m,timer_user
 	pha
 	phx
 	phy
@@ -1264,7 +1261,7 @@ _timer:
 ; ----
 
 .if  !(CDROM)
-_nmi:
+nmi:
 	bbs3 <irq_m,.user
 	rti
 .user:

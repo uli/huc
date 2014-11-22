@@ -155,7 +155,7 @@ lib2_readjoy:
 	bne	.l4
 
 .if (DEVELO)
-	jmp	_system
+	jmp	system
 .else
 	jmp	[soft_reset]	; run+select 'soft reset' vector
 .endif ; (DEVELO)
