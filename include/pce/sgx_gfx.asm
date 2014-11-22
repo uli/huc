@@ -8,10 +8,9 @@
 ; local variables
 
 	.zp
-__sgx_detect	.ds 1
-__sgx_spr_ptr	.ds 2
-__sgx_spr_max	.ds 1
-__sgx_spr_flag	.ds 1
+sgx_spr_ptr	.ds 2
+sgx_spr_max	.ds 1
+sgx_spr_flag	.ds 1
 _sgx_scroll_y	.ds 2
 _sgx_scroll_x	.ds 2
 sgx_vdc_sts	.ds 1
@@ -20,7 +19,7 @@ sgx_vdc_cr	.ds 2
 
 	.bss
 _sgx_vdc		.ds 20*2
-__sgx_init_detect	.ds 1
+sgx_init_detect	.ds 1
 _sgx_satb		.ds 512
 
 vpc_win_a_size	.ds 2
@@ -97,20 +96,20 @@ lib2_sgx_spr_set:
 	bhs	.l2
 	txa
 	inx
-	cpx	<__sgx_spr_max
+	cpx	<sgx_spr_max
 	blo	.l1
-	stx	<__sgx_spr_max
+	stx	<sgx_spr_max
 	; --
-.l1:	stz	<__sgx_spr_ptr+1
+.l1:	stz	<sgx_spr_ptr+1
 	asl a
 	asl a
 	asl a
-	rol	<__sgx_spr_ptr+1
+	rol	<sgx_spr_ptr+1
 	adc	#low(_sgx_satb)
-	sta	<__sgx_spr_ptr
-	lda	<__sgx_spr_ptr+1
+	sta	<sgx_spr_ptr
+	lda	<sgx_spr_ptr+1
 	adc	#high(_sgx_satb)
-	sta	<__sgx_spr_ptr+1
+	sta	<sgx_spr_ptr+1
 .l2:	rts
 	.bank	LIB1_BANK
 
@@ -140,9 +139,9 @@ lib2_sgx_spr_hide
 .l1:	rts
 	; -- hide current sprite
 .l2:	ldy	#1
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	ora	#$02
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 	; -- calc satb ptr
 _sgx_spr_hide.sub:
@@ -188,9 +187,9 @@ lib2_sgx_spr_show
 .l1:	rts
 	; -- hide current sprite
 .l2:	ldy	#1
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	and	#$01
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 	.bank	LIB1_BANK
 
@@ -209,15 +208,15 @@ sgx_satb_update:
 
 	.bank	LIB2_BANK
 lib2_sgx_satb_update:
-	lda	<__sgx_spr_flag
+	lda	<sgx_spr_flag
 	beq	.l1
-	stz	<__sgx_spr_flag
+	stz	<sgx_spr_flag
 	ldx	#64
 	bra	.l3
 	; --
 .l1:	cpy	#1
 	beq	.l2
-	ldx	<__sgx_spr_max
+	ldx	<sgx_spr_max
 .l2:	cpx	#0
 	beq	.l4
 	; --
@@ -278,8 +277,8 @@ _sgx_init_satb:
 	bne	.l1
 	; --
 	ldy	#1
-	sty	<__sgx_spr_flag
-	stz	<__sgx_spr_max
+	sty	<sgx_spr_flag
+	stz	<sgx_spr_max
 	rts
 
 _sgx_spr_x:
@@ -314,20 +313,20 @@ lib2_sgx_spr_x:
 	ldy	#2
 	sax
 	add	#32
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	sax
 	adc	#0
 	iny
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 
 lib2_sgx_spr_get_x:
 	ldy	#2
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	sub	#32
 	tax
 	iny
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	sbc	#0
 	rts
 
@@ -338,20 +337,20 @@ lib2_sgx_spr_get_x:
 lib2_sgx_spr_y:
 	sax
 	add	#64
-	sta	[__sgx_spr_ptr]
+	sta	[sgx_spr_ptr]
 	sax
 	adc	#0
 	and	#$01
 	ldy	#1
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 
 lib2_sgx_spr_get_y:
-	lda	[__sgx_spr_ptr]
+	lda	[sgx_spr_ptr]
 	sub	#64
 	tax
 	ldy	#1
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	sbc	#0
 	rts
 	.bank	LIB1_BANK
@@ -406,18 +405,18 @@ lib2_sgx_spr_pattern:
 	rol a
 	and	#$7
 	ldy	#5
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	lda	<__temp
 	dey
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 
 lib2_sgx_spr_get_pattern:
 	ldy	#4
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	sta	<__temp
 	iny
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	lsr a
 	ror	<__temp
 	ror a
@@ -441,9 +440,9 @@ lib2_sgx_spr_ctrl.2:
 	lda	<al
 	eor	#$FF
 	ldy	#7
-	and	[__sgx_spr_ptr],Y
+	and	[sgx_spr_ptr],Y
 	ora	<__temp
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 
 
@@ -455,15 +454,15 @@ lib2_sgx_spr_pal:
 	and	#$0F
 	sta	<__temp
 	ldy	#6
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	and	#$F0
 	ora	<__temp
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 
 lib2_sgx_spr_get_pal:
 	ldy	#6
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	and	#$0F
 	tax
 	cla
@@ -475,13 +474,13 @@ lib2_sgx_spr_get_pal:
 
 lib2_sgx_spr_pri:
 	ldy	#6
-	lda	[__sgx_spr_ptr],Y
+	lda	[sgx_spr_ptr],Y
 	and	#$7F
 	cpx	#$00
 	beq	.l1
 	ora	#$80
 .l1:
-	sta	[__sgx_spr_ptr],Y
+	sta	[sgx_spr_ptr],Y
 	rts
 	.bank	LIB1_BANK
 
@@ -493,8 +492,8 @@ lib2_sgx_spr_pri:
 ; returns 1 if true and 0 if false
 ; ----
 _sgx_detect:
-	ldx	__sgx_init_detect
-	lda	__sgx_init_detect
+	ldx	sgx_init_detect
+	lda	sgx_init_detect
 	rts
 
 
@@ -663,7 +662,7 @@ lib2_init_sgx_vdc:
 	stw	#_sgx_init_point,<si	; register table address in 'si'
 	cly
 
-__sgx_init_LL1:
+.sgx_init_LL1:
 	lda	[si],y
 	sta sgx_video_reg
 	iny
@@ -674,7 +673,7 @@ __sgx_init_LL1:
 	sta sgx_video_data+1
 	iny
 	cpy	#$24
-	bne	__sgx_init_LL1
+	bne	.sgx_init_LL1
 
 	; ----
 	; clear the video RAM
@@ -741,11 +740,11 @@ __sgx_init_LL1:
 	bne	.no_sgx
 	bra	.yes_sgx
 .no_sgx:
-	stz	__sgx_init_detect
+	stz	sgx_init_detect
 	rts
 .yes_sgx:
 	lda	#1
-	sta	__sgx_init_detect
+	sta	sgx_init_detect
 
 	;disable display and interrupts and update offline status
 	stz	<sgx_vdc_cr
@@ -1190,13 +1189,13 @@ lib2_sgx_set_bat_size:
 .endif
 	sta	sgx_video_data_l
 	; --
-	lda	__sgx_width,X
+	lda	.sgx_width,X
 	sta	sgx_bat_width
 	stz	sgx_bat_width+1
 	dec a
 	sta	sgx_bat_hmask
 	; --
-	lda	__sgx_height,X
+	lda	.sgx_height,X
 	sta	sgx_bat_height
 	sta	sgx_mapbat_bottom
 	stz	sgx_mapbat_top
@@ -1206,8 +1205,8 @@ lib2_sgx_set_bat_size:
 	sta	sgx_bat_vmask
 	rts
 
-__sgx_width:	.db $20,$40,$80,$80,$20,$40,$80,$80
-__sgx_height:	.db $20,$20,$20,$20,$40,$40,$40,$40
+.sgx_width:	.db $20,$40,$80,$80,$20,$40,$80,$80
+.sgx_height:	.db $20,$20,$20,$20,$40,$40,$40,$40
 	.bank	LIB1_BANK
 
 
