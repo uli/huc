@@ -635,8 +635,8 @@ dontloadprog:
 .endif
 
 	stb   #96,<cl
-	stb   _font_color+1,<ah
-	lda   _font_color
+	stb   font_color+1,<ah
+	lda   font_color
 	bne   .fntld
 	inc   A
 .fntld:	sta   <al

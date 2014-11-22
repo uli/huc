@@ -6,25 +6,25 @@
 ; local variables
 
 	.zp
-__spr_ptr	.ds 2
-__spr_max	.ds 1
-__spr_flag	.ds 1
+spr_ptr		.ds 2
+spr_max		.ds 1
+spr_flag	.ds 1
 
 	.bss
 _font_base	.ds 2
-_font_color	.ds 2
-_satb		.ds 512	; the local SATB
+font_color	.ds 2
+satb		.ds 512	; the local SATB
 
-_gfx_pal	.ds 1
+gfx_pal		.ds 1
 
-_line_currx	.ds 2
-_line_curry	.ds 2
-_line_deltax	.ds 2
-_line_deltay	.ds 2
-_line_error	.ds 2
-_line_adjust	.ds 2
-_line_xdir	.ds 1
-_line_color	.ds 1
+line_currx	.ds 2
+line_curry	.ds 2
+line_deltax	.ds 2
+line_deltay	.ds 2
+line_error	.ds 2
+line_adjust	.ds 2
+line_xdir	.ds 1
+line_color	.ds 1
 
 
 ; ----
@@ -72,10 +72,10 @@ _set_font_pal:
 _set_font_color.2:
 	txa
 	and	#$F
-	sta	_font_color+1
+	sta	font_color+1
 	lda	<al
 	and	#$F
-	sta	_font_color
+	sta	font_color
 	rts
 
 ; set_font_addr(int addr)
@@ -161,8 +161,8 @@ _load_default_font.2:
 	; --
 .l2:	stb	#FONT_BANK+_bank_base,<bl
 	stb	#96,<cl
-	stb	_font_color+1,<ah
-	lda	_font_color
+	stb	font_color+1,<ah
+	lda	font_color
 	bne	.l3
 	inc	A
 .l3:	sta	<al
@@ -748,20 +748,20 @@ _spr_set:
 	bhs	.l2
 	txa
 	inx
-	cpx	<__spr_max
+	cpx	<spr_max
 	blo	.l1
-	stx	<__spr_max
+	stx	<spr_max
 	; --
-.l1:	stz	<__spr_ptr+1
+.l1:	stz	<spr_ptr+1
 	asl	A
 	asl	A
 	asl	A
-	rol	<__spr_ptr+1
-	adc	#low(_satb)
-	sta	<__spr_ptr
-	lda	<__spr_ptr+1
-	adc	#high(_satb)
-	sta	<__spr_ptr+1
+	rol	<spr_ptr+1
+	adc	#low(satb)
+	sta	<spr_ptr
+	lda	<spr_ptr+1
+	adc	#high(satb)
+	sta	<spr_ptr+1
 .l2:	rts
 
 ; spr_hide(char num)
@@ -780,9 +780,9 @@ _spr_hide:
 .l1:	rts
 	; -- hide current sprite
 .l2:	ldy	#1
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	ora	#$02
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 	; -- calc satb ptr
 _spr_hide.sub:
@@ -792,10 +792,10 @@ _spr_hide.sub:
 	asl	A
 	asl	A
 	rol	<__ptr+1
-	adc	#low(_satb)
+	adc	#low(satb)
 	sta	<__ptr
 	lda	<__ptr+1
-	adc	#high(_satb)
+	adc	#high(satb)
 	sta	<__ptr+1
 	ldy	#1
 	rts
@@ -816,9 +816,9 @@ _spr_show:
 .l1:	rts
 	; -- hide current sprite
 .l2:	ldy	#1
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	and	#$01
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 ; spr_x(int value)
@@ -828,20 +828,20 @@ _spr_x:
 	ldy	#2
 	sax
 	add	#32
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	sax
 	adc	#0
 	iny
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 _spr_get_x:
 	ldy	#2
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	sub	#32
 	tax
 	iny
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	sbc	#0
 	rts
 
@@ -851,20 +851,20 @@ _spr_get_x:
 _spr_y:
 	sax
 	add	#64
-	sta	[__spr_ptr]
+	sta	[spr_ptr]
 	sax
 	adc	#0
 	and	#$01
 	ldy	#1
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 _spr_get_y:
-	lda	[__spr_ptr]
+	lda	[spr_ptr]
 	sub	#64
 	tax
 	ldy	#1
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	sbc	#0
 	rts
 
@@ -883,18 +883,18 @@ _spr_pattern:
 	rol	A
 	and	#$7
 	ldy	#5
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	lda	<__temp
 	dey
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 _spr_get_pattern:
 	ldy	#4
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	sta	<__temp
 	iny
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	lsr	A
 	ror	<__temp
 	ror	A
@@ -917,9 +917,9 @@ _spr_ctrl.2:
 	lda	<al
 	eor	#$FF
 	ldy	#7
-	and	[__spr_ptr],Y
+	and	[spr_ptr],Y
 	ora	<__temp
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 ; spr_pal(char pal)
@@ -930,15 +930,15 @@ _spr_pal:
 	and	#$0F
 	sta	<__temp
 	ldy	#6
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	and	#$F0
 	ora	<__temp
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 _spr_get_pal:
 	ldy	#6
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	and	#$0F
 	tax
 	cla
@@ -949,28 +949,28 @@ _spr_get_pal:
 
 _spr_pri:
 	ldy	#6
-	lda	[__spr_ptr],Y
+	lda	[spr_ptr],Y
 	and	#$7F
 	cpx	#$00
 	beq	.l1
 	ora	#$80
 .l1:
-	sta	[__spr_ptr],Y
+	sta	[spr_ptr],Y
 	rts
 
 ; satb_update()
 ; ----
 
 _satb_update:
-	lda	<__spr_flag
+	lda	<spr_flag
 	beq	.l1
-	stz	<__spr_flag
+	stz	<spr_flag
 	ldx	#64
 	bra	.l3
 	; --
 .l1:	cpy	#1
 	beq	.l2
-	ldx	<__spr_max
+	ldx	<spr_max
 .l2:	cpx	#0
 	beq	.l4
 	; --
@@ -987,7 +987,7 @@ _satb_update:
 ;
 	stw	#32, ram_hdwr_tia_size
 	stw	#video_data, ram_hdwr_tia_dest
-	stw	#_satb, <si
+	stw	#satb, <si
 
 	stw	#$7F00, <di
 	jsr	set_write
@@ -999,8 +999,8 @@ _satb_update:
 	bne	.l3a
 	
 ;.l3:	stx	<al
-;	stw	#_satb,<si
-;	stb	#BANK(_satb),<bl
+;	stw	#satb,<si
+;	stb	#BANK(satb),<bl
 ;	stw	#$7F00,<di
 ;	txa
 ;	stz	<ch
@@ -1024,14 +1024,14 @@ _reset_satb:
 _init_satb:
 	clx
 	cla
-.l1:	stz	_satb,X
-	stz	_satb+256,X
+.l1:	stz	satb,X
+	stz	satb+256,X
 	inx
 	bne	.l1
 	; --
 	ldy	#1
-	sty	<__spr_flag
-	stz	<__spr_max
+	sty	<spr_flag
+	stz	<spr_max
 	rts
 
 ; get_color(int index [color_reg])
@@ -1404,7 +1404,7 @@ _gfx_setbgpal:
 	asl	A
 	asl	A
 	asl	A
-	sta	_gfx_pal
+	sta	gfx_pal
 	rts
 
 
@@ -1428,7 +1428,7 @@ lib2_gfx_init:
 	lsrw	<dx
 	lda	<dx+1
 	and	#$0f
-	ora	_gfx_pal	; and add major palette info
+	ora	gfx_pal	; and add major palette info
 	sta	<dx+1
 
 	setvwaddr $0
@@ -1570,21 +1570,21 @@ putnum.main:
 ; Plot a line from location (x1,y1) to locations (x2,y2) in color
 ; ----
 lib2_gfx_line.5:		; Bresenham line drawing algorithm
-	stx	_line_color
+	stx	line_color
 
 	cmpw	<cx,<bp	; make y always ascending by swapping
 	bhs	.l1		; co-ordinates
 				; jump over swap if bp > cx
 
-	stw	<bp,_line_curry	; swap coordinates
+	stw	<bp,line_curry	; swap coordinates
 	stw	<cx,<bp
-	stw	<si,_line_currx
+	stw	<si,line_currx
 	stw	<bx,<si
 
 	bra	.l2
 
-.l1:	stw	<bx,_line_currx
-	stw	<cx,_line_curry
+.l1:	stw	<bx,line_currx
+	stw	<cx,line_curry
 
 ; now:
 ;	line_currx and line_curry are start point
@@ -1593,27 +1593,27 @@ lib2_gfx_line.5:		; Bresenham line drawing algorithm
 
 .l2:
 	lda	LOW_BYTE  <bp
-	sub	LOW_BYTE  _line_curry
-	sta	LOW_BYTE  _line_deltay
+	sub	LOW_BYTE  line_curry
+	sta	LOW_BYTE  line_deltay
 	lda	HIGH_BYTE <bp
-	sbc	HIGH_BYTE _line_curry
-	sta	HIGH_BYTE _line_deltay
+	sbc	HIGH_BYTE line_curry
+	sta	HIGH_BYTE line_deltay
 
 	lda	LOW_BYTE  <si
-	sub	LOW_BYTE  _line_currx
-	sta	LOW_BYTE  _line_deltax
+	sub	LOW_BYTE  line_currx
+	sta	LOW_BYTE  line_deltax
 	lda	HIGH_BYTE <si
-	sbc	HIGH_BYTE _line_currx
-	sta	HIGH_BYTE _line_deltax
+	sbc	HIGH_BYTE line_currx
+	sta	HIGH_BYTE line_deltax
 
-	stz	_line_xdir	; 0 = positive
+	stz	line_xdir	; 0 = positive
 
-	lda	HIGH_BYTE _line_deltax
+	lda	HIGH_BYTE line_deltax
 	bpl	.l3
 
 	lda	#1
-	sta	_line_xdir	; 1 = negative
-	negw	_line_deltax
+	sta	line_xdir	; 1 = negative
+	negw	line_deltax
 
 ; now:
 ;	line_deltay is difference from end to start (positive)
@@ -1622,96 +1622,96 @@ lib2_gfx_line.5:		; Bresenham line drawing algorithm
 
 
 .l3:
-	cmpw	_line_deltax,_line_deltay
+	cmpw	line_deltax,line_deltay
 	lbhs	.ybiglp		; jump if deltay > |deltax|
 
 .xbiglp:
-	__ldw	_line_deltay
+	__ldw	line_deltay
 	__aslw
-	__stw	_line_adjust
-	__stw	_line_error
+	__stw	line_adjust
+	__stw	line_error
 
-	subw	_line_deltax,_line_adjust
-	subw	_line_deltax,_line_adjust
+	subw	line_deltax,line_adjust
+	subw	line_deltax,line_adjust
 
-	subw	_line_deltax,_line_error
+	subw	line_deltax,line_error
 
-	incw	_line_deltax		; used as counter - get both endpoints
+	incw	line_deltax		; used as counter - get both endpoints
 
 .xlp1:
-	stw	_line_currx,<bx	; draw pixel
-	stw	_line_curry,<cx
-	ldx	_line_color
+	stw	line_currx,<bx	; draw pixel
+	stw	line_curry,<cx
+	ldx	line_color
 	cla
 	jsr	lib2_gfx_plot.3
 
-	decw	_line_deltax		; dec counter
-	tstw	_line_deltax
+	decw	line_deltax		; dec counter
+	tstw	line_deltax
 	lbeq	.out
 
-	lda	_line_xdir		; adjust currx
+	lda	line_xdir		; adjust currx
 	beq	.xlppos
 
-	decw	_line_currx
+	decw	line_currx
 	bra	.xlp2
 
-.xlppos:	incw	_line_currx
+.xlppos:	incw	line_currx
 
 .xlp2:
-	lda	HIGH_BYTE _line_error
+	lda	HIGH_BYTE line_error
 	bmi	.xlp3
 
-	addw	_line_adjust,_line_error
-	incw	_line_curry
+	addw	line_adjust,line_error
+	incw	line_curry
 	bra	.xlp1
 .xlp3:
-	addw	_line_deltay,_line_error
-	addw	_line_deltay,_line_error
+	addw	line_deltay,line_error
+	addw	line_deltay,line_error
 	jmp	.xlp1
 
 .ybiglp:
-	__ldw	_line_deltax
+	__ldw	line_deltax
 	__aslw
-	__stw	_line_adjust
-	__stw	_line_error
+	__stw	line_adjust
+	__stw	line_error
 
-	subw	_line_deltay,_line_adjust
-	subw	_line_deltay,_line_adjust
+	subw	line_deltay,line_adjust
+	subw	line_deltay,line_adjust
 	
-	subw	_line_deltay,_line_error
+	subw	line_deltay,line_error
 
-	incw	_line_deltay		; used as counter - get both endpoints
+	incw	line_deltay		; used as counter - get both endpoints
 
 .ylp1:
-	stw	_line_currx,<bx	; draw pixel
-	stw	_line_curry,<cx
-	ldx	_line_color
+	stw	line_currx,<bx	; draw pixel
+	stw	line_curry,<cx
+	ldx	line_color
 	cla
 	jsr	lib2_gfx_plot.3
 
-	decw	_line_deltay		; dec counter
-	tstw	_line_deltay
+	decw	line_deltay		; dec counter
+	tstw	line_deltay
 	beq	.out
 
-	incw	_line_curry
+	incw	line_curry
 
-	lda	HIGH_BYTE _line_error
+	lda	HIGH_BYTE line_error
 	bmi	.ylp2
 
-	addw	_line_adjust,_line_error
-	lda	_line_xdir
+	addw	line_adjust,line_error
+	lda	line_xdir
 	beq	.ylppos
 
-	decw	_line_currx
+	decw	line_currx
 	bra	.ylp1
 
 .ylppos:
-	incw	_line_currx
+	incw	line_currx
 	bra	.ylp1
 
 .ylp2:
-	addw	_line_deltax,_line_error
-	addw	_line_deltax,_line_error
+	addw	line_deltax,line_error
+	addw	line_deltax,line_error
 	jmp	.ylp1
 
 .out:
