@@ -1,8 +1,8 @@
 ;
-;  PCE CDROM access routines' sources
+; PCE CDROM access routines' sources
 ;
 
-	.include "cdrom.inc"
+.include "cdrom.inc"
 
 	.bss
 
@@ -20,8 +20,9 @@ cd_buf          .ds  4 ; Return buffer from some BIOS commands
 ; Reset CDROM
 ; ----
 ;
-_cd_reset:	jsr	cd_reset
-		rts
+_cd_reset:
+	jsr	cd_reset
+	rts
 
 ;
 ; cd_pause(void)
@@ -29,10 +30,11 @@ _cd_reset:	jsr	cd_reset
 ; Pause CDROM drive
 ; ----
 ;
-_cd_pause:	jsr	cd_pause
-		tax
-		cla
-		rts
+_cd_pause:
+	jsr	cd_pause
+	tax
+	cla
+	rts
 
 
 ;
@@ -42,31 +44,31 @@ _cd_pause:	jsr	cd_pause
 ; ----
 ;
 _cd_unpause:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_unpause
-		rts
+.ifdef _LIB3
+	maplibfunc	lib3_cd_unpause
+	rts
 
 	.bank LIB3_BANK
 lib3_cd_unpause:
- .endif ; _LIB3
-		lda	cdplay_end_ctl
-		sta	<_dh
-		lda	cdplay_end_h
-		sta	<_cl
-		lda	cdplay_end_m
-		sta	<_ch
-		lda	cdplay_end_l
-		sta	<_dl
-		lda	#CD_CURRPOS
-		sta	<_bh
-		jsr	cd_play
-		tax
-		cla
-		rts
+.endif ; _LIB3
+	lda	cdplay_end_ctl
+	sta	<_dh
+	lda	cdplay_end_h
+	sta	<_cl
+	lda	cdplay_end_m
+	sta	<_ch
+	lda	cdplay_end_l
+	sta	<_dl
+	lda	#CD_CURRPOS
+	sta	<_bh
+	jsr	cd_play
+	tax
+	cla
+	rts
 
- .ifdef _LIB3
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; cd_fade(char type)
@@ -80,11 +82,12 @@ lib3_cd_unpause:
 ; Fade-out PCM/ADPCM audio
 ; ----
 ;
-_cd_fade:	txa
-		jsr	cd_fade
-		tax
-		cla
-		rts
+_cd_fade:
+	txa
+	jsr	cd_fade
+	tax
+	cla
+	rts
 
 
 ;
@@ -95,51 +98,54 @@ _cd_fade:	txa
 ; ----
 ;
 _cd_playtrk.3:
- .ifdef _LIB3
-		maplibfunc lib3_cd_playtrk.3
-		rts
+.ifdef _LIB3
+	maplibfunc lib3_cd_playtrk.3
+	rts
 
 	.bank LIB3_BANK
 lib3_cd_playtrk.3:
- .endif ; _LIB3
-		txa
-		and	#CD_PLAYMODE
-		ora	#CD_TRACK
-		sta	<_dh		; end type + play mode
-		sta	cdplay_end_ctl
-		lda	#CD_TRACK
-		sta	<_bh		; start type
-		
-	        lda	<_cl
-		bne	.endtrk
+.endif ; _LIB3
+	txa
+	and	#CD_PLAYMODE
+	ora	#CD_TRACK
+	sta	<_dh		; end type + play mode
+	sta	cdplay_end_ctl
+	lda	#CD_TRACK
+	sta	<_bh		; start type
 
-.endofdisc:	lda	<_dh		; repeat to end of disc
-		ora	#CD_LEADOUT
-		sta	<_dh
-		sta	cdplay_end_ctl
-		bra	.starttrk
+	lda	<_cl
+	bne	.endtrk
 
-.endtrk:	jsr	ex_binbcd
-		sta	<_cl		; end track
-		sta	cdplay_end_h
-		stz	<_ch
-		stz	cdplay_end_m
-		stz	<_dl
-		stz	cdplay_end_l
+.endofdisc:
+	lda	<_dh		; repeat to end of disc
+	ora	#CD_LEADOUT
+	sta	<_dh
+	sta	cdplay_end_ctl
+	bra	.starttrk
 
-.starttrk:	lda	<_bl		; track #
-		jsr	ex_binbcd
-		sta	<_al		; from track
-		stz	<_ah
-		stz	<_bl
-		jsr	cd_play
-		tax
-		cla
-		rts
+.endtrk:
+	jsr	ex_binbcd
+	sta	<_cl		; end track
+	sta	cdplay_end_h
+	stz	<_ch
+	stz	cdplay_end_m
+	stz	<_dl
+	stz	cdplay_end_l
 
- .ifdef _LIB3
+.starttrk:
+	lda	<_bl		; track #
+	jsr	ex_binbcd
+	sta	<_al		; from track
+	stz	<_ah
+	stz	<_bl
+	jsr	cd_play
+	tax
+	cla
+	rts
+
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; cd_playmsf(int start_minute [al], int start_second [ah], int start_frame [bl],
@@ -150,57 +156,58 @@ lib3_cd_playtrk.3:
 ; ----
 ;
 _cd_playmsf.7:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_playmsf.7
-		rts
-		
+.ifdef _LIB3
+	maplibfunc	lib3_cd_playmsf.7
+	rts
+
 	.bank LIB3_BANK
 lib3_cd_playmsf.7:
- .endif ; _LIB3
- 		txa
-		and	#CD_PLAYMODE
-		ora	#CD_MSF
-		sta	<_dh		; end type + play mode
-		sta	cdplay_end_ctl
-		lda	#CD_MSF
-		sta	<_bh		; start type
-		
-.endmsf:	lda	<_dl		; end frame
-		jsr	ex_binbcd
-		sta	<_dl
-		sta	cdplay_end_l
+.endif ; _LIB3
+	txa
+	and	#CD_PLAYMODE
+	ora	#CD_MSF
+	sta	<_dh		; end type + play mode
+	sta	cdplay_end_ctl
+	lda	#CD_MSF
+	sta	<_bh		; start type
 
-	        lda	<_ch		; end second
-		jsr	ex_binbcd
-		sta	<_ch
-		sta	cdplay_end_m
+.endmsf:
+	lda	<_dl		; end frame
+	jsr	ex_binbcd
+	sta	<_dl
+	sta	cdplay_end_l
 
-	        lda	<_cl		; end minute
-		jsr	ex_binbcd
-		sta	<_cl
-		sta	cdplay_end_h
+	lda	<_ch		; end second
+	jsr	ex_binbcd
+	sta	<_ch
+	sta	cdplay_end_m
+
+	lda	<_cl		; end minute
+	jsr	ex_binbcd
+	sta	<_cl
+	sta	cdplay_end_h
 
 .startmsf:
-	        lda	<_bl		; start frame
-		jsr	ex_binbcd
-		sta	<_bl
+	lda	<_bl		; start frame
+	jsr	ex_binbcd
+	sta	<_bl
 
-	        lda	<_ah		; start second
-		jsr	ex_binbcd
-		sta	<_ah
+	lda	<_ah		; start second
+	jsr	ex_binbcd
+	sta	<_ah
 
-	        lda	<_al		; start minute
-		jsr	ex_binbcd
-		sta	<_al
+	lda	<_al		; start minute
+	jsr	ex_binbcd
+	sta	<_al
 
-		jsr	cd_play
-		tax
-		cla
-		rts
+	jsr	cd_play
+	tax
+	cla
+	rts
 
- .ifdef _LIB3
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; char cd_numtrk(void)
@@ -209,18 +216,18 @@ lib3_cd_playmsf.7:
 ; ----
 ;
 _cd_numtrk:	stw	#cd_buf,<_bx
-		stz	<_al		; request type 0
-		jsr	cd_dinfo
-		cmp	#$00
-		bne	.err
-		lda	cd_buf+1
-		jsr	ex_bcdbin
-		clx
-		sax
-		rts
-.err:		lda	#$ff
-		tax
-		rts
+	stz	<_al		; request type 0
+	jsr	cd_dinfo
+	cmp	#$00
+	bne	.err
+	lda	cd_buf+1
+	jsr	ex_bcdbin
+	clx
+	sax
+	rts
+.err:	lda	#$ff
+	tax
+	rts
 
 ;
 ; char cd_trkinfo(char track [ax], char *min [cx], char *sec [dx], char *frm [bp])
@@ -229,33 +236,33 @@ _cd_numtrk:	stw	#cd_buf,<_bx
 ; ----
 ;
 _cd_trkinfo.4:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_trkinfo.4
-		rts
-		
+.ifdef _LIB3
+	maplibfunc	lib3_cd_trkinfo.4
+	rts
+
 	.bank LIB3_BANK
 lib3_cd_trkinfo.4:
- .endif ; _LIB3
-	      __ldw	<_ax
-		jsr	_cd_trktype
-		phx
-		lda	cd_buf
-		jsr	ex_bcdbin
-		sta	[_cx]
+.endif ; _LIB3
+	__ldw	<_ax
+	jsr	_cd_trktype
+	phx
+	lda	cd_buf
+	jsr	ex_bcdbin
+	sta	[_cx]
 
-		lda	cd_buf+1
-		jsr	ex_bcdbin
-		sta	[_dx]
+	lda	cd_buf+1
+	jsr	ex_bcdbin
+	sta	[_dx]
 
-		lda	cd_buf+2
-		jsr	ex_bcdbin
-		sta	[_bp]
+	lda	cd_buf+2
+	jsr	ex_bcdbin
+	sta	[_bp]
 
-		plx
-		rts
- .ifdef _LIB3
+	plx
+	rts
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; char cd_trktype(char track)
@@ -264,36 +271,37 @@ lib3_cd_trkinfo.4:
 ; ----
 ;
 _cd_trktype:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_trktype
-		rts
-		
+.ifdef _LIB3
+	maplibfunc	lib3_cd_trktype
+	rts
+
 	.bank LIB3_BANK
 lib3_cd_trktype:
- .endif ; _LIB3
- 		sax
-		jsr	ex_binbcd
-		sta	<_ah		; track #
-		stw	#cd_buf,<_bx
-		cmp	#0
-		beq	.discnottrk
-		lda	#2
-		bra	.go
-.discnottrk	lda	#1
-.go:		sta	<_al		; request type 2
-		jsr	cd_dinfo
-		cmp	#$00
-		bne	.err
-		ldx	cd_buf+3	; track type
-		cla
-		rts
-.err:		lda	#$ff
-		tax
-		rts
+.endif ; _LIB3
+	sax
+	jsr	ex_binbcd
+	sta	<_ah		; track #
+	stw	#cd_buf,<_bx
+	cmp	#0
+	beq	.discnottrk
+	lda	#2
+	bra	.go
+.discnottrk:
+	lda	#1
+.go:	sta	<_al		; request type 2
+	jsr	cd_dinfo
+	cmp	#$00
+	bne	.err
+	ldx	cd_buf+3	; track type
+	cla
+	rts
+.err:	lda	#$ff
+	tax
+	rts
 
- .ifdef _LIB3
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; char cd_execoverlay(int ovl_index)
@@ -302,41 +310,41 @@ lib3_cd_trktype:
 ; ----
 ;
 _cd_execoverlay:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_execoverlay
-		rts
-		
+.ifdef _LIB3
+	maplibfunc	lib3_cd_execoverlay
+	rts
+
 	.bank LIB3_BANK		
 lib3_cd_execoverlay:
- .endif ; _LIB3
-		jsr	cd_overlay
-		cmp	#0
-		bne	.error
-		jmp	$C000		; loaded fine... now run it
-.error:		pha
-		ldx	ovl_running	; failed; reload old segment for error recovery
-		jsr	cd_overlay
-		plx			; return error
-		cla
-		rts
+.endif ; _LIB3
+	jsr	cd_overlay
+	cmp	#0
+	bne	.error
+	jmp	$C000		; loaded fine... now run it
+.error:	pha
+	ldx	ovl_running	; failed; reload old segment for error recovery
+	jsr	cd_overlay
+	plx			; return error
+	cla
+	rts
 
 cd_overlay:
-		jsr	prep_rdsect
-		stz	<_cl	; sector (offset from base of track)
-		sta	<_ch
-		stx	<_dl
-		iny
-		lda	ovlarray,Y
-		sta	<_al	; # sectors
-		tma	#6
-		sta	<_bl	; Bank #
-		lda	#3
-		sta	<_dh	; MPR #
-		jsr	cd_read
-		rts
- .ifdef _LIB3
+	jsr	prep_rdsect
+	stz	<_cl	; sector (offset from base of track)
+	sta	<_ch
+	stx	<_dl
+	iny
+	lda	ovlarray,Y
+	sta	<_al	; # sectors
+	tma	#6
+	sta	<_bl	; Bank #
+	lda	#3
+	sta	<_dh	; MPR #
+	jsr	cd_read
+	rts
+.ifdef _LIB3
 	.bank LIB1_BANK		
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; char cd_loadvram(int ovl_index [di], int sect_offset [si], int vramaddr [bx], int bytes [acc])
@@ -345,30 +353,30 @@ cd_overlay:
 ; ----
 ;
 _cd_loadvram.4:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_loadvram.4
-		rts
-		
+.ifdef _LIB3
+	maplibfunc	lib3_cd_loadvram.4
+	rts
+
 	.bank LIB3_BANK
 lib3_cd_loadvram.4:
- .endif ; _LIB3
-	      __stw	<_ax
-	      __ldw	<_di
-		jsr	prep_rdsect
-	      __addw	<_si
-		stz	<_cl
-		sta	<_ch
-		stx	<_dl
-		lda	#$FE
-		sta	<_dh
-		jsr	cd_read
-		tax
-		cla
-		rts
+.endif ; _LIB3
+	__stw	<_ax
+	__ldw	<_di
+	jsr	prep_rdsect
+	__addw	<_si
+	stz	<_cl
+	sta	<_ch
+	stx	<_dl
+	lda	#$FE
+	sta	<_dh
+	jsr	cd_read
+	tax
+	cla
+	rts
 
- .ifdef _LIB3
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; char cd_loaddata(int ovl_index [di], int sect_offset [si], farptr array [bl:bp], int bytes [acc])
@@ -387,96 +395,97 @@ cdtemp_bytes	.ds	2
 	.code
 
 _cd_loaddata.4:
- .ifdef _LIB3
-		maplibfunc	lib3_cd_loaddata.4
-		rts
-		
+.ifdef _LIB3
+	maplibfunc	lib3_cd_loaddata.4
+	rts
+
 	.bank LIB3_BANK
 lib3_cd_loaddata.4:
- .endif ; _LIB3
-	      __stw	cdtemp_bytes
-	      __ldw	<_di
-		jsr	prep_rdsect
-	      __addw	<_si
-		stx	cdtemp_l	; calculate sector adddress
-		sta	cdtemp_m
+.endif ; _LIB3
+	__stw	cdtemp_bytes
+	__ldw	<_di
+	jsr	prep_rdsect
+	__addw	<_si
+	stx	cdtemp_l	; calculate sector adddress
+	sta	cdtemp_m
 
-		tma	#3		; save entry banks
-		sta	cdtemp_savbnk60
-		tma	#4
-		sta	cdtemp_savbnk80
+	tma	#3		; save entry banks
+	sta	cdtemp_savbnk60
+	tma	#4
+	sta	cdtemp_savbnk80
 
-		lda	<_bl
-		sta	cdtemp_bank	; load addr (bank/address)
-	      __ldw	<_bp
-		and	#$1f		; correct to a $6000-relative addr.
-		ora	#$60
-	      __stw	cdtemp_addr
+	lda	<_bl
+	sta	cdtemp_bank	; load addr (bank/address)
+	__ldw	<_bp
+	and	#$1f		; correct to a $6000-relative addr.
+	ora	#$60
+	__stw	cdtemp_addr
 
 .loop:
-		lda	cdtemp_bank	; get 2 adjacent banks just in case
-		tam	#3
-		inc	A
-		tam	#4
+	lda	cdtemp_bank	; get 2 adjacent banks just in case
+	tam	#3
+	inc	A
+	tam	#4
 
-	      __ldw	cdtemp_addr	; load address
-	      __stw	<_bx
+	__ldw	cdtemp_addr	; load address
+	__stw	<_bx
 
-		stz	<_cl		; sector address
-		lda	cdtemp_m
-		sta	<_ch
-		lda	cdtemp_l
-		sta	<_dl
-		stz	<_dh		; address type (local, # bytes)
+	stz	<_cl		; sector address
+	lda	cdtemp_m
+	sta	<_ch
+	lda	cdtemp_l
+	sta	<_dl
+	stz	<_dh		; address type (local, # bytes)
 
-	      __ldw	cdtemp_bytes
-		sub	#$20
-		bmi	.less2000
-	      __stw	cdtemp_bytes
-	      __ldwi	$2000
-		bra	.read
+	__ldw	cdtemp_bytes
+	sub	#$20
+	bmi	.less2000
+	__stw	cdtemp_bytes
+	__ldwi	$2000
+	bra	.read
 
 .less2000:	add	#$20
-		stwz	cdtemp_bytes
-.read:	      __stw	<_ax
-	
-		jsr	cd_read
-		cmp	#0
-		bne	.error
+	stwz	cdtemp_bytes
+.read:	__stw	<_ax
 
-	      __tstw	cdtemp_bytes	; if still some bytes to read
-		beq	.error		; but A = 0 so no error
+	jsr	cd_read
+	cmp	#0
+	bne	.error
 
-		addw	#4,cdtemp_l	; add 4 sectors (with 16-bit carry)
-		inc	cdtemp_bank	; go back for next bank
-		bra	.loop
+	__tstw	cdtemp_bytes	; if still some bytes to read
+	beq	.error		; but A = 0 so no error
 
-.error:		tax
-		lda	cdtemp_savbnk60
-		tam	#3
-		lda	cdtemp_savbnk80
-		tam	#4
-		cla
-		rts
- .ifdef _LIB3
+	addw	#4,cdtemp_l	; add 4 sectors (with 16-bit carry)
+	inc	cdtemp_bank	; go back for next bank
+	bra	.loop
+
+.error:	tax
+	lda	cdtemp_savbnk60
+	tam	#3
+	lda	cdtemp_savbnk80
+	tam	#4
+	cla
+	rts
+.ifdef _LIB3
 	.bank LIB1_BANK
- .endif ; _LIB3
+.endif ; _LIB3
 
 ;
 ; prepare the sector address
 ;
 prep_rdsect:	txa
-		asl	A
-		asl	A
-		tay
-		map	ovlarray	; in DATA_BANK
-		ldx	ovlarray,Y
-		iny
-		lda	ovlarray,Y
-		rts
+	asl	A
+	asl	A
+	tay
+	map	ovlarray	; in DATA_BANK
+	ldx	ovlarray,Y
+	iny
+	lda	ovlarray,Y
+	rts
 
 ;--------------------
 ; NOT IMPLEMENTED YET
+; XXX: So what is that code below then?
 ;--------------------
 ;
 ;
@@ -489,11 +498,11 @@ prep_rdsect:	txa
 ; ----
 ;
 _cd_status:
-		txa
-		jsr	cd_stat
-		tax
-		cla
-		rts
+	txa
+	jsr	cd_stat
+	tax
+	cla
+	rts
 
 
 ;--------------------
@@ -508,10 +517,10 @@ _cd_status:
 ; ----
 ;
 _cd_getver:
-		jsr	ex_getver
-		tya
-		sax
-		rts
+	jsr	ex_getver
+	tya
+	sax
+	rts
 
 
 ;
@@ -520,13 +529,14 @@ _cd_getver:
 ; Detect Arcade Card (return 1 if true)
 ; ----
 ;
-_ac_exists:	lda	ac_identflag
-		ldx	#1
-		cmp	#AC_IDENT
-		beq	.true
-		clx
-.true:		cla
-		rts
+_ac_exists:
+	lda	ac_identflag
+	ldx	#1
+	cmp	#AC_IDENT
+	beq	.true
+	clx
+.true:	cla
+	rts
 
 ;
 ; ad_reset(void)
@@ -534,8 +544,9 @@ _ac_exists:	lda	ac_identflag
 ; Reset ADPCM device
 ; ----
 ;
-_ad_reset:	jsr	ad_reset
-		rts
+_ad_reset:
+	jsr	ad_reset
+	rts
 
 ;
 ; ad_stop(void)
@@ -543,8 +554,9 @@ _ad_reset:	jsr	ad_reset
 ; stop ADPCM playing
 ; ----
 ;
-_ad_stop:	jsr	ad_stop
-		rts
+_ad_stop:
+	jsr	ad_stop
+	rts
 
 ;
 ; char ad_stat(void)
@@ -552,10 +564,11 @@ _ad_stop:	jsr	ad_stop
 ; Get ADPCM status
 ; ----
 ;
-_ad_stat:	jsr	ad_stat
-		tax
-		cla
-		rts
+_ad_stat:
+	jsr	ad_stat
+	tax
+	cla
+	rts
 
 ;
 ; char ad_trans(int ovl_index [di], int sect_offset [si], char nb_sectors [al], int ad_addr [bx])
@@ -564,17 +577,17 @@ _ad_stat:	jsr	ad_stat
 ; ----
 ;
 _ad_trans.4:
-	      __ldw	<_di
-		jsr	prep_rdsect
-	      __addw	<_si
-		stz	<_cl
-		sta	<_ch
-		stx	<_dl
-		stz	<_dh
-		jsr	ad_trans
-		tax
-		cla
-		rts
+	__ldw	<_di
+	jsr	prep_rdsect
+	__addw	<_si
+	stz	<_cl
+	sta	<_ch
+	stx	<_dl
+	stz	<_dh
+	jsr	ad_trans
+	tax
+	cla
+	rts
 
 ;
 ; char ad_read(int ad_addr [cx], char mode [dh], int buf [bx], int bytes [ax])
@@ -583,10 +596,10 @@ _ad_trans.4:
 ; ----
 ;
 _ad_read.4:
-		jsr	ad_read
-		tax
-		cla
-		rts
+	jsr	ad_read
+	tax
+	cla
+	rts
 
 ;
 ; char ad_write(int ad_addr [cx], char mode [dh], int buf [bx], int bytes [ax])
@@ -595,10 +608,10 @@ _ad_read.4:
 ; ----
 ;
 _ad_write.4:
-		jsr	ad_write
-		tax
-		cla
-		rts
+	jsr	ad_write
+	tax
+	cla
+	rts
 
 ;
 ; char ad_play(int ad_addr [bx], int bytes [ax], char freq [dh], char mode [dl])
@@ -607,7 +620,7 @@ _ad_write.4:
 ; ----
 ;
 _ad_play.4:
-		jsr	ad_play
-		tax
-		cla
-		rts
+	jsr	ad_play
+	tax
+	cla
+	rts
