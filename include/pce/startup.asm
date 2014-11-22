@@ -489,9 +489,9 @@ _init:
     ; init TIA instruction in RAM (fast BLiTter to hardware)
 
 	lda   #$E3		; TIA instruction opcode
-	sta   _ram_hdwr_tia
+	sta   ram_hdwr_tia
 	lda   #$60		; RTS instruction opcode
-	sta   _ram_hdwr_tia_rts
+	sta   ram_hdwr_tia_rts
 
     ; ----
     ; init random number generator

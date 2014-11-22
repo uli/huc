@@ -232,15 +232,15 @@ lib2_sgx_satb_update:
 ; Use TIA, but BLiT 16 words at a time (32 bytes)
 ; Because interrupt must not deferred too much
 ;
-	stw	#32, _ram_hdwr_tia_size
-	stw	#sgx_video_data, _ram_hdwr_tia_dest
+	stw	#32, ram_hdwr_tia_size
+	stw	#sgx_video_data, ram_hdwr_tia_dest
 	stw	#_sgx_satb, <si
 
 	stw	#$7F00, <di
 	jsr	sgx_set_write
 
-.l3a:	stw	<si, _ram_hdwr_tia_src
-	jsr	_ram_hdwr_tia
+.l3a:	stw	<si, ram_hdwr_tia_src
+	jsr	ram_hdwr_tia
 	addw	#32,<si
 	dec	<cl
 	bne	.l3a
@@ -575,8 +575,8 @@ lib2_sgx_load_vram.3:
 	;
 	; (instruction setup done during bootup...)
 
-	stw	#sgx_video_data, _ram_hdwr_tia_dest
-;	stw	<si, _ram_hdwr_tia_src
+	stw	#sgx_video_data, ram_hdwr_tia_dest
+;	stw	<si, ram_hdwr_tia_src
 ;
 ;	asl	<cl	; change from words to bytes (# to xfer)
 ;	rol	<ch
@@ -620,8 +620,8 @@ lib2_sgx_load_vram.3:
 ;	sub	#$20	; reduce remaining transfer amount
 ;	sta	<ch
 ;
-;	stw	#$2000, _ram_hdwr_tia_size
-;	jsr	_ram_hdwr_tia
+;	stw	#$2000, ram_hdwr_tia_size
+;	jsr	ram_hdwr_tia
 ;
 ;	lda	<si+1	; force bank adjust
 ;	add	#$20	; and next move starts at same location
@@ -630,17 +630,17 @@ lib2_sgx_load_vram.3:
 ;	jsr	remap_data	; adjust banks
 ;	bra	.l1
 ;
-;.l2:	sta	HIGH_BYTE _ram_hdwr_tia_size	; 'remainder' transfer of < $2000
+;.l2:	sta	HIGH_BYTE ram_hdwr_tia_size	; 'remainder' transfer of < $2000
 ;	lda	<cl
-;	sta	LOW_BYTE  _ram_hdwr_tia_size
-;	jsr	_ram_hdwr_tia
+;	sta	LOW_BYTE  ram_hdwr_tia_size
+;	jsr	ram_hdwr_tia
 
 	; ----
 	; unmap data
 	;
 .out:
 	; restore PCE VDC address
-	stw	#video_data, _ram_hdwr_tia_dest
+	stw	#video_data, ram_hdwr_tia_dest
 	jmp	unmap_data
 
 	.bank	LIB1_BANK

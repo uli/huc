@@ -985,15 +985,15 @@ _satb_update:
 ; Use TIA, but BLiT 16 words at a time (32 bytes)
 ; Because interrupt must not deferred too much
 ;
-	stw	#32, _ram_hdwr_tia_size
-	stw	#video_data, _ram_hdwr_tia_dest
+	stw	#32, ram_hdwr_tia_size
+	stw	#video_data, ram_hdwr_tia_dest
 	stw	#_satb, <si
 
 	stw	#$7F00, <di
 	jsr	set_write
 
-.l3a:	stw	<si, _ram_hdwr_tia_src
-	jsr	_ram_hdwr_tia
+.l3a:	stw	<si, ram_hdwr_tia_src
+	jsr	ram_hdwr_tia
 	addw	#32,<si
 	dec	<cl
 	bne	.l3a
