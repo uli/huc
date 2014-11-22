@@ -26,12 +26,15 @@ A. Toolchain features
 - C++-style comments
 - support for function calls in argument lists of fastcall functions (e.g.
   "memcpy(a, b, strlen(b) + 1);")
+- support declaration of fastcall functions through prototypes instead of
+  pragmas
 - labels and "goto"
 
 2. Performance and code size improvements
 - "small stack" and "no recursion" options that cut down code size
   and improve performance when these features are not needed
 - numerous optimizations of generated code, helper functions, and macros
+- reduction of space wasted in partially filled banks (Artemio Urbina)
 
 3. Quality assurance
 - automated test suite adapted from snes-sdk and extended to more than 470
@@ -40,6 +43,8 @@ A. Toolchain features
 - tested and fixed for big-endian and 32-bit systems
 - fixed to work on Mac OS X (tested on PowerPC) and Cygwin
 - more than 70 bugs fixed in various components
+- reformatted all assembler files to make them more readable and
+  maintainable
 
 4. Other enhancements
 - support for interrupt handlers implemented in C
@@ -48,6 +53,8 @@ A. Toolchain features
 - default #include paths
 - #incasm directive for seamless inclusion of data files in assembler format
   with user-definable page mapping (useful with SimpleTracker and Squirrel)
+- massive reduction of C namespace pollution by assembler libraries; things
+  like "int dx;" don't fail anymore...
 
 Among the limitations that still exist and may cause problems:
 
@@ -75,6 +82,7 @@ B. Included libraries
 - HuC PSG driver removed except for initialization routine; it was missing
   the part that, you know, makes sounds...
 - "SimpleTracker" PSG driver implemented in C
+- added SuperGrafx and Arcade Card libraries by Tomaitheous
 - more consistent joypad button defines (as provided by the assembler)
 
 C. Tools
