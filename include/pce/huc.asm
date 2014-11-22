@@ -9,8 +9,8 @@
 _vdc	.ds 20*2
 
 	.zp
-__sign		.ds 1
-__remain	.ds 2
+sign	.ds 1
+remain	.ds 2
 
 	.code
 .mlist
@@ -781,14 +781,14 @@ lsrzp:
 ; ----
 
 smul:
-	stz	<__sign	; until we call umul, __sign keeps the sign parity
+	stz	<sign	; until we call umul, sign keeps the sign parity
 			; of operand
 	cmp	#$80
 	bcc	smul_no_invert_primary
 
 	__negw
 
-	inc	<__sign	; __sign ++
+	inc	<sign	; sign ++
 
 smul_no_invert_primary:
 	sta	<__temp
@@ -797,7 +797,7 @@ smul_no_invert_primary:
 	cmp	#$80
 	bcc	smul_no_invert_secondary
 
-	inc	<__sign	; this time, no optimisation possible, IMHO :)
+	inc	<sign	; this time, no optimisation possible, IMHO :)
 			; are you sure? :))
 	stx	<__temp+1
 
@@ -813,7 +813,7 @@ smul_no_invert_primary:
 	ldx <__temp+1
 
 smul_no_invert_secondary:
-	lda <__sign
+	lda <sign
 	pha
 	lda <__temp	; saved at the beginning of smul_no_invert_primary
 			; where we're sure we passed
@@ -904,14 +904,14 @@ umul8:
 ; ----
 
 sdiv:
-	stz	<__sign	; until we call udiv, __sign keeps the sign parity
+	stz	<sign	; until we call udiv, sign keeps the sign parity
 			; of operand
 	cmp	#$80
 	bcc	sdiv_no_invert_primary
 
 	__negw
 
-	inc	<__sign	; __sign ++
+	inc	<sign	; sign ++
 
 sdiv_no_invert_primary:
 	sta	<__temp
@@ -920,7 +920,7 @@ sdiv_no_invert_primary:
 	cmp	#$80
 	bcc	sdiv_no_invert_secondary
 
-	inc	<__sign
+	inc	<sign
 
 	stx	<__temp+1
 
@@ -936,7 +936,7 @@ sdiv_no_invert_primary:
 	ldx	<__temp+1
 
 sdiv_no_invert_secondary:
-	lda	<__sign
+	lda	<sign
 	pha
 	lda	<__temp	; saved at the beginning of sdiv_no_invert_primary
 			; where we're sure we passed
@@ -974,18 +974,18 @@ udiv:
 	__stw	<__temp
 
 	lda	#0
-	sta	<__remain+1
+	sta	<remain+1
 	ldy	#16
 .sdiv_begin:	asl	<__temp
 	rol	<__temp+1
 	rol	a
-	rol	<__remain+1
+	rol	<remain+1
 	pha
 	cmp	<__ptr
-	lda	<__remain+1
+	lda	<remain+1
 	sbc	<__ptr+1
 	bcc	.sdiv_end
-	sta	<__remain+1
+	sta	<remain+1
 	pla
 	sbc	<__ptr
 	pha
@@ -993,7 +993,7 @@ udiv:
 .sdiv_end:	pla
 	dey
 	bne	.sdiv_begin
-	sta	<__remain
+	sta	<remain
 
 	__addmi	2,__stack
 	__ldw	<__temp
@@ -1014,12 +1014,12 @@ udiv:
 ; ----
 
 smod:
-	stz	<__sign
+	stz	<sign
 	__stw	<__ptr
 	__ldwp	__stack
 	cmp	#$80
 	bcc	.skip1
-	inc	<__sign
+	inc	<sign
 	__negw
 	__stwp	__stack
 .skip1:	__ldw	<__ptr
@@ -1027,7 +1027,7 @@ smod:
 	bcc	.skip2
 	__negw
 .skip2:	jsr	umod
-	ldy	<__sign
+	ldy	<sign
 	beq	.noinv
 	__negw
 .noinv:	rts
@@ -1038,18 +1038,18 @@ umod:
 	__stw	<__temp
 
 	lda	#0
-	sta	<__remain+1
+	sta	<remain+1
 	ldy	#16
 .umod_begin:	asl	<__temp
 	rol	<__temp+1
 	rol	a
-	rol	<__remain+1
+	rol	<remain+1
 	pha
 	cmp	<__ptr
-	lda	<__remain+1
+	lda	<remain+1
 	sbc	<__ptr+1
 	bcc	.umod_end
-	sta	<__remain+1
+	sta	<remain+1
 	pla
 	sbc	<__ptr
 	pha
@@ -1057,10 +1057,10 @@ umod:
 .umod_end:	pla
 	dey
 	bne	.umod_begin
-	sta	<__remain
+	sta	<remain
 
 	__addmi	2,__stack
-	__ldw	<__remain
+	__ldw	<remain
 
 	rts
 
@@ -1089,11 +1089,11 @@ umod:
 ; ----
 ; OUT : The execution goes to another place
 ; ----
-; REMARK : Also use __remain variable as a temporary value
+; REMARK : Also use remain variable as a temporary value
 ; ----
 
 ___case:
-	__stw	<__remain	; store the value to check to
+	__stw	<remain		; store the value to check to
 	__ldwp	__stack
 	__stw	<__ptr		; __ptr contain the address of the array
 
@@ -1113,7 +1113,7 @@ ___case:
 
 	addw	#4,<__ptr
 
-	__ldw	<__remain
+	__ldw	<remain
 
 	jsr	eq
 	__tstw
