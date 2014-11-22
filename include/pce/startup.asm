@@ -496,9 +496,9 @@ reset:
     ; init random number generator
 
 	lda   #1
-	jsr   wait_vsync	; wait for one frame & randomize _rndseed
+	jsr   wait_vsync	; wait for one frame & randomize rndseed2
 	stw   #$03E7,<cx	; set random seed
-	stw   _rndseed,<dx
+	stw   rndseed2,<dx
 	jsr   srand
 
 .if (CDROM)
@@ -1450,7 +1450,7 @@ wait_vsync:
 	cli			; re-enable interrupts
 
 .l4:	lda   irq_cnt		; wait loop
-.l5:	incw  _rndseed
+.l5:	incw  rndseed2
 	cmp   irq_cnt
 	beq  .l5
 	dec   vsync_cnt

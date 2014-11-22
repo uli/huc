@@ -162,22 +162,22 @@ mulu32:
 ; ----
 
 	.bss
-_rndptr		.ds 2
-_rndseed	.ds 2
-_rndn1		.ds 1
-_rndn2		.ds 1
+rndptr		.ds 2
+rndseed2	.ds 2
+rndn1		.ds 1
+rndn2		.ds 1
 
 	.code
 srand:
-	stw	<cx,_rndptr
-	stw	<dx,_rndn1
-	lda	_rndptr+1
+	stw	<cx,rndptr
+	stw	<dx,rndn1
+	lda	rndptr+1
 	ora	#$e0
-	sta	_rndptr+1
+	sta	rndptr+1
 	cmp	#$f4
 	blo	.exit
 	lda	#$e0
-	sta	_rndptr+1
+	sta	rndptr+1
 .exit:
 	rts
 
@@ -191,18 +191,18 @@ srand:
 ; ----
 
 	.zp
-_rndzp	.ds	2
+rndzp	.ds	2
 
 	.code
 rand:	jsr	randomize
-	stw	_rndn1,<dx
+	stw	rndn1,<dx
 	rts
 
 randomize:
-	stw	_rndptr,<_rndzp
+	stw	rndptr,<rndzp
 
-	lda	_rndn1	; rotate 3 bits right
-	ldx	_rndn2
+	lda	rndn1	; rotate 3 bits right
+	ldx	rndn2
 	ror a
 	sax
 	ror a
@@ -214,31 +214,31 @@ randomize:
 	ror a
 	sax
 	ror a
-	stx	_rndn1
-	sta	_rndn2
+	stx	rndn1
+	sta	rndn2
 
-	addw	#$05A2,_rndn1 ; add #$05A2 to number
+	addw	#$05A2,rndn1 ; add #$05A2 to number
 
-	incw	<_rndzp	; eor with next 2 bytes of ROM
-	lda	_rndn2
-	eor	[_rndzp]
+	incw	<rndzp	; eor with next 2 bytes of ROM
+	lda	rndn2
+	eor	[rndzp]
 	and	#$7f
-	sta	_rndn2
+	sta	rndn2
 
-	incw	<_rndzp
-	lda	_rndn1
-	eor	[_rndzp]
-	sta	_rndn1
+	incw	<rndzp
+	lda	rndn1
+	eor	[rndzp]
+	sta	rndn1
 
-	incw	<_rndzp		; don't use every consecutive byte
+	incw	<rndzp		; don't use every consecutive byte
 
-	lda	<_rndzp+1	; reset pointer to $e000 if > $f400
+	lda	<rndzp+1	; reset pointer to $e000 if > $f400
 	cmp	#$f4
 	blo	.l1
 	lda	#$e0
-	sta	<_rndzp+1
+	sta	<rndzp+1
 .l1:
-	stw	<_rndzp,_rndptr
+	stw	<rndzp,rndptr
 	rts
 
 
