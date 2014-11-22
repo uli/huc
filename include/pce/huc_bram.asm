@@ -58,7 +58,7 @@ _bm_error:	.ds 1
 _bm_check:
 	jsr	_bm_unlock
 
-	stw	#$8000,<_di	; test area at $8000
+	stw	#$8000,<di	; test area at $8000
 	jsr	_bm_testram
 
 	; -- result
@@ -81,28 +81,28 @@ _bm_check:
 ; bm_testram
 ; ---
 ; internal function to test whether BRAM exists at a location
-; input  = _di (pointer to memory area to test)
+; input  = di (pointer to memory area to test)
 ; output = register x (# errors)
 ;
 
 _bm_testram:
 	; -- swap bits
 	ldy	#7
-.l1:	lda	[_di],Y
+.l1:	lda	[di],Y
 	eor	#$FF
-	sta	_ax,Y
-	sta	[_di],Y
+	sta	ax,Y
+	sta	[di],Y
 	dey
 	bpl	.l1
 	; -- cmp
 	clx
 	ldy	#7
-.l2:	lda	_ax,Y
-	cmp	[_di],Y
+.l2:	lda	ax,Y
+	cmp	[di],Y
 	beq	.l3
 	inx
 .l3:	eor	#$FF
-	sta	[_di],Y
+	sta	[di],Y
 	dey
 	bpl	.l2
 
@@ -128,18 +128,18 @@ _bm_format:
 	stz	$8010
 	stz	$8011
 
-	stw	#$8000,<_di	; test area at $8000
+	stw	#$8000,<di	; test area at $8000
 .l2:	jsr	_bm_testram
 	cpx	#0
 	bne	.setsz
-	lda	<_di+1
+	lda	<di+1
 	cmp	#$A0		; and keep going until either
 	beq	.setsz		; (a) bad memory, or
 	inc	A		; (b) next bank
-	sta	<_di+1
+	sta	<di+1
 	bra	.l2
 
-.setsz:	lda	<_di+1
+.setsz:	lda	<di+1
 	sta	$8005
 
 	; -- ok
@@ -161,16 +161,16 @@ _bm_free:
 	jsr	_bm_enable
 	bcs	.err
 	; -- calculate free space
-	stw	$8004,<_cx
-	subw	$8006,<_cx
-	subw	#$12,<_cx
-	lda	<_ch
+	stw	$8004,<cx
+	subw	$8006,<cx
+	subw	#$12,<cx
+	lda	<ch
 	bpl	.ok
-	stwz	<_cx
+	stwz	<cx
 	; -- ok
 .ok:	jsr	_bm_disable
 	stz	_bm_error
-	__ldw	<_cx
+	__ldw	<cx
 	clc
 	rts
 	; -- error, bram not formatted
@@ -191,18 +191,18 @@ _bm_size:
 	jsr	_bm_enable
 	bcs	.err
 	; -- calculate free space
-	stw	$8004,<_cx
-	subw	#$8000,<_cx
-	lda	<_ch
+	stw	$8004,<cx
+	subw	#$8000,<cx
+	lda	<ch
 	cmp	#$21
 	bcs	.err1
-	lda	<_ch
+	lda	<ch
 	bpl	.ok
-	stwz	<_cx
+	stwz	<cx
 	; -- ok
 .ok:	jsr	_bm_disable
 	stz	_bm_error
-	__ldw	<_cx
+	__ldw	<cx
 	clc
 	rts
 	; -- error, bram not formatted
@@ -221,14 +221,14 @@ _bm_size:
 ; Automatically handles mapping of memory ; and address range
 ;
 _bm_rawread:
-	__stw	<_bx
-	lda	<_bh
+	__stw	<bx
+	lda	<bh
 	and	#$1F
 	ora	#$80
-	sta	<_bh
+	sta	<bh
 	jsr	_bm_enable
 	bcs	.err
-	lda	[_bx]
+	lda	[bx]
 	sax
 	stz	_bm_error
 	jsr	_bm_disable
@@ -247,15 +247,15 @@ _bm_rawread:
 ; Automatically handles mapping of memory ; and address range
 ;
 _bm_rawwrite.2:
-	__stw	<_ax
-	lda	<_bh
+	__stw	<ax
+	lda	<bh
 	and	#$1F
 	ora	#$80
-	sta	<_bh
+	sta	<bh
 	jsr	_bm_enable
 	bcs	.err
-	lda	<_al
-	sta	[_bx]
+	lda	<al
+	sta	[bx]
 	stz	_bm_error
 	jsr	_bm_disable
 	cla
@@ -277,7 +277,7 @@ _bm_rawwrite.2:
 ;
 
 _bm_exist:
-	__stw	<_bx
+	__stw	<bx
 	jsr	_bm_open
 	bcs	.l1
 	jsr	_bm_disable
@@ -298,14 +298,14 @@ _bm_exist:
 ;
 
 _bm_sizeof:
-	__stw	<_bx
+	__stw	<bx
 	jsr	_bm_open
 	bcs	.l1
-	subw	#$10,<_cx
+	subw	#$10,<cx
 	jsr	_bm_disable
 	stz	_bm_error
-	ldx	<_cl
-	lda	<_ch
+	ldx	<cl
+	lda	<ch
 	rts
 .l1:	clx
 	cla
@@ -439,29 +439,29 @@ _bm_unlock:
 ;
 
 lib2_bm_getptr.2:
-	__stw	<_di		; namebuf is destination of a copy
+	__stw	<di		; namebuf is destination of a copy
 	jsr	lib2_bm_enable
 	bcs	.x2
 
-	tstw	<_bp		; error - 0 input
+	tstw	<bp		; error - 0 input
 	beq	.x2
-	lda	[_bp]
-	sta	<_cl
+	lda	[bp]
+	sta	<cl
 	ldy	#1
-	lda	[_bp],Y
-	sta	<_ch		; <_cx is length of entry
-	tstw	<_cx
+	lda	[bp],Y
+	sta	<ch		; <cx is length of entry
+	tstw	<cx
 	beq	.empty
 
-	addw	#4,<_bp,<_si	; <_si is now ptr to name of current entry
+	addw	#4,<bp,<si	; <si is now ptr to name of current entry
 	cla
 	ldx	#12
 	jsr	_memcpy.3	; copy 12 bytes of name to namebuf
-	addw	<_cx,<_bp,<_ax	; next pointer
+	addw	<cx,<bp,<ax	; next pointer
 	jsr	lib2_bm_disable
 	stz	_bm_error
-	lda	<_ah
-	ldx	<_al
+	lda	<ah
+	ldx	<al
 	clc
 	rts
 
@@ -482,17 +482,17 @@ lib2_bm_getptr.2:
 ;
 
 lib2_bm_delete:
-	__stw	<_ax
+	__stw	<ax
 	jsr	lib2_bm_open
 	bcs	.out
-	stw	$8006,<_bx	; ptr to end
-	stw	<_si,<_di	; setup currptr as dest
-	stw	<_dx,<_si	; setup nextptr as src
-	subw	<_dx,<_bx	; #bytes = end-next + 2
-	addw	#2,<_bx
-	subw	<_cx,$8006	; adjust ptr to end
-	lda	<_bh
-	ldx	<_bl
+	stw	$8006,<bx	; ptr to end
+	stw	<si,<di	; setup currptr as dest
+	stw	<dx,<si	; setup nextptr as src
+	subw	<dx,<bx	; #bytes = end-next + 2
+	addw	#2,<bx
+	subw	<cx,$8006	; adjust ptr to end
+	lda	<bh
+	ldx	<bl
 	jsr	_memcpy.3
 	jsr	lib2_bm_disable
 	stz	_bm_error
@@ -508,40 +508,40 @@ lib2_bm_delete:
 ;
 
 lib2_bm_read.4:
-	__stw	<_ax
+	__stw	<ax
 	; -- open file
 	jsr	lib2_bm_open
 	bcs	.x2
 	; -- checksum test
 	jsr	lib2_bm_checksum
 	ldy	#2
-	lda	[_si],Y
-	add	<_dl
-	sta	<_dl
+	lda	[si],Y
+	add	<dl
+	sta	<dl
 	iny
-	lda	[_si],Y
-	adc	<_dh
-	ora	<_dl
+	lda	[si],Y
+	adc	<dh
+	ora	<dl
 	bne	.x1
 	; -- setup ptr
 	jsr	lib2_bm_setup_ptr
 	bcs	.ok
 	; -- read
 	cly
-.l1:	lda	[_dx],Y
-	sta	[_di],Y
+.l1:	lda	[dx],Y
+	sta	[di],Y
 	iny
 	bne	.l2
-	inc	<_dx+1
-	inc	<_di+1
-.l2:	dec	<_cl
+	inc	<dx+1
+	inc	<di+1
+.l2:	dec	<cl
 	bne	.l1
-	dec	<_ch
+	dec	<ch
 	bpl	.l1
 	; -- ok
 .ok:	jsr	lib2_bm_disable
 	stz	_bm_error
-	__ldw	<_ax
+	__ldw	<ax
 	clc
 	rts
 	; -- error, bad file checksum
@@ -560,7 +560,7 @@ lib2_bm_read.4:
 ;
 
 lib2_bm_write.4:
-	__stw	<_ax
+	__stw	<ax
 	; -- open file
 	jsr	lib2_bm_open
 	bcs	.x1
@@ -569,30 +569,30 @@ lib2_bm_write.4:
 	bcs	.ok
 	; -- write data
 	cly
-.l1:	lda	[_di],Y
-	sta	[_dx],Y
+.l1:	lda	[di],Y
+	sta	[dx],Y
 	iny
 	bne	.l2
-	inc	<_dx+1
-	inc	<_di+1
-.l2:	dec	<_cl
+	inc	<dx+1
+	inc	<di+1
+.l2:	dec	<cl
 	bne	.l1
-	dec	<_ch
+	dec	<ch
 	bpl	.l1
 	; -- update checksum
 	jsr	lib2_bm_checksum
 	ldy	#2
 	cla
-	sub	<_dl
-	sta	[_si],Y
+	sub	<dl
+	sta	[si],Y
 	iny
 	cla
-	sbc	<_dh
-	sta	[_si],Y
+	sbc	<dh
+	sta	[si],Y
 	; -- ok
 .ok:	jsr	lib2_bm_disable
 	stz	_bm_error
-	__ldw	<_ax
+	__ldw	<ax
 	clc
 .x1:	rts
 
@@ -602,7 +602,7 @@ lib2_bm_write.4:
 ; Create a new BRAM file, given the name and size
 
 lib2_bm_create.2:
-	__stw	<_ax
+	__stw	<ax
 	jsr	lib2_bm_enable
 	bcc	.go
 	bra	.x2
@@ -616,67 +616,67 @@ lib2_bm_create.2:
 	sec
 	rts
 	; -- check free space
-.go:	addw	#$12,$8006,<_dx
-	addw	<_ax,<_dx
-	cmpw	<_dx,$8004
+.go:	addw	#$12,$8006,<dx
+	addw	<ax,<dx
+	cmpw	<dx,$8004
 	blo	.x1
 	; -- create file
-	stw	$8006,<_si
+	stw	$8006,<si
 	ldy	#1
-	lda	<_al
+	lda	<al
 	add	#$10
-	sta	[_si]
-	lda	<_ah
+	sta	[si]
+	lda	<ah
 	adc	#$00
-	sta	[_si],Y
+	sta	[si],Y
 	; --
 	lda	$8006
-	add	[_si]
-	sta	<_dl
+	add	[si]
+	sta	<dl
 	sta	$8006
 	lda	$8007
-	adc	[_si],Y
-	sta	<_dh
+	adc	[si],Y
+	sta	<dh
 	sta	$8007
 	cla
-	sta	[_dx]
-	sta	[_dx],Y
+	sta	[dx]
+	sta	[dx],Y
 	; -- copy name
 	clx
 	ldy	#4
 .l1:	sxy
-	lda	[_bx],Y
+	lda	[bx],Y
 	sxy
-	sta	[_si],Y
+	sta	[si],Y
 	iny
 	inx
 	cpx	#12
 	bne	.l1
 	; -- clear file
-	lda	<_al
-	ora	<_ah
+	lda	<al
+	ora	<ah
 	beq	.sum
-	stw	<_si,<_bx
+	stw	<si,<bx
 	ldy	#16
 	cla
-.l2:	sta	[_bx],Y
+.l2:	sta	[bx],Y
 	iny
 	bne	.l3
-	inc	<_bh
-.l3:	dec	<_al
+	inc	<bh
+.l3:	dec	<al
 	bne	.l2
-	dec	<_ah
+	dec	<ah
 	bpl	.l2
 	; -- update checksum
 .sum:	jsr	lib2_bm_checksum
 	ldy	#2
 	cla
-	sub	<_dl
-	sta	[_si],Y
+	sub	<dl
+	sta	[si],Y
 	iny
 	cla
-	sbc	<_dh
-	sta	[_si],Y
+	sbc	<dh
+	sta	[si],Y
 	; -- ok
 .ok:	jsr	lib2_bm_disable
 	stz	_bm_error
@@ -694,25 +694,25 @@ lib2_bm_open:
 	jsr	lib2_bm_enable
 	bcs	.x2
 	; -- get dir entry
-	stw	#$8010,<_si
-.l1:	lda	[_si]
-	sta	<_cl
+	stw	#$8010,<si
+.l1:	lda	[si]
+	sta	<cl
 	ldy	#1
-	lda	[_si],Y
-	sta	<_ch
-	ora	<_cl
+	lda	[si],Y
+	sta	<ch
+	ora	<cl
 	beq	.x1
-	addw	<_cx,<_si,<_dx
-	cmpw	<_dx,$8004
+	addw	<cx,<si,<dx
+	cmpw	<dx,$8004
 	blo	.x3
-	cmpw	#16,<_cx
+	cmpw	#16,<cx
 	blo	.x3
 	; -- compare names
 	cly
 	ldx	#4
-.l2:	lda	[_bx],Y
+.l2:	lda	[bx],Y
 	sxy
-	cmp	[_si],Y
+	cmp	[si],Y
 	bne	.next
 	sxy
 	inx
@@ -720,9 +720,9 @@ lib2_bm_open:
 	cpy	#12
 	blo	.l2
 	; -- check file size
-	lda	<_ch
+	lda	<ch
 	bne	.ok
-	lda	<_cl
+	lda	<cl
 	cmp	#16
 	beq	.x4
 	; -- ok
@@ -730,7 +730,7 @@ lib2_bm_open:
 	clc
 	rts
 	; -- next entry
-.next:	addw	<_cx,<_si
+.next:	addw	<cx,<si
 	bra	.l1
 	; -- error, file not found
 .x1:	lda	#1
@@ -805,29 +805,29 @@ lib2_bm_disable:
 ;
 
 lib2_bm_checksum:
-	stwz	<_dx
+	stwz	<dx
 	; -- get file size
-	lda	[_si]
+	lda	[si]
 	sub	#4
-	sta	<_cl
+	sta	<cl
 	ldy	#1
-	lda	[_si],Y
+	lda	[si],Y
 	sbc	#0
-	sta	<_ch
-	stw	<_si,<_bx
+	sta	<ch
+	stw	<si,<bx
 	; -- calc checksum
 	ldy	#4
-.l1:	lda	[_bx],Y
-	add	<_dl
-	sta	<_dl
+.l1:	lda	[bx],Y
+	add	<dl
+	sta	<dl
 	bcc	.l2
-	inc	<_dh
+	inc	<dh
 .l2:	iny
 	bne	.l3
-	inc	<_bh
-.l3:	dec	<_cl
+	inc	<bh
+.l3:	dec	<cl
 	bne	.l1
-	dec	<_ch
+	dec	<ch
 	bpl	.l1
 	rts
 
@@ -837,38 +837,38 @@ lib2_bm_checksum:
 
 lib2_bm_setup_ptr:
 	; -- check length
-	tstw	<_ax
+	tstw	<ax
 	beq	.x1
 	; -- check ptr
-	tstw	<_di
+	tstw	<di
 	beq	.x1
 	; -- check offset
-	addw	#16,<_bp,<_bx
+	addw	#16,<bp,<bx
 	ldy	#1
-	lda	<_bh
-	cmp	[_si],Y
+	lda	<bh
+	cmp	[si],Y
 	bne	.l1
-	lda	<_bl
-	cmp	[_si]
+	lda	<bl
+	cmp	[si]
 .l1:	blo	.l2
 	; -- eof
-.x1:	stwz	<_ax
+.x1:	stwz	<ax
 	sec
 	rts
 	; -- set base ptr
-.l2:	addw	<_bx,<_si,<_dx
+.l2:	addw	<bx,<si,<dx
 	; -- check length
-	addw	<_ax,<_bx
-	lda	[_si]
-	sub	<_bl
-	sta	<_bl
-	lda	[_si],Y
-	sbc	<_bh
-	sta	<_bh
+	addw	<ax,<bx
+	lda	[si]
+	sub	<bl
+	sta	<bl
+	lda	[si],Y
+	sbc	<bh
+	sta	<bh
 	bpl	.ok
 	; -- adjust size
-	addw	<_bx,<_ax
-.ok:	stw	<_ax,<_cx
+	addw	<bx,<ax
+.ok:	stw	<ax,<cx
 	clc
 	rts
 

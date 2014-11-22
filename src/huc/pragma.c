@@ -24,9 +24,9 @@ static char  *cmdptr;
 /* default pragma's */
 static char *pragma_init[] = {
 	/* far pointer support funcs */
-	"fastcall farpeekb(farptr _fbank:_fptr)",
-	"fastcall farpeekw(farptr _fbank:_fptr)",
-	"fastcall farmemget(word bx, farptr _fbank:_fptr, word acc)",
+	"fastcall farpeekb(farptr fbank:fptr)",
+	"fastcall farpeekw(farptr fbank:fptr)",
+	"fastcall farmemget(word bx, farptr fbank:fptr, word acc)",
 	/* asm-lib wrappers */
 	"fastcall load_palette(byte al, farptr bl:si, byte cl)",
 	"fastcall load_bat(word di, farptr bl:si, byte cl, byte ch)",

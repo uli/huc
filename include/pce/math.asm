@@ -14,22 +14,22 @@
 ; ----
 
 divu8:
-	lda	<_al
+	lda	<al
 	asl a
-	sta	<_cl
+	sta	<cl
 	cla
 	ldy	#8
 .l1:
 	rol a
-	cmp	<_bl
+	cmp	<bl
 	bcc	.l2
-	sbc	<_bl
+	sbc	<bl
 .l2:
-	rol	<_cl
+	rol	<cl
 	dey
 	bne	.l1
 
-	sta	<_dl
+	sta	<dl
 	rts
 
 
@@ -45,14 +45,14 @@ divu8:
 divu10:
 	ldy	#16
 	cla
-	asl	<_dl
-	rol	<_dh
+	asl	<dl
+	rol	<dh
 .l1:	rol	a
 	cmp	#10
 	blo	.l2
 	sbc	#10
-.l2:	rol	<_dl
-	rol	<_dh
+.l2:	rol	<dl
+	rol	<dh
 	dey
 	bne	.l1
 	rts
@@ -69,23 +69,23 @@ divu10:
 ; ----
 
 mulu8:
-	lda	<_bl
-	sta	<_ch
+	lda	<bl
+	sta	<ch
 
 	cla
 	ldy	#8
 .l1:
 	asl a
-	rol	<_ch
+	rol	<ch
 	bcc	.next
-	add	<_al
+	add	<al
 	bcc	.next
-	inc	<_ch
+	inc	<ch
 .next:
 	dey
 	bne	.l1
 
-	sta	<_cl
+	sta	<cl
 	rts
 
 
@@ -98,24 +98,24 @@ mulu8:
 ; ----
 
 mulu16:
-	lda	<_ah
-	ora	<_bh
+	lda	<ah
+	ora	<bh
 	bne	.l1
 
-	stwz	<_dx		; 8-bit multiplication
+	stwz	<dx		; 8-bit multiplication
 	jmp	mulu8
 
-.l1:	stw	<_bx,<_dx	; 16-bit multiplication
-	stwz	<_cx
+.l1:	stw	<bx,<dx	; 16-bit multiplication
+	stwz	<cx
 	ldy	#16
 
-.l2:	aslw	<_cx
-	rolw	<_dx
+.l2:	aslw	<cx
+	rolw	<dx
 	bcc	.l3
 
-	addw	<_ax,<_cx
+	addw	<ax,<cx
 	bcc	.l3
-	incw	<_dx
+	incw	<dx
 
 .l3:	dey
 	bne	.l2
@@ -133,20 +133,20 @@ mulu16:
 ; ----
 
 mulu32:
-	stw	<_cx,<_si
-	stw	<_dx,<_di
-	stwz	<_cx
-	stwz	<_dx
+	stw	<cx,<si
+	stw	<dx,<di
+	stwz	<cx
+	stwz	<dx
 	ldy	#32
 .loop:
-	aslw	<_cx
-	rolw	<_dx
-	rolw	<_si
-	rolw	<_di
+	aslw	<cx
+	rolw	<dx
+	rolw	<si
+	rolw	<di
 	bcc	.next
 
-	addw	<_ax,<_cx
-	adcw	<_bx,<_dx
+	addw	<ax,<cx
+	adcw	<bx,<dx
 .next:
 	dey
 	bne	.loop
@@ -169,8 +169,8 @@ _rndn2		.ds 1
 
 	.code
 srand:
-	stw	<_cx,_rndptr
-	stw	<_dx,_rndn1
+	stw	<cx,_rndptr
+	stw	<dx,_rndn1
 	lda	_rndptr+1
 	ora	#$e0
 	sta	_rndptr+1
@@ -195,7 +195,7 @@ _rndzp	.ds	2
 
 	.code
 rand:	jsr	randomize
-	stw	_rndn1,<_dx
+	stw	_rndn1,<dx
 	rts
 
 randomize:
@@ -261,15 +261,15 @@ random:
 	cmp	#128
 	blo	.l1
 
-	lda	<_dh
+	lda	<dh
 	and	#$7f
 	rts
 
 .l1:	; asl a
-	sta	<_al
-	lda	<_dl
-	sta	<_bl
+	sta	<al
+	lda	<dl
+	sta	<bl
 	jsr	mulu8
 
-	lda	<_ch
+	lda	<ch
 	rts

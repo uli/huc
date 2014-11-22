@@ -16,7 +16,7 @@
 ; addr, new address in VRAM to read at
 ;
 .macro setvraddr
-	stw	#\1,<_di
+	stw	#\1,<di
 	jsr	set_read
 .endm
 
@@ -25,7 +25,7 @@
 ; addr, new address in VRAM to write at
 ;
 .macro setvwaddr
-	stw	#\1,<_di
+	stw	#\1,<di
 	jsr	set_write
 .endm
 
@@ -37,19 +37,19 @@
 
 .macro set_bgpal
 	lda	\1
-	sta	<_al
+	sta	<al
 .if (\?2 = ARG_LABEL)
-	stb	#BANK(\2),<_bl
+	stb	#BANK(\2),<bl
 .else
-	stb	#$FE,<_bl
+	stb	#$FE,<bl
 .endif
-	stw	#\2,<_si
+	stw	#\2,<si
 .if \?3
 	lda	\3
 .else
 	lda	#1
 .endif
-	sta	<_cl
+	sta	<cl
 	jsr	load_palette
 .endm
 
@@ -62,19 +62,19 @@
 .macro set_sprpal
 	lda	\1
 	add	#16
-	sta	<_al
+	sta	<al
 .if (\?2 = ARG_LABEL)
-	stb	#BANK(\2),<_bl
+	stb	#BANK(\2),<bl
 .else
-	stb	#$FE,<_bl
+	stb	#$FE,<bl
 .endif
-	stw	#\2,<_si
+	stw	#\2,<si
 .if \?3
 	lda	\3
 .else
 	lda	#1
 .endif
-	sta	<_cl
+	sta	<cl
 	jsr	load_palette
 .endm
 
@@ -98,19 +98,19 @@
 
 .macro vload
 .if (\# = 3)
-	stw	#\1,<_di
+	stw	#\1,<di
 .if (\?2 = ARG_LABEL)
-	stb	#BANK(\2),<_bl
+	stb	#BANK(\2),<bl
 .else
-	stb	#$FE,<_bl
+	stb	#$FE,<bl
 .endif
-	stw	#\2,<_si
-	stw	\3,<_cx
+	stw	#\2,<si
+	stw	\3,<cx
 .else
-	stw	#VRAM(\1),<_di
-	stb	#BANK(\1),<_bl
-	stw	#\1,<_si
-	stw	#\2,<_cx
+	stw	#VRAM(\1),<di
+	stb	#BANK(\1),<bl
+	stw	#\1,<si
+	stw	#\2,<cx
 .endif
 	jsr	load_vram
 .endm
@@ -126,17 +126,17 @@
 .if (\# = 5)
 .fail "batcpy syntax has changed, update your code!"
 .endif
-	stw	\1,<_di
+	stw	\1,<di
 .if (\?2 = ARG_LABEL)
-	stb	#BANK(\2),<_bl
+	stb	#BANK(\2),<bl
 .else
-	stb	#$FE,<_bl
+	stb	#$FE,<bl
 .endif
-	stw	#\2,<_si
+	stw	#\2,<si
 	lda	\3
-	sta	<_cl
+	sta	<cl
 	lda	\4
-	sta	<_ch
+	sta	<ch
 	jsr	load_bat
 .endm
 
@@ -167,15 +167,15 @@
 ; h,	nb of row
 
 .macro mapcpy
-	stw	#\1,<_di
+	stw	#\1,<di
 	lda	\2
-	sta	<_cl
+	sta	<cl
 	lda	\3
-	sta	<_ch
+	sta	<ch
 	lda	\4
-	sta	<_dl
+	sta	<dl
 	lda	\5
-	sta	<_dh
+	sta	<dh
 	jsr	load_map
 .endm
 
@@ -188,15 +188,15 @@
 ; nb,		nb of char. to copy
 
 .macro fntcpy
-	stw	#\1,<_di
-	stb	#BANK(\2),<_bl
-	stw	#\2,<_si
+	stw	#\1,<di
+	stb	#BANK(\2),<bl
+	stw	#\2,<si
 	lda	\3
-	sta	<_al
+	sta	<al
 	lda	\4
-	sta	<_ah
+	sta	<ah
 	lda	\4
-	sta	<_cl
+	sta	<cl
 	jsr	load_font
 .endm
 
@@ -246,7 +246,7 @@
 ; xres,	horizontal display resolution
 
 .macro setxres
-	stw	#\1,<_ax
+	stw	#\1,<ax
 	jsr	set_xres
 .endm
 

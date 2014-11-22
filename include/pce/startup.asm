@@ -355,15 +355,15 @@ cdrom_err_load:
 	tam	#3
 	ldx	ovlarray,Y++
 	lda	ovlarray,Y++
-	stz	<_cl		; sector (offset from base of track)
-	sta	<_ch
-	stx	<_dl
+	stz	<cl		; sector (offset from base of track)
+	sta	<ch
+	stx	<dl
 	lda	ovlarray,Y
-	sta	<_al		; # sectors
+	sta	<al		; # sectors
 	lda	#$80
-	sta	<_bl		; bank #
+	sta	<bl		; bank #
 	lda	#3
-	sta	<_dh		; MPR #
+	sta	<dh		; MPR #
 	jsr	cd_read
 	cmp	#0
 	bne	.error
@@ -498,8 +498,8 @@ _init:
 
 	lda   #1
 	jsr   wait_vsync	; wait for one frame & randomize _rndseed
-	stw   #$03E7,<_cx	; set random seed
-	stw   _rndseed,<_dx
+	stw   #$03E7,<cx	; set random seed
+	stw   _rndseed,<dx
 	jsr   srand
 
 .if (CDROM)
@@ -527,15 +527,15 @@ loadprog:
 				; loaded us completely; do not try to load remainder
 				; (ie. executing CDROM error overlay)
 
-	stz   <_cl		; initial boot doesn't load complete program;
-	stz   <_ch		; prepare to load remainder
+	stz   <cl		; initial boot doesn't load complete program;
+	stz   <ch		; prepare to load remainder
 	lda   #10		; 10th sector (0-1 are boot;
 				; 2-9 are this library...)
-	sta   <_dl
+	sta   <dl
 	lda   #3		; load mode (consecutive banks; use MPR 3)
-	sta   <_dh
-	stw   #(_bank_base+2),<_bx	; 2 banks are boot/base library
-	stw   #(_nb_bank-2)*4,<_ax
+	sta   <dh
+	stw   #(_bank_base+2),<bx	; 2 banks are boot/base library
+	stw   #(_nb_bank-2)*4,<ax
 	jsr   cd_read
 	cmp   #$00
 	lbeq  _init_go
@@ -613,7 +613,7 @@ dontloadprog:
 	stw   #$3f00,<__sp
 .endif
 
-	stw   #FONT_VADDR,<_di	; Load Font @ VRAM addr
+	stw   #FONT_VADDR,<di	; Load Font @ VRAM addr
 
 	;
 	; this section of font loading was stolen
@@ -623,30 +623,30 @@ dontloadprog:
 	; so we need to trick the segment pointer
 	; with a reliable one
 	;
-      __ldw   <_di	; stolen from _load_default_font
+      __ldw   <di	; stolen from _load_default_font
 			; because segment# default not reliable
 
 	jsr   _set_font_addr		; set VRAM
 
 .if (CDROM)
-	stb   #FONT_BANK+$80,<_bl	; guarantee FONT_BANK even if
+	stb   #FONT_BANK+$80,<bl	; guarantee FONT_BANK even if
 					; SCD on regular CDROM system
 .else
-	stb   #FONT_BANK+_bank_base,<_bl
+	stb   #FONT_BANK+_bank_base,<bl
 .endif
 
-	stb   #96,<_cl
-	stb   _font_color+1,<_ah
+	stb   #96,<cl
+	stb   _font_color+1,<ah
 	lda   _font_color
 	bne   .fntld
 	inc   A
-.fntld:	sta   <_al
+.fntld:	sta   <al
 	clx
 	lda   font_table,X
-	sta   <_si
+	sta   <si
 	inx
 	lda   font_table,X
-	sta   <_si+1
+	sta   <si+1
 
 
 	; Now, load the font
@@ -705,19 +705,19 @@ dontloadprog:
 					; SCD on regular CDROM system
 	  tam	  #PAGE(scdmsg1)
 
-	  __stwi  <_si, scdmsg1
+	  __stwi  <si, scdmsg1
 	  __ldwi  $0180
 	  call    _put_string.2
 
-	  __stwi  <_si, scdmsg2
+	  __stwi  <si, scdmsg2
 	  __ldwi  $0200
 	  call    _put_string.2
 
-	  __stwi  <_si, scdmsg3
+	  __stwi  <si, scdmsg3
 	  __ldwi  $0383
 	  call    _put_string.2
 
-	  __stwi  <_si, scdmsg4
+	  __stwi  <si, scdmsg4
 	  __ldwi  $0403
 	  call    _put_string.2
 
@@ -1008,7 +1008,7 @@ _vsync_hndl:
 	bbr3 <huc_irq_enable,.disabled
 	tii	__sp, huc_context, 8
 .ifdef HAVE_SIRQ
-        tii	_bp, huc_fc_context, 20
+        tii	bp, huc_fc_context, 20
 .endif
 
 	stw   #huc_irq_stack, <__sp
@@ -1026,7 +1026,7 @@ _vsync_hndl:
 .end_user:
 	tii	huc_context, __sp, 8
 .ifdef HAVE_SIRQ
-        tii	huc_fc_context, _bp, 20
+        tii	huc_fc_context, bp, 20
 .endif
 .disabled:
 
@@ -1479,10 +1479,10 @@ wait_vsync:
 
 	lda   joycallback+1	; get events for all the 
 	beq  .t3		; selected joypads
-	sta  <_al
+	sta  <al
 	cly
 	cla
-.t1:    lsr  <_al
+.t1:    lsr  <al
 	bcc  .t2
 	ora   joybuf,Y
 .t2:	iny

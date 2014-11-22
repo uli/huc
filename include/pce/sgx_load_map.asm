@@ -38,15 +38,15 @@ lib2_sgx_load_map_16:
 	; init
 	;
 	jsr	sgx_load_map_init
-	lda	<_ch
+	lda	<ch
 	sta	sgx_mapbat_x+1
 
 	; ----
 	; vertical loop
 	;
-.l1:	ldy	<_ah
-	lda	<_dl
-	sta	<_al
+.l1:	ldy	<ah
+	lda	<dl
+	sta	<al
 	lda	sgx_mapbat_x+1
 	sta	sgx_mapbat_x
 	bra	.l5
@@ -62,12 +62,12 @@ lib2_sgx_load_map_16:
 	; --
 	lda	sgx_bat_hmask
 	eor	#$ff
-	and	<_di
-	sta	<_di
+	and	<di
+	sta	<di
 	bra	.l4
 .l3:
-	incw	<_di
-	incw	<_di
+	incw	<di
+	incw	<di
 .l4:
 	iny
 	; --
@@ -78,44 +78,44 @@ lib2_sgx_load_map_16:
 	bne	.l5
 	ldy	sgx_mapwidth
 	lda	sgx_maptilebase
-	sta	<_cl
+	sta	<cl
 	lda	sgx_maptilebase+1
-	ora	[_bp]
-	sta	<_ch
+	ora	[bp]
+	sta	<ch
 	dey
 	bra	.l6
 .l5:
-	lda	[_si],Y		; get tile index
+	lda	[si],Y		; get tile index
 	tax			; calculate BAT value (tile + palette)
 	sxy
-	stz	<_ch
+	stz	<ch
 	asl	A
-	rol	<_ch
+	rol	<ch
 	asl	A
-	rol	<_ch
+	rol	<ch
 	add	sgx_maptilebase
-	sta	<_cl
-	lda	<_ch
+	sta	<cl
+	lda	<ch
 	adc	sgx_maptilebase+1
-	adc	[_bp],Y
-	sta	<_ch
+	adc	[bp],Y
+	sta	<ch
 	sxy
 .l6:
 	sgx_vreg #0		; copy tile
-	stw	<_di,sgx_video_data
+	stw	<di,sgx_video_data
 	sgx_vreg #2
-	stw	<_cx,sgx_video_data
-	incw	<_cx
-	stw	<_cx,sgx_video_data
-	incw	<_cx
+	stw	<cx,sgx_video_data
+	incw	<cx
+	stw	<cx,sgx_video_data
+	incw	<cx
 	sgx_vreg #0
-	addw	sgx_bat_width,<_di,sgx_video_data
+	addw	sgx_bat_width,<di,sgx_video_data
 	sgx_vreg #2
-	stw	<_cx,sgx_video_data
-	incw	<_cx
-	stw	<_cx,sgx_video_data
+	stw	<cx,sgx_video_data
+	incw	<cx
+	stw	<cx,sgx_video_data
 
-	dec	<_al		; next tile
+	dec	<al		; next tile
 	lbne	.l2
 
 	; ----
@@ -123,7 +123,7 @@ lib2_sgx_load_map_16:
 	;
 	ldx	#2
 	jsr	sgx_load_map_next_line
-	dec	<_dh
+	dec	<dh
 	lbne	.l1
 
 	; ----
@@ -155,31 +155,31 @@ lib2_sgx_load_map_8:
 .l1:	ldx	#1
 	jsr	sgx_load_map_next_line
 	; --
-.l2:	ldy	<_ah
-	lda	<_dl
-	sta	<_al
-	lda	<_ch
-	sta	<_cl
+.l2:	ldy	<ah
+	lda	<dl
+	sta	<al
+	lda	<ch
+	sta	<cl
 	sgx_vreg #0		; set vram write ptr
-	stw	<_di,sgx_video_data
+	stw	<di,sgx_video_data
 	sgx_vreg #2
 	bra	.l5
 
 	; ----
 	; horizontal loop
 	;
-.l3:	lda	<_cl		; bat wrapping
+.l3:	lda	<cl		; bat wrapping
 	inc	A
 	and	sgx_bat_hmask
-	sta	<_cl
+	sta	<cl
 	bne	.l4
 	; --
 	sgx_vreg #0
 	lda	sgx_bat_hmask
 	eor	#$ff
-	and	<_di
+	and	<di
 	sta	sgx_video_data_l
-	lda	<_di+1
+	lda	<di+1
 	sta	sgx_video_data_h
 	sgx_vreg #2
 .l4:
@@ -196,23 +196,23 @@ lib2_sgx_load_map_8:
 	cla
 	bra	.l6
 .l5:
-	lda	[_si],Y		; get tile index
+	lda	[si],Y		; get tile index
 .l6:	tax			; calculate BAT value (tile + palette)
 	sxy
 	add	sgx_maptilebase
 	sta	sgx_video_data_l
 	lda	sgx_maptilebase+1
-	adc	[_bp],Y
+	adc	[bp],Y
 	sta	sgx_video_data_h
 	sxy
 
-	dec	<_al
+	dec	<al
 	bne	.l3
 
 	; ----
 	; next line
 	;
-	dec	<_dh
+	dec	<dh
 	bne	.l1
 
 	; ----
@@ -248,7 +248,7 @@ sgx_load_map_next_line:
 	; increment vram address
 	;
 	txa
-	add	<_bl
+	add	<bl
 	cmp	sgx_mapbat_bottom
 	blo	.l1
 	; --
@@ -256,7 +256,7 @@ sgx_load_map_next_line:
 	tax
 	inx
 	add	sgx_mapbat_top
-	sta	<_bl
+	sta	<bl
 	lda	sgx_mapbat_ptr
 	and	sgx_bat_hmask
 	add	sgx_mapbat_top_base
@@ -266,7 +266,7 @@ sgx_load_map_next_line:
 	sta	sgx_mapbat_ptr+1
 	bra	.l3
 	; -- 
-.l1:	sta	<_bl			; 2/ vram inc
+.l1:	sta	<bl			; 2/ vram inc
 .l2:	lda	sgx_bat_width
 	add	sgx_mapbat_ptr
 	sta	sgx_mapbat_ptr
@@ -277,13 +277,13 @@ sgx_load_map_next_line:
 .l3:	dex
 	bne	.l2
 	; --
-	stw	sgx_mapbat_ptr,<_di
+	stw	sgx_mapbat_ptr,<di
 
 	; ----
 	; increment map address
 	;
-	inc	<_bh
-	lda	<_bh
+	inc	<bh
+	lda	<bh
 	cmp	sgx_mapheight
 	bne	.l4
 	; --
@@ -291,19 +291,19 @@ sgx_load_map_next_line:
 	tam	#3
 	inc A
 	tam	#4
-	stb	sgx_mapaddr,<_si
+	stb	sgx_mapaddr,<si
 	lda	sgx_mapaddr+1
 	and	#$1F
 	ora	#$60
-	sta	<_si+1
-	stz	<_bh
+	sta	<si+1
+	stz	<bh
 	bra	.l5
 	; --
-.l4:	addw	sgx_mapwidth,<_si	; 2/ map inc
+.l4:	addw	sgx_mapwidth,<si	; 2/ map inc
 	cmp	#$80
 	blo	.l5
 	sub	#$20
-	sta	<_si+1
+	sta	<si+1
 	tma	#4
 	tam	#3
 	inc A
@@ -330,8 +330,8 @@ sgx_load_map_init:
 	; ----
 	; calculate vram address
 	;
-	ldx	<_al
-	lda	<_ah
+	ldx	<al
+	lda	<ah
 	ldy	sgx_maptiletype
 	cpy	#8
 	beq	.l1
@@ -342,33 +342,33 @@ sgx_load_map_init:
 .l1:	phx
 	pha
 	jsr	sgx_calc_vram_addr
-	stw	<_di,sgx_mapbat_ptr
+	stw	<di,sgx_mapbat_ptr
 
 	; ----
 	; calculate map address
 	;
-	stb	sgx_mapaddr,<_si
+	stb	sgx_mapaddr,<si
 	lda	sgx_mapaddr+1
 	and	#$1F
-	sta	<_si+1
+	sta	<si+1
 	; --
-	ldx	<_cl
-	stx	<_ah
-	ldy	<_ch
-	sty	<_bh
+	ldx	<cl
+	stx	<ah
+	ldy	<ch
+	sty	<bh
 	; --
 	lda	sgx_mapwidth+1
 	beq	.l2
 	tya
-	add	<_si+1
-	sta	<_si+1
+	add	<si+1
+	sta	<si+1
 	bra	.l3
 	; --
-.l2:	sty	<_al
+.l2:	sty	<al
 	lda	sgx_mapwidth
-	sta	<_bl
+	sta	<bl
 	jsr	mulu8
-	addw	<_cx,<_si
+	addw	<cx,<si
 
 	; ----
 	; calculate map bank
@@ -392,26 +392,26 @@ sgx_load_map_init:
 	; ----
 	; adjust data addresses
 	;
-	lda	<_si+1			; tile ptr
+	lda	<si+1			; tile ptr
 	and	#$1F
 	ora	#$60
-	sta	<_si+1
+	sta	<si+1
 	; --
-	stb	sgx_mapctable,<_bp	; color table ptr
+	stb	sgx_mapctable,<bp	; color table ptr
 	lda	sgx_mapctable+1
 	and	#$1F
 	ora	#$40
-	sta	<_bp+1
+	sta	<bp+1
 
 	; ----
 	; bat pos
 	;
 	pla
 	and	sgx_bat_vmask
-	sta	<_bl
+	sta	<bl
 	pla
 	and	sgx_bat_hmask
-	sta	<_ch
+	sta	<ch
 	rts
 
 
@@ -429,7 +429,7 @@ sgx_load_map_init:
 sgx_calc_vram_addr:
 	phx
 	and	sgx_bat_vmask
-	stz	<_di
+	stz	<di
 	ldx	sgx_bat_width
 	cpx	#64
 	beq	.s64
@@ -437,17 +437,17 @@ sgx_calc_vram_addr:
 	beq	.s128
 	; --
 .s32:	lsr A
-	ror	<_di
+	ror	<di
 	; --
 .s64:	lsr A
-	ror	<_di
+	ror	<di
 	; --
 .s128:	lsr A
-	ror	<_di
-	sta	<_di+1
+	ror	<di
+	sta	<di+1
 	; --
 	pla
 	and	sgx_bat_hmask
-	ora	<_di
-	sta	<_di
+	ora	<di
+	sta	<di
 	rts

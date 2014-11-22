@@ -16,10 +16,10 @@ lib3_sgx_load_vram.3:
 	; (instruction setup done during bootup...)
 
 	stw	#sgx_video_data, _ram_hdwr_tia_dest
-;	stw	<_si, _ram_hdwr_tia_src
+;	stw	<si, _ram_hdwr_tia_src
 ;
-;	asl	<_cl		; change from words to bytes (# to xfer)
-;	rol	<_ch
+;	asl	<cl		; change from words to bytes (# to xfer)
+;	rol	<ch
 
 	; ----
 	; set vram address
@@ -30,48 +30,48 @@ lib3_sgx_load_vram.3:
 	; copy data
 	;
 	cly
-	ldx	<_cl
+	ldx	<cl
 	beq	.l3
 	; --
-.l1:	lda	[_si],Y
+.l1:	lda	[si],Y
 	sta	sgx_video_data_l
 	iny
-	lda	[_si],Y
+	lda	[si],Y
 	sta	sgx_video_data_h
 	iny
 	bne	.l2
-	inc	<_si+1
+	inc	<si+1
 	; --
 .l2:	dex
 	bne	.l1
 	; --
 	jsr	lib3_remap_data
 	; --
-.l3:	dec	<_ch
+.l3:	dec	<ch
 	bpl	.l1
 
-;.l1:	lda	<_ch		; if zero-transfer, exit
-;	ora	<_cl
+;.l1:	lda	<ch		; if zero-transfer, exit
+;	ora	<cl
 ;	beq	.out
 ;
-;	lda	<_ch
+;	lda	<ch
 ;	cmp	#$20		; if more than $2000, repeat xfers of $2000
 ;	blo	.l2		; while adjusting banks
 ;	sub	#$20		; reduce remaining transfer amount
-;	sta	<_ch
+;	sta	<ch
 ;
 ;	stw	#$2000, _ram_hdwr_tia_size
 ;	jsr	_ram_hdwr_tia
 ;
-;	lda	<_si+1		; force bank adjust
+;	lda	<si+1		; force bank adjust
 ;	add	#$20		; and next move starts at same location
-;	sta	<_si+1
+;	sta	<si+1
 ;
 ;	jsr	lib3_remap_data	; adjust banks
 ;	bra	.l1
 ;
 ;.l2:	sta	HIGH_BYTE _ram_hdwr_tia_size	; 'remainder' transfer of < $2000
-;	lda	<_cl
+;	lda	<cl
 ;	sta	LOW_BYTE  _ram_hdwr_tia_size
 ;	jsr	_ram_hdwr_tia
 
@@ -92,9 +92,9 @@ lib3_sgx_load_vram.3:
 
 lib3_unmap_data:
 
-	lda	<_bl
+	lda	<bl
 	tam	#3
-	lda	<_bh
+	lda	<bh
 	tam	#4
 	rts
 
@@ -103,12 +103,12 @@ lib3_unmap_data:
 ; ----
 
 lib3_remap_data:
-	lda	<_bp
+	lda	<bp
 	bne	.l1
-	lda	<_si+1
+	lda	<si+1
 	bpl	.l1
 	sub	#$20
-	sta	<_si+1
+	sta	<si+1
 	tma	#4
 	tam	#3
 	inc a
@@ -129,26 +129,26 @@ lib3_remap_data:
 ; ----
 
 lib3_map_data:
-	ldx	<_bl
+	ldx	<bl
 
 	; ----
 	; save current bank mapping
 	;
 	tma	#3
-	sta	<_bl
+	sta	<bl
 	tma	#4
-	sta	<_bh
+	sta	<bh
 	; --
 	cpx	#$FE
 	bne	.l1
 	; --
-	stx	<_bp
+	stx	<bp
 	rts
 
 	; ----
 	; map new bank
 	;
-.l1:	stz	<_bp
+.l1:	stz	<bp
 	; --
 	txa
 	tam	#3
@@ -158,10 +158,10 @@ lib3_map_data:
 	; ----
 	; remap data address to page 3
 	;
-	lda	<_si+1
+	lda	<si+1
 	and	#$1F
 	ora	#$60
-	sta	<_si+1
+	sta	<si+1
 	rts
 
 
@@ -176,12 +176,12 @@ lib3_map_data:
 lib3_sgx_set_write:
 	lda #$00
 	sta	sgx_video_reg
-	lda	<_di
+	lda	<di
 	sta	sgx_video_data_l
 .ifdef HUC
 	sta	_sgx_vdc
 .endif
-	lda	<_di+1
+	lda	<di+1
 	sta	sgx_video_data_h
 .ifdef HUC
 	sta	_sgx_vdc+1

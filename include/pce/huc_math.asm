@@ -21,11 +21,11 @@ _abs:
 ; ----
 
 _mov32.2:
-	__stw	<_si
+	__stw	<si
 _mov32.sub:
 	ldy	#3
-.l1:	lda	[_si],Y
-	sta	[_di],Y
+.l1:	lda	[si],Y
+	sta	[di],Y
 	dey
 	bpl	.l1
 	rts
@@ -34,13 +34,13 @@ _mov32.sub:
 ; ----
 
 _add32.2:
-	__stw	<_si
+	__stw	<si
 	clc
 	cly
 	ldx	#4
-.l1:	lda	[_di],Y
-	adc	[_si],Y
-	sta	[_di],Y
+.l1:	lda	[di],Y
+	adc	[si],Y
+	sta	[di],Y
 	iny
 	dex
 	bne	.l1
@@ -50,13 +50,13 @@ _add32.2:
 ; ----
 
 _sub32.2:
-	__stw	<_si
+	__stw	<si
 	sec
 	cly
 	ldx	#4
-.l1:	lda	[_di],Y
-	sbc	[_si],Y
-	sta	[_di],Y
+.l1:	lda	[di],Y
+	sbc	[si],Y
+	sta	[di],Y
 	iny
 	dex
 	bne	.l1
@@ -66,15 +66,15 @@ _sub32.2:
 ; ----
 
 _mul32.2:
-	__stw	<_si
-	stw	#_ax,<_di
+	__stw	<si
+	stw	#ax,<di
 	jsr	_mov32.sub
-	stw	<_bp,<_si
-	stw	#_cx,<_di
+	stw	<bp,<si
+	stw	#cx,<di
 	jsr	_mov32.sub
 	jsr	mulu32
-	stw	<_bp,<_di
-	stw	#_cx,<_si
+	stw	<bp,<di
+	stw	#cx,<si
 	jmp	_mov32.sub
 
 ; div32(void *dst [di], void *src)
@@ -87,11 +87,11 @@ _div32.2:
 ; ----
 
 _com32.1:
-	__stw	<_di
+	__stw	<di
 	ldy	#3
-.l1:	lda	[_di],Y
+.l1:	lda	[di],Y
 	eor	#$FF
-	sta	[_di],Y
+	sta	[di],Y
 	dey
 	bpl	.l1
 	rts
@@ -100,10 +100,10 @@ _com32.1:
 ; ----
 
 _cmp32.2:
-	__stw	<_si
+	__stw	<si
 	ldy	#3
-.l1:	lda	[_di],Y
-	cmp	[_si],Y
+.l1:	lda	[di],Y
+	cmp	[si],Y
 	bne	.l2
 	dey
 	bpl	.l1
@@ -136,14 +136,14 @@ _bcd_init.2:
 .l1:	inc	A
 	lsr	A
 	ora	#$80
-	sta	[_bx]
+	sta	[bx]
 _bcd_init.clear:
 	; -- clear bcd number
-	lda	[_bx]
+	lda	[bx]
 	and	#$1F
 	tay
 	cla
-.l2:	sta	[_bx],Y
+.l2:	sta	[bx],Y
 	dey
 	bne	.l2
 	rts
@@ -154,17 +154,17 @@ _bcd_init.clear:
 
 _bcd_set.2:
 _bcd_mov.2:
-	__stw	<_si
-	ora	<_si
+	__stw	<si
+	ora	<si
 	beq	_bcd_init.clear
 	; -- check dst
-	lda	[_bx]
+	lda	[bx]
 	bpl	.x1
 	and	#$1F
 	beq	.x1
 	tax
 	; -- check src type
-	lda	[_si]
+	lda	[si]
 	bpl	_bcd_set.ascii
 	bra	_bcd_set.bcd
 .x1:	rts
@@ -174,7 +174,7 @@ _bcd_mov.2:
 _bcd_set.ascii:
 	; -- get string length
 	cly
-.l1:	lda	[_si],Y
+.l1:	lda	[si],Y
 	cmp	#48
 	blo	.l2
 	cmp	#58
@@ -188,20 +188,20 @@ _bcd_set.ascii:
 .l3:	cla
 	dey
 	bmi	.l4
-	lda	[_si],Y
+	lda	[si],Y
 	sub	#48
-	sta	<_dl
+	sta	<dl
 	dey
 	bmi	.l4
-	lda	[_si],Y
+	lda	[si],Y
 	sub	#48
 	asl	A
 	asl	A
 	asl	A
 	asl	A
-	ora	<_dl
+	ora	<dl
 .l4:	sxy
-	sta	[_bx],Y
+	sta	[bx],Y
 	sxy
 	dex
 	bne	.l3
@@ -212,15 +212,15 @@ _bcd_set.ascii:
 	;
 _bcd_set.bcd:
 	; -- get src size
-	lda	[_si]
+	lda	[si]
 	bpl	.x1
 	and	#$1F
 	beq	.x1
 	tay
 	; -- copy number
-.l1:	lda	[_si],Y
+.l1:	lda	[si],Y
 	sxy
-	sta	[_bx],Y
+	sta	[bx],Y
 	dey
 	beq	.x1
 	sxy
@@ -229,7 +229,7 @@ _bcd_set.bcd:
 	; -- adjust number
 	sxy
 	cla
-.l2:	sta	[_bx],Y
+.l2:	sta	[bx],Y
 	dey
 	bne	.l2
 .x1:	rts
@@ -238,25 +238,25 @@ _bcd_set.bcd:
 ; ----
 
 _bcd_add.2:
-	__stw	<_si
-	ora	<_si
+	__stw	<si
+	ora	<si
 	beq	.x1
 	; -- check dst
-	lda	[_di]
+	lda	[di]
 	bpl	.x1
 	and	#$1F
 	beq	.x1
 	tax
-	stx	<_cl
+	stx	<cl
 	; -- check src
-	lda	[_si]
+	lda	[si]
 	bmi	.l1
 	; -- convert ascii string
-	stw	#__temp,<_bx
+	stw	#__temp,<bx
 	jsr	_bcd_set.ascii
-	stw	#__temp,<_si
-	ldx	<_cl
-	ldy	<_cl
+	stw	#__temp,<si
+	ldx	<cl
+	ldy	<cl
 	bra	.l2
 	; -- get src size
 .l1:	and	#$1F
@@ -265,10 +265,10 @@ _bcd_add.2:
 	; -- add numbers
 	clc
 	sed
-.l2:	lda	[_di],Y
+.l2:	lda	[di],Y
 	sxy
-	adc	[_di],Y
-	sta	[_di],Y
+	adc	[di],Y
+	sta	[di],Y
 	dex
 	beq	.l4
 	sxy
@@ -278,9 +278,9 @@ _bcd_add.2:
 .x1:	cld
 	rts
 	; -- carry
-.l3:	lda	[_di],Y
+.l3:	lda	[di],Y
 	adc	#0
-	sta	[_di],Y
+	sta	[di],Y
 .l4:	bcc	.x1
 	dey
 	bne	.l3

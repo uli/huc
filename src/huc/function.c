@@ -675,20 +675,20 @@ void callfunction (char *ptr)
 					if (i < max_fc_arg)
 						SPILLB(fast->argname[j])
 					else
-						out_ins(I_STB, T_SYMBOL, (long)fast->argname[j]);
+						out_ins(I_STB, T_LITERAL, (long)fast->argname[j]);
 					break;
 				case 0x02: /* word */
 					if (i < max_fc_arg)
 						SPILLW(fast->argname[j])
 					else
-						out_ins(I_STW, T_SYMBOL, (long)fast->argname[j]);
+						out_ins(I_STW, T_LITERAL, (long)fast->argname[j]);
 					break;
 				case 0x03: /* farptr */
 					arg_to_fptr(fast, j,  arg_idx + i, adj);
 					if (i < max_fc_arg) {
-						out_ins(I_LDUB, T_SYMBOL, (long)fast->argname[j]);
+						out_ins(I_LDUB, T_LITERAL, (long)fast->argname[j]);
 						SPILLB(fast->argname[j])
-						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j+1]);
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j+1]);
 						SPILLW(fast->argname[j+1])
 					}
 					j += 1;
@@ -696,11 +696,11 @@ void callfunction (char *ptr)
 				case 0x04: /* dword */
 					arg_to_dword(fast, j, arg_idx + i, adj);
 					if (i < max_fc_arg) {
-						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j]);
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j]);
 						SPILLW(fast->argname[j])
-						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j+1]);
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j+1]);
 						SPILLW(fast->argname[j+1])
-						out_ins(I_LDW, T_SYMBOL, (long)fast->argname[j+2]);
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j+2]);
 						SPILLW(fast->argname[j+2])
 					}
 					j += 2;
@@ -753,12 +753,12 @@ void callfunction (char *ptr)
 		for (i = sparg_idx-1; i>-1; i--) {
 			if (spilled_arg_sizes[i] == 1) {
 				out_ins(I_RESB, 0, 0);
-				out_ins(I_STB, T_SYMBOL, (long)spilled_args[i]);
+				out_ins(I_STB, T_LITERAL, (long)spilled_args[i]);
 			}
 			else {
 				out_ins(I_RESW, 0, 0);
 				if (spilled_args[i])
-					out_ins(I_STW, T_SYMBOL, (long)spilled_args[i]);
+					out_ins(I_STW, T_LITERAL, (long)spilled_args[i]);
 			}
 		}
 

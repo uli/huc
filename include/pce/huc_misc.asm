@@ -102,15 +102,15 @@ mouspos:
 
 _set_joy_callback.4:
 	stz	joycallback
-	lda	<_bl
+	lda	<bl
 	sta	joycallback+3
-	__ldw	<_si
+	__ldw	<si
 	__stw	joycallback+4
-	ora	<_si
+	ora	<si
 	beq	.l1
-	lda	<_ah
+	lda	<ah
 	sta	joycallback+2
-	lda	<_al
+	lda	<al
 	sta	joycallback+1
 	lda	#$80
 	sta	joycallback
@@ -122,7 +122,7 @@ _set_joy_callback.4:
 ; ----
 
 _get_joy_events.2:
-	ldy	<_al
+	ldy	<al
 	cpx	#0
 	bne	_get_joy_events.sub
 	ldx	joybuf,Y
@@ -140,10 +140,10 @@ _get_joy_events.sub:
 ; ----
 
 _clear_joy_events:
-	stx	<_al
+	stx	<al
 	cly
 	sei
-.l1:	lsr	<_al
+.l1:	lsr	<al
 	bcc	.l2
 	cla
 	sta	joybuf,Y
@@ -203,7 +203,7 @@ _clock_reset:
 
 _poke.2:
 	txa
-	sta	[_bx]
+	sta	[bx]
 	rts
 
 ; poke/pokew(int offset bx, int val)
@@ -211,10 +211,10 @@ _poke.2:
 
 _pokew.2:
 	sax
-	sta	[_bx]
+	sta	[bx]
 	ldy	#1
 	sax
-	sta	[_bx],Y
+	sta	[bx],Y
 	rts
 
 ; peek(int offset)
@@ -242,13 +242,13 @@ _peekw:
 ; ----
 
 _farpeekb.1:
-	lda	<__fbank
+	lda	<fbank
 	tam	#3
-	lda	<__fptr+1
+	lda	<fptr+1
 	and	#$1F
 	ora	#$60
-	sta	<__fptr+1
-	lda	[__fptr]
+	sta	<fptr+1
+	lda	[fptr]
 	tax
 	cla
 	rts
@@ -257,30 +257,30 @@ _farpeekb.1:
 ; ----
 
 _farpeekw.1:
-	lda	<__fbank
+	lda	<fbank
 	tam	#3
-	lda	<__fptr+1
+	lda	<fptr+1
 	and	#$1F
 	ora	#$60
-	sta	<__fptr+1
+	sta	<fptr+1
 	bra	_farpeekw.sub
 _farpeekw.fast:
 	tam	#3
 	txa
 	and	#$1F
 	ora	#$60
-	sta	<__fptr+1
+	sta	<fptr+1
 _farpeekw.sub:
-	lda	[__fptr]
+	lda	[fptr]
 	tax
-	inc	<__fptr
+	inc	<fptr
 	bcc	.l1
-	inc	<__fptr+1
+	inc	<fptr+1
 	bpl	.l1
 	lda	#$60
-	sta	<__fptr+1
+	sta	<fptr+1
 .l1:
-	lda	[__fptr]
+	lda	[fptr]
 	rts
 
 ; farmemget(void *dst, far void *base, int len)
@@ -300,49 +300,49 @@ _farmemget.3:
 
 lib2_farmemget.3:
 
-	__stw	<_cx
-	lda	<__fbank
+	__stw	<cx
+	lda	<fbank
 	tam	#3
 
 	; ----
 	; split transfer if needed
 	;
 	; -- clip length (max. 8KB)
-	cmpw	#$2000,<_cx
+	cmpw	#$2000,<cx
 	blo	.t1
-	stw	#$2000,<_cx
+	stw	#$2000,<cx
 	; -- check length
-.t1:	lda	<__fptr
-	add	<_cl
-	sta	<_al
-	lda	<__fptr+1
+.t1:	lda	<fptr
+	add	<cl
+	sta	<al
+	lda	<fptr+1
 	and	#$1F
-	adc	<_ch
-	sta	<_ah
+	adc	<ch
+	sta	<ah
 	cmp	#$20
 	blo	.t2
 	; -- calculate second-half size
 	and	#$1F
-	sta	<_dh
-	lda	<_al
-	sta	<_dl
-	subw	<_dx,<_cx
+	sta	<dh
+	lda	<al
+	sta	<dl
+	subw	<dx,<cx
 	; -- remap src ptr
-.t2:	lda	<__fptr+1
+.t2:	lda	<fptr+1
 	and	#$1F
 	ora	#$60
-	sta	<__fptr+1
+	sta	<fptr+1
 
 	; ----
 	; copy a block
 	;
 	clx
 	cly
-	dec	<_ch
+	dec	<ch
 	bmi	.l4
 	; -- main loop
-.l1:	lda	[__fptr],Y
-	sta	[_bx],Y
+.l1:	lda	[fptr],Y
+	sta	[bx],Y
 	iny
 	dex
 	bne	.l1
@@ -350,27 +350,27 @@ lib2_farmemget.3:
 	cpy	#0
 	beq	.l2
 	tya
-	add	<_bl
-	sta	<_bl
+	add	<bl
+	sta	<bl
 	bcc	.l3
-.l2:	inc	<_bh
+.l2:	inc	<bh
 	; -- inc src ptr
-.l3:	inc	<__fptr+1
+.l3:	inc	<fptr+1
 	; -- next chunk
-	dec	<_ch
+	dec	<ch
 	bpl	.l1
-.l4:	ldx	<_cl
-	stz	<_cl
+.l4:	ldx	<cl
+	stz	<cl
 	bne	.l1
 
 	; ----
 	; second half
 	;
-	tstw	<_dx
+	tstw	<dx
 	beq	.l5
 	; -- reload dst and cnt
-	stw	<_dx,<_cx
-	stw	#$6000,<__fptr
+	stw	<dx,<cx
+	stw	#$6000,<fptr
 	; -- inc bank
 	tma	#3
 	inc	A
@@ -397,8 +397,8 @@ lib2_farmemget.3:
 ; set the seed number for the pseudo-random number generator
 
 _srand:
-	__stw	<_dx
-	__stw	<_cx
+	__stw	<dx
+	__stw	<cx
 
 _srand32.2:
 	jsr	srand
@@ -410,7 +410,7 @@ _srand32.2:
 
 _rand:
 	jsr	rand
-	__ldw	<_dx
+	__ldw	<dx
 	rts
 
 

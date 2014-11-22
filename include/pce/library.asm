@@ -25,26 +25,26 @@
 ; ----
 
 map_data:
-	ldx	<_bl
+	ldx	<bl
 
 	; ----
 	; save current bank mapping
 	;
 	tma	#3
-	sta	<_bl
+	sta	<bl
 	tma	#4
-	sta	<_bh
+	sta	<bh
 	; --
 	cpx	#$FE
 	bne	.l1
 	; --
-	stx	<_bp
+	stx	<bp
 	rts
 
 	; ----
 	; map new bank
 	;
-.l1:	stz	<_bp
+.l1:	stz	<bp
 	; --
 	txa
 	tam	#3
@@ -54,10 +54,10 @@ map_data:
 	; ----
 	; remap data address to page 3
 	;
-	lda	<_si+1
+	lda	<si+1
 	and	#$1F
 	ora	#$60
-	sta	<_si+1
+	sta	<si+1
 	rts
 
 
@@ -69,9 +69,9 @@ map_data:
 
 unmap_data:
 
-	lda	<_bl
+	lda	<bl
 	tam	#3
-	lda	<_bh
+	lda	<bh
 	tam	#4
 	rts
 
@@ -80,12 +80,12 @@ unmap_data:
 ; ----
 
 remap_data:
-	lda	<_bp
+	lda	<bp
 	bne	.l1
-	lda	<_si+1
+	lda	<si+1
 	bpl	.l1
 	sub	#$20
-	sta	<_si+1
+	sta	<si+1
 	tma	#4
 	tam	#3
 	inc	A
@@ -124,15 +124,15 @@ lib2_load_palette:
 	; multiply the sub-palette index by 16
 	; and set the VCE color index register
 	;
-	lda	<_al
-	stz	<_ah
+	lda	<al
+	stz	<ah
 	asl	A
 	asl	A
 	asl	A
 	asl	A
-	rol	<_ah
+	rol	<ah
 	sta	color_reg_l
-	lda	<_ah
+	lda	<ah
 	sta	color_reg_h
 
 	; ----
@@ -146,10 +146,10 @@ lib2_load_palette:
 	stw	#color_data, _ram_hdwr_tia_dest
 
 .loop_a:
-	stw	<_si, _ram_hdwr_tia_src
+	stw	<si, _ram_hdwr_tia_src
 	jsr	_ram_hdwr_tia
-	addw	#32, <_si
-	dec	<_cl
+	addw	#32, <si
+	dec	<cl
 	bne	.loop_a
 
 	; ----
@@ -194,23 +194,23 @@ lib2_load_bat:
 	cly
 	; --
 .l1:	jsr	set_write
-	ldx	<_cl
+	ldx	<cl
 	; --
-.l2:	lda	[_si],Y
+.l2:	lda	[si],Y
 	sta	video_data_l
 	iny
-	lda	[_si],Y
+	lda	[si],Y
 	sta	video_data_h
 	iny
 	bne	.l3
-	inc	<_si+1
+	inc	<si+1
 .l3:	dex
 	bne	.l2
 	; --
 	jsr	remap_data
 	; --
-	addw	bat_width,<_di
-	dec	<_ch
+	addw	bat_width,<di
+	dec	<ch
 	bne	.l1
 
 	; ----
@@ -280,15 +280,15 @@ lib2_load_map_16:
 	; init
 	;
 	jsr	load_map_init
-	lda	<_ch
+	lda	<ch
 	sta	mapbat_x+1
 
 	; ----
 	; vertical loop
 	;
-.l1:	ldy	<_ah
-	lda	<_dl
-	sta	<_al
+.l1:	ldy	<ah
+	lda	<dl
+	sta	<al
 	lda	mapbat_x+1
 	sta	mapbat_x
 	bra	.l5
@@ -304,12 +304,12 @@ lib2_load_map_16:
 	; --
 	lda	bat_hmask
 	eor	#$ff
-	and	<_di
-	sta	<_di
+	and	<di
+	sta	<di
 	bra	.l4
 .l3:
-	incw	<_di
-	incw	<_di
+	incw	<di
+	incw	<di
 .l4:
 	iny
 	; --
@@ -320,44 +320,44 @@ lib2_load_map_16:
 	bne	.l5
 	ldy	mapwidth
 	lda	maptilebase
-	sta	<_cl
+	sta	<cl
 	lda	maptilebase+1
-	ora	[_bp]
-	sta	<_ch
+	ora	[bp]
+	sta	<ch
 	dey
 	bra	.l6
 .l5:
-	lda	[_si],Y		; get tile index
+	lda	[si],Y		; get tile index
 	tax			; calculate BAT value (tile + palette)
 	sxy
-	stz	<_ch
+	stz	<ch
 	asl	A
-	rol	<_ch
+	rol	<ch
 	asl	A
-	rol	<_ch
+	rol	<ch
 	add	maptilebase
-	sta	<_cl
-	lda	<_ch
+	sta	<cl
+	lda	<ch
 	adc	maptilebase+1
-	adc	[_bp],Y
-	sta	<_ch
+	adc	[bp],Y
+	sta	<ch
 	sxy
 .l6:
 	vreg	#0		; copy tile
-	stw	<_di,video_data
+	stw	<di,video_data
 	vreg	#2
-	stw	<_cx,video_data
-	incw	<_cx
-	stw	<_cx,video_data
-	incw	<_cx
+	stw	<cx,video_data
+	incw	<cx
+	stw	<cx,video_data
+	incw	<cx
 	vreg	#0
-	addw	bat_width,<_di,video_data
+	addw	bat_width,<di,video_data
 	vreg	#2
-	stw	<_cx,video_data
-	incw	<_cx
-	stw	<_cx,video_data
+	stw	<cx,video_data
+	incw	<cx
+	stw	<cx,video_data
 
-	dec	<_al		; next tile
+	dec	<al		; next tile
 	lbne	.l2
 
 	; ----
@@ -365,7 +365,7 @@ lib2_load_map_16:
 	;
 	ldx	#2
 	jsr	load_map_next_line
-	dec	<_dh
+	dec	<dh
 	lbne	.l1
 
 	; ----
@@ -397,31 +397,31 @@ lib2_load_map_8:
 .l1:	ldx	#1
 	jsr	load_map_next_line
 	; --
-.l2:	ldy	<_ah
-	lda	<_dl
-	sta	<_al
-	lda	<_ch
-	sta	<_cl
+.l2:	ldy	<ah
+	lda	<dl
+	sta	<al
+	lda	<ch
+	sta	<cl
 	vreg	#0		; set vram write ptr
-	stw	<_di,video_data
+	stw	<di,video_data
 	vreg	#2
 	bra	.l5
 
 	; ----
 	; horizontal loop
 	;
-.l3:	lda	<_cl		; bat wrapping
+.l3:	lda	<cl		; bat wrapping
 	inc	A
 	and	bat_hmask
-	sta	<_cl
+	sta	<cl
 	bne	.l4
 	; --
 	vreg	#0
 	lda	bat_hmask
 	eor	#$ff
-	and	<_di
+	and	<di
 	sta	video_data_l
-	lda	<_di+1
+	lda	<di+1
 	sta	video_data_h
 	vreg	#2
 .l4:
@@ -438,23 +438,23 @@ lib2_load_map_8:
 	cla
 	bra	.l6
 .l5:
-	lda	[_si],Y		; get tile index
+	lda	[si],Y		; get tile index
 .l6:	tax			; calculate BAT value (tile + palette)
 	sxy
 	add	maptilebase
 	sta	video_data_l
 	lda	maptilebase+1
-	adc	[_bp],Y
+	adc	[bp],Y
 	sta	video_data_h
 	sxy
 
-	dec	<_al
+	dec	<al
 	bne	.l3
 
 	; ----
 	; next line
 	;
-	dec	<_dh
+	dec	<dh
 	bne	.l1
 
 	; ----
@@ -489,8 +489,8 @@ load_map_init:
 	; ----
 	; calculate vram address
 	;
-	ldx	<_al
-	lda	<_ah
+	ldx	<al
+	lda	<ah
 	ldy	maptiletype
 	cpy	#8
 	beq	.l1
@@ -501,33 +501,33 @@ load_map_init:
 .l1:	phx
 	pha
 	jsr	calc_vram_addr
-	stw	<_di,mapbat_ptr
+	stw	<di,mapbat_ptr
 
 	; ----
 	; calculate map address
 	;
-	stb	mapaddr,<_si
+	stb	mapaddr,<si
 	lda	mapaddr+1
 	and	#$1F
-	sta	<_si+1
+	sta	<si+1
 	; --
-	ldx	<_cl
-	stx	<_ah
-	ldy	<_ch
-	sty	<_bh
+	ldx	<cl
+	stx	<ah
+	ldy	<ch
+	sty	<bh
 	; --
 	lda	mapwidth+1
 	beq	.l2
 	tya
-	add	<_si+1
-	sta	<_si+1
+	add	<si+1
+	sta	<si+1
 	bra	.l3
 	; --
-.l2:	sty	<_al
+.l2:	sty	<al
 	lda	mapwidth
-	sta	<_bl
+	sta	<bl
 	jsr	mulu8
-	addw	<_cx,<_si
+	addw	<cx,<si
 
 	; ----
 	; calculate map bank
@@ -551,26 +551,26 @@ load_map_init:
 	; ----
 	; adjust data addresses
 	;
-	lda	<_si+1		; tile ptr
+	lda	<si+1		; tile ptr
 	and	#$1F
 	ora	#$60
-	sta	<_si+1
+	sta	<si+1
 	; --
-	stb	mapctable,<_bp	; color table ptr
+	stb	mapctable,<bp	; color table ptr
 	lda	mapctable+1
 	and	#$1F
 	ora	#$40
-	sta	<_bp+1
+	sta	<bp+1
 
 	; ----
 	; bat pos
 	;
 	pla
 	and	bat_vmask
-	sta	<_bl
+	sta	<bl
 	pla
 	and	bat_hmask
-	sta	<_ch
+	sta	<ch
 	rts
 
 
@@ -595,7 +595,7 @@ load_map_next_line:
 	; incremente vram address
 	;
 	txa
-	add	<_bl
+	add	<bl
 	cmp	mapbat_bottom
 	blo	.l1
 	; --
@@ -603,7 +603,7 @@ load_map_next_line:
 	tax
 	inx
 	add	mapbat_top
-	sta	<_bl
+	sta	<bl
 	lda	mapbat_ptr
 	and	bat_hmask
 	add	mapbat_top_base
@@ -613,7 +613,7 @@ load_map_next_line:
 	sta	mapbat_ptr+1
 	bra	.l3
 	; -- 
-.l1:	sta	<_bl		; 2/ vram inc
+.l1:	sta	<bl		; 2/ vram inc
 .l2:	lda	bat_width
 	add	mapbat_ptr
 	sta	mapbat_ptr
@@ -624,13 +624,13 @@ load_map_next_line:
 .l3:	dex
 	bne	.l2
 	; --
-	stw	mapbat_ptr,<_di
+	stw	mapbat_ptr,<di
 
 	; ----
 	; increment map address
 	;
-	inc	<_bh
-	lda	<_bh
+	inc	<bh
+	lda	<bh
 	cmp	mapheight
 	bne	.l4
 	; --
@@ -638,19 +638,19 @@ load_map_next_line:
 	tam	#3
 	inc	A
 	tam	#4
-	stb	mapaddr,<_si
+	stb	mapaddr,<si
 	lda	mapaddr+1
 	and	#$1F
 	ora	#$60
-	sta	<_si+1
-	stz	<_bh
+	sta	<si+1
+	stz	<bh
 	bra	.l5
 	; --
-.l4:	addw	mapwidth,<_si	; 2/ map inc
+.l4:	addw	mapwidth,<si	; 2/ map inc
 	cmp	#$80
 	blo	.l5
 	sub	#$20
-	sta	<_si+1
+	sta	<si+1
 	tma	#4
 	tam	#3
 	inc	A
@@ -690,15 +690,15 @@ lib2_load_font:
 	; ----
 	; init bg color
 	;
-	lda	<_cl
+	lda	<cl
 	pha
 	; --
 	ldx	#3
 .l1:	cla
-	lsr	<_ah
+	lsr	<ah
 	bcc	.l2
 	lda	#$FF
-.l2:	sta	<_cl,X
+.l2:	sta	<cl,X
 	dex
 	bpl	.l1
 
@@ -712,27 +712,27 @@ lib2_load_font:
 	; plane 1
 	;
 	cly
-.p1:	bbs0	<_al,.p2
-	lda	[_si],Y
+.p1:	bbs0	<al,.p2
+	lda	[si],Y
 	eor	#$FF
-	and	<_dh
+	and	<dh
 	bra	.p3
 	; --
-.p2:	lda	<_dh
-	ora	[_si],Y
+.p2:	lda	<dh
+	ora	[si],Y
 .p3:	sta	video_data_l
 
 	; ----
 	; plane 2
 	;
-	bbs1	<_al,.p4
-	lda	[_si],Y
+	bbs1	<al,.p4
+	lda	[si],Y
 	eor	#$FF
-	and	<_dl
+	and	<dl
 	bra	.p5
 	; --
-.p4:	lda	<_dl
-	ora	[_si],Y
+.p4:	lda	<dl
+	ora	[si],Y
 .p5:	sta	video_data_h
 	; --
 	iny
@@ -743,27 +743,27 @@ lib2_load_font:
 	; plane 3
 	;
 	cly
-.t1:	bbs2	<_al,.t2
-	lda	[_si],Y
+.t1:	bbs2	<al,.t2
+	lda	[si],Y
 	eor	#$FF
-	and	<_ch
+	and	<ch
 	bra	.t3
 	; --
-.t2:	lda	<_ch
-	ora	[_si],Y
+.t2:	lda	<ch
+	ora	[si],Y
 .t3:	sta	video_data_l
 
 	; ----
 	; plane 4
 	;
-	bbs3	<_al,.t4
-	lda	[_si],Y
+	bbs3	<al,.t4
+	lda	[si],Y
 	eor	#$FF
-	and	<_cl
+	and	<cl
 	bra	.t5
 	; --
-.t4:	lda	<_cl
-	ora	[_si],Y
+.t4:	lda	<cl
+	ora	[si],Y
 .t5:	sta	video_data_h
 	; --
 	iny
@@ -773,7 +773,7 @@ lib2_load_font:
 	; ----
 	; next character
 	;
-	addw	#8,<_si
+	addw	#8,<si
 	; --
 	dex
 	bne	.copy
@@ -830,10 +830,10 @@ load_vram:
 ;	; (instruction setup done during bootup...)
 ;
 ;	stw	#video_data, _ram_hdwr_tia_dest
-;	stw	<_si, _ram_hdwr_tia_src
+;	stw	<si, _ram_hdwr_tia_src
 ;
-;	asl	<_cl		; change from words to bytes (# to xfer)
-;	rol	<_ch
+;	asl	<cl		; change from words to bytes (# to xfer)
+;	rol	<ch
 
 	; ----
 	; set vram address
@@ -844,48 +844,48 @@ load_vram:
 	; copy data
 	;
 	cly
-	ldx	<_cl
+	ldx	<cl
 	beq	.l3
 	; --
-.l1:	lda	[_si],Y
+.l1:	lda	[si],Y
 	sta	video_data_l
 	iny
-	lda	[_si],Y
+	lda	[si],Y
 	sta	video_data_h
 	iny
 	bne	.l2
-	inc	<_si+1
+	inc	<si+1
 	; --
 .l2:	dex
 	bne	.l1
 	; --
 	jsr	remap_data
 	; --
-.l3:	dec	<_ch
+.l3:	dec	<ch
 	bpl	.l1
 
-;.l1:	lda	<_ch		; if zero-transfer, exit
-;	ora	<_cl
+;.l1:	lda	<ch		; if zero-transfer, exit
+;	ora	<cl
 ;	beq	.out
 ;
-;	lda	<_ch
+;	lda	<ch
 ;	cmp	#$20		; if more than $2000, repeat xfers of $2000
 ;	blo	.l2		; while adjusting banks
 ;	sub	#$20		; reduce remaining transfer amount
-;	sta	<_ch
+;	sta	<ch
 ;
 ;	stw	#$2000, _ram_hdwr_tia_size
 ;	jsr	_ram_hdwr_tia
 ;
-;	lda	<_si+1		; force bank adjust
+;	lda	<si+1		; force bank adjust
 ;	add	#$20		; and next move starts at same location
-;	sta	<_si+1
+;	sta	<si+1
 ;
 ;	jsr	remap_data	; adjust banks
 ;	bra	.l1
 ;
 ;.l2:	sta	HIGH_BYTE _ram_hdwr_tia_size	; 'remainder' transfer of < $2000
-;	lda	<_cl
+;	lda	<cl
 ;	sta	LOW_BYTE	_ram_hdwr_tia_size
 ;	jsr	_ram_hdwr_tia
 
@@ -907,12 +907,12 @@ load_vram:
 
 set_read:
 	vreg	#$01
-	lda	<_di 
+	lda	<di 
 	sta	video_data_l
 .ifdef HUC
 	sta	_vdc+2
 .endif
-	lda	<_di+1
+	lda	<di+1
 	sta	video_data_h
 .ifdef HUC
 	sta	_vdc+3
@@ -931,12 +931,12 @@ set_read:
 
 set_write:
 	vreg	#$00
-	lda	<_di 
+	lda	<di 
 	sta	video_data_l
 .ifdef HUC
 	sta	_vdc
 .endif
-	lda	<_di+1
+	lda	<di+1
 	sta	video_data_h
 .ifdef HUC
 	sta	_vdc+1
@@ -959,7 +959,7 @@ set_write:
 calc_vram_addr:
 	phx
 	and	bat_vmask
-	stz	<_di
+	stz	<di
 	ldx	bat_width
 	cpx	#64
 	beq	.s64
@@ -967,19 +967,19 @@ calc_vram_addr:
 	beq	.s128
 	; --
 .s32:	lsr	A
-	ror	<_di
+	ror	<di
 	; --
 .s64:	lsr	A
-	ror	<_di
+	ror	<di
 	; --
 .s128:	lsr	A
-	ror	<_di
-	sta	<_di+1
+	ror	<di
+	sta	<di+1
 	; --
 	pla
 	and	bat_hmask
-	ora	<_di
-	sta	<_di
+	ora	<di
+	sta	<di
 	rts
 
 ; ----
@@ -1072,9 +1072,9 @@ _xres	.equ 256
 	; ----
 	; initialize the VDC registers
 	;
-	stw	#.table,<_si 	; register table address in '_si'
+	stw	#.table,<si 	; register table address in 'si'
 	cly 
-.l1:	lda	[_si],Y		; select the VDC register
+.l1:	lda	[si],Y		; select the VDC register
 	iny
 	sta	<vdc_reg
 	sta	video_reg
@@ -1082,13 +1082,13 @@ _xres	.equ 256
 	asl	A
 	tax
 .endif
-	lda	[_si],Y		; send the 16-bit data
+	lda	[si],Y		; send the 16-bit data
 	iny 
 	sta	video_data_l
 .ifdef HUC
 	sta	_vdc,X
 .endif
-	lda	[_si],Y
+	lda	[si],Y
 	iny 
 	sta	video_data_h
 .ifdef HUC
@@ -1240,42 +1240,42 @@ lib2_set_xres:
 	lda	#$20		; reset resource-usage flag
 	tsb	<irq_m		; to skip joystick read portion of vsync
 				; (temporarily disable VSYNC processing)
-	lda	<_ah
-	sta	<_bh
-	lda	<_al
-	sta	<_bl		; bx now has x-res
+	lda	<ah
+	sta	<bh
+	lda	<al
+	sta	<bl		; bx now has x-res
 
-	lsr	<_bh
-	ror	<_bl
-	lsr	<_bh
-	ror	<_bl
-	lsr	<_bl		; bl now has x/8
+	lsr	<bh
+	ror	<bl
+	lsr	<bh
+	ror	<bl
+	lsr	<bl		; bl now has x/8
 
 	cly			; offset into numeric tables
 				; 0=low-res, 1=mid-res, 2=high-res
 
-	lda	<_ah
+	lda	<ah
 	beq	.xres_calc	; < 256
 	cmp	#3
 	bhs	.xres_calc
 
-	cmpw	#$10C,<_ax
+	cmpw	#$10C,<ax
 	blo	.xres_calc	; < 268
 
 	iny
-	cmpw	#$164,<_ax
+	cmpw	#$164,<ax
 	blo	.xres_calc	; < 356
 
 	iny			; 356 < x < 512
 
 .xres_calc:
 	lda	.vce_tab,Y
-	ora	<_cl
+	ora	<cl
 	sta	color_ctrl	; dot-clock (x-resolution)
 
 	lda	.hsw_tab,Y	; example calc's (using "low-res" numbers)
 	sta	hsw		; hsw = $2
-	lda	<_bl
+	lda	<bl
 	sta	hds		; hds = (x/8) temporarily
 	dec	A
 	sta	hdw		; hdw = (x/8)-1
@@ -1287,7 +1287,7 @@ lib2_set_xres:
 
 	lda	.hde_tab,Y
 	sub	hds
-	sub	<_bl		; hde = (38 - ( (18-(x/16)) + (x/8) ))
+	sub	<bl		; hde = (38 - ( (18-(x/16)) + (x/8) ))
 	sta	hde
 
 .xres_putit:
@@ -1432,17 +1432,17 @@ lib2_init_psg:
 ; ----
 ;
 _strcat.2:
-.endlp:	lda	[_di]		; same as strcpy, but find end
+.endlp:	lda	[di]		; same as strcpy, but find end
 	beq	_strcpy.2	; of dest string first
-	incw	<_di
+	incw	<di
 	bra	.endlp
 
 _strcpy.2:
-.cpylp:	lda	[_si]
-	sta	[_di]
+.cpylp:	lda	[si]
+	sta	[di]
 	beq	.out
-	incw	<_di
-	incw	<_si
+	incw	<di
+	incw	<si
 	bra	.cpylp
 .out:	rts
 
@@ -1456,37 +1456,37 @@ _strcpy.2:
 ;
 
 _strncat.3:
-	__stw	<_ax
-	__ldw	<_di
-	__stw	<_bx
-.endlp:	lda	[_di]
+	__stw	<ax
+	__ldw	<di
+	__stw	<bx
+.endlp:	lda	[di]
 	beq	.cpylp
-	incw	<_di
+	incw	<di
 	bra	.endlp
 .cpylp:
 	jsr	strncpy_loop
 	cla
-	sta	[_di]
-	__ldw	<_bx
+	sta	[di]
+	__ldw	<bx
 .out:	rts
 
 
 _strncpy.3:
-	__stw	<_ax
-	__ldw	<_di
-	__stw	<_bx
+	__stw	<ax
+	__ldw	<di
+	__stw	<bx
 	jsr	strncpy_loop
-	__ldw	<_bx
+	__ldw	<bx
 	rts
 
 strncpy_loop:
-	lda	[_si]
-	sta	[_di]
+	lda	[si]
+	sta	[di]
 	beq	.out
-	incw	<_di
-	incw	<_si
-	decw	<_ax
-	tstw	<_ax
+	incw	<di
+	incw	<si
+	decw	<ax
+	tstw	<ax
 	bne	strncpy_loop
 .out:	rts
 
@@ -1497,38 +1497,38 @@ strncpy_loop:
 ; ----
 ;
 _memcpy.3:
-	__stw	<_ax
-	ora	<_al
+	__stw	<ax
+	ora	<al
 	beq	.done
-	__ldw	<_di
-	__stw	<_bx
-.cpylp:	lda	[_si]
-	sta	[_di]
-	incw	<_si
-	incw	<_di
-	decw	<_ax
-	tstw	<_ax
+	__ldw	<di
+	__stw	<bx
+.cpylp:	lda	[si]
+	sta	[di]
+	incw	<si
+	incw	<di
+	decw	<ax
+	tstw	<ax
 	bne	.cpylp
-	__ldw	<_bx
+	__ldw	<bx
 .done:	rts
 
 ; same as memcpy, but returns end of dest
 _mempcpy.3:
-	__stw	<_cx
+	__stw	<cx
 	jsr _memcpy.3
-	__addw	<_cx
+	__addw	<cx
 	rts
 
 ; _memset(char *s [di], int c [bx], int n [acc])
 _memset.3:
-	__stw	<_ax
-	ora	<_al
+	__stw	<ax
+	ora	<al
 	beq	.done
-.setlp:	lda	<_bx
-	sta	[_di]
-	incw	<_di
-	decw	<_ax
-	tstw	<_ax
+.setlp:	lda	<bx
+	sta	[di]
+	incw	<di
+	decw	<ax
+	tstw	<ax
 	bne	.setlp
 .done:	rts
 
@@ -1539,11 +1539,11 @@ _memset.3:
 ; ----
 ;
 _memcmp.3:
-	__stw	<_ax
-	ora	<_al
+	__stw	<ax
+	ora	<al
 	beq	.done
-.cmplp:	lda	[_di]
-	sub	[_si]
+.cmplp:	lda	[di]
+	sub	[si]
 	bmi	.minus
 	beq	.cont
 .plus:	tax
@@ -1552,10 +1552,10 @@ _memcmp.3:
 .minus:	tax
 	lda	#$ff
 	rts
-.cont:	incw	<_di
-	incw	<_si
-	decw	<_ax
-	tstw	<_ax
+.cont:	incw	<di
+	incw	<si
+	decw	<ax
+	tstw	<ax
 	bne	.cmplp
 	clx
 .done:	rts
@@ -1567,8 +1567,8 @@ _memcmp.3:
 ; ----
 ;
 _strcmp.2:
-.cmplp:	lda	[_di]
-	sub	[_si]
+.cmplp:	lda	[di]
+	sub	[si]
 	bmi	.minus
 	beq	.cont
 .plus:	tax
@@ -1577,10 +1577,10 @@ _strcmp.2:
 .minus:	tax
 	lda	#$ff
 	rts
-.cont:	lda	[_di]
+.cont:	lda	[di]
 	beq	.out
-	incw	<_di
-	incw	<_si
+	incw	<di
+	incw	<si
 	bra	.cmplp
 .out:	clx
 	rts
@@ -1592,9 +1592,9 @@ _strcmp.2:
 ; ----
 ;
 _strncmp.3:
-	__stw	<_ax
-.cmplp:	lda	[_di]
-	sub	[_si]
+	__stw	<ax
+.cmplp:	lda	[di]
+	sub	[si]
 	bmi	.minus
 	beq	.cont
 .plus:	tax
@@ -1603,12 +1603,12 @@ _strncmp.3:
 .minus:	tax
 	lda	#$ff
 	rts
-.cont:	lda	[_di]
+.cont:	lda	[di]
 	beq	.out
-	incw	<_di
-	incw	<_si
-	decw	<_ax
-	tstw	<_ax
+	incw	<di
+	incw	<si
+	decw	<ax
+	tstw	<ax
 	bne	.cmplp
 .out	clx
 	cla
@@ -1616,7 +1616,7 @@ _strncmp.3:
 
 _strlen.1:
 	cly
-.loop:	lda	[_si],y
+.loop:	lda	[si],y
 	beq	.out
 	iny
 	bra .loop

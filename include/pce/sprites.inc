@@ -10,20 +10,20 @@
 ; nb_group,	number of 32x64 patterns to copy
 
 .macro load_sprites
-	; put the VRAM address in _di
-	stw	#\1,<_di
+	; put the VRAM address in di
+	stw	#\1,<di
 
-	; put the sprite bank address in _si/_bl
-	stw	#\2,<_si
-	stb	#BANK(\2),<_bl
+	; put the sprite bank address in si/bl
+	stw	#\2,<si
+	stb	#BANK(\2),<bl
 
 	; get the number of patterns to copy, multiply it by $200 -
 	; the size in words of a 32x64 pattern (remember that
-	; 'load_vram' need a size in words), and put it in _cx
+	; 'load_vram' need a size in words), and put it in cx
 	lda	\3
 	asl a
-	stz	<_cx
-	sta	<_cx+1
+	stz	<cx
+	sta	<cx+1
 
 	; call the 'load_vram' function
 	jsr load_vram
@@ -37,17 +37,17 @@
 
 .macro spr_set
 	; multiply the sprite number by 8 (the size of a SATB entry)
-	; and put the result in _si
-	stz	<_si+1
+	; and put the result in si
+	stz	<si+1
 	lda	\1
 	asl a
 	asl a
 	asl a
-	rol	<_si+1
-	sta	<_si
+	rol	<si+1
+	sta	<si
 
-	; add the satb address to _si
-	addw	#\2,<_si
+	; add the satb address to si
+	addw	#\2,<si
 .endm
 
 
@@ -61,16 +61,16 @@
 	lda	LOW_BYTE \1
 	clc
 	adc	LOW_BYTE \2
-	sta	[_si],Y
+	sta	[si],Y
 	lda	HIGH_BYTE \1
 	adc	HIGH_BYTE \2
 .else
 	lda	LOW_BYTE \1
-	sta	[_si],Y
+	sta	[si],Y
 	lda	HIGH_BYTE \1
 .endif
 	iny
-	sta	[_si],Y
+	sta	[si],Y
 .endm
 
 
@@ -83,16 +83,16 @@
 	lda	LOW_BYTE \1
 	clc
 	adc	LOW_BYTE \2
-	sta	[_si]
+	sta	[si]
 	lda	HIGH_BYTE \1
 	adc	HIGH_BYTE \2
 .else
 	lda	LOW_BYTE \1
-	sta	[_si]
+	sta	[si]
 	lda	HIGH_BYTE \1
 .endif
 	ldy	#1
-	sta	[_si],Y
+	sta	[si],Y
 .endm
 
 
@@ -104,15 +104,15 @@
 	ldy	#4
 .if (\?1 = ARG_IMMED)
 	lda	#LOW((\1) >> 5)
-	sta	[_si],Y
+	sta	[si],Y
 	lda	#HIGH((\1) >> 5)
 .else
 	lda	\1
-	sta	[_si],Y
+	sta	[si],Y
 	lda	\1+1
 .endif
 	iny
-	sta	[_si],Y
+	sta	[si],Y
 .endm
 
 
@@ -125,9 +125,9 @@
 	ldy	#7
 	lda	\1
 	eor	#$FF
-	and	[_si],Y
+	and	[si],Y
 	ora	\2
-	sta	[_si],Y
+	sta	[si],Y
 .endm
 
 
@@ -137,13 +137,13 @@
 
 .macro spr_pri
 	ldy	#6
-	lda	[_si],Y
+	lda	[si],Y
 	and	#$7F
 	ldx	\1
 	beq	.x\@
 	ora	#$80
 .x\@:
-	sta [_si],Y
+	sta [si],Y
 .endm
 
 
@@ -153,10 +153,10 @@
 
 .macro spr_pal
 	ldy	#6
-	lda	[_si],Y
+	lda	[si],Y
 	and	#$F0
 	ora	\1
-	sta	[_si],Y
+	sta	[si],Y
 .endm
 
 
@@ -177,19 +177,19 @@
 ; nb_sprite,	number of sprite entry to copy (64 by default)
 
 .macro update_satb
-	stw	#\1,<_si
-	stb	#BANK(\1),<_bl
+	stw	#\1,<si
+	stb	#BANK(\1),<bl
 
 .if (\?2)
-	stw	#\2,<_di
+	stw	#\2,<di
 .else
-	stw	#$7F00,<_di
+	stw	#$7F00,<di
 .endif
 
 .if (\?3)
-	stw	#(\3)*4,<_cx
+	stw	#(\3)*4,<cx
 .else
-	stw	#$100,<_cx
+	stw	#$100,<cx
 .endif
 
 	jsr	load_vram

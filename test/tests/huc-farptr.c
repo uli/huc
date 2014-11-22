@@ -1,4 +1,4 @@
-#pragma fastcall foo(farptr _fbank:_fptr)
+#pragma fastcall foo(farptr fbank:fptr)
 
 #asm
   .data
@@ -7,16 +7,16 @@ _data:	.ds 1
   .code
 
 _foo.1:
-  lda	__fbank
+  lda	fbank
   cmp	#9
   beq	.next
 .abort:
   call	_abort
 .next:
-  lda	__fptr
+  lda	fptr
   cmp	#low(_data)
   bne	.abort
-  lda	__fptr+1
+  lda	fptr+1
   cmp	#high(_data)
   bne	.abort
   rts

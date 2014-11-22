@@ -52,15 +52,15 @@ _cd_unpause:
 lib3_cd_unpause:
 .endif ; _LIB3
 	lda	cdplay_end_ctl
-	sta	<_dh
+	sta	<dh
 	lda	cdplay_end_h
-	sta	<_cl
+	sta	<cl
 	lda	cdplay_end_m
-	sta	<_ch
+	sta	<ch
 	lda	cdplay_end_l
-	sta	<_dl
+	sta	<dl
 	lda	#CD_CURRPOS
-	sta	<_bh
+	sta	<bh
 	jsr	cd_play
 	tax
 	cla
@@ -108,36 +108,36 @@ lib3_cd_playtrk.3:
 	txa
 	and	#CD_PLAYMODE
 	ora	#CD_TRACK
-	sta	<_dh		; end type + play mode
+	sta	<dh		; end type + play mode
 	sta	cdplay_end_ctl
 	lda	#CD_TRACK
-	sta	<_bh		; start type
+	sta	<bh		; start type
 
-	lda	<_cl
+	lda	<cl
 	bne	.endtrk
 
 .endofdisc:
-	lda	<_dh		; repeat to end of disc
+	lda	<dh		; repeat to end of disc
 	ora	#CD_LEADOUT
-	sta	<_dh
+	sta	<dh
 	sta	cdplay_end_ctl
 	bra	.starttrk
 
 .endtrk:
 	jsr	ex_binbcd
-	sta	<_cl		; end track
+	sta	<cl		; end track
 	sta	cdplay_end_h
-	stz	<_ch
+	stz	<ch
 	stz	cdplay_end_m
-	stz	<_dl
+	stz	<dl
 	stz	cdplay_end_l
 
 .starttrk:
-	lda	<_bl		; track #
+	lda	<bl		; track #
 	jsr	ex_binbcd
-	sta	<_al		; from track
-	stz	<_ah
-	stz	<_bl
+	sta	<al		; from track
+	stz	<ah
+	stz	<bl
 	jsr	cd_play
 	tax
 	cla
@@ -166,39 +166,39 @@ lib3_cd_playmsf.7:
 	txa
 	and	#CD_PLAYMODE
 	ora	#CD_MSF
-	sta	<_dh		; end type + play mode
+	sta	<dh		; end type + play mode
 	sta	cdplay_end_ctl
 	lda	#CD_MSF
-	sta	<_bh		; start type
+	sta	<bh		; start type
 
 .endmsf:
-	lda	<_dl		; end frame
+	lda	<dl		; end frame
 	jsr	ex_binbcd
-	sta	<_dl
+	sta	<dl
 	sta	cdplay_end_l
 
-	lda	<_ch		; end second
+	lda	<ch		; end second
 	jsr	ex_binbcd
-	sta	<_ch
+	sta	<ch
 	sta	cdplay_end_m
 
-	lda	<_cl		; end minute
+	lda	<cl		; end minute
 	jsr	ex_binbcd
-	sta	<_cl
+	sta	<cl
 	sta	cdplay_end_h
 
 .startmsf:
-	lda	<_bl		; start frame
+	lda	<bl		; start frame
 	jsr	ex_binbcd
-	sta	<_bl
+	sta	<bl
 
-	lda	<_ah		; start second
+	lda	<ah		; start second
 	jsr	ex_binbcd
-	sta	<_ah
+	sta	<ah
 
-	lda	<_al		; start minute
+	lda	<al		; start minute
 	jsr	ex_binbcd
-	sta	<_al
+	sta	<al
 
 	jsr	cd_play
 	tax
@@ -215,8 +215,8 @@ lib3_cd_playmsf.7:
 ; return number of tracks on CDROM
 ; ----
 ;
-_cd_numtrk:	stw	#cd_buf,<_bx
-	stz	<_al		; request type 0
+_cd_numtrk:	stw	#cd_buf,<bx
+	stz	<al		; request type 0
 	jsr	cd_dinfo
 	cmp	#$00
 	bne	.err
@@ -243,20 +243,20 @@ _cd_trkinfo.4:
 	.bank LIB3_BANK
 lib3_cd_trkinfo.4:
 .endif ; _LIB3
-	__ldw	<_ax
+	__ldw	<ax
 	jsr	_cd_trktype
 	phx
 	lda	cd_buf
 	jsr	ex_bcdbin
-	sta	[_cx]
+	sta	[cx]
 
 	lda	cd_buf+1
 	jsr	ex_bcdbin
-	sta	[_dx]
+	sta	[dx]
 
 	lda	cd_buf+2
 	jsr	ex_bcdbin
-	sta	[_bp]
+	sta	[bp]
 
 	plx
 	rts
@@ -280,15 +280,15 @@ lib3_cd_trktype:
 .endif ; _LIB3
 	sax
 	jsr	ex_binbcd
-	sta	<_ah		; track #
-	stw	#cd_buf,<_bx
+	sta	<ah		; track #
+	stw	#cd_buf,<bx
 	cmp	#0
 	beq	.discnottrk
 	lda	#2
 	bra	.go
 .discnottrk:
 	lda	#1
-.go:	sta	<_al		; request type 2
+.go:	sta	<al		; request type 2
 	jsr	cd_dinfo
 	cmp	#$00
 	bne	.err
@@ -330,16 +330,16 @@ lib3_cd_execoverlay:
 
 cd_overlay:
 	jsr	prep_rdsect
-	stz	<_cl	; sector (offset from base of track)
-	sta	<_ch
-	stx	<_dl
+	stz	<cl	; sector (offset from base of track)
+	sta	<ch
+	stx	<dl
 	iny
 	lda	ovlarray,Y
-	sta	<_al	; # sectors
+	sta	<al	; # sectors
 	tma	#6
-	sta	<_bl	; Bank #
+	sta	<bl	; Bank #
 	lda	#3
-	sta	<_dh	; MPR #
+	sta	<dh	; MPR #
 	jsr	cd_read
 	rts
 .ifdef _LIB3
@@ -360,15 +360,15 @@ _cd_loadvram.4:
 	.bank LIB3_BANK
 lib3_cd_loadvram.4:
 .endif ; _LIB3
-	__stw	<_ax
-	__ldw	<_di
+	__stw	<ax
+	__ldw	<di
 	jsr	prep_rdsect
-	__addw	<_si
-	stz	<_cl
-	sta	<_ch
-	stx	<_dl
+	__addw	<si
+	stz	<cl
+	sta	<ch
+	stx	<dl
 	lda	#$FE
-	sta	<_dh
+	sta	<dh
 	jsr	cd_read
 	tax
 	cla
@@ -403,9 +403,9 @@ _cd_loaddata.4:
 lib3_cd_loaddata.4:
 .endif ; _LIB3
 	__stw	cdtemp_bytes
-	__ldw	<_di
+	__ldw	<di
 	jsr	prep_rdsect
-	__addw	<_si
+	__addw	<si
 	stx	cdtemp_l	; calculate sector adddress
 	sta	cdtemp_m
 
@@ -414,9 +414,9 @@ lib3_cd_loaddata.4:
 	tma	#4
 	sta	cdtemp_savbnk80
 
-	lda	<_bl
+	lda	<bl
 	sta	cdtemp_bank	; load addr (bank/address)
-	__ldw	<_bp
+	__ldw	<bp
 	and	#$1f		; correct to a $6000-relative addr.
 	ora	#$60
 	__stw	cdtemp_addr
@@ -428,14 +428,14 @@ lib3_cd_loaddata.4:
 	tam	#4
 
 	__ldw	cdtemp_addr	; load address
-	__stw	<_bx
+	__stw	<bx
 
-	stz	<_cl		; sector address
+	stz	<cl		; sector address
 	lda	cdtemp_m
-	sta	<_ch
+	sta	<ch
 	lda	cdtemp_l
-	sta	<_dl
-	stz	<_dh		; address type (local, # bytes)
+	sta	<dl
+	stz	<dh		; address type (local, # bytes)
 
 	__ldw	cdtemp_bytes
 	sub	#$20
@@ -446,7 +446,7 @@ lib3_cd_loaddata.4:
 
 .less2000:	add	#$20
 	stwz	cdtemp_bytes
-.read:	__stw	<_ax
+.read:	__stw	<ax
 
 	jsr	cd_read
 	cmp	#0
@@ -577,13 +577,13 @@ _ad_stat:
 ; ----
 ;
 _ad_trans.4:
-	__ldw	<_di
+	__ldw	<di
 	jsr	prep_rdsect
-	__addw	<_si
-	stz	<_cl
-	sta	<_ch
-	stx	<_dl
-	stz	<_dh
+	__addw	<si
+	stz	<cl
+	sta	<ch
+	stx	<dl
+	stz	<dh
 	jsr	ad_trans
 	tax
 	cla

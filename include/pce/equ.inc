@@ -27,21 +27,59 @@ _vreg	= $20F7
 ; areas (in zero-page) for subroutines.
 ;
 
-_bp	= $20EC	; base pointer
-_si	= $20EE	; source address
-_di	= $20F0	; destination address
-_ax	= $20F8
-_al	= $20F8
-_ah	= $20F9
-_bx	= $20FA
-_bl	= $20FA
-_bh	= $20FB
-_cx	= $20FC
-_cl	= $20FC
-_ch	= $20FD
-_dx	= $20FE
-_dl	= $20FE
-_dh	= $20FF
+bp	= $20EC	; base pointer
+si	= $20EE	; source address
+di	= $20F0	; destination address
+ax	= $20F8
+al	= $20F8
+ah	= $20F9
+bx	= $20FA
+bl	= $20FA
+bh	= $20FB
+cx	= $20FC
+cl	= $20FC
+ch	= $20FD
+dx	= $20FE
+dl	= $20FE
+dh	= $20FF
+
+.ifdef C_REGS
+; C aliases
+___bp	= bp
+___si	= si
+___di	= di
+___ax	= ax
+___al	= al
+___ah	= ah
+___bx	= bx
+___bl	= bl
+___bh	= bh
+___cx	= cx
+___cl	= cl
+___ch	= ch
+___dx	= dx
+___dl	= dl
+___dh	= dh
+.endif
+
+.ifdef DEPRECATED
+; aliases for old assembler code
+_bp	= bp
+_si	= si
+_di	= di
+_ax	= ax
+_al	= al
+_ah	= ah
+_bx	= bx
+_bl	= bl
+_bh	= bh
+_cx	= cx
+_cl	= cl
+_ch	= ch
+_dx	= dx
+_dl	= dl
+_dh	= dh
+.endif
 
 
 ; --------
@@ -104,49 +142,49 @@ vpc_vdc_redir	.equ sgx_vpcport+6
 ; Arcade Card equates
 ; ----
 
-_ac_port_1		.equ $1A00
-_ac_reg_1		.equ $1A02
-_ac_reg_1_low		.equ _ac_reg_1
-_ac_reg_1_mid		.equ _ac_reg_1+1
-_ac_reg_1_high		.equ _ac_reg_1+2
-_ac_reg_1_offset_l	.equ _ac_reg_1+3
-_ac_reg_1_offset_h	.equ _ac_reg_1+4
-_ac_reg_1_incrmt_l	.equ _ac_reg_1+5
-_ac_reg_1_incrmt_h	.equ _ac_reg_1+6
-_ac_reg_1_control	.equ _ac_reg_1+7
+ac_port_1		.equ $1A00
+ac_reg_1		.equ $1A02
+ac_reg_1_low		.equ ac_reg_1
+ac_reg_1_mid		.equ ac_reg_1+1
+ac_reg_1_high		.equ ac_reg_1+2
+ac_reg_1_offset_l	.equ ac_reg_1+3
+ac_reg_1_offset_h	.equ ac_reg_1+4
+ac_reg_1_incrmt_l	.equ ac_reg_1+5
+ac_reg_1_incrmt_h	.equ ac_reg_1+6
+ac_reg_1_control	.equ ac_reg_1+7
 
-_ac_port_2		.equ $1A10
-_ac_reg_2		.equ $1A12
-_ac_reg_2_low		.equ _ac_reg_2
-_ac_reg_2_mid		.equ _ac_reg_2+1
-_ac_reg_2_high		.equ _ac_reg_2+2
-_ac_reg_2_offset_l	.equ _ac_reg_2+3
-_ac_reg_2_offset_h	.equ _ac_reg_2+4
-_ac_reg_2_incrmt_l	.equ _ac_reg_2+5
-_ac_reg_2_incrmt_h	.equ _ac_reg_2+6
-_ac_reg_2_control	.equ _ac_reg_2+7
+ac_port_2		.equ $1A10
+ac_reg_2		.equ $1A12
+ac_reg_2_low		.equ ac_reg_2
+ac_reg_2_mid		.equ ac_reg_2+1
+ac_reg_2_high		.equ ac_reg_2+2
+ac_reg_2_offset_l	.equ ac_reg_2+3
+ac_reg_2_offset_h	.equ ac_reg_2+4
+ac_reg_2_incrmt_l	.equ ac_reg_2+5
+ac_reg_2_incrmt_h	.equ ac_reg_2+6
+ac_reg_2_control	.equ ac_reg_2+7
 
-_ac_port_3		.equ $1A20
-_ac_reg_3		.equ $1A22
-_ac_reg_3_low		.equ _ac_reg_3
-_ac_reg_3_mid		.equ _ac_reg_3+1
-_ac_reg_3_high		.equ _ac_reg_3+2
-_ac_reg_3_offset_l	.equ _ac_reg_3+3
-_ac_reg_3_offset_h	.equ _ac_reg_3+4
-_ac_reg_3_incrmt_l	.equ _ac_reg_3+5
-_ac_reg_3_incrmt_h	.equ _ac_reg_3+6
-_ac_reg_3_control	.equ _ac_reg_3+7
+ac_port_3		.equ $1A20
+ac_reg_3		.equ $1A22
+ac_reg_3_low		.equ ac_reg_3
+ac_reg_3_mid		.equ ac_reg_3+1
+ac_reg_3_high		.equ ac_reg_3+2
+ac_reg_3_offset_l	.equ ac_reg_3+3
+ac_reg_3_offset_h	.equ ac_reg_3+4
+ac_reg_3_incrmt_l	.equ ac_reg_3+5
+ac_reg_3_incrmt_h	.equ ac_reg_3+6
+ac_reg_3_control	.equ ac_reg_3+7
 
-_ac_port_4		.equ $1A30
-_ac_reg_4		.equ $1A32
-_ac_reg_4_low		.equ _ac_reg_4
-_ac_reg_4_mid		.equ _ac_reg_4+1
-_ac_reg_4_high		.equ _ac_reg_4+2
-_ac_reg_4_offset_l	.equ _ac_reg_4+3
-_ac_reg_4_offset_h	.equ _ac_reg_4+4
-_ac_reg_4_incrmt_l	.equ _ac_reg_4+5
-_ac_reg_4_incrmt_h	.equ _ac_reg_4+6
-_ac_reg_4_control	.equ _ac_reg_4+7
+ac_port_4		.equ $1A30
+ac_reg_4		.equ $1A32
+ac_reg_4_low		.equ ac_reg_4
+ac_reg_4_mid		.equ ac_reg_4+1
+ac_reg_4_high		.equ ac_reg_4+2
+ac_reg_4_offset_l	.equ ac_reg_4+3
+ac_reg_4_offset_h	.equ ac_reg_4+4
+ac_reg_4_incrmt_l	.equ ac_reg_4+5
+ac_reg_4_incrmt_h	.equ ac_reg_4+6
+ac_reg_4_control	.equ ac_reg_4+7
 
 .endif ; _AC
 

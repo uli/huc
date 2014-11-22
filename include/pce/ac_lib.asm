@@ -146,17 +146,17 @@ lib3_ac_vram_copy.4:
 	clx
 
 lib3_ac_vram_copy.main:
-	lda	<_cl
+	lda	<cl
 	eor	#$ff
 	clc
 	adc	#$01
-	sta	<_cl
-	lda	<_ch
+	sta	<cl
+	lda	<ch
 	eor	#$ff
 	adc	#$00
-	sta	<_ch
+	sta	<ch
 
-	lda	<_al		;the AC reg
+	lda	<al		;the AC reg
 	and	#$03
 	asl a
 	asl a
@@ -166,9 +166,9 @@ lib3_ac_vram_copy.main:
 	stz	$0000,x
 	cpx	#$10
 	stz	<vdc_reg
-	lda	<_bl
+	lda	<bl
 	sta	$0002,x
-	lda	<_bh
+	lda	<bh
 	sta	$0003,x
 	lda	#$02
 	cpx	#$10
@@ -180,9 +180,9 @@ lib3_ac_vram_copy.main:
 	sta	$0002,x
 	lda	$1a01,y
 	sta	$0003,x
-	inc	<_cl
+	inc	<cl
 	bne	.loop
-	inc	<_ch
+	inc	<ch
 	bne	.loop
 	rts
 
@@ -190,26 +190,26 @@ lib3_ac_vram_copy.main:
 
 ; ---
 lib3_ac_vce_copy.3:
-	lda	<_cl
+	lda	<cl
 	eor	#$ff
 	clc
 	adc	#$01
-	sta	<_cl
-	lda	<_ch
+	sta	<cl
+	lda	<ch
 	eor	#$ff
 	adc	#$00
-	sta	<_ch
+	sta	<ch
 
-	lda	<_al		;the AC reg
+	lda	<al		;the AC reg
 	and	#$03
 	asl a
 	asl a
 	asl a
 	asl a
 	tay
-	lda	<_bl
+	lda	<bl
 	sta	$402
-	lda	<_bh
+	lda	<bh
 	sta	$403
 
 .loop
@@ -217,9 +217,9 @@ lib3_ac_vce_copy.3:
 	sta	$404
 	lda	$1a01,y
 	sta	$405
-	inc	<_cl
+	inc	<cl
 	bne	.loop
-	inc	<_ch
+	inc	<ch
 	bne	.loop
 	rts
 
@@ -231,28 +231,28 @@ lib3_ac_vce_copy.3:
 ; ----
 lib3_ac_cd_xfer.4:
 
-	ldx	<_dh ;->mid
-	stx	<_ch ; mid->ch
+	ldx	<dh ;->mid
+	stx	<ch ; mid->ch
 
 	; setup for MPR5
 	lda	#$05
-	sta	<_dh
+	sta	<dh
 
 	; setup AC bank
-	stz	<_bh
-	lda	<_bl
+	stz	<bh
+	lda	<bl
 	and	#$03
 	ora	#$40
-	sta	<_bl
+	sta	<bl
 
 	; make sure not more than 4 sectors(8k) are transfered
-	lda	<_al
+	lda	<al
 	cmp	#$05
 	bcc	.skip
 	lda	#$04
 .skip
-	sta	<_al
-	stz	<_ah
+	sta	<al
+	stz	<ah
 
 	jsr	$E009
 
@@ -291,11 +291,11 @@ __ac_init:
 lib3_ac_vram_xfer.5:
 
 	; setup AC reg
-	lda	<_al
+	lda	<al
 	and	#$03
 	clc
 	adc	#$40
-	sta	<_al
+	sta	<al
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
@@ -304,7 +304,7 @@ lib3_ac_vram_xfer.5:
 	sta	_XFER_RTS
 
 	; load length. Not needed in the main loop.
-	lda	<_dl
+	lda	<dl
 	asl a			;convert words to bytes
 	sta	_XFER_LEN
 	stz	_XFER_LEN+1
@@ -323,9 +323,9 @@ lib3_ac_vram_xfer.5:
 	cla
 	;sta	<vdc_reg	;need to due SGX equiv
 	sta	$0010
-	lda	<_bl
+	lda	<bl
 	sta	$0012
-	lda	<_bh
+	lda	<bh
 	sta	$0013
 
 	lda	#$02
@@ -337,11 +337,11 @@ lib3_ac_vram_xfer.5:
 lib3_ac_vram_xfer.4:
 
 	; setup AC reg
-	lda	<_al
+	lda	<al
 	and	#$03
 	clc
 	adc	#$40
-	sta	<_al
+	sta	<al
 
 
 	; prep opcode for TIA block transfer
@@ -351,7 +351,7 @@ lib3_ac_vram_xfer.4:
 	sta	_XFER_RTS
 
 	; load length. Not needed in the main loop.
-	lda	<_dl
+	lda	<dl
 	asl a			; convert words to bytes
 	sta	_XFER_LEN
 	stz	_XFER_LEN+1
@@ -370,9 +370,9 @@ lib3_ac_vram_xfer.4:
 	cla
 	sta	<vdc_reg
 	st0	#$00
-	lda	<_bl
+	lda	<bl
 	sta	$0002
-	lda	<_bh
+	lda	<bh
 	sta	$0003
 
 	lda	#$02
@@ -381,23 +381,23 @@ lib3_ac_vram_xfer.4:
 
 	; main loop. Decrements until by fourth arguement
 __loop_ac_vram:
-	lda	<_cl
+	lda	<cl
 	pha
 	sec
-	sbc	<_dl
-	sta	<_cl
-	lda	<_ch
+	sbc	<dl
+	sta	<cl
+	lda	<ch
 	sbc	#$00
 	cmp	#$FF
 	beq	__last_chunk
-	sta	<_ch
+	sta	<ch
 	pla
 
 	; setup correct bank and disable interrupts
 	sei
 	tma	#$06
 	pha
-	lda	<_al
+	lda	<al
 	tam	#$06
 
 	; call XFER instruction
@@ -415,8 +415,8 @@ __last_chunk:
 	pla
 	beq	__ac_vram_xfer_out
 
-	; load length. This is less than base value in _dl so use _cl instead
-	lda	<_cl
+	; load length. This is less than base value in dl so use cl instead
+	lda	<cl
 	asl a
 	sta	_XFER_LEN
 	stz	_XFER_LEN+1
@@ -425,7 +425,7 @@ __last_chunk:
 	sei
 	tma	#$06
 	pha
-	lda	<_al
+	lda	<al
 	tam	#$06
 
 	; call XFER instruction
@@ -447,11 +447,11 @@ __ac_vram_xfer_out:
 lib3_ac_vram_dma.4:
 .ifdef _SGX
 	; setup AC reg
-	lda	<_al
+	lda	<al
 	and	#$03
 	clc
 	adc	#$40
-	sta	<_al
+	sta	<al
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
@@ -473,9 +473,9 @@ lib3_ac_vram_dma.4:
 	cla
 	sta	<sgx_vdc_reg
 	stz	$0010
-	lda	<_bl
+	lda	<bl
 	sta	$0012
-	lda	<_bh
+	lda	<bh
 	sta	$0013
 
 	lda	#$02
@@ -492,11 +492,11 @@ lib3_ac_vram_dma.4:
 lib3_ac_vram_dma.3:
 
 	; setup AC reg
-	lda	<_al
+	lda	<al
 	and	#$03
 	clc
 	adc	#$40
-	sta	<_al
+	sta	<al
 
 	; prep opcode for TIA block transfer
 	lda	#$E3
@@ -518,9 +518,9 @@ lib3_ac_vram_dma.3:
 	cla
 	sta	<vdc_reg
 	st0	#$00
-	lda	<_bl
+	lda	<bl
 	sta	$0002
-	lda	<_bh
+	lda	<bh
 	sta	$0003
 
 	lda	#$02
@@ -534,7 +534,7 @@ lib3_ac_vram_dma.3:
 
 	; check to see if transfer size is 8k or less
 __loop_ac_dma:
-	lda	<_ch
+	lda	<ch
 	beq	__last_blck_2nd_chk
 	cmp	#$10	; compare MSB of 0x1000 words
 	beq	__ac_2nd_check_LL1
@@ -542,21 +542,21 @@ __loop_ac_dma:
 ;else (is less then)
 	bra	__last_block_dma
 __ac_2nd_check_LL1:
-	lda	<_cl
+	lda	<cl
 	beq	__last_block_dma
 
 __oversize_8k_LL1:
 	; main loop. Decrements by $2000
-	lda	<_ch
+	lda	<ch
 	sec
 	sbc	#$10	; subtract 0x10 words (0x20 bytes)
-	sta	<_ch
+	sta	<ch
 
 	; setup correct bank and disable interrupts
 	sei
 	tma	#$06
 	pha
-	lda	<_al
+	lda	<al
 	tam	#$06
 
 	; call XFER instruction
@@ -572,23 +572,23 @@ __oversize_8k_LL1:
 
 	; CH was zero, so check to see what CL is. If zer0, then done.
 __last_blck_2nd_chk:
-	lda	<_cl
+	lda	<cl
 	beq	__ac_vram_dma_out
 
 __last_block_dma:
-	; load length. This is less than bas value in _dl so use _cl instead
-	lda	<_cl
+	; load length. This is less than bas value in dl so use cl instead
+	lda	<cl
 	asl a
-	rol	<_ch
+	rol	<ch
 	sta	_XFER_LEN
-	lda	<_ch
+	lda	<ch
 	sta	_XFER_LEN+1
 
 	; setup correct bank and disable interrupts
 	sei
 	tma	#$06
 	pha
-	lda	<_al
+	lda	<al
 	tam	#$06
 
 	; call XFER instruction
