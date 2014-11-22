@@ -3,8 +3,8 @@
 ;
 
 	.bss
-_bm_mpr4:	.ds 1
-_bm_error:	.ds 1
+bm_mpr4:	.ds 1
+bm_error:	.ds 1
 	.code
 
 ; NOTE: the BRAM format is as follows:
@@ -66,7 +66,7 @@ _bm_check:
 	cpx	#0
 	bne	.err
 	; -- ok
-	stz	_bm_error
+	stz	bm_error
 	ldx	#1
 	cla
 	clc
@@ -144,7 +144,7 @@ _bm_format:
 
 	; -- ok
 .ok:	jsr	_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	clx
 	cla
 	clc
@@ -169,12 +169,12 @@ _bm_free:
 	stwz	<cx
 	; -- ok
 .ok:	jsr	_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	__ldw	<cx
 	clc
 	rts
 	; -- error, bram not formatted
-.err:	sta	_bm_error
+.err:	sta	bm_error
 	jsr	_bm_disable
 	lda	#$FF
 	tax
@@ -201,13 +201,13 @@ _bm_size:
 	stwz	<cx
 	; -- ok
 .ok:	jsr	_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	__ldw	<cx
 	clc
 	rts
 	; -- error, bram not formatted
 .err1:	lda	#$ff
-.err:	sta	_bm_error
+.err:	sta	bm_error
 	jsr	_bm_disable
 	lda	#$FF
 	tax
@@ -230,12 +230,12 @@ _bm_rawread:
 	bcs	.err
 	lda	[bx]
 	sax
-	stz	_bm_error
+	stz	bm_error
 	jsr	_bm_disable
 	cla
 	clc
 	rts
-.err:	sta	_bm_error
+.err:	sta	bm_error
 	jsr	_bm_disable
 	sec
 	rts
@@ -256,13 +256,13 @@ _bm_rawwrite.2:
 	bcs	.err
 	lda	<al
 	sta	[bx]
-	stz	_bm_error
+	stz	bm_error
 	jsr	_bm_disable
 	cla
 	clx
 	clc
 	rts
-.err:	sta	_bm_error
+.err:	sta	bm_error
 	jsr	_bm_disable
 	sec
 	rts
@@ -282,7 +282,7 @@ _bm_exist:
 	bcs	.l1
 	jsr	_bm_disable
 	ldx	#1
-	lda	_bm_error
+	lda	bm_error
 	beq	.noerr
 .l1:	clx
 	cla
@@ -303,7 +303,7 @@ _bm_sizeof:
 	bcs	.l1
 	subw	#$10,<cx
 	jsr	_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	ldx	<cl
 	lda	<ch
 	rts
@@ -318,7 +318,7 @@ _bm_sizeof:
 ;
 
 _bm_errno:
-	ldx	_bm_error
+	ldx	bm_error
 	cla
 	rts
 
@@ -459,7 +459,7 @@ lib2_bm_getptr.2:
 	jsr	_memcpy.3	; copy 12 bytes of name to namebuf
 	addw	<cx,<bp,<ax	; next pointer
 	jsr	lib2_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	lda	<ah
 	ldx	<al
 	clc
@@ -468,7 +468,7 @@ lib2_bm_getptr.2:
 .empty:	cla
 	
 	; -- error, bram not formatted
-.x2:	sta	_bm_error
+.x2:	sta	bm_error
 	jsr	lib2_bm_disable
 	cla
 	clx
@@ -495,7 +495,7 @@ lib2_bm_delete:
 	ldx	<bl
 	jsr	_memcpy.3
 	jsr	lib2_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	clx
 	cla
 	clc
@@ -540,13 +540,13 @@ lib2_bm_read.4:
 	bpl	.l1
 	; -- ok
 .ok:	jsr	lib2_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	__ldw	<ax
 	clc
 	rts
 	; -- error, bad file checksum
 .x1:	lda	#2
-	sta	_bm_error
+	sta	bm_error
 	jsr	lib2_bm_disable
 	clx
 	cla
@@ -591,7 +591,7 @@ lib2_bm_write.4:
 	sta	[si],Y
 	; -- ok
 .ok:	jsr	lib2_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	__ldw	<ax
 	clc
 .x1:	rts
@@ -609,9 +609,9 @@ lib2_bm_create.2:
 	; -- error, not enough ram
 .x1:	lda	#5
 	; -- error, bram not formatted
-.x2:	sta	_bm_error
+.x2:	sta	bm_error
 	jsr	lib2_bm_disable
-	ldx	_bm_error
+	ldx	bm_error
 	cla
 	sec
 	rts
@@ -679,7 +679,7 @@ lib2_bm_create.2:
 	sta	[si],Y
 	; -- ok
 .ok:	jsr	lib2_bm_disable
-	stz	_bm_error
+	stz	bm_error
 	clx
 	cla
 	clc
@@ -726,7 +726,7 @@ lib2_bm_open:
 	cmp	#16
 	beq	.x4
 	; -- ok
-.ok:	stz	_bm_error
+.ok:	stz	bm_error
 	clc
 	rts
 	; -- next entry
@@ -735,7 +735,7 @@ lib2_bm_open:
 	; -- error, file not found
 .x1:	lda	#1
 	; -- error, bram not formatted
-.x2:	sta	_bm_error
+.x2:	sta	bm_error
 	jsr	lib2_bm_disable
 	sec
 	rts
@@ -777,7 +777,7 @@ lib2_bm_enable:
 lib2_bm_unlock:
 	sei
 	tma	#4
-	sta	_bm_mpr4
+	sta	bm_mpr4
 	lda	#$F7
 	tam	#4
 	csl
@@ -791,7 +791,7 @@ lib2_bm_unlock:
 ; This internal function handles the fixup of BRAM segment/locking
 
 lib2_bm_disable:
-	lda	_bm_mpr4
+	lda	bm_mpr4
 	tam	#4
 	lda	bram_lock
 	csh
