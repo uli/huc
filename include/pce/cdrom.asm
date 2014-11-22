@@ -41,18 +41,15 @@ _cd_pause:	jsr	cd_pause
 ; Continue playing CDROM audio after pause
 ; ----
 ;
- .ifndef _LIB3
-_cd_unpause:	lda	cdplay_end_ctl
- .else ; _LIB3
 _cd_unpause:
+ .ifdef _LIB3
 		maplibfunc	lib3_cd_unpause
 		rts
 
 	.bank LIB3_BANK
-; cd_unpause(void)
-; ----
-lib3_cd_unpause:	lda	cdplay_end_ctl
+lib3_cd_unpause:
  .endif ; _LIB3
+		lda	cdplay_end_ctl
 		sta	<_dh
 		lda	cdplay_end_h
 		sta	<_cl
@@ -66,6 +63,7 @@ lib3_cd_unpause:	lda	cdplay_end_ctl
 		tax
 		cla
 		rts
+
  .ifdef _LIB3
 	.bank LIB1_BANK
  .endif ; _LIB3
@@ -96,18 +94,15 @@ _cd_fade:	txa
 ; Play CDROM audio track
 ; ----
 ;
- .ifndef _LIB3
-_cd_playtrk.3:	txa
- .else ; _LIB3
 _cd_playtrk.3:
+ .ifdef _LIB3
 		maplibfunc lib3_cd_playtrk.3
 		rts
 
 	.bank LIB3_BANK
-; cd_playtrk
-; ----
-lib3_cd_playtrk.3:	txa
+lib3_cd_playtrk.3:
  .endif ; _LIB3
+		txa
 		and	#CD_PLAYMODE
 		ora	#CD_TRACK
 		sta	<_dh		; end type + play mode
@@ -144,7 +139,6 @@ lib3_cd_playtrk.3:	txa
 
  .ifdef _LIB3
 	.bank LIB1_BANK
-
  .endif ; _LIB3
 
 ;
@@ -155,19 +149,15 @@ lib3_cd_playtrk.3:	txa
 ; Play CDROM from/to 'minute/second/frame'
 ; ----
 ;
- .ifndef _LIB3
-_cd_playmsf.7:	txa
- .else ; _LIB3
 _cd_playmsf.7:
+ .ifdef _LIB3
 		maplibfunc	lib3_cd_playmsf.7
 		rts
 		
 	.bank LIB3_BANK
-; cd_playmsf	
-; ----
 lib3_cd_playmsf.7:
-		txa
  .endif ; _LIB3
+ 		txa
 		and	#CD_PLAYMODE
 		ora	#CD_MSF
 		sta	<_dh		; end type + play mode
@@ -207,10 +197,9 @@ lib3_cd_playmsf.7:
 		tax
 		cla
 		rts
+
  .ifdef _LIB3
 	.bank LIB1_BANK
-
-
  .endif ; _LIB3
 
 ;
@@ -245,10 +234,7 @@ _cd_trkinfo.4:
 		rts
 		
 	.bank LIB3_BANK
-; char cd_trkinfo(char track [ax], char *min [cx], char *sec [dx], char *frm [bp])
-; ----
 lib3_cd_trkinfo.4:
-
  .endif ; _LIB3
 	      __ldw	<_ax
 		jsr	_cd_trktype
@@ -277,18 +263,15 @@ lib3_cd_trkinfo.4:
 ; Return type of track (data/audio)
 ; ----
 ;
- .ifndef _LIB3
-_cd_trktype:	sax
- .else ; _LIB3
 _cd_trktype:
+ .ifdef _LIB3
 		maplibfunc	lib3_cd_trktype
 		rts
 		
 	.bank LIB3_BANK
-; char cd_trktype(char track)
-; ----
-lib3_cd_trktype:	sax
+lib3_cd_trktype:
  .endif ; _LIB3
+ 		sax
 		jsr	ex_binbcd
 		sta	<_ah		; track #
 		stw	#cd_buf,<_bx
@@ -307,6 +290,7 @@ lib3_cd_trktype:	sax
 .err:		lda	#$ff
 		tax
 		rts
+
  .ifdef _LIB3
 	.bank LIB1_BANK
  .endif ; _LIB3
@@ -323,8 +307,6 @@ _cd_execoverlay:
 		rts
 		
 	.bank LIB3_BANK		
-; char cd_execoverlay
-; ----
 lib3_cd_execoverlay:
  .endif ; _LIB3
 		jsr	cd_overlay
@@ -354,7 +336,6 @@ cd_overlay:
 		rts
  .ifdef _LIB3
 	.bank LIB1_BANK		
-
  .endif ; _LIB3
 
 ;
@@ -369,8 +350,6 @@ _cd_loadvram.4:
 		rts
 		
 	.bank LIB3_BANK
-; char cd_loadvram(int ovl_index [di], int sect_offset [si], int vramaddr [bx], int bytes [acc])
-; ----
 lib3_cd_loadvram.4:
  .endif ; _LIB3
 	      __stw	<_ax
@@ -386,11 +365,11 @@ lib3_cd_loadvram.4:
 		tax
 		cla
 		rts
+
  .ifdef _LIB3
 	.bank LIB1_BANK
-
-
  .endif ; _LIB3
+
 ;
 ; char cd_loaddata(int ovl_index [di], int sect_offset [si], farptr array [bl:bp], int bytes [acc])
 ; ----
@@ -413,8 +392,6 @@ _cd_loaddata.4:
 		rts
 		
 	.bank LIB3_BANK
-; char cd_loaddata(int ovl_index [di], int sect_offset [si], farptr array [bl:bp], int bytes [acc])
-; ----
 lib3_cd_loaddata.4:
  .endif ; _LIB3
 	      __stw	cdtemp_bytes
@@ -634,6 +611,3 @@ _ad_play.4:
 		tax
 		cla
 		rts
- .ifdef _LIB3
-
- .endif ; _LIB3
