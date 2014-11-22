@@ -379,10 +379,10 @@
     -----------
 
         All the subroutines take their arguments from pseudo registers
-        placed in ZP. There are six 16-bit registers, _ax, _bx, _cx, _dx,
-        _si and _di. The first four registers can also be used as pair
-        of 8-bit registers, _ax is split into _al and _ah, _bx into
-        _bl and _bh, etc...
+        placed in ZP. There are six 16-bit registers, ax, bx, cx, dx,
+        si and di. The first four registers can also be used as pair
+        of 8-bit registers, ax is split into al and ah, bx into
+        bl and bh, etc...
 
         Those registers are defined in the 'EQU.INC' include file.
 
@@ -395,7 +395,7 @@
 
             Takes one argument:
 
-                _di, the VRAM address
+                di, the VRAM address
 
             Associated macro is: 
 
@@ -410,7 +410,7 @@
 
             Takes one argument:
 
-                _di, the VRAM address
+                di, the VRAM address
 
             Associated macro is: 
 
@@ -430,10 +430,10 @@
 
             The subroutine takes four arguments:
 
-                _al, the palette block index (0-31)
-                _bl, the bank index of the color data
-                _si, the memory address of the color data
-                _cl, the number of palette block to set
+                al, the palette block index (0-31)
+                bl, the bank index of the color data
+                si, the memory address of the color data
+                cl, the number of palette block to set
 
             Two macros are associated with this subroutine:
 
@@ -456,10 +456,10 @@
             Transfer a memory region to VRAM. This subroutine takes four
             arguments:
 
-                _di = destination address in VRAM
-                _bl = source bank index
-                _si = source memory address
-                _cx = number of 16-bit words to copy
+                di = destination address in VRAM
+                bl = source bank index
+                si = source memory address
+                cx = number of 16-bit words to copy
 
             One macro is associated to this subroutine:
 
@@ -496,11 +496,11 @@
             Transfer a background attribute table (BAT) from memory to VRAM.
             This subroutine takes five arguments:
 
-                _di = the destination base address in VRAM
-                _bl = source bank index
-                _si = source memory address
-                _cl = the number of character column to transfer
-                _ch = the number of row to transfer
+                di = the destination base address in VRAM
+                bl = source bank index
+                si = source memory address
+                cl = the number of character column to transfer
+                ch = the number of row to transfer
 
             Associated macro is:
 
@@ -518,12 +518,12 @@
 
             The subroutine takes six arguments:
 
-                _di = VRAM destination address
-                _bl = font bank index
-                _si = font memory address
-                _al = foreground (0-15)
-                _ah = background (0-15)
-                _cl = number of characters to copy
+                di = VRAM destination address
+                bl = font bank index
+                si = font memory address
+                al = foreground (0-15)
+                ah = background (0-15)
+                cl = number of characters to copy
 
             Associated macro is:
 
