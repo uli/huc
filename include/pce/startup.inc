@@ -51,16 +51,16 @@ SOFT_RESET	= 6
 ; ----
 ; setvec(num, addr)
 ; ----
-; num,  vector number (see defines above)
-; addr, address of the new routine
+; num,	vector number (see defines above)
+; addr,	address of the new routine
 ; ----
 
 setvec	.macro
-	 lda  \1
-	 ldx  #LOW(\2)
-	 ldy  #HIGH(\2)
-	 jsr  set_intvec
-	.endm
+	 lda	\1
+	 ldx	#LOW(\2)
+	 ldy	#HIGH(\2)
+	 jsr	set_intvec
+.endm
 
 ; ----
 ; vec_on(num)
@@ -69,12 +69,12 @@ setvec	.macro
 ; ----
 
 vec_on	.macro
-	.if (\1 = 5)
-	 smb  #6,<irq_m
-	.else
-	 smb  \1,<irq_m
-	.endif
-	.endm
+.if (\1 = 5)
+	 smb	#6,<irq_m
+.else
+	 smb	\1,<irq_m
+.endif
+.endm
 
 ; ----
 ; vec_off(num)
@@ -83,12 +83,12 @@ vec_on	.macro
 ; ----
 
 vec_off	.macro
-	.if (\1 = 5)
-	 rmb  #6,<irq_m
-	.else
-	 rmb  \1,<irq_m
-	.endif
-	.endm
+.if (\1 = 5)
+	 rmb	#6,<irq_m
+.else
+	 rmb	\1,<irq_m
+.endif
+.endm
 
 ; ----
 ; vsync([nb])
@@ -97,12 +97,10 @@ vec_off	.macro
 ; ----
 
 vsync	.macro
-	.if (\# = 0)
+.if (\# = 0)
 	 lda #1
-	.else
+.else
 	 lda \1
-	.endif
-	 jsr  wait_vsync
-	.endm
-
-
+.endif
+	 jsr	wait_vsync
+.endm
