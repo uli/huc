@@ -26,7 +26,7 @@ maplibfunc	.macro
 .endm
 
 
-.ifdef _LIB3
+.ifdef HAVE_LIB3
 ;
 ; maplibfunc_y - Re-map a library function into $A000-space if it's
 ;		 not in library bank #1, preserving Y register
@@ -44,7 +44,7 @@ maplibfunc_y	.macro
 	tam	#page(\1)
 	tya
 .endm
-.endif ; _LIB3
+.endif ; HAVE_LIB3
 
 ;
 ; STWZ - store a word-sized zero value at stated memory location

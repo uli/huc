@@ -4,10 +4,10 @@
 .list
 
 .ifdef _SGX
-_LIB3 = 1
+HAVE_LIB3 = 1
 .endif
 .ifdef _AC
-_LIB3 = 1
+HAVE_LIB3 = 1
 .endif
 
 ; first, set MOUSE to default on:
@@ -30,14 +30,14 @@ SUPPORT_MOUSE	.equ	1
 START_BANK	.equ	0
 LIB1_BANK	.equ	START_BANK
 LIB2_BANK	.equ	START_BANK+1
-.ifdef _LIB3
+.ifdef HAVE_LIB3
 LIB3_BANK	.equ	START_BANK+2
 .endif
 
 .ifdef HUC
 FONT_BANK	.equ	START_BANK+1
 
-.ifdef _LIB3
+.ifdef HAVE_LIB3
 CONST_BANK	 .equ	START_BANK+3
 .else
 CONST_BANK	 .equ	START_BANK+2
@@ -187,7 +187,7 @@ huc_irq_enable	.ds	1
 	.bank LIB2_BANK
 	.org  $A600
 
-.ifdef _LIB3
+.ifdef HAVE_LIB3
 	.code
 	.bank	LIB3_BANK,"Base Library 3"
 	.org	$a000

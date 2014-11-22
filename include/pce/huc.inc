@@ -13,7 +13,7 @@ __temp	.ds 4
 __ptr	.ds 2
 fbank	.ds 1
 fptr	.ds 2
-.ifdef _LIB3
+.ifdef HAVE_LIB3
 maplibfunc_hold_a	.ds 1
 .endif
 
