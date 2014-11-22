@@ -264,24 +264,24 @@ lib3_ac_cd_xfer.4:
 ; ----
 
 lib3_ac_init:
-	jsr	__ac_init
+	jsr	ac_init
 
-	bcs	__no_ac_card
+	bcs	.no_ac_card
 ;else
-	jmp	__ac_card
+	jmp	.ac_card
 
-__no_ac_card:
+.no_ac_card:
 	ldx	#$00
 	cla
-	jmp	__out_ac_init
+	jmp	.out_ac_init
 
-__ac_card:
+.ac_card:
 	ldx	#$01
 	cla
-__out_ac_init:
+.out_ac_init:
 	rts
 
-__ac_init:
+ac_init:
 .include "ac_init.asm"
 	.bank	LIB1_BANK
 
@@ -331,7 +331,7 @@ lib3_ac_vram_xfer.5:
 	lda	#$02
 	;sta	<vdc_reg	;need to due SGX equiv
 	sta	$0010
-	jmp	__loop_ac_vram
+	jmp	loop_ac_vram
 
 
 lib3_ac_vram_xfer.4:
@@ -380,7 +380,7 @@ lib3_ac_vram_xfer.4:
 	st0	#$02
 
 	; main loop. Decrements until by fourth arguement
-__loop_ac_vram:
+loop_ac_vram:
 	lda	<cl
 	pha
 	sec
@@ -389,7 +389,7 @@ __loop_ac_vram:
 	lda	<ch
 	sbc	#$00
 	cmp	#$FF
-	beq	__last_chunk
+	beq	.last_chunk
 	sta	<ch
 	pla
 
@@ -409,11 +409,11 @@ __loop_ac_vram:
 	cli
 
 	; do it all again
-	jmp	__loop_ac_vram
+	jmp	loop_ac_vram
 
-__last_chunk:
+.last_chunk:
 	pla
-	beq	__ac_vram_xfer_out
+	beq	.ac_vram_xfer_out
 
 	; load length. This is less than base value in dl so use cl instead
 	lda	<cl
@@ -437,7 +437,7 @@ __last_chunk:
 	cli
 
 	; that's all.
-__ac_vram_xfer_out:
+.ac_vram_xfer_out:
 	rts
 	.bank	LIB1_BANK
 
@@ -486,7 +486,7 @@ lib3_ac_vram_dma.4:
 	stz	XFER_LEN
 	lda	#$20
 	sta	XFER_LEN+1
-	jmp	__loop_ac_dma
+	jmp	loop_ac_dma
 .endif
 
 lib3_ac_vram_dma.3:
@@ -533,19 +533,19 @@ lib3_ac_vram_dma.3:
 	sta	XFER_LEN+1
 
 	; check to see if transfer size is 8k or less
-__loop_ac_dma:
+loop_ac_dma:
 	lda	<ch
-	beq	__last_blck_2nd_chk
+	beq	.last_blck_2nd_chk
 	cmp	#$10	; compare MSB of 0x1000 words
-	beq	__ac_2nd_check_LL1
-	bcs	__oversize_8k_LL1
+	beq	.ac_2nd_check_LL1
+	bcs	.oversize_8k_LL1
 ;else (is less then)
-	bra	__last_block_dma
-__ac_2nd_check_LL1:
+	bra	.last_block_dma
+.ac_2nd_check_LL1:
 	lda	<cl
-	beq	__last_block_dma
+	beq	.last_block_dma
 
-__oversize_8k_LL1:
+.oversize_8k_LL1:
 	; main loop. Decrements by $2000
 	lda	<ch
 	sec
@@ -568,14 +568,14 @@ __oversize_8k_LL1:
 	cli
 
 	; do it all again
-	jmp	__loop_ac_dma
+	jmp	loop_ac_dma
 
 	; CH was zero, so check to see what CL is. If zer0, then done.
-__last_blck_2nd_chk:
+.last_blck_2nd_chk:
 	lda	<cl
-	beq	__ac_vram_dma_out
+	beq	.ac_vram_dma_out
 
-__last_block_dma:
+.last_block_dma:
 	; load length. This is less than bas value in dl so use cl instead
 	lda	<cl
 	asl a
@@ -600,7 +600,7 @@ __last_block_dma:
 	cli
 
 	; that's all.
-__ac_vram_dma_out:
+.ac_vram_dma_out:
 	rts
 
 	.bank	LIB1_BANK
