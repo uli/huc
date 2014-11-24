@@ -9,23 +9,22 @@
 
 long statement (long func);
 long stdecl (void);
-long doldcls(long stclass);
-void stst (void );
+long doldcls (long stclass);
+void stst (void);
 void compound (long func);
-void doif (void );
-void dowhile (void );
-void dodo (void );
-void dofor (void );
-void doswitch (void );
-void docase (void );
-void dodefault (void );
-void doreturn (void );
-void dobreak (void );
-void docont (void );
+void doif (void);
+void dowhile (void);
+void dodo (void);
+void dofor (void);
+void doswitch (void);
+void docase (void);
+void dodefault (void);
+void doreturn (void);
+void dobreak (void);
+void docont (void);
 void dolabel (char *name);
 void dogoto (void);
 void dumpsw (long *ws);
 void test (long label, long ft);
 
 #endif
-
