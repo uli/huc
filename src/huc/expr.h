@@ -24,9 +24,8 @@ long heir10 (LVALUE *lval, int comma);
 long heir11 (LVALUE *lval, int comma);
 void store (LVALUE *lval);
 void rvalue (LVALUE *lval);
-void needlval (void );
+void needlval (void);
 
-int is_byte(LVALUE *lval);
+int is_byte (LVALUE *lval);
 
 #endif
-
