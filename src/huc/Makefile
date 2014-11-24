@@ -43,6 +43,8 @@ stmt.o:  expr.h gen.h lex.h preproc.h primary.h stmt.h sym.h while.h
 sym.o:   const.h gen.h lex.h primary.h pragma.h sym.h
 while.o: gen.h while.h
 
+indent:	uncrustify.cfg
+	uncrustify -l c -c $< --replace *.c *.h
 
 #
 # Targets
