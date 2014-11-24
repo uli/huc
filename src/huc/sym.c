@@ -29,61 +29,66 @@
  * @param tag
  * @return
  */
-static int init(char *symbol_name, int type, int identity, int *dim, TAG_SYMBOL *tag) {
-    long value;
-    int number_of_chars;
+static int init (char *symbol_name, int type, int identity, int *dim, TAG_SYMBOL *tag)
+{
+	long value;
+	int number_of_chars;
 
-    if(identity == POINTER) {
-        error("initializing non-const pointers unimplemented");
-        kill();
-        return 0;
-    }
-
-    if(qstr(&value)) {
-        if((identity == VARIABLE) || (type != CCHAR && type != CUCHAR))
-            error("found string: must assign to char pointer or array"); /* XXX: make this a warning? */
-        if (identity == POINTER) {
-		/* unimplemented */
-		printf("initptr %s value %ld\n", symbol_name, value);
-		abort();
-		//add_data_initials(symbol_name, CUINT, value, tag);
+	if (identity == POINTER) {
+		error("initializing non-const pointers unimplemented");
+		kill();
+		return (0);
 	}
-	else {
-		number_of_chars = litptr - value;
-		*dim = *dim - number_of_chars;
-		while (number_of_chars > 0) {
-		    add_data_initials(symbol_name, CCHAR, litq[value++], tag);
-		    number_of_chars = number_of_chars - 1;
+
+	if (qstr(&value)) {
+		if ((identity == VARIABLE) || (type != CCHAR && type != CUCHAR))
+			error("found string: must assign to char pointer or array");	/* XXX: make this a warning? */
+		if (identity == POINTER) {
+			/* unimplemented */
+			printf("initptr %s value %ld\n", symbol_name, value);
+			abort();
+			// add_data_initials(symbol_name, CUINT, value, tag);
+		}
+		else {
+			number_of_chars = litptr - value;
+			*dim = *dim - number_of_chars;
+			while (number_of_chars > 0) {
+				add_data_initials(symbol_name, CCHAR, litq[value++], tag);
+				number_of_chars = number_of_chars - 1;
+			}
 		}
 	}
-    } else if (number(&value)) {
-	add_data_initials(symbol_name, CINT, value, tag);
-	*dim = *dim - 1;
-    } else if(qstr(&value)) {
-	add_data_initials(symbol_name, CCHAR, value, tag);
-	*dim = *dim - 1;
-    } else {
-	return 0;
-    }
-    return 1;
+	else if (number(&value)) {
+		add_data_initials(symbol_name, CINT, value, tag);
+		*dim = *dim - 1;
+	}
+	else if (qstr(&value)) {
+		add_data_initials(symbol_name, CCHAR, value, tag);
+		*dim = *dim - 1;
+	}
+	else
+		return (0);
+
+	return (1);
 }
 
 /**
  * initialise structure
  * @param tag
  */
-void struct_init(TAG_SYMBOL *tag, char *symbol_name) {
-	int dim ;
+void struct_init (TAG_SYMBOL *tag, char *symbol_name)
+{
+	int dim;
 	int member_idx;
 
 	member_idx = tag->member_idx;
 	while (member_idx < tag->member_idx + tag->number_of_members) {
 		init(symbol_name, member_table[tag->member_idx + member_idx].type,
-			member_table[tag->member_idx + member_idx].ident, &dim, tag);
+		     member_table[tag->member_idx + member_idx].ident, &dim, tag);
 		++member_idx;
 		if ((match(",") == 0) && (member_idx != (tag->member_idx + tag->number_of_members))) {
 			error("struct initialisaton out of data");
-			break ;
+			break;
 		}
 	}
 }
@@ -96,49 +101,47 @@ void struct_init(TAG_SYMBOL *tag, char *symbol_name) {
  * @param dim
  * @return 1 if variable is initialized
  */
-int initials(char *symbol_name, int type, int identity, int dim, int otag) {
-    int dim_unknown = 0;
-    if(dim == 0) { // allow for xx[] = {..}; declaration
-	dim_unknown = 1;
-    }
-    if(match("=")) {
-	if (type != CCHAR && type != CUCHAR && type != CINT && type != CUINT && type != CSTRUCT) {
-		error("unsupported storage size");
-	}
-	// an array or struct
-	if(match("{")) {
-	    // aggregate initialiser
-	    if ((identity == POINTER || identity == VARIABLE) && type == CSTRUCT) {
-		// aggregate is structure or pointer to structure
-		dim = 0;
-		struct_init(&tag_table[otag], symbol_name);
-	    }
-	    else {
-		while((dim > 0) || dim_unknown) {
-		    if (identity == ARRAY && type == CSTRUCT) {
-			// array of struct
-			needbrack("{");
-			struct_init(&tag_table[otag], symbol_name);
-			--dim;
-			needbrack("}");
-		    }
-		    else {
-			if (init(symbol_name, type, identity, &dim, 0)) {
-			    dim_unknown++;
+int initials (char *symbol_name, int type, int identity, int dim, int otag)
+{
+	int dim_unknown = 0;
+
+	if (dim == 0)	// allow for xx[] = {..}; declaration
+		dim_unknown = 1;
+	if (match("=")) {
+		if (type != CCHAR && type != CUCHAR && type != CINT && type != CUINT && type != CSTRUCT)
+			error("unsupported storage size");
+		// an array or struct
+		if (match("{")) {
+			// aggregate initialiser
+			if ((identity == POINTER || identity == VARIABLE) && type == CSTRUCT) {
+				// aggregate is structure or pointer to structure
+				dim = 0;
+				struct_init(&tag_table[otag], symbol_name);
 			}
-		    }
-		    if(match(",") == 0) {
-			break;
-		    }
+			else {
+				while ((dim > 0) || dim_unknown) {
+					if (identity == ARRAY && type == CSTRUCT) {
+						// array of struct
+						needbrack("{");
+						struct_init(&tag_table[otag], symbol_name);
+						--dim;
+						needbrack("}");
+					}
+					else {
+						if (init(symbol_name, type, identity, &dim, 0))
+							dim_unknown++;
+					}
+					if (match(",") == 0)
+						break;
+				}
+			}
+			needbrack("}");
+			// single constant
 		}
-	    }
-	    needbrack("}");
-	// single constant
-	} else {
-	    init(symbol_name, type, identity, &dim, 0);
+		else
+			init(symbol_name, type, identity, &dim, 0);
 	}
-    }
-    return identity;
+	return (identity);
 }
 
 
@@ -148,10 +151,9 @@ int initials(char *symbol_name, int type, int identity, int dim, int otag) {
  *  David, added support for const arrays and improved error detection
  *
  */
-long
-declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
+long declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 {
-	long	 k, id;
+	long k, id;
 	char sname[NAMESIZE];
 	int ptr_order;
 	SYMBOL *s;
@@ -160,36 +162,38 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 		for (;;) {
 			ptr_order = 0;
 			if (endst())
-				return 0;
+				return (0);
+
 			k = 1;
 			id = VARIABLE;
-			while(match ("*")) {
+			while (match("*")) {
 				id = POINTER;
 				ptr_order++;
 			}
 			if (amatch("__fastcall", 10)) {
 				newfunc(NULL, ptr_order, typ, otag, 1);
-				return 2;
+				return (2);
 			}
-			if(!symname (sname))
-				illname ();
+			if (!symname(sname))
+				illname();
 			if (match("(")) {
 				newfunc(sname, ptr_order, typ, otag, 0);
-				return 2;
+				return (2);
 			}
-			if ((s = findglb (sname))) {
+			if ((s = findglb(sname))) {
 				if (s->storage != EXTERN && !mtag)
-					multidef (sname);
+					multidef(sname);
 			}
 			if (mtag && find_member(mtag, sname))
 				multidef(sname);
-			if (match ("[")) {
+			if (match("[")) {
 				if (stor == CONST)
 					k = array_initializer(typ, id, stor);
 				else
 					k = needsub();
 				if (k == -1)
 					return (1);
+
 				/* XXX: This doesn't really belong here, but I
 				   can't think of a better place right now. */
 				if (id == POINTER && (typ == CCHAR || typ == CUCHAR || typ == CVOID))
@@ -198,7 +202,7 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 					id = ARRAY;
 				else {
 					if (stor == CONST) {
-						error ("empty const array");
+						error("empty const array");
 						id = ARRAY;
 					}
 					else if (id == POINTER)
@@ -208,7 +212,8 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 						ptr_order++;
 					}
 				}
-			} else {
+			}
+			else {
 				if (stor == CONST) {
 					/* stor  = PUBLIC; XXX: What is this for? */
 					scalar_initializer(typ, id, stor);
@@ -225,13 +230,13 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 				}
 				if (stor != CONST) {
 					id = initials(sname, typ, id, k, otag);
-					SYMBOL *c = addglb (sname, id, typ, k, stor, s);
+					SYMBOL *c = addglb(sname, id, typ, k, stor, s);
 					if (typ == CSTRUCT)
 						c->tagidx = otag;
 					c->ptr_order = ptr_order;
 				}
 				else {
-					SYMBOL *c = addglb (sname, id, typ, k, CONST, s);
+					SYMBOL *c = addglb(sname, id, typ, k, CONST, s);
 					if (c) {
 						add_const(typ);
 						if (typ == CSTRUCT)
@@ -257,10 +262,11 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
 			}
 			break;
 		}
-		if (endst ())
+		if (endst())
 			return (0);
-		if (!match (",")) {
-			error ("syntax error");
+
+		if (!match(",")) {
+			error("syntax error");
 			return (1);
 		}
 	}
@@ -277,44 +283,45 @@ declglb (long typ, long stor, TAG_SYMBOL *mtag, int otag, int is_struct)
  */
 void declloc (long typ, long stclass, int otag)
 {
-	long  k = 0, j;
+	long k = 0, j;
 	long elements = 0;
 	char sname[NAMESIZE];
-	long  totalk = 0;
+	long totalk = 0;
 
 	for (;;) {
 		for (;;) {
 			int ptr_order = 0;
-			if (endst ())
-			{
+			if (endst()) {
 				if (!norecurse)
-					stkp = modstk (stkp - totalk);
+					stkp = modstk(stkp - totalk);
 				return;
 			}
 			j = VARIABLE;
-			while (match ("*")) {
+			while (match("*")) {
 				j = POINTER;
 				ptr_order++;
 			}
-			if (!symname (sname))
-				illname ();
-			if (findloc (sname))
-				multidef (sname);
-			if (match ("[")) {
-				elements = k = needsub ();
+			if (!symname(sname))
+				illname();
+			if (findloc(sname))
+				multidef(sname);
+			if (match("[")) {
+				elements = k = needsub();
 				if (k) {
 					if (typ == CINT || typ == CUINT || j == POINTER)
 						k = k * INTSIZE;
 					else if (typ == CSTRUCT)
 						k *= tag_table[otag].size;
 					j = ARRAY;
-				} else {
+				}
+				else {
 					j = POINTER;
 					ptr_order++;
 					k = INTSIZE;
 					elements = 1;
 				}
-			} else {
+			}
+			else {
 				elements = 1;
 				if ((typ == CCHAR || typ == CUCHAR) & (j != POINTER))
 					k = 1;
@@ -356,7 +363,7 @@ void declloc (long typ, long stclass, int otag)
 				else
 					addglb(lsname, j, typ, elements, LSTATIC, 0);
 
-				SYMBOL *c = addloc( sname, j, typ, label, LSTATIC, k);
+				SYMBOL *c = addloc(sname, j, typ, label, LSTATIC, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
 				c->ptr_order = ptr_order;
@@ -368,9 +375,9 @@ void declloc (long typ, long stclass, int otag)
 				// stkp = modstk (stkp - k);
 				// addloc (sname, j, typ, stkp, AUTO);
 				if (!norecurse)
-					c = addloc (sname, j, typ, stkp - totalk, AUTO, k);
+					c = addloc(sname, j, typ, stkp - totalk, AUTO, k);
 				else
-					c = addloc (sname, j, typ, locals_ptr - totalk, AUTO, k);
+					c = addloc(sname, j, typ, locals_ptr - totalk, AUTO, k);
 				if (typ == CSTRUCT)
 					c->tagidx = otag;
 				c->ptr_order = ptr_order;
@@ -380,7 +387,7 @@ void declloc (long typ, long stclass, int otag)
 		if (match("=")) {
 			long num[1];
 			if (!norecurse)
-				stkp = modstk (stkp - totalk);
+				stkp = modstk(stkp - totalk);
 			else
 				locals_ptr -= totalk;
 			totalk -= k;
@@ -402,19 +409,17 @@ void declloc (long typ, long stclass, int otag)
 						out_ins_ex(I_STWI, T_SYMBOL, (long)locsym, T_VALUE, *num);
 					}
 					else
-					out_ins_ex(X_STWI_S, T_VALUE, 0, T_VALUE, *num);
+						out_ins_ex(X_STWI_S, T_VALUE, 0, T_VALUE, *num);
 				}
 				else
 					error("complex type initialization not implemented");
 			}
-			else {
+			else
 				error("cannot parse initializer");
-			}
 		}
-		if (!match (","))
-		{
+		if (!match(",")) {
 			if (!norecurse)
-				stkp = modstk (stkp - totalk);
+				stkp = modstk(stkp - totalk);
 			else
 				locals_ptr -= totalk;
 			return;
@@ -427,60 +432,63 @@ void declloc (long typ, long stclass, int otag)
  */
 long needsub (void)
 {
-	long	num[1];
+	long num[1];
 
-	if (match ("]"))
+	if (match("]"))
 		return (0);
-	if (!const_expr (num, "]", NULL)) {
-		error ("must be constant");
+
+	if (!const_expr(num, "]", NULL)) {
+		error("must be constant");
 		num[0] = 1;
 	}
 	if (!match("]"))
 		error("internal error");
 	if (num[0] < 0) {
-		error ("negative size illegal");
+		error("negative size illegal");
 		num[0] = (-num[0]);
 	}
 	return (num[0]);
 }
 
-SYMBOL* findglb (char *sname)
+SYMBOL *findglb (char *sname)
 {
-	SYMBOL	*ptr;
+	SYMBOL *ptr;
 
 	ptr = STARTGLB;
 	while (ptr != glbptr) {
-		if (astreq (sname, ptr->name, NAMEMAX))
+		if (astreq(sname, ptr->name, NAMEMAX))
 			return (ptr);
+
 		ptr++;
 	}
-	return NULL;
+	return (NULL);
 }
 
-SYMBOL* findloc (char *sname)
+SYMBOL *findloc (char *sname)
 {
-	SYMBOL	*ptr;
+	SYMBOL *ptr;
 
 	ptr = locptr;
 	while (ptr != STARTLOC) {
 		ptr--;
-		if (astreq (sname, ptr->name, NAMEMAX))
+		if (astreq(sname, ptr->name, NAMEMAX))
 			return (ptr);
 	}
-	return NULL;
+	return (NULL);
 }
 
-SYMBOL *addglb (char* sname,char id,char typ,long value,long stor, SYMBOL *replace)
+SYMBOL *addglb (char *sname, char id, char typ, long value, long stor, SYMBOL *replace)
 {
-	char	*ptr;
+	char *ptr;
 
 	if (!replace) {
-		cptr = findglb (sname);
+		cptr = findglb(sname);
 		if (cptr)
 			return (cptr);
+
 		if (glbptr >= ENDGLB) {
-			error ("global symbol table overflow");
-			return NULL;
+			error("global symbol table overflow");
+			return (NULL);
 		}
 		cptr = glbptr;
 		glbptr++;
@@ -489,7 +497,7 @@ SYMBOL *addglb (char* sname,char id,char typ,long value,long stor, SYMBOL *repla
 		cptr = replace;
 
 	ptr = cptr->name;
-	while (an (*ptr++ = *sname++));
+	while (an(*ptr++ = *sname++)) ;
 	cptr->ident = id;
 	cptr->type = typ;
 	cptr->storage = stor;
@@ -505,7 +513,7 @@ SYMBOL *addglb (char* sname,char id,char typ,long value,long stor, SYMBOL *repla
 	return (cptr);
 }
 
-SYMBOL *addglb_far (char* sname, char typ)
+SYMBOL *addglb_far (char *sname, char typ)
 {
 	SYMBOL *ptr;
 
@@ -516,20 +524,21 @@ SYMBOL *addglb_far (char* sname, char typ)
 }
 
 
-SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass, long size)
+SYMBOL *addloc (char *sname, char id, char typ, long value, long stclass, long size)
 {
-	char	*ptr;
+	char *ptr;
 
-	cptr = findloc (sname);
+	cptr = findloc(sname);
 	if (cptr)
 		return (cptr);
+
 	if (locptr >= ENDLOC) {
-		error ("local symbol table overflow");
-		return NULL;
+		error("local symbol table overflow");
+		return (NULL);
 	}
 	cptr = locptr;
 	ptr = locptr->name;
-	while (an (*ptr++ = *sname++));
+	while (an(*ptr++ = *sname++)) ;
 	cptr->ident = id;
 	cptr->type = typ;
 	cptr->storage = stclass;
@@ -543,35 +552,37 @@ SYMBOL *addloc (char* sname,char id,char typ,long value,long stclass, long size)
  *	test if next input string is legal symbol name
  *
  */
-long symname (char* sname)
+long symname (char *sname)
 {
-	long	k;
+	long k;
+
 /*	char	c; */
 
-	blanks ();
-	if (!alpha (ch ()))
+	blanks();
+	if (!alpha(ch()))
 		return (0);
+
 	k = 0;
-	while (an (ch ()))
-		sname[k++] = gch ();
+	while (an(ch()))
+		sname[k++] = gch();
 	sname[k] = 0;
 	return (1);
 }
 
 void illname (void)
 {
-	error ("illegal symbol name");
+	error("illegal symbol name");
 }
 
-void multidef (char* sname)
+void multidef (char *sname)
 {
-	error ("already defined");
-	comment ();
-	outstr (sname);
-	nl ();
+	error("already defined");
+	comment();
+	outstr(sname);
+	nl();
 }
 
-long glint(SYMBOL* sym)
+long glint (SYMBOL *sym)
 {
-	return sym->offset;
+	return (sym->offset);
 }
