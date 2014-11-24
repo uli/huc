@@ -25,25 +25,25 @@ extern long arg_stack_flag;
  *	print all assembler info before any code is generated
  *
  */
-void gdata (void )
+void gdata (void)
 {
 	if (segment == 1) {
-		segment  = 0;
-		ol (".bss");
+		segment = 0;
+		ol(".bss");
 	}
 }
 
-void gtext (void )
+void gtext (void)
 {
 	if (segment == 0) {
-		segment  = 1;
-		ol (".code");
+		segment = 1;
+		ol(".code");
 	}
 }
 
-void header (void )
+void header (void)
 {
-time_t today;
+	time_t today;
 
 	outstr("; Small C HuC6280 (v0.2, 08/Nov/97)\n;\n");
 	outstr("; Taken to HuC (22/Feb/00)\n;\n");
@@ -60,7 +60,7 @@ time_t today;
 	/* Reserve space for further global definitions. */
 	output_globdef = ftell(output);
 	outstr("                                                                           ");
-	nl ();
+	nl();
 }
 
 void asmdefines (void)
@@ -68,18 +68,17 @@ void asmdefines (void)
 	outstr(asmdefs);
 }
 
-void inc_startup (void )
+void inc_startup (void)
 {
-	if (startup_incl == 0)
-	{
+	if (startup_incl == 0) {
 		startup_incl = 1;
 
 		nl();
 		outstr("\t.include \"startup.asm\"\n");
 		outstr("\t.data\n");
 		outstr("\t.bank DATA_BANK\n\n");
-		gtext ();
-		nl ();
+		gtext();
+		nl();
 	}
 }
 
@@ -87,34 +86,34 @@ void inc_startup (void )
  *	print pseudo-op  to define a byte
  *
  */
-void defbyte (void )
+void defbyte (void)
 {
-	ot (".db\t");
+	ot(".db\t");
 }
 
 /*
  *	print pseudo-op to define storage
  *
  */
-void defstorage (void )
+void defstorage (void)
 {
-	ot (".ds\t");
+	ot(".ds\t");
 }
 
 /*
  *	print pseudo-op to define a word
  *
  */
-void defword (void )
+void defword (void)
 {
-	ot (".dw\t");
+	ot(".dw\t");
 }
 
 /*
  *	output instructions
  *
  */
-void out_ins(long code, long type, long data)
+void out_ins (long code, long type, long data)
 {
 	INS tmp;
 
@@ -124,30 +123,30 @@ void out_ins(long code, long type, long data)
 	gen_ins(&tmp);
 }
 
-void out_ins_ex(long code, long type, long data, int imm_type, long imm)
+void out_ins_ex (long code, long type, long data, int imm_type, long imm)
 {
 	INS tmp;
 
 	tmp.code = code;
 	tmp.type = type;
 	tmp.data = data;
-	tmp.imm  = imm;
+	tmp.imm = imm;
 	tmp.imm_type = imm_type;
 	gen_ins(&tmp);
 }
 
-void out_ins_sym(long code, long type, long data, SYMBOL *sym)
+void out_ins_sym (long code, long type, long data, SYMBOL *sym)
 {
 	INS tmp;
 
 	tmp.code = code;
 	tmp.type = type;
 	tmp.data = data;
-	tmp.sym  = sym;
+	tmp.sym = sym;
 	gen_ins(&tmp);
 }
 
-void gen_ins(INS *tmp)
+void gen_ins (INS *tmp)
 {
 	if (optimize)
 		push_ins(tmp);
@@ -159,7 +158,7 @@ void gen_ins(INS *tmp)
 	}
 }
 
-static void out_type(long type, long data)
+static void out_type (long type, long data)
 {
 	switch (type) {
 	case T_VALUE:
@@ -197,7 +196,7 @@ static void out_type(long type, long data)
 	}
 }
 
-static void out_addr(long type, long data)
+static void out_addr (long type, long data)
 {
 	switch (type) {
 	case T_LABEL:
@@ -221,9 +220,10 @@ static void out_addr(long type, long data)
 	}
 }
 
-void dump_ins(INS *tmp)
+void dump_ins (INS *tmp)
 {
 	FILE *save = output;
+
 	output = stdout;
 	gen_code(tmp);
 	output = save;
@@ -233,7 +233,7 @@ void dump_ins(INS *tmp)
  *	gen assembly code
  *
  */
-void gen_code(INS *tmp)
+void gen_code (INS *tmp)
 {
 	long code;
 	long type;
@@ -243,7 +243,7 @@ void gen_code(INS *tmp)
 	code = tmp->code;
 	type = tmp->type;
 	data = tmp->data;
-	imm  = tmp->imm;
+	imm = tmp->imm;
 
 	if (type == T_NOP)
 		return;
