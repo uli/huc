@@ -23,10 +23,10 @@
  *	setup a new const array
  *
  */
-void new_const(void )
+void new_const (void)
 {
 	const_ptr = &const_var[const_nb];
-	const_val_idx  = const_val_start;
+	const_val_idx = const_val_start;
 	const_data_idx = const_data_start;
 }
 
@@ -35,18 +35,18 @@ void new_const(void )
  *	add a const array
  *
  */
-void add_const(long typ)
+void add_const (long typ)
 {
-	if((const_data_idx >= MAX_CONST_DATA) || (const_val_idx >= MAX_CONST_VALUE))
+	if ((const_data_idx >= MAX_CONST_DATA) || (const_val_idx >= MAX_CONST_VALUE))
 		error("too much constant data (> 8KB)");
 	if (const_nb >= MAX_CONST)
 		error("too much constant arrays");
 	else {
-		const_ptr->sym   = cptr;
-		const_ptr->typ   = typ;
-		const_ptr->size  = const_val_idx - const_val_start;
-		const_ptr->data  = const_val_start;
-		const_val_start  = const_val_idx;
+		const_ptr->sym = cptr;
+		const_ptr->typ = typ;
+		const_ptr->size = const_val_idx - const_val_start;
+		const_ptr->data = const_val_start;
+		const_val_start = const_val_idx;
 		const_data_start = const_data_idx;
 		const_nb++;
 	}
@@ -57,32 +57,32 @@ void add_const(long typ)
  *	array initializer
  *
  */
-long array_initializer(long typ, long id, long stor)
+long array_initializer (long typ, long id, long stor)
 {
 	long nb;
 	long k;
 	long i;
 
 	nb = 0;
-	k  = needsub ();
+	k = needsub();
 
 	if (stor == CONST)
 		new_const();
-	if (match ("=")) {
+	if (match("=")) {
 		if (stor != CONST)
-			error ("can't initialize non-const arrays");
-		if(!match ("{")) {
-			error ("syntax error");
+			error("can't initialize non-const arrays");
+		if (!match("{")) {
+			error("syntax error");
 			return (-1);
 		}
-		if(!match ("}")) {
+		if (!match("}")) {
 			for (;;) {
-				if (match ("}")) {
-					error ("value missing");
+				if (match("}")) {
+					error("value missing");
 					break;
 				}
-				if (match (",")) {
-					error ("value missing");
+				if (match(",")) {
+					error("value missing");
 					continue;
 				}
 				if ((ch() == '\"') && (id == POINTER))
@@ -97,7 +97,7 @@ long array_initializer(long typ, long id, long stor)
 					error("syntax error");
 					return (-1);
 				}
-				if (match ("}"))
+				if (match("}"))
 					break;
 				gch();
 			}
@@ -106,7 +106,7 @@ long array_initializer(long typ, long id, long stor)
 			k = nb;
 		if (nb > k) {
 			nb = k;
-			error ("excess elements in array initializer");
+			error("excess elements in array initializer");
 		}
 	}
 	if (stor == CONST) {
@@ -123,19 +123,19 @@ long array_initializer(long typ, long id, long stor)
  *	scalar initializer
  *
  */
-long scalar_initializer(long typ, long id, long stor)
+long scalar_initializer (long typ, long id, long stor)
 {
 	long i;
 
 	if (stor == CONST)
 		new_const();
-	if (match ("=")) {
+	if (match("=")) {
 		if (stor != CONST)
-			error ("can't initialize non-const scalars");
+			error("can't initialize non-const scalars");
 		blanks();
 		if (ch() == ';') {
 			error("value missing");
-			return -1;
+			return (-1);
 		}
 		if (ch() == '\"' && id == POINTER)
 			i = get_string_ptr(typ);
@@ -149,7 +149,7 @@ long scalar_initializer(long typ, long id, long stor)
 			return (-1);
 		}
 	}
-	return 1;
+	return (1);
 }
 
 
@@ -157,9 +157,9 @@ long scalar_initializer(long typ, long id, long stor)
  *  add a string to the literal pool and return a pointer (index) to it
  *
  */
-long get_string_ptr(long typ)
+long get_string_ptr (long typ)
 {
-	long  num[1];
+	long num[1];
 
 	if (typ == CINT || typ == CUINT)
 		error("incompatible pointer type");
@@ -174,21 +174,21 @@ long get_string_ptr(long typ)
  *  get value raw text
  *
  */
-long get_raw_value(char sep)
+long get_raw_value (char sep)
 {
-	char  c;
-	char  tmp[LINESIZE+1];
+	char c;
+	char tmp[LINESIZE + 1];
 	char *ptr;
-	long   level;
-	long   flag;
-	long   start;
+	long level;
+	long flag;
+	long start;
 	int is_address = 0;
 	int had_address = 0;
 
-	flag  = 0;
+	flag = 0;
 	level = 0;
 	start = const_data_idx;
-	ptr   = tmp;
+	ptr = tmp;
 
 	for (;;) {
 		c = ch();
@@ -210,7 +210,7 @@ long get_raw_value(char sep)
 				/* next */
 				c = ch();
 
-				if((c == 0) || (c == '\"'))
+				if ((c == 0) || (c == '\"'))
 					break;
 			}
 		}
@@ -233,15 +233,15 @@ long get_raw_value(char sep)
 
 		/* parse */
 		if (an(c)) {
-			flag  = 1;
-		   *ptr++ = c;
+			flag = 1;
+			*ptr++ = c;
 		}
 		else {
 			/* add buffer */
 			if (flag) {
 				flag = 0;
-			   *ptr  = '\0';
-				ptr  = tmp;
+				*ptr = '\0';
+				ptr = tmp;
 				had_address += add_buffer(tmp, c, is_address);
 				is_address = 0;
 				if ((c == '+' || c == '-') && had_address) {
@@ -252,7 +252,7 @@ long get_raw_value(char sep)
 					   pointer arithmetic correctly, so
 					   we don't allow it. */
 					error("pointer arithmetic in initializers not supported");
-					return 0;
+					return (0);
 				}
 			}
 
@@ -291,13 +291,14 @@ long get_raw_value(char sep)
 int add_buffer (char *p, char c, int is_address)
 {
 	SYMBOL *s = 0;
+
 	/* underscore */
 	if (alpha(*p)) {
 		if (!is_address) {
 			s = findglb(p);
 			if (!s) {
 				error("undefined global");
-				return 0;
+				return (0);
 			}
 			/* Unless preceded by an address operator, we
 			   need to get the value, and it better be
@@ -305,7 +306,7 @@ int add_buffer (char *p, char c, int is_address)
 			p = get_const(s);
 			if (!p) {
 				error("non-constant initializer");
-				return 0;
+				return (0);
 			}
 		}
 		else if (c != '(') {
@@ -324,13 +325,14 @@ int add_buffer (char *p, char c, int is_address)
 	}
 
 	/* tell the caller if there were any addresses involved */
-	return (s && s->ident == POINTER) || is_address;
+	return ((s && s->ident == POINTER) || is_address);
 }
 
-char *get_const(SYMBOL *s)
+char *get_const (SYMBOL *s)
 {
 	int i;
 	struct const_array *const_ptr;
+
 	if (const_nb) {
 		const_ptr = const_var;
 
@@ -338,24 +340,25 @@ char *get_const(SYMBOL *s)
 			if (const_ptr->sym == s) {
 				int j = const_val[const_ptr->data];
 				if (j >= 0)
-					return &const_data[j];
+					return (&const_data[j]);
 				else
-					return 0;
+					return (0);
 			}
 			const_ptr++;
 		}
 	}
-	return 0;
+	return (0);
 }
 
 /*
  *	dump the constant pool
  *
  */
-void dump_const (void )
+void dump_const (void)
 {
-	long	i, j, k;
+	long i, j, k;
 	long size;
+
 /*	long c; */
 
 	if (const_nb) {
@@ -365,9 +368,9 @@ void dump_const (void )
 			size = const_ptr->size;
 			cptr = const_ptr->sym;
 			cptr->storage = EXTERN;
-			prefix ();
-			outstr (cptr->name);
-			outstr (":");
+			prefix();
+			outstr(cptr->name);
+			outstr(":");
 			nl();
 			j = const_ptr->data;
 
@@ -375,12 +378,13 @@ void dump_const (void )
 				k = const_val[j++];
 
 				if ((cptr->type == CCHAR || cptr->type == CUCHAR) &&
-				     cptr->ident != POINTER &&
-				     !(cptr->ident == ARRAY && cptr->ptr_order > 0)) {
-					defbyte ();
+				    cptr->ident != POINTER &&
+				    !(cptr->ident == ARRAY && cptr->ptr_order > 0)) {
+					defbyte();
 					const_size += 1;
-				} else {
-					defword ();
+				}
+				else {
+					defword();
 					const_size += 2;
 				}
 				if ((k == -1) || (k >= MAX_CONST_DATA))
@@ -400,4 +404,3 @@ void dump_const (void )
 		}
 	}
 }
-
