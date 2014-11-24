@@ -19,37 +19,37 @@
  */
 void ns (void)
 {
-	if (!match (";"))
-		error ("missing semicolon");
+	if (!match(";"))
+		error("missing semicolon");
 }
 
-void junk (void )
+void junk (void)
 {
-	if (an (inbyte ()))
-		while (an (ch ()))
-			gch ();
+	if (an(inbyte()))
+		while (an(ch()))
+			gch();
 	else
-		while (an (ch ())) {
-			if (ch () == 0)
+		while (an(ch())) {
+			if (ch() == 0)
 				break;
-			gch ();
+			gch();
 		}
-	blanks ();
+	blanks();
 }
 
-long endst (void )
+long endst (void)
 {
-	blanks ();
-	return ((streq (line + lptr, ";") | (ch () == 0)));
+	blanks();
+	return ((streq(line + lptr, ";") | (ch() == 0)));
 }
 
 void needbrack (char *str)
 {
-	if (!match (str)) {
-		error ("missing bracket");
-		comment ();
-		outstr (str);
-		nl ();
+	if (!match(str)) {
+		error("missing bracket");
+		comment();
+		outstr(str);
+		nl();
 	}
 }
 
@@ -81,30 +81,31 @@ long numeric (char c)
  */
 long an (char c)
 {
-	return ((alpha (c)) | (numeric (c)));
+	return ((alpha(c)) | (numeric(c)));
 }
 
-long sstreq (char* str1)
+long sstreq (char *str1)
 {
 	return (streq(line + lptr, str1));
 }
 
-long streq (char* str1, char* str2)
+long streq (char *str1, char *str2)
 {
-	long	k;
+	long k;
 
 	k = 0;
 	while (str2[k]) {
 		if ((str1[k] != str2[k]))
 			return (0);
+
 		k++;
 	}
 	return (k);
 }
 
-long astreq (char* str1, char* str2, long len)
+long astreq (char *str1, char *str2, long len)
 {
-	long	k;
+	long k;
 
 	k = 0;
 	while (k < len) {
@@ -116,19 +117,21 @@ long astreq (char* str1, char* str2, long len)
 			break;
 		k++;
 	}
-	if (an (str1[k]))
+	if (an(str1[k]))
 		return (0);
-	if (an (str2[k]))
+
+	if (an(str2[k]))
 		return (0);
+
 	return (k);
 }
 
-long match (char* lit)
+long match (char *lit)
 {
-	long	k;
+	long k;
 
-	blanks ();
-	k = streq (line + lptr, lit);
+	blanks();
+	k = streq(line + lptr, lit);
 	if (k) {
 		lptr = lptr + k;
 		return (1);
@@ -136,16 +139,16 @@ long match (char* lit)
 	return (0);
 }
 
-long amatch (char* lit, long len)
+long amatch (char *lit, long len)
 {
-	long	k;
+	long k;
 
-	blanks ();
-	k = astreq (line + lptr, lit, len);
+	blanks();
+	k = astreq(line + lptr, lit, len);
 	if (k) {
 		lptr = lptr + k;
-		while (an (ch ()))
-			inbyte ();
+		while (an(ch()))
+			inbyte();
 		return (1);
 	}
 	return (0);
@@ -153,18 +156,18 @@ long amatch (char* lit, long len)
 
 int lex_stop_at_eol = 0;
 
-void blanks (void )
+void blanks (void)
 {
 	FOREVER {
-		while (ch () == 0 && !lex_stop_at_eol) {
-			preprocess ();
-			if (!input || feof (input))
+		while (ch() == 0 && !lex_stop_at_eol) {
+			preprocess();
+			if (!input || feof(input))
 				break;
 		}
-		if (ch () == ' ')
-			gch ();
-		else if (ch () == 9)
-			gch ();
+		if (ch() == ' ')
+			gch();
+		else if (ch() == 9)
+			gch();
 		else
 			return;
 	}

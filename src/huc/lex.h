@@ -15,15 +15,15 @@ long numeric (char c);
 
 long an (char c);
 
-long sstreq (char* str1);
+long sstreq (char *str1);
 
-long streq (char* str1, char* str2);
+long streq (char *str1, char *str2);
 
-long astreq (char* str1, char* str2, long len);
+long astreq (char *str1, char *str2, long len);
 
-long match (char* lit);
+long match (char *lit);
 
-long amatch (char* lit, long len);
+long amatch (char *lit, long len);
 
 void blanks (void);
 
