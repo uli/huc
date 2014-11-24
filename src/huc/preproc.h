@@ -5,7 +5,7 @@ void doinclude (void);
 
 void incl_globals (void);
 
-FILE* fixiname (void);
+FILE *fixiname (void);
 
 void init_path (void);
 
@@ -21,24 +21,24 @@ void preprocess (void);
 
 void doifdef (long ifdef);
 
-long ifline(void);
+long ifline (void);
 
-void noiferr(void);
+void noiferr (void);
 
 long cpp (int);
 
 long keepch (char c);
 
-void defmac(char* s);
+void defmac (char *s);
 
 void addmac (void);
 
-void delmac(struct macro *mp);
+void delmac (struct macro *mp);
 
-struct macro *findmac (char* sname);
+struct macro *findmac (char *sname);
 
 void toggle (char name, long onoff);
 
-char **include_dirs(void);
+char **include_dirs (void);
 
 #endif

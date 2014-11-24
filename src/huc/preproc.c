@@ -3,7 +3,7 @@
  *
  */
 
-//#define DEBUG_PREPROC
+// #define DEBUG_PREPROC
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,28 +41,28 @@
 /* locals */
 static char *incpath[10];
 
-static const char *include_path(void)
+static const char *include_path (void)
 {
 	const char *p;
+
 	p = getenv("PCE_INCLUDE");
 	if (!p)
 		p = DEFAULT_DIRS;
-	return p;
+	return (p);
 }
 
-char **include_dirs(void)
+char **include_dirs (void)
 {
-	return incpath;
+	return (incpath);
 }
 
 /*
  *  init the include paths
  */
-void
-init_path(void)
+void init_path (void)
 {
-	const char *p,*pl;
-	long	  i, l;
+	const char *p, *pl;
+	long i, l;
 
 	p = include_path();
 
@@ -81,7 +81,7 @@ init_path(void)
 				p++;
 			incpath[i][l] = '\0';
 			if (incpath[i][l - 1] != PATH_SEPARATOR)
-				strcat(incpath[i],   PATH_SEPARATOR_STRING);
+				strcat(incpath[i], PATH_SEPARATOR_STRING);
 #ifdef DEBUG_PREPROC
 			printf("incpath %s\n", incpath[i]);
 #endif
@@ -97,12 +97,11 @@ init_path(void)
 /*
  *  open a file - browse paths
  */
-FILE *
-file_open(char *name, char *mode)
+FILE *file_open (char *name, char *mode)
 {
 	FILE *fp = NULL;
-	char  testname[256];
-	long	  i;
+	char testname[256];
+	long i;
 
 	for (i = 0; i < 10; i++) {
 		if (incpath[i] && strlen(incpath[i])) {
@@ -122,31 +121,30 @@ file_open(char *name, char *mode)
  */
 void doinclude (void)
 {
-	FILE	*inp2;
+	FILE *inp2;
 
-	blanks ();
-	inp2 = fixiname ();
-	if (inp2)
-	{
+	blanks();
+	inp2 = fixiname();
+	if (inp2) {
 		if (inclsp < INCLSIZ) {
-                        inclstk_line[inclsp] = line_number;
-                        line_number = 0;
+			inclstk_line[inclsp] = line_number;
+			line_number = 0;
 			inclstk[inclsp++] = input2;
 			input2 = inp2;
-		} else {
-			fclose (inp2);
-			error ("too many nested includes");
+		}
+		else {
+			fclose(inp2);
+			error("too many nested includes");
 		}
 	}
-	else {
-		error ("Could not open include file");
-	}
-	kill ();
+	else
+		error("Could not open include file");
+	kill();
 }
 
-void incl_globals(void)
+void incl_globals (void)
 {
-	FILE	*inp2;
+	FILE *inp2;
 
 	/* open the globals.h file to include those variables */
 	/* but if we can't open it, it's no problem */
@@ -161,9 +159,10 @@ void incl_globals(void)
 			inclstk[inclsp++] = input2;
 			input2 = inp2;
 			globals_h_in_process = 1;
-		} else {
-			fclose (inp2);
-			error ("too many nested includes");
+		}
+		else {
+			fclose(inp2);
+			error("too many nested includes");
 		}
 	}
 }
@@ -172,37 +171,36 @@ void incl_globals(void)
 /*
  *	fixiname - remove "brackets" around include file name
  */
-FILE* fixiname (void)
+FILE *fixiname (void)
 {
-	char  c1, c2, *p, *ibp;
-	char  buf[LINESIZE];
+	char c1, c2, *p, *ibp;
+	char buf[LINESIZE];
 	FILE *fp;
 
 	ibp = &buf[0];
-	c1 = gch ();
+	c1 = gch();
 	c2 = (c1 == '"') ? '"' : '>';
-	if  ((c1 != '"') && (c1 != '<')) {
-		error ("incorrect file name delimiter");
+	if ((c1 != '"') && (c1 != '<')) {
+		error("incorrect file name delimiter");
 		return (NULL);
 	}
 	for (p = line + lptr; *p;) {
 		if (*p == c2)
-			 break;
-		if((*p == '\\') && (p[1] == '\\'))
-			 p++;
+			break;
+		if ((*p == '\\') && (p[1] == '\\'))
+			p++;
 		*ibp++ = *p++;
 	}
 	if (*p != c2) {
-		error ("file name delimiter missing");
+		error("file name delimiter missing");
 		return (NULL);
 	}
 	*ibp = 0;
 	fp = NULL;
 	strcpy(inclstk_name[inclsp], buf);
-	if ((c1 == '<') || ((fp = fopen(buf, "r")) == NULL)) {
+	if ((c1 == '<') || ((fp = fopen(buf, "r")) == NULL))
 		fp = file_open(buf, "r");
-	}
-	return(fp);
+	return (fp);
 }
 
 /*
@@ -214,30 +212,30 @@ FILE* fixiname (void)
  */
 void doasm (void)
 {
-	flush_ins(); /* David - optimize.c related */
+	flush_ins();	/* David - optimize.c related */
 	cmode = 0;
 	FOREVER {
-		readline ();
-		if (match ("#endasm"))
+		readline();
+		if (match("#endasm"))
 			break;
-		if (feof (input))
+		if (feof(input))
 			break;
-		outstr (line);
-		nl ();
+		outstr(line);
+		nl();
 	}
-	kill ();
+	kill();
 	cmode = 1;
 }
 
 void doasmdef (void)
 {
-char sname[100];
-char sval[100];
-long i = 0;
+	char sname[100];
+	char sval[100];
+	long i = 0;
 
 	symname(sname);
-	while ( (ch () == ' ') || (ch () == 9) )
-                gch ();
+	while ((ch() == ' ') || (ch() == 9))
+		gch();
 
 	while (ch()) {
 		sval[i++] = ch();
@@ -259,7 +257,7 @@ void dodefine (void)
 void doundef (void)
 {
 	struct macro *mp;
-	char	sname[NAMESIZE];
+	char sname[NAMESIZE];
 
 	if (!symname(sname)) {
 		illname();
@@ -276,13 +274,14 @@ void doundef (void)
 void preprocess (void)
 {
 	if (ifline()) return;
-	while (cpp(NO));
+
+	while (cpp(NO)) ;
 }
 
 static int max_if_depth = 0;
 static int *had_good_elif = 0;
 
-static void bump_iflevel(void)
+static void bump_iflevel (void)
 {
 	++iflevel;
 	if (iflevel >= max_if_depth) {
@@ -300,6 +299,7 @@ void doifdef (long ifdef)
 	bump_iflevel();
 	had_good_elif[iflevel] = 0;
 	if (skiplevel) return;
+
 	k = symname(sname) && findmac(sname);
 	if (k != ifdef) skiplevel = iflevel;
 }
@@ -307,10 +307,12 @@ void doifdef (long ifdef)
 static void doif (void)
 {
 	long num;
+
 	blanks();
 	bump_iflevel();
 	had_good_elif[iflevel] = 0;
 	if (skiplevel) return;
+
 	lex_stop_at_eol = 1;
 	const_expr(&num, NULL, NULL);
 	lex_stop_at_eol = 0;
@@ -321,9 +323,11 @@ static void doif (void)
 static void doelif (void)
 {
 	long num;
+
 	blanks();
 	if (skiplevel && skiplevel < iflevel)
 		return;
+
 	if (!skiplevel || had_good_elif[iflevel]) {
 		/* previous section was good, so we are not */
 		skiplevel = iflevel;
@@ -340,72 +344,82 @@ static void doelif (void)
 	}
 }
 
-long ifline(void)
+long ifline (void)
 {
 	FOREVER {
 		readline();
 cont_no_read:
-		if (!input || feof(input)) return(1);
+		if (!input || feof(input)) return (1);
+
 		if (match("#ifdef")) {
 			doifdef(YES);
 			continue;
-		} else if (match("#ifndef")) {
+		}
+		else if (match("#ifndef")) {
 			doifdef(NO);
 			continue;
-		} else if (match("#if")) {
+		}
+		else if (match("#if")) {
 			/* need to preprocess the argument because it may
 			   contain macros */
 			cpp(YES);
 			doif();
 			/* const_expr() already read the next line */
 			goto cont_no_read;
-		} else if (match("#elif")) {
+		}
+		else if (match("#elif")) {
 			/* need to preprocess the argument because it may
 			   contain macros */
 			cpp(YES);
 			doelif();
 			/* const_expr() already read the next line */
 			goto cont_no_read;
-		} else if (match("#else")) {
+		}
+		else if (match("#else")) {
 			if (iflevel) {
 				if (skiplevel == iflevel && !had_good_elif[iflevel])
 					skiplevel = 0;
 				else if (skiplevel == 0)
 					skiplevel = iflevel;
-			} else noiferr();
+			}
+			else noiferr();
 			continue;
-		} else if (match("#endif")) {
+		}
+		else if (match("#endif")) {
 			if (iflevel) {
 				if (skiplevel == iflevel) skiplevel = 0;
 				--iflevel;
-			} else noiferr();
+			}
+			else noiferr();
 			continue;
-		} else if (!skiplevel) {
+		}
+		else if (!skiplevel) {
 			if (match("#define")) {
 				dodefine();
 				continue;
-			} else if (match("#undef")) {
+			}
+			else if (match("#undef")) {
 				doundef();
 				continue;
-			} else if (match("#pragma")) {
+			}
+			else if (match("#pragma")) {
 				dopragma();
 				continue;
 			}
 		}
-		if (!skiplevel) return(0);
+		if (!skiplevel) return (0);
 	}
 }
 
-/* 
+/*
  *           noiferr
  * Input : nothing
  * Output : nothing
- * 
+ *
  * Called when a #if statement is lacking
- * 
+ *
  */
-
-void noiferr(void)
+void noiferr (void)
 {
 	error("no matching #if...");
 }
@@ -413,97 +427,104 @@ void noiferr(void)
 
 long cpp (int subline)
 {
-	long	k;
-	char	c, sname[NAMESIZE];
-	long	tog;
-	long	cpped;		/* non-zero if something expanded */
+	long k;
+	char c, sname[NAMESIZE];
+	long tog;
+	long cpped;		/* non-zero if something expanded */
 	long llptr;
 
 	cpped = 0;
 	/* don't expand lines with preprocessor commands in them */
 	if (!subline && (!cmode || line[0] == '#')) {
 		if (sstreq("#include"))
-			return 0;
+			return (0);
+
 		/* except #inc/#def commands */
 		if (!match("#inc") && !match("#def"))
-			return(0);
+			return (0);
 	}
 
 	mptr = 0;
 	if (subline)
-		llptr = lptr;	/* start wherever we are right now */
+		llptr = lptr;		/* start wherever we are right now */
 	else
 		llptr = lptr = 0;	/* do the whole line */
 
-	while (ch ()) {
-		if ((ch () == ' ') | (ch () == 9)) {
-			keepch (' ');
-			while ((ch () == ' ') | (ch () == 9))
-				gch ();
-		} else if (ch () == '"') {
-			keepch (ch ());
-			gch ();
-			while (ch () != '"') {
-				if (ch () == 0) {
-					error ("missing quote");
+	while (ch()) {
+		if ((ch() == ' ') | (ch() == 9)) {
+			keepch(' ');
+			while ((ch() == ' ') | (ch() == 9))
+				gch();
+		}
+		else if (ch() == '"') {
+			keepch(ch());
+			gch();
+			while (ch() != '"') {
+				if (ch() == 0) {
+					error("missing quote");
 					break;
 				}
 				if (ch() == '\\') keepch(gch());
-				keepch (gch ());
+				keepch(gch());
 			}
-			gch ();
-			keepch ('"');
-		} else if (ch () == '\'') {
-			keepch ('\'');
-			gch ();
-			while (ch () != '\'') {
-				if (ch () == 0) {
-					error ("missing apostrophe");
+			gch();
+			keepch('"');
+		}
+		else if (ch() == '\'') {
+			keepch('\'');
+			gch();
+			while (ch() != '\'') {
+				if (ch() == 0) {
+					error("missing apostrophe");
 					break;
 				}
 				if (ch() == '\\') keepch(gch());
-				keepch (gch ());
+				keepch(gch());
 			}
-			gch ();
-			keepch ('\'');
-		} else if ((ch () == '/') & (nch () == '*')) {
-			inchar ();
-			inchar ();
-			while ((((c = ch ()) == '*') & (nch () == '/')) == 0)
+			gch();
+			keepch('\'');
+		}
+		else if ((ch() == '/') & (nch() == '*')) {
+			inchar();
+			inchar();
+			while ((((c = ch()) == '*') & (nch() == '/')) == 0)
 				if (c == '$') {
-					inchar ();
+					inchar();
 					tog = TRUE;
-					if (ch () == '-') {
+					if (ch() == '-') {
 						tog = FALSE;
-						inchar ();
+						inchar();
 					}
-					if (alpha (c = ch ())) {
-						inchar ();
-						toggle (c, tog);
+					if (alpha(c = ch())) {
+						inchar();
+						toggle(c, tog);
 					}
-				} else {
-					if (ch () == 0)
-						readline ();
+				}
+				else {
+					if (ch() == 0)
+						readline();
 					else
-						inchar ();
-					if (feof (input))
+						inchar();
+					if (feof(input))
 						break;
 				}
-			inchar ();
-			inchar ();
-		} else if (ch() == '/' && nch() == '/') {
+			inchar();
+			inchar();
+		}
+		else if (ch() == '/' && nch() == '/') {
 			while (ch())
 				inchar();
-		} else if (an (ch ())) {
+		}
+		else if (an(ch())) {
 			k = 0;
-			while (an (ch ())) {
+			while (an(ch())) {
 				if (k < NAMEMAX)
-					sname[k++] = ch ();
-				gch ();
+					sname[k++] = ch();
+				gch();
 			}
 			sname[k] = 0;
 			struct macro *mp;
-			mp = findmac (sname);
+			mp = findmac(sname);
 			if (mp) {
 				char args[40][256];
 				int argc = 0;
@@ -517,7 +538,7 @@ long cpp (int subline)
 					if (mp->argc == -1) {
 						if (!match(")")) {
 							error("missing closing paren");
-							return 0;
+							return (0);
 						}
 					}
 					else {
@@ -526,12 +547,11 @@ long cpp (int subline)
 							args[argc][0] = 0;
 							while (ch() != ',' || nest > 0) {
 								char c = gch();
-								if (c == '(') {
+								if (c == '(')
 									nest++;
-								}
 								if (!c) {
 									error("missing closing paren");
-									return 0;
+									return (0);
 								}
 								strncat(args[argc], &c, 1);
 								if (ch() == ')') {
@@ -555,7 +575,7 @@ long cpp (int subline)
 				}
 				if (mp->argc != -1 && argc != mp->argc) {
 					error("wrong number of macro arguments");
-					return 0;
+					return (0);
 				}
 
 				cpped = 1;
@@ -568,8 +588,8 @@ long cpp (int subline)
 					buf[0] = 0;
 					for (i = 0; mp->argpos[i].arg != -1; i++) {
 						buf = realloc(buf, strlen(buf) +
-								   mp->argpos[i].pos - (dp - mp->def) +
-								   strlen(args[mp->argpos[i].arg]) + 1);
+							      mp->argpos[i].pos - (dp - mp->def) +
+							      strlen(args[mp->argpos[i].arg]) + 1);
 						strncat(buf, dp, mp->argpos[i].pos - (dp - mp->def));
 						strcat(buf, args[mp->argpos[i].arg]);
 						dp = mp->def + mp->argpos[i].pos + strlen(mp->args[mp->argpos[i].arg]);
@@ -584,26 +604,28 @@ long cpp (int subline)
 					free(buf);
 				}
 				else {
-					while ( (c = mp->def[k++]) )
-						keepch (c);
+					while ((c = mp->def[k++]))
+						keepch(c);
 					keepch(' ');
 				}
-			} else {
-				k = 0;
-				while ( (c = sname[k++]) )
-					keepch (c);
 			}
-		} else
-			keepch (gch ());
+			else {
+				k = 0;
+				while ((c = sname[k++]))
+					keepch(c);
+			}
+		}
+		else
+			keepch(gch());
 	}
-	keepch (0);
+	keepch(0);
 	if (mptr >= MPMAX)
-		error ("line too long");
+		error("line too long");
 	/* copy cooked input back to where we got the raw input from */
 	strcpy(&line[llptr], mline);
 	/* ...and continue processing at that point */
 	lptr = llptr;
-	return(cpped);
+	return (cpped);
 }
 
 long keepch (char c)
@@ -614,7 +636,7 @@ long keepch (char c)
 	return (c);
 }
 
-void defmac(char* s)
+void defmac (char *s)
 {
 	kill();
 	strcpy(line, s);
@@ -623,12 +645,12 @@ void defmac(char* s)
 
 void addmac (void)
 {
-	char	sname[NAMESIZE];
+	char sname[NAMESIZE];
 	struct macro *mp;
 
-	if (!symname (sname)) {
-		illname ();
-		kill ();
+	if (!symname(sname)) {
+		illname();
+		kill();
 		return;
 	}
 	mp = findmac(sname);
@@ -683,8 +705,8 @@ void addmac (void)
 	}
 	mp->argc = argc;
 
-	while ( (ch () == ' ') || (ch () == 9) )
-		gch ();
+	while ((ch() == ' ') || (ch() == 9))
+		gch();
 	char c;
 	mp->def = malloc(1);
 	mp->def[0] = 0;
@@ -734,10 +756,10 @@ void addmac (void)
 	printf("macdef %s\n", mp->def);
 #endif
 	if (macptr >= MACMAX)
-		error ("macro table full");
+		error("macro table full");
 }
 
-void delmac(struct macro *mp)
+void delmac (struct macro *mp)
 {
 	if (mp->name)
 		free(mp->name);
@@ -752,16 +774,16 @@ void delmac(struct macro *mp)
 		free(mp->argpos);
 	mp->argpos = 0;
 }
-	
-struct macro *findmac (char* sname)
+
+struct macro *findmac (char *sname)
 {
-	long	k;
+	long k;
 
 	k = 0;
 	while (k < macptr) {
-		if (macq[k].name && astreq (sname, macq[k].name, NAMEMAX)) {
+		if (macq[k].name && astreq(sname, macq[k].name, NAMEMAX))
 			return (&macq[k]);
-		}
+
 		k++;
 	}
 	return (0);
