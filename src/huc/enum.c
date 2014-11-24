@@ -11,18 +11,19 @@
 #include "primary.h"
 #include "sym.h"
 
-int define_enum(char *sname, int storage)
+int define_enum (char *sname, int storage)
 {
 	char n[NAMESIZE];
 	int count, min, max;
 	int start = enum_ptr;
+
 	printf("defenum %s\n", sname);
 	needbrack("{");
 	count = min = max = 0;
 	for (;;) {
 		if (!symname(n)) {
 			illname();
-			return -1;
+			return (-1);
 		}
 		/* Add to global table of enum values. */
 		enums = realloc(enums, (enum_ptr + 1) * sizeof(*enums));
@@ -42,7 +43,7 @@ int define_enum(char *sname, int storage)
 			break;
 		if (!match(",")) {
 			error("expected comma");
-			return -1;
+			return (-1);
 		}
 		if (match("}"))
 			break;
@@ -77,27 +78,29 @@ int define_enum(char *sname, int storage)
 			et->base = CUCHAR;
 	}
 	printf("enum base type %d\n", et->base);
-	return enum_type_ptr++;
+	return (enum_type_ptr++);
 }
 
-int find_enum_type(char *name)
+int find_enum_type (char *name)
 {
 	int i;
+
 	for (i = 0; i < enum_type_ptr; i++) {
 		if (!strcmp(enum_types[i].name, name))
-			return i;
+			return (i);
 	}
-	return -1;
+	return (-1);
 }
 
-int find_enum(char *sname, long *val)
+int find_enum (char *sname, long *val)
 {
 	int i;
+
 	for (i = 0; i < enum_ptr; i++) {
 		if (!strcmp(sname, enums[i].name)) {
 			*val = enums[i].value;
-			return 1;
+			return (1);
 		}
 	}
-	return 0;
+	return (0);
 }
