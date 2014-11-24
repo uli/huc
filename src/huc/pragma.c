@@ -16,10 +16,10 @@
 #include "fastcall.h"
 
 /* locals */
-struct fastcall  ftemp;
+struct fastcall ftemp;
 struct fastcall *fastcall_tbl[256];
-static char   cmd[LINESIZE];
-static char  *cmdptr;
+static char cmd[LINESIZE];
+static char *cmdptr;
 
 /* default pragma's */
 static char *pragma_init[] = {
@@ -133,7 +133,7 @@ static char *pragma_init[] = {
 };
 
 /* protos */
-long fastcall_look(const char *fname, long nargs, struct fastcall **p);
+long fastcall_look (const char *fname, long nargs, struct fastcall **p);
 
 
 /* ----
@@ -142,7 +142,7 @@ long fastcall_look(const char *fname, long nargs, struct fastcall **p);
  * handle pragma directive
  *
  */
-void dopragma(void )
+void dopragma (void)
 {
 	long i;
 
@@ -165,7 +165,7 @@ void dopragma(void )
  * default pragmas
  *
  */
-void defpragma(void )
+void defpragma (void)
 {
 	long i;
 
@@ -184,15 +184,15 @@ void defpragma(void )
  * parse pragma command line
  *
  */
-void parse_pragma(void )
+void parse_pragma (void)
 {
 	char sname[NAMESIZE];
 
 	/* get command */
 	cmdptr = cmd;
 
-	if(!symget(sname)) {
-		error ("illegal symbol name");
+	if (!symget(sname)) {
+		error("illegal symbol name");
 		return;
 	}
 
@@ -206,7 +206,7 @@ void parse_pragma(void )
 		norecurse = 0;
 	/* others */
 	else
-		error ("unknown pragma");
+		error("unknown pragma");
 }
 
 
@@ -218,14 +218,14 @@ void parse_pragma(void )
  * ie. #pragma fastcall func(word dx, byte al, byte ah)
  *
  */
-void new_fastcall(void )
+void new_fastcall (void)
 {
 	struct fastcall *ptr;
-	char   fname[NAMESIZE];
-	char   sname[NAMESIZE];
-	long    hash;
-	long    cnt;
-	long    i;
+	char fname[NAMESIZE];
+	char sname[NAMESIZE];
+	long hash;
+	long cnt;
+	long i;
 
 	ptr = &ftemp;
 	cnt = 0;
@@ -233,24 +233,24 @@ void new_fastcall(void )
 	ptr->flags = 0;
 
 	/* get func name */
-	if(!symget(fname)) {
+	if (!symget(fname)) {
 		error("illegal symbol name");
 		return;
 	}
 
 	/* open */
-	if(!strmatch("(")) {
-		error ("missing bracket");
+	if (!strmatch("(")) {
+		error("missing bracket");
 		return;
 	}
 
 	/* extract args (max. 8) */
 	for (i = 0; i < 8; i++) {
 		/* get type */
-		if(!symget(sname)) {
+		if (!symget(sname)) {
 			if (*cmdptr == ')')
 				break;
-			error ("syntax error");
+			error("syntax error");
 			return;
 		}
 		if (strcmp(sname, "byte") == 0)
@@ -262,15 +262,15 @@ void new_fastcall(void )
 		else if (strcmp(sname, "dword") == 0)
 			ptr->argtype[i] = TYPE_DWORD;
 		else {
-			error ("fastcall unknown type");
+			error("fastcall unknown type");
 			return;
 		}
 
 		/* get name */
-		if(!symget(sname)) {
+		if (!symget(sname)) {
 			/* auto */
 			if (*cmdptr != ',')
-				ptr->argtype[i]  = TYPE_ACC;
+				ptr->argtype[i] = TYPE_ACC;
 			else {
 				error("fastcall register missing");
 				return;
@@ -286,12 +286,12 @@ void new_fastcall(void )
 					strcpy(ptr->argname[i++], sname);
 
 				/* low word */
-				if(*cmdptr++ != ':') {
-					error ("syntax error");
+				if (*cmdptr++ != ':') {
+					error("syntax error");
 					return;
 				}
-				if(!symget(sname)) {
-					error ("illegal symbol name");
+				if (!symget(sname)) {
+					error("illegal symbol name");
 					return;
 				}
 
@@ -299,12 +299,12 @@ void new_fastcall(void )
 				strcpy(ptr->argname[i++], sname);
 
 				/* high word */
-				if(*cmdptr++ != '|') {
-					error ("syntax error");
+				if (*cmdptr++ != '|') {
+					error("syntax error");
 					return;
 				}
-				if(!symget(sname)) {
-					error ("illegal symbol name");
+				if (!symget(sname)) {
+					error("illegal symbol name");
 					return;
 				}
 
@@ -320,12 +320,12 @@ void new_fastcall(void )
 				ptr->argtype[i] = TYPE_WORD;
 
 				/* addr */
-				if(*cmdptr++ != ':') {
-					error ("syntax error");
+				if (*cmdptr++ != ':') {
+					error("syntax error");
 					return;
 				}
-				if(!symget(sname)) {
-					error ("illegal symbol name");
+				if (!symget(sname)) {
+					error("illegal symbol name");
 					return;
 				}
 
@@ -352,13 +352,13 @@ void new_fastcall(void )
 		ptr->nargs++;
 
 		/* next */
-		if(!strmatch(","))
+		if (!strmatch(","))
 			break;
 	}
 
 	/* close */
-	if(!strmatch(")")) {
-		error ("missing bracket");
+	if (!strmatch(")")) {
+		error("missing bracket");
 		return;
 	}
 
@@ -408,8 +408,7 @@ void new_fastcall(void )
  * search a fastcall function
  *
  */
-long
-fastcall_look(const char *fname, long nargs, struct fastcall **p)
+long fastcall_look (const char *fname, long nargs, struct fastcall **p)
 {
 	struct fastcall *ptr;
 	struct fastcall *ref;
@@ -418,9 +417,9 @@ fastcall_look(const char *fname, long nargs, struct fastcall **p)
 
 	/* search */
 	hash = symhash(fname);
-	ptr  = fastcall_tbl[hash];
-	ref  = NULL;
-	nb   = 0;
+	ptr = fastcall_tbl[hash];
+	ref = NULL;
+	nb = 0;
 	while (ptr) {
 		if (strcmp(ptr->fname, fname) == 0) {
 			nb++;
@@ -432,13 +431,13 @@ fastcall_look(const char *fname, long nargs, struct fastcall **p)
 		ptr = ptr->next;
 	}
 	if (nargs != -1) {
-		if(!ref)
+		if (!ref)
 			nb = 0;
 	}
 
 	/* return result */
 	if (p)
-	   *p = ref;
+		*p = ref;
 	return (nb);
 }
 
@@ -449,13 +448,11 @@ fastcall_look(const char *fname, long nargs, struct fastcall **p)
  * calculate the hash value of a symbol
  *
  */
-
-long
-symhash(const char *sym)
+long symhash (const char *sym)
 {
-	long  i;
+	long i;
 	char c;
-	long  hash = 0;
+	long hash = 0;
 
 	/* calc hash value */
 	for (i = 0;; i++) {
@@ -463,7 +460,7 @@ symhash(const char *sym)
 		if (c == 0)
 			break;
 		hash += c;
-		hash  = (hash << 3) + (hash >> 5) + c;
+		hash = (hash << 3) + (hash >> 5) + c;
 	}
 
 	/* ok */
@@ -477,10 +474,9 @@ symhash(const char *sym)
  * extract a symbol name
  *
  */
-long
-symget(char *sname)
+long symget (char *sname)
 {
-	long	i;
+	long i;
 
 	skip_blanks();
 
@@ -490,7 +486,7 @@ symget(char *sname)
 
 	/* extract symbol name (stops at first non-alphanum char) */
 	for (i = 0;; i++) {
-		if(!an(*cmdptr))
+		if (!an(*cmdptr))
 			break;
 		sname[i] = *cmdptr++;
 	}
@@ -507,16 +503,15 @@ symget(char *sname)
  * test if next input string is legal symbol name
  *
  */
-long
-strmatch(char *lit)
+long strmatch (char *lit)
 {
-	long	i;
+	long i;
 
 	skip_blanks();
 
 	/* compare */
-	i = streq (cmdptr, lit);
-	
+	i = streq(cmdptr, lit);
+
 	if (i) {
 		/* match */
 		cmdptr += i;
@@ -534,9 +529,8 @@ strmatch(char *lit)
  * skips blank chars (stops at end of input line)
  *
  */
-void skip_blanks(void )
+void skip_blanks (void)
 {
 	while ((*cmdptr == ' ') || (*cmdptr == '\t'))
 		cmdptr++;
 }
-
