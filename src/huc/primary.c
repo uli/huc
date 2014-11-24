@@ -20,13 +20,14 @@
 
 extern char current_fn[];
 
-int match_type(struct type *t, int do_ptr, int allow_unk_compound)
+int match_type (struct type *t, int do_ptr, int allow_unk_compound)
 {
 	char n[NAMESIZE];
 	int have_sign = 0;
 	int sflag;
 	int i;
 	static int anon_struct_cnt = 0;
+
 	t->type = 0;
 	t->flags = 0;
 	t->otag = -1;
@@ -52,7 +53,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			if (t->otag < 0 && !allow_unk_compound) {
 				error("unknown struct name");
 				junk();
-				return 0;
+				return (0);
 			}
 			t->type = CSTRUCT;
 			if (sflag)
@@ -71,7 +72,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			else {
 				error("illegal struct name");
 				junk();
-				return 0;
+				return (0);
 			}
 		}
 	}
@@ -93,7 +94,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			else {
 				illname();
 				junk();
-				return 0;
+				return (0);
 			}
 		}
 	}
@@ -123,7 +124,7 @@ int match_type(struct type *t, int do_ptr, int allow_unk_compound)
 			if (have_sign)
 				t->type |= CINT;
 			else	/* not a cast */
-				return 0;
+				return (0);
 		}
 	}
 
@@ -137,24 +138,24 @@ ret_do_ptr:
 			t->ptr_order++;
 		}
 
-	return 1;
+	return (1);
 
 invalid_cast:
 	error("invalid type cast");
-	return 0;
+	return (0);
 }
 
-long primary (LVALUE* lval, int comma)
+long primary (LVALUE *lval, int comma)
 {
-	SYMBOL	*ptr;
-	char	sname[NAMESIZE];
-	long	num[1];
-	long	k;
+	SYMBOL *ptr;
+	char sname[NAMESIZE];
+	long num[1];
+	long k;
 
-	lval->ptr_type = 0;  /* clear pointer/array type */
+	lval->ptr_type = 0;	/* clear pointer/array type */
 	lval->ptr_order = 0;
 	lval->symbol2 = 0;
-	if (match ("(")) {
+	if (match("(")) {
 		struct type t;
 		if (match_type(&t, YES, NO)) {
 			needbrack(")");
@@ -165,25 +166,24 @@ long primary (LVALUE* lval, int comma)
 				gcast(t.type);
 				lval->ptr_type = 0;
 			}
-			else {
+			else
 				lval->ptr_type = t.type;
-			}
 			lval->type = t.type;
 			lval->ptr_order = t.ptr_order;
-			return 0;
+			return (0);
 		}
 		else {
 			indflg = 0;
 			/* need to use expression_ex() (not heir1()), otherwise
 			   the comma operator is not handled */
-			k = expression_ex (lval, comma, YES);
-			needbrack (")");
+			k = expression_ex(lval, comma, YES);
+			needbrack(")");
 			return (k);
 		}
 	}
 	if (amatch("sizeof", 6)) {
-	        int have_paren;
-	        struct type t;
+		int have_paren;
+		struct type t;
 		indflg = 0;
 		have_paren = match("(");
 		if (match_type(&t, YES, NO)) {
@@ -197,72 +197,72 @@ long primary (LVALUE* lval, int comma)
 				immed(T_VALUE, 1);
 			else {
 				error("internal error: sizeof type unknown");
-				return 0;
+				return (0);
 			}
 		}
 		else if (symname(sname)) {
-		        if (!strcmp("__func__", sname) ||
+			if (!strcmp("__func__", sname) ||
 			    !strcmp("__FUNCTION__", sname))
 				immed(T_VALUE, strlen(current_fn) + 1);
 			else if (!strcmp("__FILE__", sname))
 				immed(T_VALUE, strlen(fname_copy) + 1);
 			else if ((ptr = findloc(sname)) ||
-				(ptr = findglb(sname))) {
+				 (ptr = findglb(sname))) {
 				k = ptr->size;
-				immed (T_VALUE, k);
-			} else {
-				error("sizeof undeclared variable");
-				immed (T_VALUE, 0);
+				immed(T_VALUE, k);
 			}
-                }
-                else if (readqstr()) {
-                        immed(T_VALUE, strlen(litq2));
-		} else {
-			error("sizeof only on type or variable");
+			else {
+				error("sizeof undeclared variable");
+				immed(T_VALUE, 0);
+			}
 		}
+		else if (readqstr())
+			immed(T_VALUE, strlen(litq2));
+		else
+			error("sizeof only on type or variable");
 		if (have_paren)
 			needbrack(")");
 		lval->symbol = 0;
 		lval->indirect = 0;
-		return 0;
+		return (0);
 	}
 	if (amatch("__FUNCTION__", 12) || amatch("__func__", 8)) {
-	        const_str(num, current_fn);
-                immed(T_STRING, num[0]);
+		const_str(num, current_fn);
+		immed(T_STRING, num[0]);
 		indflg = 0;
 		lval->value = num[0];
 		lval->symbol = 0;
 		lval->indirect = 0;
-		return 0;
+		return (0);
 	}
 	else if (amatch("__FILE__", 8)) {
-	        const_str(num, fname_copy);
-                immed(T_STRING, num[0]);
+		const_str(num, fname_copy);
+		immed(T_STRING, num[0]);
 		indflg = 0;
 		lval->value = num[0];
 		lval->symbol = 0;
 		lval->indirect = 0;
-		return 0;
+		return (0);
 	}
 	else if (amatch("__sei", 5) && match("(") && match(")")) {
 		gsei();
-		return 0;
+		return (0);
 	}
 	else if (amatch("__cli", 5) && match("(") && match(")")) {
 		gcli();
-		return 0;
+		return (0);
 	}
 
-	if (symname (sname)) {
+	if (symname(sname)) {
 		if (find_enum(sname, num)) {
 			indflg = 0;
 			lval->value = num[0];
 			lval->symbol = 0;
 			lval->indirect = 0;
 			immed(T_VALUE, *num);
-			return 0;
+			return (0);
 		}
-		ptr = findloc (sname);
+		ptr = findloc(sname);
 		if (ptr) {
 			/* David, patched to support
 			 *        local 'static' variables
@@ -271,13 +271,13 @@ long primary (LVALUE* lval, int comma)
 			lval->indirect = ptr->type;
 			lval->tagsym = 0;
 			if (ptr->type == CSTRUCT)
-			        lval->tagsym = &tag_table[ptr->tagidx];
+				lval->tagsym = &tag_table[ptr->tagidx];
 			if (ptr->ident == POINTER) {
 				if ((ptr->storage & ~WRITTEN) == LSTATIC)
 					lval->indirect = 0;
 				else {
 					lval->indirect = CUINT;
-					getloc (ptr);
+					getloc(ptr);
 				}
 				lval->ptr_type = ptr->type;
 				lval->ptr_order = ptr->ptr_order;
@@ -285,96 +285,96 @@ long primary (LVALUE* lval, int comma)
 			}
 			if (ptr->ident == ARRAY ||
 			    (ptr->ident == VARIABLE && ptr->type == CSTRUCT)) {
-				getloc (ptr);
+				getloc(ptr);
 				lval->ptr_type = ptr->type;
 				lval->ptr_order = ptr->ptr_order;
 //				lval->ptr_type = 0;
-                                if (ptr->type == CSTRUCT && ptr->ident == VARIABLE)
-                                        return 1;
-                                else
-				        return 0;
+				if (ptr->type == CSTRUCT && ptr->ident == VARIABLE)
+					return (1);
+				else
+					return (0);
 			}
 			if ((ptr->storage & ~WRITTEN) == LSTATIC)
 				lval->indirect = 0;
 			else
-				getloc (ptr);
+				getloc(ptr);
 			return (1);
 		}
-		ptr = findglb (sname);
+		ptr = findglb(sname);
 		if (ptr) {
 			if (ptr->ident != FUNCTION) {
 				lval->symbol = (SYMBOL *)ptr;
 				lval->indirect = 0;
 				lval->tagsym = 0;
 				if (ptr->type == CSTRUCT)
-				        lval->tagsym = &tag_table[ptr->tagidx];
+					lval->tagsym = &tag_table[ptr->tagidx];
 				if (ptr->ident != ARRAY &&
 				    (ptr->ident != VARIABLE || ptr->type != CSTRUCT)) {
 					if (ptr->ident == POINTER) {
 						lval->ptr_type = ptr->type;
 						lval->ptr_order = ptr->ptr_order;
-                                        }
+					}
 					return (1);
 				}
 				if (!ptr->far)
-					immed (T_SYMBOL, (long)ptr);
+					immed(T_SYMBOL, (long)ptr);
 				else {
 					/* special variables */
-					blanks ();
+					blanks();
 					if ((ch() != '[') && (ch() != '(')) {
 						/* vram */
 						if (strcmp(ptr->name, "vram") == 0) {
 							if (indflg)
 								return (1);
 							else
-								error ("can't access vram this way");
+								error("can't access vram this way");
 						}
 						/* others */
-						immed (T_SYMBOL, (long)ptr);
+						immed(T_SYMBOL, (long)ptr);
 //						error ("can't access far array");
 					}
 				}
 				lval->indirect = lval->ptr_type = ptr->type;
 				lval->ptr_order = ptr->ptr_order;
 //				lval->ptr_type = 0;
-                                if (ptr->ident == VARIABLE && ptr->type == CSTRUCT)
-                                        return 1;
-                                else
-        				return (0);
+				if (ptr->ident == VARIABLE && ptr->type == CSTRUCT)
+					return (1);
+				else
+					return (0);
 			}
 		}
-		blanks ();
+		blanks();
 		if (ch() != '(') {
 			if (ptr && (ptr->ident == FUNCTION)) {
 				lval->symbol = (SYMBOL *)ptr;
 				lval->indirect = 0;
 				immed(T_SYMBOL, (long)ptr->name);
-				return 0;
+				return (0);
 			}
 			error("undeclared variable");
 		}
-		ptr = addglb (sname, FUNCTION, CINT, 0, PUBLIC, 0);
+		ptr = addglb(sname, FUNCTION, CINT, 0, PUBLIC, 0);
 		indflg = 0;
 		lval->symbol = (SYMBOL *)ptr;
 		lval->indirect = 0;
 		return (0);
 	}
-	if ((k = constant (num))) {
+	if ((k = constant(num))) {
 		indflg = 0;
 		lval->value = num[0];
 		lval->symbol = 0;
 		lval->indirect = 0;
 		if (k == 2) {
-		        lval->ptr_type = CCHAR;
-		        lval->ptr_order = 1;
-                }
-		return 0;
+			lval->ptr_type = CCHAR;
+			lval->ptr_order = 1;
+		}
+		return (0);
 	}
 	else {
 		indflg = 0;
-		error ("invalid expression");
-		immed (T_VALUE, 0);
-		junk ();
+		error("invalid expression");
+		immed(T_VALUE, 0);
+		junk();
 		return (0);
 	}
 }
@@ -382,26 +382,29 @@ long primary (LVALUE* lval, int comma)
 /*
  *	true if val1 -> int pointer or int array and val2 not pointer or array
  */
-long dbltest (LVALUE val1[],LVALUE val2[])
+long dbltest (LVALUE val1[], LVALUE val2[])
 {
 	if (val1 == NULL || !val1->ptr_type)
 		return (FALSE);
+
 	if (val1->ptr_type == CCHAR || val1->ptr_type == CUCHAR)
 		return (FALSE);
+
 	if (val2->ptr_type)
 		return (FALSE);
+
 	return (TRUE);
 }
 
 /*
  *	determine type of binary operation
  */
-void result (LVALUE lval[],LVALUE lval2[])
+void result (LVALUE lval[], LVALUE lval2[])
 {
 	if (lval->ptr_type && lval2->ptr_type) {
 		lval->ptr_type = 0;
 		lval->ptr_order = 0;
-        }
+	}
 	else if (lval2->ptr_type) {
 		lval->symbol = lval2->symbol;
 		lval->indirect = lval2->indirect;
@@ -412,47 +415,50 @@ void result (LVALUE lval[],LVALUE lval2[])
 
 long constant (long val[])
 {
-	if (number (val))
-		immed (T_VALUE,  val[0]);
-	else if (pstr (val))
-		immed (T_VALUE,  val[0]);
-	else if (qstr (val)) {
-		immed (T_STRING, val[0]);
-		return 2;
-	} else
+	if (number(val))
+		immed(T_VALUE, val[0]);
+	else if (pstr(val))
+		immed(T_VALUE, val[0]);
+	else if (qstr(val)) {
+		immed(T_STRING, val[0]);
+		return (2);
+	}
+	else
 		return (0);
+
 	return (1);
 }
 
 long number (long val[])
 {
-	long	k, minus, base;
-	char	c;
+	long k, minus, base;
+	char c;
 
 	k = minus = 1;
 	while (k) {
 		k = 0;
-		if (match ("+"))
+		if (match("+"))
 			k = 1;
-		if (match ("-")) {
+		if (match("-")) {
 			minus = (-minus);
 			k = 1;
 		}
 	}
-	if (!numeric (c = ch ()))
+	if (!numeric(c = ch()))
 		return (0);
-	if (match ("0x") || match ("0X"))
-		while (numeric (c = ch ()) ||
+
+	if (match("0x") || match("0X"))
+		while (numeric(c = ch()) ||
 		       (c >= 'a' && c <= 'f') ||
 		       (c >= 'A' && c <= 'F')) {
-			inbyte ();
+			inbyte();
 			k = k * 16 +
-			    (numeric (c) ? (c - '0') : ((c & 07) + 9));
+			    (numeric(c) ? (c - '0') : ((c & 07) + 9));
 		}
 	else {
 		base = (c == '0') ? 8 : 10;
-		while (numeric (ch ())) {
-			c = inbyte ();
+		while (numeric(ch())) {
+			c = inbyte();
 			k = k * base + (c - '0');
 		}
 	}
@@ -462,16 +468,17 @@ long number (long val[])
 	return (1);
 }
 
-static int parse0(long *num)
+static int parse0 (long *num)
 {
 	if (!const_expr(num, ")", NULL))
-		return 0;
+		return (0);
+
 	if (!match(")"))
 		error("internal error");
-	return 1;
+	return (1);
 }
 
-static int parse3(long *num)
+static int parse3 (long *num)
 {
 	long num2;
 	struct type t;
@@ -491,7 +498,7 @@ static int parse3(long *num)
 		if (match_type(&t, YES, NO)) {
 			if (!match(")")) {
 				error("invalid type cast");
-				return 0;
+				return (0);
 			}
 			op = 'c';
 		}
@@ -507,7 +514,7 @@ static int parse3(long *num)
 	    !number(&num2) &&
 	    !pstr(&num2) &&
 	    !(symname(n) && find_enum(n, &num2)))
-		return 0;
+		return (0);
 
 	if (op == '-')
 		*num = -num2;
@@ -519,21 +526,21 @@ static int parse3(long *num)
 		if (t.ident != POINTER) {
 			assert(sizeof(short) == 2);
 			switch (t.type) {
-				case CCHAR:
-					*num = (char)num2;
-					break;
-				case CUCHAR:
-					*num = (unsigned char)num2;
-					break;
-				case CINT:
-					*num = (short)num2;
-					break;
-				case CUINT:
-					*num = (unsigned short)num2;
-					break;
-				default:
-					error("unable to handle cast in constant expression");
-					return 0;
+			case CCHAR:
+				*num = (char)num2;
+				break;
+			case CUCHAR:
+				*num = (unsigned char)num2;
+				break;
+			case CINT:
+				*num = (short)num2;
+				break;
+			case CUINT:
+				*num = (unsigned short)num2;
+				break;
+			default:
+				error("unable to handle cast in constant expression");
+				return (0);
 			}
 		}
 		else
@@ -541,15 +548,15 @@ static int parse3(long *num)
 	}
 	else
 		*num = num2;
-	return 1;
+	return (1);
 }
 
-static int parse5(long *num)
+static int parse5 (long *num)
 {
 	long num1, num2;
 
 	if (!parse3(&num1))
-		return 0;
+		return (0);
 
 	for (;;) {
 		char op;
@@ -559,11 +566,11 @@ static int parse5(long *num)
 			op = '/';
 		else {
 			*num = num1;
-			return 1;
+			return (1);
 		}
 
 		if (!parse3(&num2))
-			return 0;
+			return (0);
 
 		if (op == '*')
 			num1 *= num2;
@@ -572,12 +579,12 @@ static int parse5(long *num)
 	}
 }
 
-static int parse6(long *num)
+static int parse6 (long *num)
 {
 	long num1, num2;
 
 	if (!parse5(&num1))
-		return 0;
+		return (0);
 
 	for (;;) {
 		char op;
@@ -587,11 +594,11 @@ static int parse6(long *num)
 			op = '-';
 		else {
 			*num = num1;
-			return 1;
+			return (1);
 		}
 
 		if (!parse5(&num2))
-			return 0;
+			return (0);
 
 		if (op == '-')
 			num1 -= num2;
@@ -600,12 +607,12 @@ static int parse6(long *num)
 	}
 }
 
-static int parse7(long *num)
+static int parse7 (long *num)
 {
 	long num1, num2;
 
 	if (!parse6(&num1))
-		return 0;
+		return (0);
 
 	for (;;) {
 		char op;
@@ -615,11 +622,11 @@ static int parse7(long *num)
 			op = 'r';
 		else {
 			*num = num1;
-			return 1;
+			return (1);
 		}
 
 		if (!parse6(&num2))
-			return 0;
+			return (0);
 
 		if (op == 'l')
 			num1 <<= num2;
@@ -628,12 +635,12 @@ static int parse7(long *num)
 	}
 }
 
-static int parse9(long *num)
+static int parse9 (long *num)
 {
 	long num1, num2;
 
 	if (!parse7(&num1))
-		return 0;
+		return (0);
 
 	for (;;) {
 		char op;
@@ -643,11 +650,11 @@ static int parse9(long *num)
 			op = '!';
 		else {
 			*num = num1;
-			return 1;
+			return (1);
 		}
 
 		if (!parse7(&num2))
-			return 0;
+			return (0);
 
 		if (op == '=')
 			num1 = num1 == num2;
@@ -656,18 +663,18 @@ static int parse9(long *num)
 	}
 }
 
-int const_expr(long *num, char *end1, char *end2)
+int const_expr (long *num, char *end1, char *end2)
 {
 	if (!parse9(num)) {
-	        error("failed to evaluate constant expression");
-	        return 0;
-        }
+		error("failed to evaluate constant expression");
+		return (0);
+	}
 	blanks();
 	if (end1 && !sstreq(end1) && !(end2 && sstreq(end2))) {
 		error("unexpected character after constant expression");
-		return 0;
+		return (0);
 	}
-	return 1;
+	return (1);
 }
 
 /*
@@ -677,14 +684,15 @@ int const_expr(long *num, char *end1, char *end2)
  */
 long pstr (long val[])
 {
-	long	k;
-	char	c;
+	long k;
+	char c;
 
 	k = 0;
-	if (!match ("'"))
+	if (!match("'"))
 		return (0);
-	while ((c = gch ()) != '\'') {
-		c = (c == '\\') ? spechar(): c;
+
+	while ((c = gch()) != '\'') {
+		c = (c == '\\') ? spechar() : c;
 		k = (k & 255) * 256 + (c & 255);
 	}
 	val[0] = k;
@@ -698,39 +706,40 @@ long pstr (long val[])
  */
 long qstr (long val[])
 {
-	char	c;
+	char c;
 
-	if (!match (quote))
+	if (!match(quote))
 		return (0);
+
 	val[0] = litptr;
-	while (ch () != '"') {
-		if (ch () == 0)
+	while (ch() != '"') {
+		if (ch() == 0)
 			break;
 		if (litptr >= LITMAX) {
-			error ("string space exhausted");
-			while (!match (quote))
-				if (gch () == 0)
+			error("string space exhausted");
+			while (!match(quote))
+				if (gch() == 0)
 					break;
 			return (1);
 		}
 		c = gch();
-		litq[litptr++] = (c == '\\') ? spechar(): c;
+		litq[litptr++] = (c == '\\') ? spechar() : c;
 	}
-	gch ();
+	gch();
 	litq[litptr++] = 0;
 	return (1);
 }
 
-long const_str(long *val, const char *str)
+long const_str (long *val, const char *str)
 {
-        if (litptr + strlen(str) + 1 >= LITMAX) {
-                error("string space exhausted");
-                return 1;
-        }
-        strcpy(&litq[litptr], str);
-        *val = litptr;
-        litptr += strlen(str) + 1;
-        return 1;
+	if (litptr + strlen(str) + 1 >= LITMAX) {
+		error("string space exhausted");
+		return (1);
+	}
+	strcpy(&litq[litptr], str);
+	*val = litptr;
+	litptr += strlen(str) + 1;
+	return (1);
 }
 
 /*
@@ -740,27 +749,28 @@ long const_str(long *val, const char *str)
  * Zeograd: this function don't dump the result of the reading in the literal
  * pool, it is rather intended for use in pseudo code
  */
-long readqstr (void )
+long readqstr (void)
 {
-	char	c;
-        long	posptr = 0;
+	char c;
+	long posptr = 0;
 
-	if (!match (quote))
+	if (!match(quote))
 		return (0);
-	while (ch () != '"') {
-		if (ch () == 0)
+
+	while (ch() != '"') {
+		if (ch() == 0)
 			break;
 		if (posptr >= LITMAX2) {
-			error ("string space exhausted");
-			while (!match (quote))
-				if (gch () == 0)
+			error("string space exhausted");
+			while (!match(quote))
+				if (gch() == 0)
 					break;
 			return (1);
 		}
 		c = gch();
-		litq2[posptr++] = (c == '\\') ? spechar(): c;
+		litq2[posptr++] = (c == '\\') ? spechar() : c;
 	}
-	gch ();
+	gch();
 	litq2[posptr] = 0;
 	return (1);
 }
@@ -773,20 +783,20 @@ long readqstr (void )
  * Zeograd: this function don't dump the result of the reading in the literal
  * pool, it is rather intended for use in pseudo code
  */
-long readstr (void )
+long readstr (void)
 {
-	char	c;
-        long	posptr = 0;
+	char c;
+	long posptr = 0;
 
-	while (an(ch ()) || (ch()=='_') ) {
-		if (ch () == 0)
+	while (an(ch()) || (ch() == '_')) {
+		if (ch() == 0)
 			break;
 		if (posptr >= LITMAX2) {
-			error ("string space exhausted");
+			error("string space exhausted");
 			return (1);
 		}
 		c = gch();
-		litq2[posptr++] = (c == '\\') ? spechar(): c;
+		litq2[posptr++] = (c == '\\') ? spechar() : c;
 	}
 	litq2[posptr] = 0;
 	return (1);
@@ -796,26 +806,27 @@ long readstr (void )
 /*
  *	decode special characters (preceeded by back slashes)
  */
-long spechar(void )
+long spechar (void)
 {
 	char c;
+
 	c = ch();
 
-	if	(c == 'n') c = EOL;
-	else if	(c == 't') c = TAB;
+	if (c == 'n') c = EOL;
+	else if (c == 't') c = TAB;
 	else if (c == 'r') c = CR;
 	else if (c == 'f') c = FFEED;
 	else if (c == 'b') c = BKSP;
 	else if (c == '0') c = EOS;
 	else if (numeric(c) && c < '8') {
-	        /* octal character specification */
-	        int n = 0;
-	        while (numeric(c) && c < '8') {
-	                n = (n << 3) | (c - '0');
-	                gch();
-	                c = ch();
-	        }
-	        return n;
+		/* octal character specification */
+		int n = 0;
+		while (numeric(c) && c < '8') {
+			n = (n << 3) | (c - '0');
+			gch();
+			c = ch();
+		}
+		return (n);
 	}
 	else if (c == 'x') {
 		int n = 0, i;
@@ -830,13 +841,13 @@ long spechar(void )
 				c = c - '0';
 			else {
 				error("invalid hex character");
-				return 0;
+				return (0);
 			}
 			n = (n << 4) | c;
 		}
-		return n;
+		return (n);
 	}
-	else if (c == EOS) return(c);
+	else if (c == EOS) return (c);
 
 	gch();
 	return (c);

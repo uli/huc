@@ -6,20 +6,19 @@
 #ifndef _PRIMARY_H
 #define _PRIMARY_H
 
-long primary (LVALUE* lval, int comma);
-long dbltest (LVALUE val1[],LVALUE val2[]);
-void result (LVALUE lval[],LVALUE lval2[]);
+long primary (LVALUE *lval, int comma);
+long dbltest (LVALUE val1[], LVALUE val2[]);
+void result (LVALUE lval[], LVALUE lval2[]);
 long constant (long val[]);
 long number (long val[]);
-int const_expr(long *, char *, char *);
+int const_expr (long *, char *, char *);
 long pstr (long val[]);
 long qstr (long val[]);
-long const_str(long val[], const char *);
-long readqstr (void );
-long readstr (void );
-long spechar(void );
+long const_str (long val[], const char *);
+long readqstr (void);
+long readstr (void);
+long spechar (void);
 
-int match_type(struct type *, int do_ptr, int allow_unk_compound);
+int match_type (struct type *, int do_ptr, int allow_unk_compound);
 
 #endif
-
