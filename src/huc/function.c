@@ -25,22 +25,22 @@
 #include "struct.h"
 
 /* locals */
-static INS  ins_stack[1024];
-static long  ins_stack_idx;
+static INS ins_stack[1024];
+static long ins_stack_idx;
 /* static char ins_stack_fname[NAMESIZE]; */
-static long  arg_list[32][2];
+static long arg_list[32][2];
 /* static long  arg_list_idx; */
-static long  arg_idx;
-static long  func_call_stack;
+static long arg_idx;
+static long func_call_stack;
 
 /* globals */
 long arg_stack_flag;
 long argtop;
 
 /* protos */
-void arg_flush(long arg, long adj);
-void arg_to_fptr(struct fastcall *fast, long i, long arg, long adj);
-void arg_to_dword(struct fastcall *fast, long i, long arg, long adj);
+void arg_flush (long arg, long adj);
+void arg_to_fptr (struct fastcall *fast, long i, long arg, long adj);
+void arg_to_dword (struct fastcall *fast, long i, long arg, long adj);
 
 /* function declaration styles */
 #define KR 0
@@ -64,13 +64,14 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 {
 	char n[NAMESIZE];
 	SYMBOL *ptr;
-	long  nbarg = 0;
+	long nbarg = 0;
 	int is_irq_handler = 0;
 	int is_firq_handler = 0;
 	int save_norecurse = norecurse;
 	struct fastcall *fc;
 	long hash;
 	int fc_args;
+
 	need_map_call_bank = 0;
 	is_leaf_function = 1;
 
@@ -103,15 +104,15 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 			/* No explicit return type. */
 			ret_type = CINT;
 		}
-		if (!symname (n) ) {
-			error ("illegal function or declaration");
-			kill ();
+		if (!symname(n)) {
+			error("illegal function or declaration");
+			kill();
 			return;
 		}
 		strcpy(current_fn, n);
 
-		if (!match ("("))
-			error ("missing open paren");
+		if (!match("("))
+			error("missing open paren");
 
 		if (is_fastcall)
 			strcpy(fc->fname, n);
@@ -122,7 +123,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 	argtop = 0;
 	nbarg = 0;
 	memset(fixup, 0, sizeof(fixup));
-	while (!match (")")) {
+	while (!match(")")) {
 		/* check if we have an ANSI argument */
 		struct type t;
 		if (match_type(&t, NO, NO)) {
@@ -200,9 +201,8 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 					return;
 				}
 
-				if (!strcmp(fc->argname[fc_args], "acc")) {
+				if (!strcmp(fc->argname[fc_args], "acc"))
 					fc->argtype[fc_args] = TYPE_ACC;
-				}
 			}
 			nbarg++;
 			if (is_fastcall) {
@@ -222,25 +222,26 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 				return;
 			}
 			/* no valid type, assuming K&R argument */
-			if (symname (n)) {
-				if (findloc (n))
-					multidef (n);
+			if (symname(n)) {
+				if (findloc(n))
+					multidef(n);
 				else {
-					addloc (n, 0, 0, argstk, AUTO, INTSIZE);
+					addloc(n, 0, 0, argstk, AUTO, INTSIZE);
 					argstk = argstk + INTSIZE;
 					nbarg++;
 				}
-			} else {
-				error ("illegal argument name");
-				junk ();
+			}
+			else {
+				error("illegal argument name");
+				junk();
 			}
 		}
-		blanks ();
-		if (!streq (line + lptr, ")")) {
-			if (!match (","))
-				error ("expected comma");
+		blanks();
+		if (!streq(line + lptr, ")")) {
+			if (!match(","))
+				error("expected comma");
 		}
-		if (endst ())
+		if (endst())
 			break;
 	}
 
@@ -285,7 +286,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 
 	if (match(";")) {
 		/* function prototype */
-		ptr = addglb (current_fn, FUNCTION, ret_type, 0, EXTERN, 0);
+		ptr = addglb(current_fn, FUNCTION, ret_type, 0, EXTERN, 0);
 		norecurse = save_norecurse;
 
 		if (is_fastcall) {
@@ -339,17 +340,18 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 		   all of them. That means that for ANSI arguments we have
 		   to fix up the addresses for the locations generated in
 		   getarg() here. */
-		if (fixup[argstk/INTSIZE - 1]) {
+		if (fixup[argstk / INTSIZE - 1]) {
 			argstk -= INTSIZE;
-			*fixup[argstk/INTSIZE] += argtop;
-		} else {
+			*fixup[argstk / INTSIZE] += argtop;
+		}
+		else {
 			struct type t;
 			if (match_type(&t, NO, NO)) {
 				getarg(t.type, KR, t.otag, is_fastcall);
 				ns();
 			}
 			else {
-				error ("wrong number args");
+				error("wrong number args");
 				break;
 			}
 		}
@@ -357,20 +359,21 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 
 	fexitlab = getlabel();
 
-	if ( (ptr = findglb (current_fn)) ) {
+	if ((ptr = findglb(current_fn))) {
 		if (ptr->ident != FUNCTION)
-			multidef (current_fn);
+			multidef(current_fn);
 		else if (ptr->offset == FUNCTION)
-			multidef (current_fn);
+			multidef(current_fn);
 		else
 			/* XXX: sanity check? */
 			ptr->offset = FUNCTION;
-	} else
-		ptr = addglb (current_fn, FUNCTION, ret_type, FUNCTION, PUBLIC, 0);
+	}
+	else
+		ptr = addglb(current_fn, FUNCTION, ret_type, FUNCTION, PUBLIC, 0);
 	ptr->ptr_order = ret_ptr_order;
 	ptr->tagidx = ret_otag;
 
-	flush_ins(); /* David, .proc directive support */
+	flush_ins();	/* David, .proc directive support */
 	gtext();
 	if (is_firq_handler) {
 		ol(".bank LIB1_BANK");
@@ -385,13 +388,13 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 	}
 	else {
 		ot(".proc ");
-		prefix ();
-		outstr (current_fn);
+		prefix();
+		outstr(current_fn);
 		nl();
 	}
 
-	if (nbarg)      /* David, arg optimization */
-		gpusharg (0);
+	if (nbarg)	/* David, arg optimization */
+		gpusharg(0);
 
 	/* When using fixed-address locals, locals_ptr is used to
 	   keep track of their memory offset instead of stkp, so
@@ -401,12 +404,12 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 
 	statement(YES);
 	gnlabel(fexitlab);
-	modstk (nbarg * INTSIZE);
+	modstk(nbarg * INTSIZE);
 	gtext();
-	gret (); /* generate the return statement */
-	flush_ins();    /* David, optimize.c related */
+	gret();			/* generate the return statement */
+	flush_ins();		/* David, optimize.c related */
 	if (!is_firq_handler)
-		ol (".endp");   /* David, .endp directive support */
+		ol(".endp");	/* David, .endp directive support */
 
 	/* Add space for fixed-address locals to .bss section. */
 	if (norecurse && locals_ptr < 0) {
@@ -426,7 +429,7 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
 		}
 	}
 
-	nl ();
+	nl();
 	stkp = 0;
 	locptr = STARTLOC;
 	norecurse = save_norecurse;
@@ -442,17 +445,19 @@ void newfunc (const char *sname, int ret_ptr_order, int ret_type, int ret_otag, 
  */
 int getarg (long t, int syntax, int otag, int is_fastcall)
 {
-	long	j, legalname, address;
-	char	n[NAMESIZE];
-	SYMBOL	*argptr;
+	long j, legalname, address;
+	char n[NAMESIZE];
+	SYMBOL *argptr;
 	int ptr_order = 0;
+
 /*	char	c; */
 
 	FOREVER {
 		if (syntax == KR && argstk == 0)
-			return ptr_order;
+			return (ptr_order);
+
 		j = VARIABLE;
-		while (match ("*")) {
+		while (match("*")) {
 			j = POINTER;
 			ptr_order++;
 		}
@@ -467,32 +472,31 @@ int getarg (long t, int syntax, int otag, int is_fastcall)
 				t = CUINT;
 		}
 
-		if (!(legalname = symname (n))) {
-			if (syntax == ANSI && (ch() == ',' || ch() == ')')) {
+		if (!(legalname = symname(n))) {
+			if (syntax == ANSI && (ch() == ',' || ch() == ')'))
 				sprintf(n, "__anon_%ld\n", -argstk);
-			}
 			else {
-				illname ();
+				illname();
 				junk();
 			}
 		}
-		if (match ("[")) {
-			while (inbyte () != ']')
-				if (endst ())
+		if (match("[")) {
+			while (inbyte() != ']')
+				if (endst())
 					break;
 			j = POINTER;
 			ptr_order++;
 		}
 		if (legalname) {
 			if (syntax == ANSI) {
-				if (findloc (n))
-					multidef (n);
+				if (findloc(n))
+					multidef(n);
 				else {
-					addloc (n, 0, 0, argstk, AUTO, INTSIZE);
+					addloc(n, 0, 0, argstk, AUTO, INTSIZE);
 					argstk = argstk + INTSIZE;
 				}
 			}
-			if ( (argptr = findloc (n)) ) {
+			if ((argptr = findloc(n))) {
 				argptr->ident = j;
 				argptr->type = t;
 				address = argtop - glint(argptr) - 2;
@@ -502,29 +506,31 @@ int getarg (long t, int syntax, int otag, int is_fastcall)
 				argptr->tagidx = otag;
 				argptr->ptr_order = ptr_order;
 				if (syntax == ANSI)
-					fixup[argstk/INTSIZE - 1] = &argptr->offset;
-			} else
-				error ("expecting argument name");
+					fixup[argstk / INTSIZE - 1] = &argptr->offset;
+			}
+			else
+				error("expecting argument name");
 		}
 		if (syntax == KR) {
 			argstk = argstk - INTSIZE;
-			if (endst ())
-				return ptr_order;
-			if (!match (","))
-				error ("expected comma");
+			if (endst())
+				return (ptr_order);
+
+			if (!match(","))
+				error("expected comma");
 		}
 		else {
 			blanks();
 			if (streq(line + lptr, ")") ||
 			    streq(line + lptr, ",") ||
-			    (is_fastcall && streq(line +lptr, "<"))
-			   )
-				return ptr_order;
+			    (is_fastcall && streq(line + lptr, "<"))
+			    )
+				return (ptr_order);
 			else
-				error ("expected comma, closing bracket, or fastcall register");
+				error("expected comma, closing bracket, or fastcall register");
 		}
 	}
-	return ptr_order;
+	return (ptr_order);
 }
 
 /*
@@ -536,26 +542,26 @@ int getarg (long t, int syntax, int otag, int is_fastcall)
  *
  */
 #define SPILLB(a) { \
-	spilled_args[sparg_idx] = (a); \
-	spilled_arg_sizes[sparg_idx++] = 1; \
-	out_ins(I_SAVEB, 0, 0); \
+		spilled_args[sparg_idx] = (a); \
+		spilled_arg_sizes[sparg_idx++] = 1; \
+		out_ins(I_SAVEB, 0, 0); \
 }
 
 #define SPILLW(a) { \
-	spilled_args[sparg_idx] = (a); \
-	spilled_arg_sizes[sparg_idx++] = 2; \
-	out_ins(I_SAVEW, 0, 0); \
+		spilled_args[sparg_idx] = (a); \
+		spilled_arg_sizes[sparg_idx++] = 2; \
+		out_ins(I_SAVEW, 0, 0); \
 }
 
 void callfunction (char *ptr)
 {
-	extern char *new_string(long, char *);
+	extern char *new_string (long, char *);
 	struct fastcall *fast;
 	long call_stack_ref;
 	long i, j;
 	long nb;
 	long adj;
-	long	nargs;
+	long nargs;
 	long cnt;
 	int max_fc_arg = 0;	/* highest arg with a fastcall inside */
 	/* args spilled to the native stack */
@@ -573,24 +579,38 @@ void callfunction (char *ptr)
 	call_stack_ref = ++func_call_stack;
 
 	/* skip blanks */
-	blanks ();
+	blanks();
 
 	/* check if it's a special function,
 	 * if yes handle it externaly
 	 */
 	if (ptr) {
-		     if (!strcmp(ptr,"bank")) { do_asm_func(T_BANK); return; }
-		else if (!strcmp(ptr,"vram")) { do_asm_func(T_VRAM); return; }
-		else if (!strcmp(ptr,"pal"))  { do_asm_func(T_PAL);  return; }
-		else if (!strcmp(ptr,"set_bgpal")) { doset_bgpalstatement(); return; }
-		else if (!strcmp(ptr,"set_sprpal")) { doset_sprpalstatement(); return; }
-		else if (!strcmp(ptr,"load_sprites")) { doload_spritesstatement(); return; }
-		else if (!strcmp(ptr,"load_background")) { doload_backgroundstatement(); return; }
+		if (!strcmp(ptr, "bank")) {
+			do_asm_func(T_BANK); return;
+		}
+		else if (!strcmp(ptr, "vram")) {
+			do_asm_func(T_VRAM); return;
+		}
+		else if (!strcmp(ptr, "pal")) {
+			do_asm_func(T_PAL);  return;
+		}
+		else if (!strcmp(ptr, "set_bgpal")) {
+			doset_bgpalstatement(); return;
+		}
+		else if (!strcmp(ptr, "set_sprpal")) {
+			doset_sprpalstatement(); return;
+		}
+		else if (!strcmp(ptr, "load_sprites")) {
+			doload_spritesstatement(); return;
+		}
+		else if (!strcmp(ptr, "load_background")) {
+			doload_backgroundstatement(); return;
+		}
 	}
 
 	/* indirect call (push func address) */
 	if (ptr == NULL)
-		gpush ();
+		gpush();
 
 	/* fastcall check */
 	if (ptr == NULL)
@@ -606,8 +626,8 @@ void callfunction (char *ptr)
 		flush_ins();
 
 	/* get args */
-	while (!streq (line + lptr, ")")) {
-		if (endst ())
+	while (!streq(line + lptr, ")")) {
+		if (endst())
 			break;
 		/* fastcall func */
 		if (nb) {
@@ -616,7 +636,7 @@ void callfunction (char *ptr)
 			if (nargs)
 				stkp = stkp - INTSIZE;
 			arg_stack(arg_idx++);
-			expression (NO);
+			expression(NO);
 			flush_ins();
 
 			/* Check if we had a fastcall in our argument. */
@@ -629,12 +649,12 @@ void callfunction (char *ptr)
 		/* standard func */
 		else {
 			if (nargs)
-				gpusharg (INTSIZE);
-			expression (NO);
+				gpusharg(INTSIZE);
+			expression(NO);
 		}
 		nargs = nargs + INTSIZE;
 		cnt++;
-		if (!match (","))
+		if (!match(","))
 			break;
 	}
 
@@ -645,9 +665,9 @@ void callfunction (char *ptr)
 			arg_idx -= cnt;
 		}
 		if (arg_idx)
-			ins_stack_idx  = arg_list[arg_idx - 1][1];
+			ins_stack_idx = arg_list[arg_idx - 1][1];
 		else {
-			ins_stack_idx  = 0;
+			ins_stack_idx = 0;
 			arg_stack_flag = 0;
 		}
 	}
@@ -662,59 +682,57 @@ void callfunction (char *ptr)
 			for (i = 0, j = 0, adj = 0; i < cnt; i++) {
 				/* flush arg stack (except for farptr and dword args) */
 				if ((fast->argtype[j] != 0x03) &&
-					(fast->argtype[j] != 0x04))
-				{
+				    (fast->argtype[j] != 0x04))
 					arg_flush(arg_idx + i, adj);
-				}
-	
+
 				/* Either store the argument in its designated
 				   location, or save it on the (native) stack
 				   if there is another fastcall ahead. */
 				switch (fast->argtype[j]) {
-				case 0x01: /* byte */
+				case 0x01:	/* byte */
 					if (i < max_fc_arg)
 						SPILLB(fast->argname[j])
-					else
-						out_ins(I_STB, T_LITERAL, (long)fast->argname[j]);
+						else
+							out_ins(I_STB, T_LITERAL, (long)fast->argname[j]);
 					break;
-				case 0x02: /* word */
+				case 0x02:	/* word */
 					if (i < max_fc_arg)
 						SPILLW(fast->argname[j])
-					else
-						out_ins(I_STW, T_LITERAL, (long)fast->argname[j]);
+						else
+							out_ins(I_STW, T_LITERAL, (long)fast->argname[j]);
 					break;
-				case 0x03: /* farptr */
-					arg_to_fptr(fast, j,  arg_idx + i, adj);
+				case 0x03:	/* farptr */
+					arg_to_fptr(fast, j, arg_idx + i, adj);
 					if (i < max_fc_arg) {
 						out_ins(I_LDUB, T_LITERAL, (long)fast->argname[j]);
 						SPILLB(fast->argname[j])
-						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j+1]);
-						SPILLW(fast->argname[j+1])
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j + 1]);
+						SPILLW(fast->argname[j + 1])
 					}
 					j += 1;
 					break;
-				case 0x04: /* dword */
+				case 0x04:	/* dword */
 					arg_to_dword(fast, j, arg_idx + i, adj);
 					if (i < max_fc_arg) {
 						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j]);
 						SPILLW(fast->argname[j])
-						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j+1]);
-						SPILLW(fast->argname[j+1])
-						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j+2]);
-						SPILLW(fast->argname[j+2])
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j + 1]);
+						SPILLW(fast->argname[j + 1])
+						out_ins(I_LDW, T_LITERAL, (long)fast->argname[j + 2]);
+						SPILLW(fast->argname[j + 2])
 					}
 					j += 2;
 					break;
-				case 0x00: /* acc */
+				case 0x00:	/* acc */
 					if (i < max_fc_arg)
 						SPILLW(0)
-					uses_acc = 1;
+						uses_acc = 1;
 					break;
-			 	default:
+				default:
 					error("fastcall internal error");
 					break;
 				}
-	
+
 				/* next */
 				adj += INTSIZE;
 				j++;
@@ -726,17 +744,17 @@ void callfunction (char *ptr)
 				arg_flush(arg_idx + i, 0);
 				i++;
 				if (i < cnt)
-					gpusharg (0);
+					gpusharg(0);
 			}
 		}
 	}
-	
+
 	/* reset func call stack */
 	if (call_stack_ref == 1)
 		func_call_stack = 0;
 
 	/* close */
-	needbrack (")");
+	needbrack(")");
 
 	/* push number of args */
 	if (nb == 0)
@@ -750,7 +768,7 @@ void callfunction (char *ptr)
 		if (uses_acc)
 			out_ins(I_STW, T_LITERAL, (long)"<__temp");
 
-		for (i = sparg_idx-1; i>-1; i--) {
+		for (i = sparg_idx - 1; i > -1; i--) {
 			if (spilled_arg_sizes[i] == 1) {
 				out_ins(I_RESB, 0, 0);
 				out_ins(I_STB, T_LITERAL, (long)spilled_args[i]);
@@ -767,22 +785,22 @@ void callfunction (char *ptr)
 	}
 
 	if (ptr == NULL)
-		callstk (nargs);
+		callstk(nargs);
 	else {
 		if (fast) {
 			if (fast->flags & 0x01)
 				goto l1;
 		}
 		if (nb)
-			gcall (ptr, cnt);
+			gcall(ptr, cnt);
 		else
-			gcall (ptr, 0);
+			gcall(ptr, 0);
 	}
 l1:
 	/* adjust stack */
 	if (nargs > INTSIZE) {
 		nargs = nargs - INTSIZE;
-		stkp  = stkp + nargs;
+		stkp = stkp + nargs;
 		out_ins(I_ADDMI, T_NOP, nargs);
 	}
 }
@@ -791,14 +809,14 @@ l1:
  * start arg instruction stacking
  *
  */
-void arg_stack(long arg)
+void arg_stack (long arg)
 {
 	if (arg > 31)
 		error("too many args");
 	else {
 		/* close previous stack */
 		if (arg)
-	   		arg_list[arg - 1][1] = ins_stack_idx;
+			arg_list[arg - 1][1] = ins_stack_idx;
 
 		/* init new stack */
 		ins_stack_idx += 4;
@@ -812,7 +830,7 @@ void arg_stack(long arg)
  * put instructions in a temporary stack (one for each func arg)
  *
  */
-void arg_push_ins(INS *ptr)
+void arg_push_ins (INS *ptr)
 {
 	if (ins_stack_idx < 1024)
 		ins_stack[ins_stack_idx++] = *ptr;
@@ -828,28 +846,28 @@ void arg_push_ins(INS *ptr)
  * flush arg instruction stacks
  *
  */
-void
-arg_flush(long arg, long adj)
+void arg_flush (long arg, long adj)
 {
 	INS *ins;
-	long  idx;
-	long  nb;
-	long  i;
+	long idx;
+	long nb;
+	long i;
 
 	if (arg > 31)
 		return;
-	idx = arg_list[arg][0];
-	nb  = arg_list[arg][1] - arg_list[arg][0];
 
-	for(i = 0; i < nb;) {
+	idx = arg_list[arg][0];
+	nb = arg_list[arg][1] - arg_list[arg][0];
+
+	for (i = 0; i < nb;) {
 		/* adjust stack refs */
 		i++;
 		ins = &ins_stack[idx];
 
-		if((ins->type == T_STACK) && (ins->code == I_LDW)) {
+		if ((ins->type == T_STACK) && (ins->code == I_LDW)) {
 			if (i < nb) {
 				ins = &ins_stack[idx + 1];
-				if((ins->code == I_ADDWI) && (ins->type == T_VALUE))
+				if ((ins->code == I_ADDWI) && (ins->type == T_VALUE))
 					ins->data -= adj;
 			}
 		}
@@ -877,25 +895,24 @@ arg_flush(long arg, long adj)
 
 		/* flush */
 		gen_ins(&ins_stack[idx++]);
-	}		
+	}
 }
 
-void
-arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
+void arg_to_fptr (struct fastcall *fast, long i, long arg, long adj)
 {
-	INS  *ins, tmp;
+	INS *ins, tmp;
 	SYMBOL *sym;
-	long   idx;
-	long   err;
-	long   nb;
+	long idx;
+	long err;
+	long nb;
 
 	if (arg > 31)
 		return;
 
-	idx =  arg_list[arg][0];
-	nb  =  arg_list[arg][1] - arg_list[arg][0];
+	idx = arg_list[arg][0];
+	nb = arg_list[arg][1] - arg_list[arg][0];
 	ins = &ins_stack[idx];
-	err =  0;
+	err = 0;
 
 	/* check arg */
 	if (nb == 0)
@@ -903,18 +920,18 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 	else if (ins->type != T_SYMBOL)
 		err = 1;
 	else {
-		if((ins->code != I_LDWI) && (ins->code != I_LDW))
+		if ((ins->code != I_LDWI) && (ins->code != I_LDW))
 			err = 1;
 		else {
 			sym = (SYMBOL *)ins->data;
 
 			/* check symbol type */
 			if (ins->code == I_LDW) {
-				if((nb < 2) || (sym->ident == VARIABLE))
+				if ((nb < 2) || (sym->ident == VARIABLE))
 					err = 1;
 			}
 			else {
-				if((sym->ident == POINTER) || (sym->ident == VARIABLE))
+				if ((sym->ident == POINTER) || (sym->ident == VARIABLE))
 					err = 1;
 			}
 		}
@@ -924,11 +941,11 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 		return;
 	}
 
-	/* ok */	
+	/* ok */
 	if (nb == 1) {
-		ins->code   = I_FARPTR;
+		ins->code = I_FARPTR;
 		ins->arg[0] = (long)fast->argname[i];
-		ins->arg[1] = (long)fast->argname[i+1];
+		ins->arg[1] = (long)fast->argname[i + 1];
 		gen_ins(ins);
 	}
 	else {
@@ -940,20 +957,19 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 			tmp.type = T_SYMBOL;
 			tmp.data = ins->data;
 			tmp.arg[0] = (long)fast->argname[i];
-			tmp.arg[1] = (long)fast->argname[i+1];
+			tmp.arg[1] = (long)fast->argname[i + 1];
 			ins->type = T_VALUE;
 			ins->data = 0;
 		}
 		else {
-			if(((sym->ident == ARRAY) ||
-				(sym->ident == POINTER)) &&
-				(sym->type  == CINT || sym->type == CUINT))
-			{
+			if (((sym->ident == ARRAY) ||
+			     (sym->ident == POINTER)) &&
+			    (sym->type == CINT || sym->type == CUINT)) {
 				tmp.code = I_FARPTR_GET;
 				tmp.type = (long)NULL;
 				tmp.data = (long)NULL;
 				tmp.arg[0] = (long)fast->argname[i];
-				tmp.arg[1] = (long)fast->argname[i+1];
+				tmp.arg[1] = (long)fast->argname[i + 1];
 			}
 			else {
 				error("can't get farptr");
@@ -965,39 +981,37 @@ arg_to_fptr(struct fastcall *fast, long i, long arg, long adj)
 	}
 }
 
-void
-arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
+void arg_to_dword (struct fastcall *fast, long i, long arg, long adj)
 {
-	INS  *ins, *ptr, tmp;
+	INS *ins, *ptr, tmp;
 	SYMBOL *sym;
-	long   idx;
-	long   gen;
-	long   err;
-	long   nb;
+	long idx;
+	long gen;
+	long err;
+	long nb;
 
 	if (arg > 31)
 		return;
 
-	idx =  arg_list[arg][0];
-	nb  =  arg_list[arg][1] - arg_list[arg][0];
+	idx = arg_list[arg][0];
+	nb = arg_list[arg][1] - arg_list[arg][0];
 	ins = &ins_stack[idx];
-	gen =  0;
-	err =  1;
+	gen = 0;
+	err = 1;
 
 	/* check arg */
 	if (nb == 1) {
 		/* immediate value */
-		if((ins->code == I_LDWI) && (ins->type == T_VALUE)) {
+		if ((ins->code == I_LDWI) && (ins->type == T_VALUE)) {
 			ins->code = X_LDD_I;
-			ins->arg[0] = (long)fast->argname[i+1];
-			ins->arg[1] = (long)fast->argname[i+2];
+			ins->arg[0] = (long)fast->argname[i + 1];
+			ins->arg[1] = (long)fast->argname[i + 2];
 			gen = 1;
 		}
 
 		/* var/ptr */
-		else if(  (((ins->code == I_LDW) || (ins->code == I_LDB) || (ins->code == I_LDUB))
-			 && (ins->type == T_SYMBOL)) || (ins->type == T_LABEL) )
-		{
+		else if ((((ins->code == I_LDW) || (ins->code == I_LDB) || (ins->code == I_LDUB))
+			  && (ins->type == T_SYMBOL)) || (ins->type == T_LABEL)) {
 			/* check special cases */
 			if (ins->type == T_LABEL) {
 				error("dword arg can't be a static var");
@@ -1012,14 +1026,14 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 				gen = 1;
 			else if (sym->ident == VARIABLE) {
 				if (ins->code == I_LDW)
-					ins->code  = X_LDD_W;
+					ins->code = X_LDD_W;
 				else
-					ins->code  = X_LDD_B;
+					ins->code = X_LDD_B;
 
-				ins->type   = T_SYMBOL;
-				ins->data   = (long)sym;
-				ins->arg[0] = (long)fast->argname[i+1];
-				ins->arg[1] = (long)fast->argname[i+2];
+				ins->type = T_SYMBOL;
+				ins->data = (long)sym;
+				ins->arg[0] = (long)fast->argname[i + 1];
+				ins->arg[1] = (long)fast->argname[i + 2];
 				gen = 1;
 			}
 		}
@@ -1035,13 +1049,13 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 					gen = 1;
 				else if (sym->ident == VARIABLE) {
 					if (ins->code == X_LDW_S)
-						ins->code  = X_LDD_S_W;
+						ins->code = X_LDD_S_W;
 					else
-						ins->code  = X_LDD_S_B;
-	
-					ins->data  -= adj;
-					ins->arg[0] = (long)fast->argname[i+1];
-					ins->arg[1] = (long)fast->argname[i+2];
+						ins->code = X_LDD_S_B;
+
+					ins->data -= adj;
+					ins->arg[0] = (long)fast->argname[i + 1];
+					ins->arg[1] = (long)fast->argname[i + 2];
 					gen = 1;
 				}
 			}
@@ -1058,7 +1072,7 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 		}
 
 		/* array */
-		else if((ins->code == I_LDWI) && (ins->type == T_SYMBOL)) {
+		else if ((ins->code == I_LDWI) && (ins->type == T_SYMBOL)) {
 			/* get symbol */
 			sym = (SYMBOL *)ins->data;
 
@@ -1069,16 +1083,16 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 	}
 	else if (nb == 2) {
 		/* array */
-		if((ins->code == I_LDWI) && (ins->type == T_SYMBOL)) {
+		if ((ins->code == I_LDWI) && (ins->type == T_SYMBOL)) {
 			/* get symbol */
 			sym = (SYMBOL *)ins->data;
 
 			/* check type */
 			if (sym->ident == ARRAY) {
-				ptr =  ins;
-				ins = &ins_stack[idx+1];
+				ptr = ins;
+				ins = &ins_stack[idx + 1];
 
-				if((ins->code == I_ADDWI) && (ins->type == T_VALUE)) {
+				if ((ins->code == I_ADDWI) && (ins->type == T_VALUE)) {
 					gen_ins(ptr);
 					gen = 1;
 				}
@@ -1107,4 +1121,3 @@ arg_to_dword(struct fastcall *fast, long i, long arg, long adj)
 			error("invalid or too complex dword arg syntax");
 	}
 }
-
