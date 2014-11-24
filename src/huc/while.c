@@ -14,10 +14,10 @@
 void addwhile (long *ptr)
 /*long	ptr[];*/
 {
-	long	k;
+	long k;
 
 	if (wsptr == WSMAX) {
-		error ("too many active whiles");
+		error("too many active whiles");
 		return;
 	}
 	k = 0;
@@ -25,54 +25,56 @@ void addwhile (long *ptr)
 		*wsptr++ = ptr[k++];
 }
 
-void delwhile (void )
+void delwhile (void)
 {
-	if (readwhile ())
+	if (readwhile())
 		wsptr = wsptr - WSSIZ;
 }
 
-long* readwhile (void )
+long *readwhile (void)
 {
 	if (wsptr == ws) {
-		error ("no active do/for/while/switch");
+		error("no active do/for/while/switch");
 		return (0);
-	} else
-		return (wsptr-WSSIZ);
+	}
+	else
+		return (wsptr - WSSIZ);
 }
 
-long* findwhile (void )
+long *findwhile (void)
 {
-	long	*ptr;
+	long *ptr;
 
 	for (ptr = wsptr; ptr != ws;) {
 		ptr = ptr - WSSIZ;
 		if (ptr[WSTYP] != WSSWITCH)
 			return (ptr);
 	}
-	error ("no active do/for/while");
-	return NULL;
+	error("no active do/for/while");
+	return (NULL);
 }
 
-long* readswitch (void )
+long *readswitch (void)
 {
-	long	*ptr;
+	long *ptr;
 
-	ptr = readwhile ();
+	ptr = readwhile();
 	if (ptr)
 		if (ptr[WSTYP] == WSSWITCH)
 			return (ptr);
+
 	return (0);
 }
 
 void addcase (long val)
 {
-	long	lab;
+	long lab;
 
 	if (swstp == SWSTSZ)
-		error ("too many case labels");
+		error("too many case labels");
 	else {
 		swstcase[swstp] = val;
-		swstlab[swstp++] = lab = getlabel ();
-		gnlabel (lab);
+		swstlab[swstp++] = lab = getlabel();
+		gnlabel(lab);
 	}
 }
