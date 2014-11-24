@@ -45,25 +45,26 @@ static int infile_ptr;
 
 static int user_norecurse = 0;
 
-static char *lib_to_file(char *lib)
+static char *lib_to_file (char *lib)
 {
 	int i;
 	static char libfile[FILENAMESIZE];
 	char **incd = include_dirs();
+
 	for (i = 0; incd[i]; i++) {
 		struct stat st;
 		sprintf(libfile, "%s/%s.c", incd[i], lib);
 		if (!stat(libfile, &st))
-			return libfile;
+			return (libfile);
 	}
-	return 0;
+	return (0);
 }
-static void dumpfinal(void);
+static void dumpfinal (void);
 
-int main (int argc,char* argv[])
+int main (int argc, char *argv[])
 {
-	char	*p,*pp,*bp;
-	char** oldargv = argv;
+	char *p, *pp, *bp;
+	char **oldargv = argv;
 	char **link_lib;
 	long smacptr;
 	int first = 1;
@@ -81,19 +82,20 @@ int main (int argc,char* argv[])
 	overlayflag = 0;
 	asmdefs[0] = '\0';
 
-	while ( (p = *argv++) ) {
+	while ((p = *argv++)) {
 		if (*p == '-') {
-			while (*++p) switch(*p) {
+			while (*++p) switch (*p) {
 				case 't': case 'T':
 					ctext = 1;
 					break;
 
 				case 'c':
-					if ( (*(p+1) == 'd') ) {
+					if ((*(p + 1) == 'd')) {
 						cdflag = 1;	/* pass '-cd' to assembler */
 						p++;
 						break;
-					} else {
+					}
+					else {
 						usage(oldargv[0]);
 						break;
 					}
@@ -110,7 +112,7 @@ int main (int argc,char* argv[])
 						p += 2;
 						break;
 					}
-					/* fallthrough */
+				/* fallthrough */
 				case 'S':
 					sflag = 1;
 					break;
@@ -124,18 +126,18 @@ int main (int argc,char* argv[])
 						p += 2;
 						break;
 					}
-					/* fallthrough */
+				/* fallthrough */
 				case 'A':
 					bp = ++p;
 					if (!*p) usage(oldargv[0]);
 					while (*p && *p != '=') p++;
-					strncat(asmdefs, bp, (p-bp));
+					strncat(asmdefs, bp, (p - bp));
 /*					if (*p == '=') *p = '\t'; */
 					bp = ++p;
 					strcat(asmdefs, "\t= ");
-					if (*bp == '\0') {
+					if (*bp == '\0')
 						strcat(asmdefs, "1\n");
-					} else {
+					else {
 						strcat(asmdefs, bp);
 						strcat(asmdefs, "\n");
 					}
@@ -147,7 +149,7 @@ int main (int argc,char* argv[])
 					if (verboseflag > 1)
 						ctext = 1;		/* "C" code in asm output */
 					break;
-					
+
 				case 'd': case 'D':
 					bp = ++p;
 					if (!*p) usage(oldargv[0]);
@@ -170,7 +172,7 @@ int main (int argc,char* argv[])
 						bp = ++p;
 						while (*p && *p != ' ' && *p != '\t')
 							p++;
-						memcpy(user_outfile, bp, p-bp);
+						memcpy(user_outfile, bp, p - bp);
 						user_outfile[p - bp] = 0;
 						p--;
 					}
@@ -180,7 +182,7 @@ int main (int argc,char* argv[])
 					 * I'm too lazy to tape -O2 each time :)
 					 */
 					if (!p[1]) optimize = 2;
-					else       optimize = atoi(++p);
+					else optimize = atoi(++p);
 					break;
 
 				case 'f':
@@ -221,7 +223,7 @@ int main (int argc,char* argv[])
 					break;
 
 				case 'm':
-					if (!strcmp(p+1, "small")) {
+					if (!strcmp(p + 1, "small")) {
 						strcat(asmdefs, "SMALL\t= 1\n");
 						p += 5;
 					}
@@ -234,7 +236,7 @@ unknown_option:
 
 				default:
 					usage(oldargv[0]);
-			}
+				}
 		}
 		else {
 			infiles = realloc(infiles, (infile_ptr + 2) * sizeof(*infiles));
@@ -289,7 +291,7 @@ unknown_option:
 			quote[0] = '"';
 			cmode = 1;
 			glbflag = 1;
-			litlab = getlabel ();
+			litlab = getlabel();
 			member_table_index = 0;
 			memset(member_table, 0, sizeof(member_table));
 			tag_table_index = 0;
@@ -307,10 +309,10 @@ unknown_option:
 			addglb("__memory", ARRAY, CCHAR, 0, EXTERN, 0);
 			addglb("stack", ARRAY, CCHAR, 0, EXTERN, 0);
 			rglbptr = glbptr;
-			addglb ("etext", ARRAY, CCHAR, 0, EXTERN, 0);
-			addglb ("edata", ARRAY, CCHAR, 0, EXTERN, 0);
+			addglb("etext", ARRAY, CCHAR, 0, EXTERN, 0);
+			addglb("edata", ARRAY, CCHAR, 0, EXTERN, 0);
 			/* PCE specific externs */
-			addglb ("font_base", VARIABLE, CINT, 0, EXTERN, 0);
+			addglb("font_base", VARIABLE, CINT, 0, EXTERN, 0);
 			addglb_far("vdc", CINT);
 			addglb_far("vram", CCHAR);
 			/* end specific externs */
@@ -331,24 +333,25 @@ unknown_option:
 			/*
 			 *	compiler body
 			 */
-			if (!openin (p))
+			if (!openin(p))
 				exit(1);
-			if (first && !openout ())
+			if (first && !openout())
 				exit(1);
 			if (first)
 				header();
 			asmdefines();
 //			gtext ();
-			parse ();
-			fclose (input);
+			parse();
+			fclose(input);
 //			gdata ();
-			dumplits ();
-			dumpglbs ();
-			errorsummary ();
+			dumplits();
+			dumpglbs();
+			errorsummary();
 //			trailer ();
-			pl ("");
+			pl("");
 			errs = errs || errfile;
-		} else {
+		}
+		else {
 			fputs("Don't understand file ", stderr);
 			fputs(p, stderr);
 			fputc('\n', stderr);
@@ -380,36 +383,36 @@ unknown_option:
 	exit(errs != 0);
 }
 
-void FEvers(void )
+void FEvers (void)
 {
 	outstr("\tFront End (2.7,84/11/28)");
 }
 
-void usage(char* exename)
+void usage (char *exename)
 {
-	fprintf(stderr,HUC_VERSION);
-	fprintf(stderr,"\n\n");
-	fprintf(stderr,"USAGE: %s [-options] infile\n", exename);
-	fprintf(stderr,"\nCompiler options:\n");
-	fprintf(stderr,"-Dsym[=val]       define symbol 'sym' when compiling\n");
-	fprintf(stderr,"-O[val]           invoke optimization (level <value>)\n");
-	fprintf(stderr,"-fno-recursive    optimize assuming non-recursive code\n");
-	fprintf(stderr,"-fno-short-enums  always use signed int for enums\n");
-	fprintf(stderr,"-msmall           use single-byte stack pointer\n");
-	fprintf(stderr,"\nOutput options:\n");
-	fprintf(stderr,"-s/-S             create asm output only (do not invoke assembler)\n");
-	fprintf(stderr,"\nLinker options:\n");
-	fprintf(stderr,"-lname            add library 'name.c' from include path\n");
-	fprintf(stderr,"-cd               create CD-ROM output\n");
-	fprintf(stderr,"-scd              create Super CD-ROM output\n");
-	fprintf(stderr,"-acd              create Arcade Card CD output\n");
-	fprintf(stderr,"-sgx              enable SuperGrafx support\n");
-	fprintf(stderr,"-over(lay)        create CD-ROM overlay section\n");
-	fprintf(stderr,"\nAssembler options:\n");
-	fprintf(stderr,"-Asym[=val]       define symbol 'sym' to assembler\n");
-	fprintf(stderr,"\nDebugging options:\n");
-	fprintf(stderr,"-t/-T             include C source code in assembler output/listings\n");
-	fprintf(stderr,"-v/-V             increase verbosity of output files (max. 2)\n\n");
+	fprintf(stderr, HUC_VERSION);
+	fprintf(stderr, "\n\n");
+	fprintf(stderr, "USAGE: %s [-options] infile\n", exename);
+	fprintf(stderr, "\nCompiler options:\n");
+	fprintf(stderr, "-Dsym[=val]       define symbol 'sym' when compiling\n");
+	fprintf(stderr, "-O[val]           invoke optimization (level <value>)\n");
+	fprintf(stderr, "-fno-recursive    optimize assuming non-recursive code\n");
+	fprintf(stderr, "-fno-short-enums  always use signed int for enums\n");
+	fprintf(stderr, "-msmall           use single-byte stack pointer\n");
+	fprintf(stderr, "\nOutput options:\n");
+	fprintf(stderr, "-s/-S             create asm output only (do not invoke assembler)\n");
+	fprintf(stderr, "\nLinker options:\n");
+	fprintf(stderr, "-lname            add library 'name.c' from include path\n");
+	fprintf(stderr, "-cd               create CD-ROM output\n");
+	fprintf(stderr, "-scd              create Super CD-ROM output\n");
+	fprintf(stderr, "-acd              create Arcade Card CD output\n");
+	fprintf(stderr, "-sgx              enable SuperGrafx support\n");
+	fprintf(stderr, "-over(lay)        create CD-ROM overlay section\n");
+	fprintf(stderr, "\nAssembler options:\n");
+	fprintf(stderr, "-Asym[=val]       define symbol 'sym' to assembler\n");
+	fprintf(stderr, "\nDebugging options:\n");
+	fprintf(stderr, "-t/-T             include C source code in assembler output/listings\n");
+	fprintf(stderr, "-v/-V             increase verbosity of output files (max. 2)\n\n");
 	exit(1);
 }
 
@@ -420,7 +423,7 @@ void usage(char* exename)
  *	and function definitions are legal.
  *
  */
-void parse (void )
+void parse (void)
 {
 	if (!startup_incl) {
 		inc_startup();
@@ -443,13 +446,13 @@ void parse (void )
 // (And only once...)
 //
 		if (amatch("#asmdef", 7)) {
-			doasmdef ();
+			doasmdef();
 			continue;
 		}
-		
-		if (amatch ("extern", 6))
+
+		if (amatch("extern", 6))
 			dodcls(EXTERN, NULL_TAG, 0);
-		else if (amatch ("static",6)) {
+		else if (amatch("static", 6)) {
 			if (amatch("const", 5)) {
 				/* XXX: what about the static part? */
 				dodcls(CONST, NULL_TAG, 0);
@@ -457,21 +460,21 @@ void parse (void )
 			else
 				dodcls(STATIC, NULL_TAG, 0);
 		}
-		else if (amatch ("const",5))
+		else if (amatch("const", 5))
 			dodcls(CONST, NULL_TAG, 0);
 		else if (amatch("typedef", 7))
 			dotypedef();
 		else if (dodcls(PUBLIC, NULL_TAG, 0)) ;
-		else if (match ("#asm"))
-			doasm ();
-		else if (match ("#include"))
-			doinclude ();
+		else if (match("#asm"))
+			doasm();
+		else if (match("#include"))
+			doinclude();
 		else if (match("#inc"))
 			dopsdinc();
 		else if (match("#def"))
 			dopsddef();
 		else
-			newfunc (NULL, 0, 0, 0, 0);
+			newfunc(NULL, 0, 0, 0, 0);
 	}
 	if (optimize)
 		flush_ins();
@@ -480,8 +483,7 @@ void parse (void )
 /*
  *		parse top level declarations
  */
-
-long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
+long dodcls (long stclass, TAG_SYMBOL *mtag, int is_struct)
 {
 	long err;
 	struct type t;
@@ -499,24 +501,25 @@ long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct)
 		err = declglb(t.type, stclass, mtag, t.otag, is_struct);
 	}
 	else if (stclass == PUBLIC)
-		return(0);
+		return (0);
 	else
 		err = declglb(CINT, stclass, mtag, NULL_TAG, is_struct);
 
-	if (err == 2) /* function */
-		return 1;
+	if (err == 2)	/* function */
+		return (1);
 	else if (err) {
-		kill ();
-		return 0;
+		kill();
+		return (0);
 	}
 	else
-		ns ();
-	return(1);
+		ns();
+	return (1);
 }
 
-void dotypedef(void)
+void dotypedef (void)
 {
 	struct type t;
+
 	if (!match_type(&t, YES, NO)) {
 		error("unknown type");
 		kill();
@@ -546,33 +549,34 @@ void dotypedef(void)
 /*
  *	dump the literal pool
  */
-void dumplits (void )
+void dumplits (void)
 {
-	long	j, k;
+	long j, k;
 
 	if ((litptr == 0) && (const_nb == 0))
 		return;
+
 	outstr("\t.data\n");
 	outstr("\t.bank CONST_BANK\n");
 	if (litptr) {
-		outlabel (litlab);
-		col ();
+		outlabel(litlab);
+		col();
 		k = 0;
 		while (k < litptr) {
-			defbyte ();
+			defbyte();
 			j = 8;
 			while (j--) {
-				outdec (litq[k++] & 0xFF);
+				outdec(litq[k++] & 0xFF);
 				if ((j == 0) | (k >= litptr)) {
-					nl ();
+					nl();
 					break;
 				}
-				outbyte (',');
+				outbyte(',');
 			}
 		}
 	}
 	if (const_nb)
-		dump_const ();
+		dump_const();
 }
 
 /**
@@ -580,38 +584,42 @@ void dumplits (void )
  * @param symbol struct variable
  * @param position position of the struct in the array, or zero
  */
-int dump_struct(SYMBOL *symbol, int position) {
+int dump_struct (SYMBOL *symbol, int position)
+{
 	int dumped_bytes = 0;
 	int i, number_of_members, value;
+
 	number_of_members = tag_table[symbol->tagidx].number_of_members;
-	for (i=0; i<number_of_members; i++) {
+	for (i = 0; i < number_of_members; i++) {
 		// i is the index of current member, get type
 		int member_type = member_table[tag_table[symbol->tagidx].member_idx + i].type;
 		if (member_type == CCHAR || member_type == CUCHAR) {
 			defbyte();
 			dumped_bytes += 1;
-		} else {
+		}
+		else {
 			/* XXX: compound types? */
 			defword();
 			dumped_bytes += 2;
 		}
 		if (position < get_size(symbol->name)) {
 			// dump data
-			value = get_item_at(symbol->name, position*number_of_members+i, &tag_table[symbol->tagidx]);
+			value = get_item_at(symbol->name, position * number_of_members + i, &tag_table[symbol->tagidx]);
 			outdec(value);
-		} else {
+		}
+		else {
 			// dump zero, no more data available
 			outdec(0);
 		}
 		nl();
 	}
-	return dumped_bytes;
+	return (dumped_bytes);
 }
 
 static int have_init_data = 0;
 /* Initialized data must be kept in one contiguous block; pceas does not
    provide segments for that, so we keep the definitions and data in
-   separate buffers and dump them all together after the last input file. 
+   separate buffers and dump them all together after the last input file.
  */
 #define DATABUFSIZE 65536
 static FILE *data = 0;
@@ -622,12 +630,13 @@ char rodata_buf[DATABUFSIZE];
 /*
  *	dump all static variables
  */
-void dumpglbs (void )
+void dumpglbs (void)
 {
 	long i = 1;
 	int dim, list_size, line_count;
 	int j;
 	FILE *save = output;
+
 	if (!data)
 		data = fmemopen(data_buf, DATABUFSIZE, "w");
 	if (!rodata)
@@ -645,10 +654,11 @@ next:
 		for (cptr = rglbptr; cptr < glbptr; cptr++) {
 			if (cptr->ident != FUNCTION) {
 //				ppubext(cptr);
-				if ((cptr->storage & WRITTEN) == 0 && /* Not yet written to file */
+				if ((cptr->storage & WRITTEN) == 0 &&	/* Not yet written to file */
 				    cptr->storage != EXTERN) {
 					dim = cptr->offset;
-					if (find_symbol_initials(cptr->name)) { // has initials
+					if (find_symbol_initials(cptr->name)) {
+						// has initials
 						/* dump initialization data */
 						if (pass == 1)	/* initialized data not handled in pass 1 */
 							continue;
@@ -656,12 +666,12 @@ next:
 							/* define space for initialized data */
 							output = data;
 							if (cptr->storage != LSTATIC)
-								prefix ();
-							outstr (cptr->name);
-							outstr (":\t");
-							defstorage ();
-							outdec (cptr->size);
-							nl ();
+								prefix();
+							outstr(cptr->name);
+							outstr(":\t");
+							defstorage();
+							outdec(cptr->size);
+							nl();
 							cptr->storage |= WRITTEN;
 							output = save;
 							continue;
@@ -672,45 +682,42 @@ next:
 						list_size = 0;
 						line_count = 0;
 						list_size = get_size(cptr->name);
-						if (cptr->type == CSTRUCT) {
+						if (cptr->type == CSTRUCT)
 							list_size /= tag_table[cptr->tagidx].number_of_members;
-						}
-						if (dim == -1) {
+						if (dim == -1)
 							dim = list_size;
-						}
 						int item;
 						/* dim is an item count for non-compound types and a byte size
 						   for compound types; dump_struct() wants an item number, so
 						   we have to count both to get the right members out. */
 						for (j = item = 0; j < dim; j++, item++) {
-						    if (cptr->type == CSTRUCT) {
-							j += dump_struct(cptr, item) - 1;
-						    } else {
-							if (line_count % 10 == 0) {
-							    nl();
-							    if (cptr->type == CCHAR || cptr->type == CUCHAR) {
-								defbyte();
-							    } else {
-								defword();
-							    }
+							if (cptr->type == CSTRUCT)
+								j += dump_struct(cptr, item) - 1;
+							else {
+								if (line_count % 10 == 0) {
+									nl();
+									if (cptr->type == CCHAR || cptr->type == CUCHAR)
+										defbyte();
+									else
+										defword();
+								}
+								if (j < list_size) {
+									// dump data
+									int value = get_item_at(cptr->name, j, &tag_table[cptr->tagidx]);
+									outdec(value);
+								}
+								else {
+									// dump zero, no more data available
+									outdec(0);
+								}
+								line_count++;
+								if (line_count % 10 == 0)
+									line_count = 0;
+								else {
+									if (j < dim - 1)
+										outbyte(',');
+								}
 							}
-							if (j < list_size) {
-							    // dump data
-							    int value = get_item_at(cptr->name, j, &tag_table[cptr->tagidx]);
-							    outdec(value);
-							} else {
-							    // dump zero, no more data available
-							    outdec(0);
-							}
-							line_count++;
-							if (line_count % 10 == 0) {
-							    line_count = 0;
-							} else {
-							    if (j < dim-1) {
-								outbyte( ',' );
-							    }
-							}
-						    }
 						}
 						nl();
 						output = save;
@@ -725,16 +732,17 @@ next:
 							gdata();
 						}
 						if (cptr->storage != LSTATIC)
-							prefix ();
-						outstr (cptr->name);
-						outstr (":\t");
-						defstorage ();
-						outdec (cptr->size);
-						nl ();
+							prefix();
+						outstr(cptr->name);
+						outstr(":\t");
+						defstorage();
+						outdec(cptr->size);
+						nl();
 						cptr->storage |= WRITTEN;
 					}
 				}
-			} else {
+			}
+			else {
 //				fpubext(cptr);
 			}
 		}
@@ -748,9 +756,10 @@ next:
 	output = save;
 }
 
-static void dumpfinal(void)
+static void dumpfinal (void)
 {
 	int i;
+
 	if (leaf_cnt) {
 		outstr("leaf_loc: .ds ");
 		outdec(leaf_size);
@@ -769,9 +778,8 @@ static void dumpfinal(void)
 		outstr("huc_data_end:\n");
 		outstr("___huc_data_end:\n");
 	}
-	if (globals_h_in_process != 1) {
+	if (globals_h_in_process != 1)
 		outstr("__heap_start:\n");
-	}
 	if (rodata) {
 		fclose(rodata);
 		ol(".data");
@@ -794,16 +802,16 @@ static void dumpfinal(void)
 /*
  *	report errors
  */
-void errorsummary (void )
+void errorsummary (void)
 {
 	if (ncmp)
-		error ("missing closing bracket");
-	nl ();
-	comment ();
-	outdec (errcnt);
+		error("missing closing bracket");
+	nl();
+	comment();
+	outdec(errcnt);
 	if (errcnt) errfile = YES;
-	outstr (" error(s) in compilation");
-	nl ();
+	outstr(" error(s) in compilation");
+	nl();
 	comment();
 	ot("literal pool:");
 	outdec(litptr);
@@ -814,29 +822,31 @@ void errorsummary (void )
 	nl();
 	comment();
 	ot("global pool:");
-	outdec(glbptr-rglbptr);
+	outdec(glbptr - rglbptr);
 	nl();
 	comment();
 	ot("Macro pool:");
 	outdec(macptr);
 	nl();
-	pl (errcnt ? "Error(s)" : "No errors");
+	pl(errcnt ? "Error(s)" : "No errors");
 }
 
-char extension(char *s)
+char extension (char *s)
 {
 	s += strlen(s) - 2;
 	if (*s == '.')
-		return(*(s+1));
-	return(' ');
+		return (*(s + 1));
+
+	return (' ');
 }
 
-long assemble(char *s)
+long assemble (char *s)
 {
 	char buf[100];
 	char *exe;
 	char *opts[10];
 	long i;
+
 //	long j;
 
 	i = 0;
@@ -849,29 +859,28 @@ long assemble(char *s)
 #elif defined(linux) || defined(unix) || defined(osx)
 		exe = "pceas";
 #else
-  #error Add calling sequence depending on your OS
+#error Add calling sequence depending on your OS
 #endif
 	}
 	opts[i++] = exe;
 	switch (cdflag) {
-		case 1:
-			opts[i++] = "-cd";
-			break;
+	case 1:
+		opts[i++] = "-cd";
+		break;
 
-		case 2:
-			opts[i++] = "-scd";
-			break;
+	case 2:
+		opts[i++] = "-scd";
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 
-	if (overlayflag) {
+	if (overlayflag)
 		opts[i++] = "-over";	/* compile as overlay */
-	}
 
 	if (verboseflag) {
-		opts[i++] = "-S";	/* asm: display full segment map */
+		opts[i++] = "-S";		/* asm: display full segment map */
 		if (verboseflag > 1) {
 			opts[i++] = "-l 3";	/* top listing output */
 			opts[i++] = "-m";	/* force macros also */
@@ -883,7 +892,7 @@ long assemble(char *s)
 		opts[i++] = "-l 0";
 
 	strcpy(buf, s);
-	buf[strlen(buf)-1] = 's';
+	buf[strlen(buf) - 1] = 's';
 	opts[i++] = buf;
 
 	opts[i++] = 0;
@@ -896,8 +905,10 @@ long assemble(char *s)
 //	}
 // .....
 #if defined(WIN32)
-	return (execvp(exe, (const char* const*)opts));
+	return (execvp(exe, (const char *const *)opts));
+
 #else
-	return(execvp(exe, (char* const*)opts));
+	return (execvp(exe, (char *const *)opts));
+
 #endif
 }

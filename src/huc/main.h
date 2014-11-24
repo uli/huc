@@ -13,19 +13,18 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
-#define HUC_VERSION	"HuC (v3.98-" GIT_VERSION ", " GIT_DATE ")"
+#define HUC_VERSION     "HuC (v3.98-" GIT_VERSION ", " GIT_DATE ")"
 
-void FEvers(void );
-void usage(char* exename);
-void parse (void );
-long dodcls(long stclass, TAG_SYMBOL *mtag, int is_struct);
-void dumplits (void );
-void dumpglbs (void );
-void errorsummary (void );
-char extension(char *s);
-long assemble(char *s);
+void FEvers (void);
+void usage (char *exename);
+void parse (void);
+long dodcls (long stclass, TAG_SYMBOL *mtag, int is_struct);
+void dumplits (void);
+void dumpglbs (void);
+void errorsummary (void);
+char extension (char *s);
+long assemble (char *s);
 
-void dotypedef(void);
+void dotypedef (void);
 
 #endif
-
