@@ -34,11 +34,12 @@ static char *needargs[] = {
 void gnargs (char *name, long nb)
 {
 	char *ptr;
-	long   i;
+	long i;
 
 	if (name == NULL)
 		return;
-	for (i = 0; ; i++) {
+
+	for (i = 0;; i++) {
 		ptr = needargs[i];
 
 		if (ptr == NULL)
@@ -54,7 +55,7 @@ void gnargs (char *name, long nb)
  *	return next available internal label number
  *
  */
-long getlabel (void )
+long getlabel (void)
 {
 	return (nxtlab++);
 }
@@ -65,6 +66,7 @@ long getlabel (void )
 void getmem (SYMBOL *sym)
 {
 	char *data;
+
 	if ((sym->ident != POINTER) && (sym->type == CCHAR || sym->type == CUCHAR)) {
 		int op = I_LDB;
 		if (sym->type & CUNSIGNED)
@@ -73,12 +75,12 @@ void getmem (SYMBOL *sym)
 			out_ins(op, T_LABEL, glint(sym));
 		else
 			out_ins(op, T_SYMBOL, (long)(sym->name));
-	} else {
+	}
+	else {
 		if ((sym->storage & ~WRITTEN) == LSTATIC)
 			out_ins(I_LDW, T_LABEL, glint(sym));
-		else if ((sym->storage & ~WRITTEN) == CONST && (data = get_const(sym))) {
+		else if ((sym->storage & ~WRITTEN) == CONST && (data = get_const(sym)))
 			out_ins(I_LDWI, T_LITERAL, (long)data);
-		}
 		else
 			out_ins(I_LDW, T_SYMBOL, (long)(sym->name));
 	}
@@ -109,14 +111,14 @@ void getloc (SYMBOL *sym)
 	else {
 		value = glint(sym);
 		if (norecurse && value < 0) {
-		    /* XXX: bit of a memory leak, but whatever... */
-		    char *locsym = (char *)malloc(strlen(current_fn) + 16);
-		    sprintf(locsym, "_%s_lend-%ld", current_fn, -value);
-		    out_ins(I_LDWI, T_SYMBOL, (long)locsym);
+			/* XXX: bit of a memory leak, but whatever... */
+			char *locsym = (char *)malloc(strlen(current_fn) + 16);
+			sprintf(locsym, "_%s_lend-%ld", current_fn, -value);
+			out_ins(I_LDWI, T_SYMBOL, (long)locsym);
 		}
 		else {
-		    value -= stkp;
-		    out_ins_sym(X_LEA_S, T_STACK, value, sym);
+			value -= stkp;
+			out_ins_sym(X_LEA_S, T_STACK, value, sym);
 		}
 	}
 }
@@ -183,12 +185,11 @@ void indirect (char typeobj)
 		out_ins(I_LDBP, T_PTR, (long)NULL);
 	else if (typeobj == CUCHAR)
 		out_ins(I_LDUBP, T_PTR, (long)NULL);
-	else {
+	else
 		out_ins(I_LDWP, T_PTR, (long)NULL);
-	}
 }
 
-void farpeek(SYMBOL *ptr)
+void farpeek (SYMBOL *ptr)
 {
 	if (ptr->type == CCHAR)
 		out_ins(I_FGETB, T_SYMBOL, (long)ptr);
@@ -214,7 +215,7 @@ void immed (long type, long data)
  *	push the primary register onto the stack
  *
  */
-void gpush (void )
+void gpush (void)
 {
 //	out_ins(I_PUSHWZ, T_VALUE, zpstkp);
 //	zpstkp = zpstkp - INTSIZE;
@@ -237,7 +238,7 @@ void gpusharg (long size)
  *	pop the top of the stack into the secondary register
  *
  */
-void gpop (void )
+void gpop (void)
 {
 	out_ins(I_POPW, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
@@ -247,7 +248,7 @@ void gpop (void )
  *	swap the primary register and the top of the stack
  *
  */
-void swapstk (void )
+void swapstk (void)
 {
 	out_ins(I_SWAPW, (long)NULL, (long)NULL);
 }
@@ -269,7 +270,7 @@ void gcall (char *sname, long nargs)
  *         generate a bank pseudo instruction
  *
  */
-void gbank(unsigned char bank, unsigned short offset)
+void gbank (unsigned char bank, unsigned short offset)
 {
 	out_ins(I_BANK, T_VALUE, bank);
 	out_ins(I_OFFSET, T_VALUE, offset);
@@ -279,7 +280,7 @@ void gbank(unsigned char bank, unsigned short offset)
  *	return from subroutine
  *
  */
-void gret (void )
+void gret (void)
 {
 	out_ins(I_RTS, (long)NULL, (long)NULL);
 }
@@ -326,7 +327,7 @@ void testjump (long label, long ft)
  */
 long modstk (long newstkp)
 {
-	long	k;
+	long k;
 
 //	k = galign(newstkp - stkp);
 	k = newstkp - stkp;
@@ -340,7 +341,7 @@ long modstk (long newstkp)
 /*
  *	multiply the primary register by INTSIZE
  */
-void gaslint (void )
+void gaslint (void)
 {
 	out_ins(I_ASLW, (long)NULL, (long)NULL);
 }
@@ -348,7 +349,7 @@ void gaslint (void )
 /*
  *	divide the primary register by INTSIZE
  */
-void gasrint(void )
+void gasrint (void)
 {
 	out_ins(I_ASRW, (long)NULL, (long)NULL);
 }
@@ -356,7 +357,7 @@ void gasrint(void )
 /*
  *	Case jump instruction
  */
-void gjcase(void )
+void gjcase (void)
 {
 	out_ins(I_JMP, T_SYMBOL, (long)"__case");
 }
@@ -367,14 +368,12 @@ void gjcase(void )
  */
 void gadd (LVALUE *lval, LVALUE *lval2)
 {
-        /* XXX: isn't this done in expr.c already? */
-	if (dbltest (lval2, lval)) {
+	/* XXX: isn't this done in expr.c already? */
+	if (dbltest(lval2, lval))
 		out_ins(I_ASLWS, (long)NULL, (long)NULL);
-	}
-	if (lval && lval2 && is_byte(lval) && is_byte(lval2)) {
+	if (lval && lval2 && is_byte(lval) && is_byte(lval2))
 		out_ins(I_ADDBS, (long)NULL, (long)NULL);
-        }
-        else
+	else
 		out_ins(I_ADDWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
 }
@@ -383,7 +382,7 @@ void gadd (LVALUE *lval, LVALUE *lval2)
  *	subtract the primary register from the secondary
  *
  */
-void gsub (void )
+void gsub (void)
 {
 	out_ins(I_SUBWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
@@ -405,7 +404,7 @@ void gmult (int is_unsigned)
 
 void gmult_imm (int value)
 {
-    out_ins(I_MULWI, T_VALUE, (long)value);
+	out_ins(I_MULWI, T_VALUE, (long)value);
 }
 
 /*
@@ -424,9 +423,9 @@ void gdiv (int is_unsigned)
 
 void gdiv_imm (int value)
 {
-    gpush();
-    immed(T_VALUE, value);
-    gdiv(1);
+	gpush();
+	immed(T_VALUE, value);
+	gdiv(1);
 }
 
 /*
@@ -448,7 +447,7 @@ void gmod (int is_unsigned)
  *	inclusive 'or' the primary and secondary registers
  *
  */
-void gor (void )
+void gor (void)
 {
 	out_ins(I_ORWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
@@ -458,7 +457,7 @@ void gor (void )
  *	exclusive 'or' the primary and secondary registers
  *
  */
-void gxor (void )
+void gxor (void)
 {
 	out_ins(I_EORWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
@@ -468,7 +467,7 @@ void gxor (void )
  *	'and' the primary and secondary registers
  *
  */
-void gand (void )
+void gand (void)
 {
 	out_ins(I_ANDWS, (long)NULL, (long)NULL);
 	stkp = stkp + INTSIZE;
@@ -495,7 +494,7 @@ void gasr (int is_unsigned)
  *	(results in primary register)
  *
  */
-void gasl (void )
+void gasl (void)
 {
 	out_ins(I_JSR, T_LIB, (long)"asl");
 	stkp = stkp + INTSIZE;
@@ -505,7 +504,7 @@ void gasl (void )
  *	two's complement of primary register
  *
  */
-void gneg (void )
+void gneg (void)
 {
 	out_ins(I_NEGW, (long)NULL, (long)NULL);
 }
@@ -514,7 +513,7 @@ void gneg (void )
  *	one's complement of primary register
  *
  */
-void gcom (void )
+void gcom (void)
 {
 	out_ins(I_COMW, (long)NULL, (long)NULL);
 }
@@ -523,7 +522,7 @@ void gcom (void )
  *	convert primary register into logical value
  *
  */
-void gbool (void )
+void gbool (void)
 {
 	out_ins(I_BOOLW, (long)NULL, (long)NULL);
 }
@@ -532,7 +531,7 @@ void gbool (void )
  *	logical complement of primary register
  *
  */
-void glneg (void )
+void glneg (void)
 {
 	out_ins(I_NOTW, (long)NULL, (long)NULL);
 }
@@ -543,13 +542,13 @@ void glneg (void )
  */
 void ginc (LVALUE *lval)
 {
-        SYMBOL *sym = lval->symbol;
+	SYMBOL *sym = lval->symbol;
+
 	if (lval->ptr_type == CINT || lval->ptr_type == CUINT ||
 	    (sym && (sym->ptr_order > 1 || (sym->ident == ARRAY && sym->ptr_order > 0))))
 		out_ins(I_ADDWI, T_VALUE, 2);
-	else if (lval->ptr_type == CSTRUCT) {
+	else if (lval->ptr_type == CSTRUCT)
 		out_ins(I_ADDWI, T_VALUE, lval->tagsym->size);
-        }
 	else
 		out_ins(I_ADDWI, T_VALUE, 1);
 }
@@ -560,13 +559,13 @@ void ginc (LVALUE *lval)
  */
 void gdec (LVALUE *lval)
 {
-        SYMBOL *sym = lval->symbol;
+	SYMBOL *sym = lval->symbol;
+
 	if (lval->ptr_type == CINT || lval->ptr_type == CUINT ||
 	    (sym && (sym->ptr_order > 1 || (sym->ident == ARRAY && sym->ptr_order > 0))))
 		out_ins(I_SUBWI, T_VALUE, 2);
-	else if (lval->ptr_type == CSTRUCT) {
+	else if (lval->ptr_type == CSTRUCT)
 		out_ins(I_SUBWI, T_VALUE, lval->tagsym->size);
-        }
 	else
 		out_ins(I_SUBWI, T_VALUE, 1);
 }
@@ -613,9 +612,9 @@ void gne (int is_byte)
 void glt (int is_byte)
 {
 	if (is_byte)
-		out_ins(I_JSR,  T_LIB, (long)"ltb");
+		out_ins(I_JSR, T_LIB, (long)"ltb");
 	else
-		out_ins(I_JSR,  T_LIB, (long)"lt");
+		out_ins(I_JSR, T_LIB, (long)"lt");
 	stkp = stkp + INTSIZE;
 }
 
@@ -651,7 +650,7 @@ void ggt (int is_byte)
  */
 void gge (int is_byte)
 {
-	if (is_byte) 
+	if (is_byte)
 		out_ins(I_JSR, T_LIB, (long)"geb");
 	else
 		out_ins(I_JSR, T_LIB, (long)"ge");
@@ -711,43 +710,45 @@ void guge (int is_byte)
 	stkp = stkp + INTSIZE;
 }
 
-void scale_const(int type, int otag, long *size) {
-    switch (type) {
-        case CINT:
-        case CUINT:
-            *size += *size;
-            break;
-        case CSTRUCT:
-            *size *= tag_table[otag].size;
-            break;
-        default:
-            break;
-    }
-}
-
-void gcast(int type)
+void scale_const (int type, int otag, long *size)
 {
 	switch (type) {
-		case CCHAR:
-			out_ins(I_EXTW, 0, 0);
-			break;
-		case CUCHAR:
-			out_ins(I_EXTUW, 0, 0);
-			break;
-		case CINT:
-		case CUINT:
-		case CVOID:
-			break;
-		default:
-			abort();
-	};
+	case CINT:
+	case CUINT:
+		*size += *size;
+		break;
+	case CSTRUCT:
+		*size *= tag_table[otag].size;
+		break;
+	default:
+		break;
+	}
 }
 
-void gsei(void)
+void gcast (int type)
+{
+	switch (type) {
+	case CCHAR:
+		out_ins(I_EXTW, 0, 0);
+		break;
+	case CUCHAR:
+		out_ins(I_EXTUW, 0, 0);
+		break;
+	case CINT:
+	case CUINT:
+	case CVOID:
+		break;
+	default:
+		abort();
+	}
+	;
+}
+
+void gsei (void)
 {
 	out_ins(I_SEI, 0, 0);
 }
-void gcli(void)
+void gcli (void)
 {
 	out_ins(I_CLI, 0, 0);
 }
