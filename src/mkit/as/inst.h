@@ -1,5 +1,5 @@
-
 /* instruction table */
+/* *INDENT-OFF* */
 struct t_opcode base_inst[57] = {
 	{NULL, "ADC", class4, IMM|ZP|ZP_X|ZP_IND|ZP_IND_X|ZP_IND_Y|ABS|ABS_X|ABS_Y, 0x61, 0},
 	{NULL, "AND", class4, IMM|ZP|ZP_X|ZP_IND|ZP_IND_X|ZP_IND_Y|ABS|ABS_X|ABS_Y, 0x21, 0},
@@ -77,7 +77,7 @@ struct t_opcode base_pseudo[81] = {
 	{NULL,  "ENDIF",   do_endif,   PSEUDO, P_ENDIF,   0},
 	{NULL,  "ENDM",    do_endm,    PSEUDO, P_ENDM,    0},
 	{NULL,  "ENDP",    do_endp,    PSEUDO, P_ENDP,    P_PROC},
-{NULL, "ENDPROCGROUP", do_endp,    PSEUDO, P_ENDPG,   P_PGROUP},
+	{NULL, "ENDPROCGROUP", do_endp, PSEUDO, P_ENDPG,  P_PGROUP},
 	{NULL,  "EQU",     do_equ,     PSEUDO, P_EQU,     0},
 	{NULL,  "FAIL",    do_fail,    PSEUDO, P_FAIL,    0},
 	{NULL,  "FUNC",    do_func,    PSEUDO, P_FUNC,    0},
@@ -97,7 +97,7 @@ struct t_opcode base_pseudo[81] = {
 	{NULL,  "ORG",     do_org,     PSEUDO, P_ORG,     0},
 	{NULL,  "PAGE",    do_page,    PSEUDO, P_PAGE,    0},
 	{NULL,  "PROC",    do_proc,    PSEUDO, P_PROC,    P_PROC},
-  {NULL,  "PROCGROUP", do_proc,    PSEUDO, P_PGROUP,  P_PGROUP},
+	{NULL,  "PROCGROUP", do_proc,  PSEUDO, P_PGROUP,  P_PGROUP},
 	{NULL,  "RSSET",   do_rsset,   PSEUDO, P_RSSET,   0},
 	{NULL,  "RS",      do_rs,      PSEUDO, P_RS,      0},
 	{NULL,  "WORD",    do_dw,      PSEUDO, P_DW,      0},
@@ -115,7 +115,7 @@ struct t_opcode base_pseudo[81] = {
 	{NULL, ".ENDIF",   do_endif,   PSEUDO, P_ENDIF,   0},
 	{NULL, ".ENDM",    do_endm,    PSEUDO, P_ENDM,    0},
 	{NULL, ".ENDP",    do_endp,    PSEUDO, P_ENDP,    P_PROC},
-{NULL, ".ENDPROCGROUP",do_endp,    PSEUDO, P_ENDPG,   P_PGROUP},
+	{NULL, ".ENDPROCGROUP", do_endp, PSEUDO, P_ENDPG, P_PGROUP},
 	{NULL, ".EQU",     do_equ,     PSEUDO, P_EQU,     0},
 	{NULL, ".FAIL",    do_fail,    PSEUDO, P_FAIL,    0},
 	{NULL, ".FUNC",    do_func,    PSEUDO, P_FUNC,    0},
@@ -135,7 +135,7 @@ struct t_opcode base_pseudo[81] = {
 	{NULL, ".ORG",     do_org,     PSEUDO, P_ORG,     0},
 	{NULL, ".PAGE",    do_page,    PSEUDO, P_PAGE,    0},
 	{NULL, ".PROC",    do_proc,    PSEUDO, P_PROC,    P_PROC},
-  {NULL, ".PROCGROUP", do_proc,    PSEUDO, P_PGROUP,  P_PGROUP},
+	{NULL, ".PROCGROUP", do_proc,  PSEUDO, P_PGROUP,  P_PGROUP},
 	{NULL, ".RSSET",   do_rsset,   PSEUDO, P_RSSET,   0},
 	{NULL, ".RS",      do_rs,      PSEUDO, P_RS,      0},
 	{NULL, ".WORD",    do_dw,      PSEUDO, P_DW,      0},
@@ -147,4 +147,4 @@ struct t_opcode base_pseudo[81] = {
 	{NULL, NULL, NULL, 0, 0, 0}
 
 };
-
+/* *INDENT-ON* */

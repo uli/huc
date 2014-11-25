@@ -22,6 +22,7 @@ int mml_start(unsigned char *buffer);
 int mml_stop(unsigned char *buffer);
 int mml_parse(unsigned char *buffer, int bufsize, char *ptr);
 
+/* *INDENT-OFF* */
 /* PCE specific instructions */
 struct t_opcode pce_inst[82] = {
 	{NULL, "BBR",  class10,0, 0x0F, 0},
@@ -135,6 +136,7 @@ struct t_opcode pce_pseudo[23] = {
 	{NULL, ".VRAM",   pce_vram,   PSEUDO, P_VRAM,   0},
 	{NULL, NULL, NULL, 0, 0, 0}
 };
+/* *INDENT-ON* */
 
 const char defdirs_pce[] =
 #ifdef WIN32
