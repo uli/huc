@@ -46,8 +46,8 @@ int speed;			/* Speed of the song (the smaller, the fastest in fact) */
 int bpm;			/* Number of Beat Per Minut */
 
 #if 0
-int convertion_inst[ /*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
-						 * for each module instrument */
+int convertion_inst[/*MAX_INSTRUMENT */ 32];	/* corresponding pce instrument
+						* for each module instrument */
 #endif
 int autowave = 0;		/* automatic wave detection */
 int autowave_normalize = 0;	/* autowave normalization */
@@ -65,15 +65,15 @@ int instrument_user_vol[32];
 double instrument_transpose[32];
 
 void (*handle_note) (int, int, int, int);
-				/* The function that convert
-				 * the current note data into
-				 * something (display, mml, bytecode ...)
-				 */
+/* The function that convert
+ * the current note data into
+ * something (display, mml, bytecode ...)
+ */
 
 void (*finish_parsing) ();
-				/* Conclude the parsing for a
-				 * given channel (global var argument)
-				 */
+/* Conclude the parsing for a
+ * given channel (global var argument)
+ */
 
 /* period variables */
 #define NB_OCTAVE 5
@@ -166,11 +166,11 @@ char track_name[256];
 
     Description: transform a period value into alpha/octave notation
     Parameters: int period
-		char* alpha, the note in the octave ( 0 -> 'C' ,
-						      1 -> 'C#',
-						      2 -> 'D' ,
-						      ...)
-		char* octave
+                char* alpha, the note in the octave ( 0 -> 'C' ,
+                                                      1 -> 'C#',
+                                                      2 -> 'D' ,
+                                                      ...)
+                char* octave
     Return: nothing
 
 *****************************************************************************/
@@ -222,7 +222,6 @@ void convert_period(int period, char *alpha, char *octave)
 	*alpha = index % NOTE_PER_OCTAVE;
 	*octave = OCTAVE_OFFSET + (index / NOTE_PER_OCTAVE);
 	return;
-
 }
 
 char out_ch[MAX_CHANNEL][100000];
@@ -237,13 +236,13 @@ int chan_map[MAX_CHANNEL];
 
     Description: try to convert note in to our pseudo mml language
     Parameters: ( int current_channel from global variables )
-		( int current_row from global variables )
+                ( int current_row from global variables )
 
-		int period, data about the "height" (not sure this term is
-				     the right one in english) of the note
-		int instrument
-		int effect_id, cf table above
-		int effect_data
+                int period, data about the "height" (not sure this term is
+                                     the right one in english) of the note
+                int instrument
+                int effect_id, cf table above
+                int effect_data
     Return: nothing
 
 *****************************************************************************/
@@ -258,7 +257,7 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	static int last_period[MAX_CHANNEL];
 	static int current_env[MAX_CHANNEL] = {0};
 	const char *alpha_to_disp[NOTE_PER_OCTAVE] =
-	    { "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
+	{ "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b" };
 
 	/* Data for converting sample length and frequency to note length. */
 	const char *ticks_to_notelen[17] = {
@@ -320,16 +319,16 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 
 				/* Determine sample duration in rows from period
 				   and sample length. */
-				int samplerate = 7093789 /* Amiga clock (PAL, Hz) */
+				int samplerate = 7093789	/* Amiga clock (PAL, Hz) */
 						 / 2 / last_period[current_channel];
-				int samplesperrow = samplerate / 60 /* vsync frequency (Hz) */
-						    * /* speed */ 6; /* vsyncs per row */
+				int samplesperrow = samplerate / 60	/* vsync frequency (Hz) */
+						    * /* speed */ 6;	/* vsyncs per row */
 				int ticks = si->length / samplesperrow;
 
 #if DEBUG > 1
 				printf("inst %d ticks %d at period %d size %d\n",
-					last_instrument[current_channel],
-					ticks, last_period[current_channel], si->length);
+				       last_instrument[current_channel],
+				       ticks, last_period[current_channel], si->length);
 #endif
 
 				/* The note may at most last for as long as the following
@@ -443,7 +442,6 @@ void handle_note_mml(int period, int instrument, int effect_id, int effect_data)
 	} else {
 		rests[current_channel]++;
 	}
-
 }
 
 #undef outmem
@@ -463,10 +461,10 @@ void handle_note_st(int period, int instrument, int effect_id, int effect_data)
 
 		/* Determine sample duration in rows from period
 		   and sample length. */
-		int samplerate = 7093789 /* Amiga clock (PAL, Hz) */
+		int samplerate = 7093789		/* Amiga clock (PAL, Hz) */
 				 / 2 / period;
-		int samplesperrow = samplerate / 60 /* vsync frequency (Hz) */
-				    * /* speed */ 6; /* vsyncs per row */
+		int samplesperrow = samplerate / 60	/* vsync frequency (Hz) */
+				    * /* speed */ 6;	/* vsyncs per row */
 		int ticks = si->length / samplesperrow;
 		if (si->repeat_at)
 			ticks = 255;
@@ -474,7 +472,7 @@ void handle_note_st(int period, int instrument, int effect_id, int effect_data)
 		printf("sample %d len %d period %d ticks %d\n", instrument-1, si->length, period, ticks);
 #endif
 		outmem("; ch %d\n\t.db $%02x, %d\n\t.dw %d\n",
-			current_channel, ins, ticks, 3580000/samplerate);
+		       current_channel, ins, ticks, 3580000/samplerate);
 	}
 	else {
 		outmem("; ch %d rest\n\t.db $ff\n", current_channel);
@@ -485,8 +483,8 @@ void handle_note_st(int period, int instrument, int effect_id, int effect_data)
     Function: convert_row_to_duration
 
     Description: convert a number of row into a number of vertical
-		 synchronisation waiting based on the speed and bpm of
-		 the song
+                 synchronisation waiting based on the speed and bpm of
+                 the song
     Parameters: int row, the number of row
     Return: the number of vsync to wait
 
@@ -519,23 +517,23 @@ int convert_row_to_duration(int row)
     Function: output
 
     Description: output the given value, taking care of making asm lines
-		 not too long and outputing duration opcode if needed
+                 not too long and outputing duration opcode if needed
     Parameters: FILE* f, the file to output the result into (already opened)
-		int channel_number, the channel number (to seek the volume)
-		unsigned char opcode, the opcode to write
+                int channel_number, the channel number (to seek the volume)
+                unsigned char opcode, the opcode to write
     Return: nothing
 
 *****************************************************************************/
-void output(FILE * f, int channel_number, unsigned char opcode)
+void output(FILE *f, int channel_number, unsigned char opcode)
 {
 	if (channel[channel_number].last_note != 0) {
 		int duration =
-		    convert_row_to_duration(channel[channel_number].last_note) -
-		    1;
+			convert_row_to_duration(channel[channel_number].last_note) -
+			1;
 
 #if DEBUG > 1
 		static unsigned long total_duration_elapsed[8] =
-		    { 0, 0, 0, 0, 0, 0, 0, 0 };
+		{ 0, 0, 0, 0, 0, 0, 0, 0 };
 
 		total_duration_elapsed[channel_number] += duration;
 
@@ -557,7 +555,6 @@ void output(FILE * f, int channel_number, unsigned char opcode)
 			channel[channel_number].col_written++;
 			fprintf(f, "%d,", 128 + duration);
 		}
-
 	}
 
 	fprintf(f, "%d", opcode);
@@ -568,7 +565,6 @@ void output(FILE * f, int channel_number, unsigned char opcode)
 		fprintf(f, "\n\tdb ");
 	} else
 		fprintf(f, ",");
-
 }
 
 /*****************************************************************************
@@ -576,13 +572,13 @@ void output(FILE * f, int channel_number, unsigned char opcode)
     Function: gen_d2z_volume
 
     Description: output the opcode corresponding to volume in the given file for
-		 the given channel
+                 the given channel
     Parameters: FILE* f, the file to output the result into (already opened)
-		int channel_number, the channel number (to seek the volume)
+                int channel_number, the channel number (to seek the volume)
     Return: nothing
 
 *****************************************************************************/
-void gen_d2z_volume(FILE * f, int channel_number)
+void gen_d2z_volume(FILE *f, int channel_number)
 {
 	unsigned char volume = channel[channel_number].volume;
 
@@ -597,13 +593,13 @@ void gen_d2z_volume(FILE * f, int channel_number)
     Function: gen_d2z_instrument
 
     Description: output the opcode corresponding to instrument in the given file for
-		 the given channel
+                 the given channel
     Parameters: FILE* f, the file to output the result into (already opened)
-		int channel_number, the channel number (to seek the instrument)
+                int channel_number, the channel number (to seek the instrument)
     Return: nothing
 
 *****************************************************************************/
-void gen_d2z_instrument(FILE * f, int channel_number)
+void gen_d2z_instrument(FILE *f, int channel_number)
 {
 	unsigned char instrument = channel[channel_number].instrument;
 
@@ -618,14 +614,14 @@ void gen_d2z_instrument(FILE * f, int channel_number)
     Function: gen_d2z_period
 
     Description: output the opcode corresponding to period in the given file for
-		 the given channel
+                 the given channel
     Parameters: FILE* f, the file to output the result into (already opened)
-		int channel_number, the channel number
-		int period, the period value
+                int channel_number, the channel number
+                int period, the period value
     Return: nothing
 
 *****************************************************************************/
-void gen_d2z_period(FILE * f, int channel_number, int period)
+void gen_d2z_period(FILE *f, int channel_number, int period)
 {
 	char octave, alpha;
 	int index;
@@ -646,13 +642,13 @@ void gen_d2z_period(FILE * f, int channel_number, int period)
 
     Description: try to convert note in to our NEW DavidýZeo ^^ pseudo mml language
     Parameters: ( int current_channel from global variables )
-		( int current_row from global variables )
+                ( int current_row from global variables )
 
-		int period, data about the "height" (not sure this term is
-				     the right one in english) of the note
-		int instrument
-		int effect_id, cf table above
-		int effect_data
+                int period, data about the "height" (not sure this term is
+                                     the right one in english) of the note
+                int instrument
+                int effect_id, cf table above
+                int effect_data
     Return: nothing
 
 *****************************************************************************/
@@ -698,52 +694,52 @@ void handle_note_d2z_mml(int period,
 		break;
 
 	case FX_VOLUME_SLIDE:
-		{
-			effect_data =
-			    ((effect_data >> 4) & 0xF) - (effect_data & 0xF);
+	{
+		effect_data =
+			((effect_data >> 4) & 0xF) - (effect_data & 0xF);
 
-			if (effect_data == 0)
-				break;
+		if (effect_data == 0)
+			break;
 
-			if (effect_data == 1)
-				effect_data = 2;
+		if (effect_data == 1)
+			effect_data = 2;
 
-			if (effect_data == -1)
-				effect_data = -2;
+		if (effect_data == -1)
+			effect_data = -2;
 
-			/* if the effect is not nul but the sliding of PCE volume (twice less
-			   precise) would be nul, force the sliding such that we'll effectively
-			   hear a change with the PCE replayer */
+		/* if the effect is not nul but the sliding of PCE volume (twice less
+		   precise) would be nul, force the sliding such that we'll effectively
+		   hear a change with the PCE replayer */
 
-			effect_data /= 2;
+		effect_data /= 2;
 
-			if ((channel[current_channel].volume + effect_data >=
-			     31) && (channel[current_channel].volume == 31))
-				break;
-			/* the volume would be raised above the pce maximum while we're already
-			   at the maximum */
+		if ((channel[current_channel].volume + effect_data >=
+		     31) && (channel[current_channel].volume == 31))
+			break;
+		/* the volume would be raised above the pce maximum while we're already
+		   at the maximum */
 
-			if (channel[current_channel].volume + effect_data >= 31) {
-				channel[current_channel].volume = 31;
-				gen_d2z_volume(out, current_channel);
-				break;
-			}
-
-			if ((channel[current_channel].volume + effect_data <= 0)
-			    && (channel[current_channel].volume == 0))
-				break;
-			/* the volume would be lowered under zero while already at zero */
-
-			if (channel[current_channel].volume + effect_data <= 0) {
-				channel[current_channel].volume = 0;
-				gen_d2z_volume(out, current_channel);
-				break;
-			}
-
-			channel[current_channel].volume += effect_data;
+		if (channel[current_channel].volume + effect_data >= 31) {
+			channel[current_channel].volume = 31;
 			gen_d2z_volume(out, current_channel);
 			break;
 		}
+
+		if ((channel[current_channel].volume + effect_data <= 0)
+		    && (channel[current_channel].volume == 0))
+			break;
+		/* the volume would be lowered under zero while already at zero */
+
+		if (channel[current_channel].volume + effect_data <= 0) {
+			channel[current_channel].volume = 0;
+			gen_d2z_volume(out, current_channel);
+			break;
+		}
+
+		channel[current_channel].volume += effect_data;
+		gen_d2z_volume(out, current_channel);
+		break;
+	}
 
 	case FX_PATTERN_BREAK:
 	case FX_POSITION_JUMP:
@@ -767,11 +763,11 @@ void handle_note_d2z_mml(int period,
 			channel[current_channel].instrument = instrument;
 			gen_d2z_instrument(out, current_channel);
 		} else
-			/* The instrument is already the good one, in order to
-			 * fool the behaviour of volume setting when putting anew the same
-			 * instrument number, I just set volume to max one (same effect
-			 * but much faster when executed) and yet, only if max volume isn't set
-			 */
+		/* The instrument is already the good one, in order to
+		 * fool the behaviour of volume setting when putting anew the same
+		 * instrument number, I just set volume to max one (same effect
+		 * but much faster when executed) and yet, only if max volume isn't set
+		 */
 		if (channel[current_channel].volume != 31) {
 			channel[current_channel].volume = 31;
 			gen_d2z_volume(out, current_channel);
@@ -786,7 +782,6 @@ void handle_note_d2z_mml(int period,
 	fclose(out);
 
 	channel[current_channel].last_note++;
-
 }
 
 /*****************************************************************************
@@ -800,7 +795,6 @@ void handle_note_d2z_mml(int period,
 *****************************************************************************/
 void finish_d2z()
 {
-
 	FILE *out;
 
 	strcpy(output_filename, input_filename);
@@ -818,7 +812,7 @@ void finish_d2z()
 
 	if (channel[current_channel].last_note != 0) {
 		int duration =
-		    convert_row_to_duration(channel[current_channel].last_note);
+			convert_row_to_duration(channel[current_channel].last_note);
 
 		channel[current_channel].last_note = 0;
 
@@ -832,11 +826,9 @@ void finish_d2z()
 			channel[current_channel].col_written++;
 			fprintf(out, "%d,", 128 + duration);
 		}
-
 	}
 
 	fprintf(out, "192");
-
 }
 
 /*****************************************************************************
@@ -845,11 +837,11 @@ void finish_d2z()
 
     Description: read a byte :)
     Parameters: FILE* in, the file to read in
-		unsigned char* result, the place to store the result
+                unsigned char* result, the place to store the result
     Return: nothing
 
 *****************************************************************************/
-void read_byte(FILE * in, unsigned char *result)
+void read_byte(FILE *in, unsigned char *result)
 {
 	fread(result, 1, 1, in);
 }
@@ -860,12 +852,12 @@ void read_byte(FILE * in, unsigned char *result)
 
     Description: read an array of byte
     Parameters: FILE* in, the file to read in
-		unsigned char* result, the place to store the result
-		int length, the number of byte to read
+                unsigned char* result, the place to store the result
+                int length, the number of byte to read
     Return: nothing
 
 *****************************************************************************/
-void read_byte_array(FILE * in, char *result, int length)
+void read_byte_array(FILE *in, char *result, int length)
 {
 	fread(result, length, 1, in);
 }
@@ -876,11 +868,11 @@ void read_byte_array(FILE * in, char *result, int length)
 
     Description: read a word using the motorola order (hi byte first)
     Parameters: FILE* in, the file to read in
-		unsigned int* result, the place to store the result
+                unsigned int* result, the place to store the result
     Return: nothing
 
 *****************************************************************************/
-void read_word_motorola(FILE * in, unsigned int *result)
+void read_word_motorola(FILE *in, unsigned int *result)
 {
 	unsigned char hi_byte, lo_byte;
 
@@ -896,11 +888,11 @@ void read_word_motorola(FILE * in, unsigned int *result)
 
     Description: read a word using the intel order (lo byte first)
     Parameters: FILE* in, the file to read in
-		unsigned int* result, the place to store the result
+                unsigned int* result, the place to store the result
     Return: nothing
 
 *****************************************************************************/
-void read_word_intel(FILE * in, unsigned int *result)
+void read_word_intel(FILE *in, unsigned int *result)
 {
 	unsigned char hi_byte, lo_byte;
 
@@ -974,7 +966,7 @@ void log_raw(char *format, ...)
     Function: log_warning
 
     Description: log a string into a file preceded by the current module name
-		 row and channel
+                 row and channel
     Parameters: like printf
     Return: nothing
 
@@ -989,9 +981,9 @@ void log_warning(char *format, ...)
 	va_end(ap);
 
 	log_raw
-	    ("Warning (%s, song position %d, row 0X%02X, channel %d) :\n   %s\n",
-	     input_filename, current_song_position, current_row,
-	     current_channel, buf);
+		("Warning (%s, song position %d, row 0X%02X, channel %d) :\n   %s\n",
+		input_filename, current_song_position, current_row,
+		current_channel, buf);
 
 	return;
 }
@@ -1024,7 +1016,7 @@ void print_usage(char *argv[])
 unsigned long position_in_file(int pattern_number)
 {
 	return PATTERN_DATA_OFFSET + pattern_number *
-	    (ROW_NUMBER_PER_PATTERN * ROW_CHANNEL_DATA_LENGTH * nb_channel);
+	       (ROW_NUMBER_PER_PATTERN * ROW_CHANNEL_DATA_LENGTH * nb_channel);
 }
 
 /*****************************************************************************
@@ -1033,13 +1025,12 @@ unsigned long position_in_file(int pattern_number)
 
     Description: parse the given pattern in the given file
     Parameters: FILE* in, the file in which we'll work
-		int pattern_number, number of the pattern in the file
+                int pattern_number, number of the pattern in the file
     Return: nothing
 
 *****************************************************************************/
-void handle_pattern(FILE * in, int pattern_number)
+void handle_pattern(FILE *in, int pattern_number)
 {
-
 #if DEBUG > 1
 	printf("Handling pattern %d\n at position %ld\n\n",
 	       pattern_number, position_in_file(pattern_number));
@@ -1068,23 +1059,22 @@ void handle_pattern(FILE * in, int pattern_number)
 
 #if DEBUG > 1
 			printf
-			    ("channel %d : Note %4d inst %2X FX %1X  data %02X\n",
-			     current_channel, note_instrument & 0xFFF,
-			     ((note_instrument >> 8) & 0xF0) +
-			     (instrument_effect >> 4), instrument_effect & 0xF,
-			     effect_data);
+				("channel %d : Note %4d inst %2X FX %1X  data %02X\n",
+				current_channel, note_instrument & 0xFFF,
+				((note_instrument >> 8) & 0xF0) +
+				(instrument_effect >> 4), instrument_effect & 0xF,
+				effect_data);
 #endif
 
 			(*handle_note) (note_instrument & 0xFFF,
 					((note_instrument >> 8) & 0xF0) +
 					(instrument_effect >> 4),
 					instrument_effect & 0xF, effect_data);
-
 		}
 	}
 	for (current_channel = 0; current_channel < nb_channel;
 	     current_channel++)
-	     (*handle_note)(0, 0, FX_FLUSH, 0);
+		(*handle_note)(0, 0, FX_FLUSH, 0);
 }
 
 void get_map_int(char *optarg, int *map, int offidx, int offval)
@@ -1156,38 +1146,38 @@ int main(int argc, char *argv[])
 		if (c == -1)
 			break;
 		switch (c) {
-			case 'm':
-				get_map_int(optarg, instrument_map, -1, -1);
-				break;
-			case 'd':
-				get_map_int(optarg, percussion_map, -1, -1);
-				break;
-			case 'o':
-				strcpy(output_filename, optarg);
-				break;
-			case 'p':
-				channel[atoi(optarg)].percussion = 1000;
-				break;
-			case 't':
-				strcpy(track_name, optarg);
-				break;
-			case 'a':
-				autowave = 1;
-				break;
-			case 'n':
-				autowave_normalize = 1;
-				break;
-			case 's':
-				use_mml = 1;
-				break;
-			case 'v':
-				get_map_int(optarg, instrument_user_vol, -1, 0);
-				break;
-			case 'f':
-				get_map_double(optarg, instrument_transpose, -1, 0);
-				break;
-			default:
-				abort();
+		case 'm':
+			get_map_int(optarg, instrument_map, -1, -1);
+			break;
+		case 'd':
+			get_map_int(optarg, percussion_map, -1, -1);
+			break;
+		case 'o':
+			strcpy(output_filename, optarg);
+			break;
+		case 'p':
+			channel[atoi(optarg)].percussion = 1000;
+			break;
+		case 't':
+			strcpy(track_name, optarg);
+			break;
+		case 'a':
+			autowave = 1;
+			break;
+		case 'n':
+			autowave_normalize = 1;
+			break;
+		case 's':
+			use_mml = 1;
+			break;
+		case 'v':
+			get_map_int(optarg, instrument_user_vol, -1, 0);
+			break;
+		case 'f':
+			get_map_double(optarg, instrument_transpose, -1, 0);
+			break;
+		default:
+			abort();
 		}
 	}
 
@@ -1251,7 +1241,6 @@ int main(int argc, char *argv[])
 	}
 
 	while (input_filename) {	/* For each filename on command line ... */
-
 		input = fopen(input_filename, "rb");
 		if (input == NULL) {	/* file couldn't be opened */
 			print_error("input file (%s) not found\n",
@@ -1318,9 +1307,9 @@ int main(int argc, char *argv[])
 			if (samples[i].length > 0) {
 #if DEBUG > 0
 				printf("sample %d: %s len %d vol %d repeat at %d for %d\n",
-					i, samples[i].name, samples[i].length,
-					samples[i].volume, samples[i].repeat_at,
-					samples[i].repeat_length);
+				       i, samples[i].name, samples[i].length,
+				       samples[i].volume, samples[i].repeat_at,
+				       samples[i].repeat_length);
 #endif
 				samples[i].data = (signed char *)malloc(samples[i].length - 2);
 				long here = ftell(input);
@@ -1387,7 +1376,6 @@ int main(int argc, char *argv[])
 			for (dummy = 0; dummy < song_length; dummy++)
 				printf("%4d", pattern_array[dummy]);
 			puts("");
-
 		}
 #endif
 
@@ -1423,7 +1411,6 @@ int main(int argc, char *argv[])
 
 		optind++;
 		input_filename = argv[optind];
-
 	}
 
 	/* There are only two noise-capable channels (5 and 6), so we
@@ -1432,7 +1419,7 @@ int main(int argc, char *argv[])
 	int max2 = -1;
 	for (i = 0; i < nb_channel; i++) {
 #if DEBUG > 1
-                printf("ch %d percmax %d\n", i, channel[i].percussion);
+		printf("ch %d percmax %d\n", i, channel[i].percussion);
 #endif
 		if (channel[i].percussion) {
 			if (channel[i].percussion > max) {
@@ -1546,7 +1533,7 @@ int main(int argc, char *argv[])
 				for (j = 0; j < 16; j++) {
 					if ((j & 7) == 0 && j != 15)
 						fprintf(output, "\t.db ");
-                                        /* XXX: should normalization be on at all times? */
+					/* XXX: should normalization be on at all times? */
 					/* XXX: shouldn't this be log()? */
 					int val = sqrt(samples[i].env_data[j]) * instrument_user_vol[i] / sqrt(samples[i].max_env);
 					fprintf(output, "%d", val);
