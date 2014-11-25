@@ -21,6 +21,9 @@ $(EXE): $(OBJS) $(LIBS) $(HDRS)
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
 	$(CP) $(EXE) $(BINDIR)
 
+indent:	uncrustify.cfg
+	uncrustify -l c -c uncrustify.cfg --replace *.c *.h
+
 #
 # Targets
 #
