@@ -1,3 +1,4 @@
+/* *INDENT-OFF* */
 const unsigned char standard_waves[45][32] = {
 {
 	0x00,0x00,0x00,0x00,
