@@ -105,7 +105,7 @@ void analyze_sample(sample_info *s)
 		avgvol[i] = (avgvol[i-1] + avgvol[i] + avgvol[i+1]) / 3;
 	}
 	avgvol[avgsize-1] = (avgvol[avgsize-1] +
-					 avgvol[avgsize-2]) / 2;
+			     avgvol[avgsize-2]) / 2;
 #if DEBUG > 1
 	dump_curve(avgvol, avgsize, 4);
 #endif
@@ -239,14 +239,14 @@ void analyze_sample(sample_info *s)
 					j++;
 				/* If this is a positive sample, we're in. */
 				if (s->data[j] > 0) {
-				    PRINTWAV("slownullcross up at %d\n", i);
-				    goto cross;
+					PRINTWAV("slownullcross up at %d\n", i);
+					goto cross;
 				}
 			}
 		}
 		else if (s->data[i] > 0 && s->data[i-1] < 0) {
-		    PRINTWAV("fastnullcross up at %d\n", i);
-		    goto cross;
+			PRINTWAV("fastnullcross up at %d\n", i);
+			goto cross;
 		}
 		/* These are not the samples you're looking for. */
 		continue;
@@ -255,9 +255,9 @@ cross:
 		   are suitable as a custom wave. */
 		len = i - lastcross;
 		if (max > 30 && min < -30 &&	/* minimum volume */
-		    /* at most 1 byte deviation from the desired length */
+			/* at most 1 byte deviation from the desired length */
 		    len >= 31 && len <= 33 &&
-		    /* some degree of symmetry */
+			/* some degree of symmetry */
 		    neg > 10 && pos > 10) {
 			PRINTWAV("found wave in \"%s\" from %d size %d [%d-%d]\n", s->name, lastcross, len, min, max);
 			waves[wc].start = lastcross;
@@ -328,8 +328,8 @@ cross:
 		for (i = 0; i < wc; i++) {
 #if DEBUG > 0
 			printf("wave %d at %d: score %d (vol %d, dist %d, asymt %d, asymv %d)\n",
-				i, waves[i].start, waves[i].score, waves[i].vol,
-				waves[i].end_dist, waves[i].asymmetry_time, waves[i].asymmetry_vol);
+			       i, waves[i].start, waves[i].score, waves[i].vol,
+			       waves[i].end_dist, waves[i].asymmetry_time, waves[i].asymmetry_vol);
 #endif
 			if (waves[i].score > hiscore) {
 				hiscore = waves[i].score;
