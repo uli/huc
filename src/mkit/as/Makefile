@@ -41,6 +41,9 @@ $(TARGNES) : $(OBJS) $(LIBS)
 	$(CC) $(LDFLAGS) $(OBJS) -o $@
 	$(CP) $(TARGNES) $(BINDIR)
 
+indent:	uncrustify.cfg
+	uncrustify -l c -q -c uncrustify.cfg --replace *.c *.h
+
 #
 # Targets
 #
