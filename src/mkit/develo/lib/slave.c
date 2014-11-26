@@ -1,11 +1,61 @@
 #include <stdio.h>
 #include <string.h>
+#ifdef __linux__
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/vfs.h>
+#include <time.h>
+#else
 #include <dir.h>
 #include <dos.h>
+#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include "develo.h"
+
+#ifdef __linux__
+struct ftime {
+	union {
+		/* XXX: endianness? */
+		struct {
+			unsigned short low;
+			unsigned short high;
+		};
+		struct {
+			unsigned ft_tsec : 5;
+			unsigned ft_min : 6;
+			unsigned ft_hour : 5;
+			unsigned ft_day : 5;
+			unsigned ft_month : 4;
+			unsigned ft_year : 7;
+		};
+	};
+};
+
+static void
+convert_to_ftime(struct stat *st, struct ftime *ft)
+{
+	struct tm *lt;
+
+	lt = localtime(&st->st_mtime);
+	ft->ft_tsec = lt->tm_sec;
+	ft->ft_min = lt->tm_min;
+	ft->ft_hour = lt->tm_hour;
+	ft->ft_day = lt->tm_mday;
+	ft->ft_month = lt->tm_mon;
+	ft->ft_year = lt->tm_year;
+}
+
+static void
+getftime(int fh, struct ftime *ft)
+{
+	struct stat st;
+
+	fstat(fh, &st);
+	convert_to_ftime(&st, ft);
+}
+#endif
 
 /* externs */
 extern int slave_mode;
@@ -444,13 +494,22 @@ cmd_reg_report(unsigned char *pkt)
 static void
 cmd_file_dskf(unsigned char *pkt)
 {
+#ifdef __linux__
+	struct statfs sf;
+#else
 	struct dfree df;
+#endif
 	char *msg;
 	int size;
 
 	/* get disk free space */
+#ifdef __linux__
+	statfs(".", &sf);
+	size = sf.f_bfree * 2;
+#else
 	getdfree(0, &df);
 	size = (df.df_avail * df.df_bsec * df.df_sclus);
+#endif
 
 	/* echo command */
 	if (slave_display) {
@@ -672,27 +731,58 @@ dv_slave(int disp)
 int
 dv_slave_init(void)
 {
+#ifdef __linux__
+	DIR *dp;
+	struct dirent *de;
+	struct ftime ft;
+	struct stat st;
+#else
 	struct ffblk ff;
+#endif
 	int done;
 	int n;
 
 	/* scan current directory */
+#ifdef __linux__
+	done = !!((dp = opendir(".")));
+	de = readdir(dp);
+#else
 	done = findfirst("*.*", &ff, 0);
+#endif
 	n = 0;
 
 	while (!done) {
 		/* get file infos */
+#ifdef __linux__
+		pack_file_name(dir_info[n].packed_fname, de->d_name);
+		strncpy(dir_info[n].fname, de->d_name, 12);
+#else
 		pack_file_name(dir_info[n].packed_fname, ff.ff_name);	/* packed name */
 		strncpy(dir_info[n].fname, ff.ff_name, 12);		/* name */
+#endif
 		dir_info[n].fname[12] = '\0';
+#ifdef __linux__
+		stat(de->d_name, &st);
+		convert_to_ftime(&st, &ft);
+		dir_info[n].fdate = ((unsigned short *)&ft)[1];
+		dir_info[n].ftime = ((unsigned short *)&ft)[0];
+		dir_info[n].fsize = st.st_size;
+
+		done = !!((de = readdir(dp)));
+#else
 		dir_info[n].fdate = ff.ff_fdate;	/* date */
 		dir_info[n].ftime = ff.ff_ftime;	/* time */
 		dir_info[n].fsize = ff.ff_fsize;	/* size */
 
 		/* next entry */
 		done = findnext(&ff);
+#endif
 		n++;
 	}
+
+#ifdef __linux__
+	closedir(dp);
+#endif
 
 	/* number of directory records */
 	dir_nb_records = n;

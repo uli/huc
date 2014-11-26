@@ -1,9 +1,52 @@
 #include <stdio.h>
+#ifdef __linux__
+#include <sys/io.h>
+#include <sys/time.h>
+#include <termios.h>
+#include <unistd.h>
+#define outportb(port, value) outb((value), (port))
+#define inportb inb
+#define getkey	getchar
+#else
 #include <pc.h>
+#endif
 #include "develo.h"
 #include "crc16.h"
 
 /*#define PC98	1*/	/* uncomment this for PC98 machines - UNTESTED!! */
+
+#ifdef __linux__
+static void
+changemode(int dir)
+{
+	static struct termios oldt, newt;
+
+	if (dir == 1) {
+		tcgetattr(STDIN_FILENO, &oldt);
+		newt = oldt;
+		newt.c_lflag &= ~(ICANON | ECHO);
+		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	}
+	else
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+}
+
+int
+kbhit(void)
+{
+	struct timeval tv;
+	fd_set rdfs;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	FD_ZERO(&rdfs);
+	FD_SET(STDIN_FILENO, &rdfs);
+
+	select(STDIN_FILENO + 1, &rdfs, NULL, NULL, &tv);
+	return (FD_ISSET(STDIN_FILENO, &rdfs));
+}
+#endif
 
 /* externs */
 extern int develo;		/* develo box presence flag */
@@ -211,6 +254,9 @@ dv_request(int cmd)
 
 	case DV_RECV:
 		/* receiving */
+#ifdef __linux__
+		changemode(1);
+#endif
 		for (i = 0; i < 20; i++) {
 			/* if in slave mode, check if the user
 			 * want to exit
@@ -230,9 +276,15 @@ dv_request(int cmd)
 				slave_wait = 0;
 
 				/* ok */
+#ifdef __linux__
+				changemode(0);
+#endif
 				return (DV_OK);
 			}
 		}
+#ifdef __linux__
+		changemode(0);
+#endif
 
 		/* reset slave wait flag */
 		slave_wait = 0;

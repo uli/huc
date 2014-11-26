@@ -3,6 +3,9 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef __linux__
+#include <sys/io.h>
+#endif
 #include "develo.h"
 
 // #define PC98	1	/* uncomment this for PC98 machines - UNTESTED!! */
@@ -42,6 +45,13 @@ dv_init(void)
 	develo_com = 0;
 	develo_wait1 = 200000;
 	develo = 0;
+
+#ifdef __linux__
+	if (iopl(3)) {
+		perror("cannot access I/O ports");
+		exit(1);
+	}
+#endif
 
 	/* get environment variable */
 	env = getenv("DEVELOPORT");
