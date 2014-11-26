@@ -1,4 +1,3 @@
-
 /* ASSEMBLE.C */
 void assemble(int do_label);
 int  oplook(int *idx);

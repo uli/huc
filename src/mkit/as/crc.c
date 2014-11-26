@@ -1,4 +1,3 @@
-
 /* locals */
 static unsigned int crc_table[256];
 
