@@ -7,7 +7,7 @@
 
 unsigned char auto_inc;
 unsigned char auto_tag;
-unsigned int  auto_tag_value;
+unsigned int auto_tag_value;
 
 
 /* ----
@@ -68,7 +68,7 @@ class2(int *ip)
 		}
 
 		/* offset */
-		putbyte(data_loccnt+1, addr);
+		putbyte(data_loccnt + 1, addr);
 
 		/* output line */
 		println();
@@ -94,7 +94,7 @@ class3(int *ip)
 	if (pass == LAST_PASS) {
 		/* opcodes */
 		putbyte(data_loccnt, opval);
-		putbyte(data_loccnt+1, optype);
+		putbyte(data_loccnt + 1, optype);
 
 		/* output line */
 		println();
@@ -114,7 +114,7 @@ class4(int *ip)
 	char buffer[32];
 	char c;
 	int len, mode;
-	int	i;
+	int i;
 
 	/* skip spaces */
 	while (isspace(prlnbuf[*ip]))
@@ -171,13 +171,13 @@ class4(int *ip)
 	if (auto_tag) {
 		if (pass == LAST_PASS) {
 			putbyte(loccnt, 0xA0);
-			putbyte(loccnt+1, auto_tag_value);
+			putbyte(loccnt + 1, auto_tag_value);
 		}
 		loccnt += 2;
 	}
 
 	/* generate code */
-	switch(mode) {
+	switch (mode) {
 	case ACC:
 		/* one byte */
 		if (pass == LAST_PASS)
@@ -196,7 +196,7 @@ class4(int *ip)
 		/* two bytes */
 		if (pass == LAST_PASS) {
 			putbyte(loccnt, opval);
-			putbyte(loccnt+1, value);
+			putbyte(loccnt + 1, value);
 		}
 		loccnt += 2;
 		break;
@@ -209,7 +209,7 @@ class4(int *ip)
 		/* three bytes */
 		if (pass == LAST_PASS) {
 			putbyte(loccnt, opval);
-			putword(loccnt+1, value);
+			putword(loccnt + 1, value);
 		}
 		loccnt += 3;
 		break;
@@ -238,7 +238,7 @@ class4(int *ip)
 void
 class5(int *ip)
 {
-	int	zp;
+	int zp;
 	unsigned int addr;
 	int mode;
 
@@ -247,7 +247,7 @@ class5(int *ip)
 
 	/* get first operand */
 	mode = getoperand(ip, ZP, ',');
-	zp   = value;
+	zp = value;
 	if (!mode)
 		return;
 
@@ -260,7 +260,7 @@ class5(int *ip)
 	if (pass == LAST_PASS) {
 		/* opcodes */
 		putbyte(data_loccnt, opval);
-		putbyte(data_loccnt+1, zp);
+		putbyte(data_loccnt + 1, zp);
 
 		/* calculate branch offset */
 		addr = value - (loccnt + (page << 13));
@@ -272,7 +272,7 @@ class5(int *ip)
 		}
 
 		/* offset */
-		putbyte(data_loccnt+2, addr);
+		putbyte(data_loccnt + 2, addr);
 
 		/* output line */
 		println();
@@ -289,14 +289,14 @@ class5(int *ip)
 void
 class6(int *ip)
 {
-	int	i;
+	int i;
 	int addr[3];
 
 	/* update location counter */
-	loccnt +=7;
+	loccnt += 7;
 
 	/* get operands */
-    for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++) {
 		if (!evaluate(ip, (i < 2) ? ',' : ';'))
 			return;
 		if (pass == LAST_PASS) {
@@ -305,16 +305,16 @@ class6(int *ip)
 				return;
 			}
 		}
-	    addr[i] = value;
+		addr[i] = value;
 	}
 
 	/* generate code */
 	if (pass == LAST_PASS) {
 		/* opcodes */
 		putbyte(data_loccnt, opval);
-		putword(data_loccnt+1, addr[0]);
-		putword(data_loccnt+3, addr[1]);
-		putword(data_loccnt+5, addr[2]);
+		putword(data_loccnt + 1, addr[0]);
+		putword(data_loccnt + 3, addr[1]);
+		putword(data_loccnt + 5, addr[2]);
 
 		/* output line */
 		println();
@@ -336,7 +336,7 @@ class7(int *ip)
 
 	/* get first operand */
 	mode = getoperand(ip, IMM, ',');
-	imm  = value;
+	imm = value;
 	if (!mode)
 		return;
 
@@ -352,23 +352,23 @@ class7(int *ip)
 	if (mode & (ABS | ABS_X))
 		opval = 0x93;
 	if (mode & (ZP_X | ABS_X))
-		opval+= 0x20;
+		opval += 0x20;
 
 	/* generate code */
 	if (pass == LAST_PASS) {
 		/* opcodes */
 		putbyte(loccnt, opval);
-		putbyte(loccnt+1, imm);
+		putbyte(loccnt + 1, imm);
 
 		if (mode & (ZP | ZP_X))
 			/* zero page */
-			putbyte(loccnt+2, addr);
+			putbyte(loccnt + 2, addr);
 		else
 			/* absolute */
-			putword(loccnt+2, addr);
+			putword(loccnt + 2, addr);
 	}
 
-	/* update location counter */ 
+	/* update location counter */
 	if (mode & (ZP | ZP_X))
 		loccnt += 3;
 	else
@@ -417,7 +417,7 @@ class8(int *ip)
 
 		/* opcodes */
 		putbyte(data_loccnt, opval);
-		putbyte(data_loccnt+1, (1 << value));
+		putbyte(data_loccnt + 1, (1 << value));
 
 		/* output line */
 		println();
@@ -442,7 +442,7 @@ class9(int *ip)
 
 	/* get the bit index */
 	mode = getoperand(ip, IMM, ',');
-	bit  = value;
+	bit = value;
 	if (!mode)
 		return;
 
@@ -461,7 +461,7 @@ class9(int *ip)
 
 		/* opcodes */
 		putbyte(data_loccnt, opval + (bit << 4));
-		putbyte(data_loccnt+1, value);
+		putbyte(data_loccnt + 1, value);
 
 		/* output line */
 		println();
@@ -488,13 +488,13 @@ class10(int *ip)
 
 	/* get the bit index */
 	mode = getoperand(ip, IMM, ',');
-	bit  = value;
+	bit = value;
 	if (!mode)
 		return;
 
 	/* get the zero page address */
 	mode = getoperand(ip, ZP, ',');
-	zp   = value;
+	zp = value;
 	if (!mode)
 		return;
 
@@ -513,7 +513,7 @@ class10(int *ip)
 
 		/* opcodes */
 		putbyte(data_loccnt, opval + (bit << 4));
-		putbyte(data_loccnt+1, zp);
+		putbyte(data_loccnt + 1, zp);
 
 		/* calculate branch offset */
 		addr = value - (loccnt + (page << 13));
@@ -525,7 +525,7 @@ class10(int *ip)
 		}
 
 		/* offset */
-		putbyte(data_loccnt+2, addr);
+		putbyte(data_loccnt + 2, addr);
 
 		/* output line */
 		println();
@@ -567,7 +567,7 @@ getoperand(int *ip, int flag, int last_char)
 	case 'A':
 	case 'a':
 		/* accumulator */
-		c = prlnbuf[(*ip)+1];
+		c = prlnbuf[(*ip) + 1];
 		if (isspace(c) || c == '\0' || c == ';' || c == ',') {
 			mode = ACC;
 			(*ip)++;
@@ -576,7 +576,7 @@ getoperand(int *ip, int flag, int last_char)
 
 	default:
 		/* other */
-		switch(prlnbuf[*ip]) {
+		switch (prlnbuf[*ip]) {
 		case '#':
 			/* immediate */
 			mode = IMM;
@@ -617,7 +617,7 @@ getoperand(int *ip, int flag, int last_char)
 			switch (toupper(c)) {
 			case ',':		/* , = 5 */
 				if (!pos)
-					 pos = *ip;
+					pos = *ip;
 				else {
 					end = 1;
 					break;
@@ -642,7 +642,7 @@ getoperand(int *ip, int flag, int last_char)
 				break;
 			default:
 				code = 0xFFFFFF;
-				end  = 1;
+				end = 1;
 				break;
 			}
 		}
@@ -666,7 +666,7 @@ getoperand(int *ip, int flag, int last_char)
 			mode &= (ZP_IND_Y);				// ],Y
 		else if (code == 0x000001) {
 			mode &= (ZP_IND_Y);				// ].tag
-		  (*ip) += 2;
+			(*ip) += 2;
 
 			/* get tag */
 			tmp = value;
@@ -717,7 +717,7 @@ getoperand(int *ip, int flag, int last_char)
 			}
 
 			/* immediate mode */
-			else if (mode & (IMM) & flag) {
+			else if (mode & (IMM)&flag) {
 				/* extension stuff */
 				if (opext == 'L')
 					value = (value & 0xFF);
@@ -770,7 +770,7 @@ getoperand(int *ip, int flag, int last_char)
 			return (0);
 		}
 		(*ip)++;
-		break;		
+		break;
 
 	case ',':
 		/* need more operands */
@@ -779,7 +779,7 @@ getoperand(int *ip, int flag, int last_char)
 			return (0);
 		}
 		(*ip)++;
-		break;		
+		break;
 	}
 
 	/* ok */
