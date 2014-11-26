@@ -6,7 +6,7 @@
 #include "externs.h"
 #include "protos.h"
 
-int in_if;			/* set when we are in an .if statement */
+int in_if;		/* set when we are in an .if statement */
 int if_expr;		/* set when parsing an .if expression */
 int if_level;		/* level of nested .if's */
 int if_state[256];	/* status when entering the .if */
@@ -20,6 +20,7 @@ int continued_line;	/* set when a line is the continuation of another line */
  * ----
  * translate source line to machine language
  */
+
 void
 assemble(int do_label)
 {
@@ -27,8 +28,8 @@ assemble(int do_label)
 	char *buf;
 	char c;
 	char local_check;
-	int	 flag;
-	int	 ip, i, j;		/* prlnbuf pointer */
+	int flag;
+	int ip, i, j;			/* prlnbuf pointer */
 
 	/* init variables */
 	lablptr = NULL;
@@ -64,7 +65,7 @@ assemble(int do_label)
 		if (pass == FIRST_PASS) {
 			ptr = (void *)malloc(sizeof(struct t_line));
 			buf = (void *)malloc(strlen(&prlnbuf[SFIELD]) + 1);
-			if ((ptr == NULL) || (buf == NULL)) {		
+			if ((ptr == NULL) || (buf == NULL)) {
 				error("Out of memory!");
 				return;
 			}
@@ -72,10 +73,10 @@ assemble(int do_label)
 			ptr->next = NULL;
 			ptr->data = buf;
 			if (mlptr)
-			    mlptr->next = ptr;
+				mlptr->next = ptr;
 			else
 				mptr->line = ptr;
-		    mlptr = ptr;
+			mlptr = ptr;
 		}
 		return;
 	}
@@ -91,7 +92,7 @@ assemble(int do_label)
 		if (oplook(&i) >= 0) {
 			if (opflg == PSEUDO) {
 				switch (opval) {
-				case P_IF:			// .if
+				case P_IF:		// .if
 				case P_IFDEF:		// .ifdef
 				case P_IFNDEF:		// .ifndef
 					if (skip_lines) {
@@ -132,7 +133,7 @@ assemble(int do_label)
 	c = prlnbuf[SFIELD];
 	if (c == ';' || c == '*' || c == '\0') {
 //		if (c == '\0')
-			lastlabl = NULL;
+		lastlabl = NULL;
 		if (pass == LAST_PASS)
 			println();
 		return;
@@ -143,15 +144,15 @@ assemble(int do_label)
 	j = 0;
 	while (isspace(prlnbuf[i]))
 		i++;
-    local_check=prlnbuf[i + j];
+	local_check = prlnbuf[i + j];
 	for (;;) {
 		c = prlnbuf[i + j];
 		if (isdigit(c) && (j == 0))
 			break;
-		if (!isalnum(c) && (c != '_') && (c != '.'))
-		{ if((local_check=='.') && ((c=='-') || (c=='+')))
-            { }
-          else { break;}
+		if (!isalnum(c) && (c != '_') && (c != '.')) {
+			if ((local_check == '.') && ((c == '-') || (c == '+'))) {
+			}
+			else break;
 		}
 
 		j++;
@@ -265,7 +266,7 @@ oplook(int *idx)
 	char c;
 	int flag;
 	int hash;
-	int	i;
+	int i;
 
 	/* get instruction name */
 	i = 0;
@@ -327,8 +328,8 @@ oplook(int *idx)
 	while (ptr) {
 		if (name[0] == ptr->name[0] && !strcmp(name, ptr->name)) {
 			opproc = ptr->proc;
-			opflg  = ptr->flag;
-			opval  = ptr->value;
+			opflg = ptr->flag;
+			opval = ptr->value;
 			optype = ptr->type_idx;
 
 			if (opext) {
@@ -336,10 +337,10 @@ oplook(int *idx)
 				if (opflg == PSEUDO)
 					return (-1);
 				/* extension valid only for these addressing modes */
-				if (!(opflg & (IMM|ZP|ZP_X|ZP_IND_Y|ABS|ABS_X|ABS_Y)))
+				if (!(opflg & (IMM | ZP | ZP_X | ZP_IND_Y | ABS | ABS_X | ABS_Y)))
 					return (-1);
 			}
-			return (i);			
+			return (i);
 		}
 		ptr = ptr->next;
 	}
@@ -363,7 +364,7 @@ addinst(struct t_opcode *optbl)
 	int len;
 	int i;
 	char *ptr;
-	char  c;
+	char c;
 
 	if (optbl == NULL)
 		return;
@@ -372,8 +373,8 @@ addinst(struct t_opcode *optbl)
 	while (optbl->name) {
 		/* calculate instruction hash value */
 		hash = 0;
-		len  = strlen(optbl->name);
-		ptr  = optbl->name;
+		len = strlen(optbl->name);
+		ptr = optbl->name;
 
 		for (i = 0; i < len; i++) {
 			c = *ptr++;
@@ -381,7 +382,7 @@ addinst(struct t_opcode *optbl)
 		}
 
 		hash &= 0xFF;
-		
+
 		/* insert the instruction in the hash table */
 		optbl->next = inst_tbl[hash];
 		inst_tbl[hash] = optbl;
@@ -435,7 +436,7 @@ do_if(int *ip)
 	if_level++;
 	if_state[if_level] = !skip_lines;
 	if (!skip_lines)
-		 skip_lines = if_flag[if_level] = value ? 0 : 1;
+		skip_lines = if_flag[if_level] = value ? 0 : 1;
 
 	if (pass == LAST_PASS) {
 		loadlc(value, 1);
