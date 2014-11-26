@@ -28,7 +28,7 @@ main(int argc, char **argv)
 {
 	FILE *ofile;
 	char fname[128];
-	char bankbuf[8];
+	unsigned char bankbuf[8];
 	unsigned char buf[0x2000];
 	int i, j, offset, savebank;
 

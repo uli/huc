@@ -64,7 +64,7 @@ dv_get_bank(unsigned char *bank)
  */
 
 int
-dv_get_ram(char *data, int addr, int len)
+dv_get_ram(unsigned char *data, int addr, int len)
 {
 	unsigned char buf[8];
 
@@ -93,7 +93,7 @@ dv_get_ram(char *data, int addr, int len)
  */
 
 int
-dv_set_ram(int addr, char *data, int len)
+dv_set_ram(int addr, unsigned char *data, int len)
 {
 	unsigned char buf[8];
 	int size, pos, temp;
@@ -135,7 +135,7 @@ dv_set_ram(int addr, char *data, int len)
  */
 
 int
-dv_get_vram(char *data, int addr, int len)
+dv_get_vram(unsigned char *data, int addr, int len)
 {
 	unsigned char buf[8];
 	int size, pos, temp;
@@ -175,7 +175,7 @@ dv_get_vram(char *data, int addr, int len)
  */
 
 int
-dv_set_vram(int addr, char *data, int len)
+dv_set_vram(int addr, unsigned char *data, int len)
 {
 	unsigned char buf[8];
 	int size, pos, temp;
@@ -217,7 +217,7 @@ dv_set_vram(int addr, char *data, int len)
  */
 
 int
-dv_get_color(char *data, int addr, int len)
+dv_get_color(unsigned char *data, int addr, int len)
 {
 	unsigned char buf[8];
 
@@ -245,7 +245,7 @@ dv_get_color(char *data, int addr, int len)
  */
 
 int
-dv_set_color(int addr, char *data, int len)
+dv_set_color(int addr, unsigned char *data, int len)
 {
 	unsigned char buf[8];
 
@@ -302,7 +302,7 @@ dv_exec(int addr, int slave)
  */
 
 int
-dv_read_cd(char *data, int sect)
+dv_read_cd(unsigned char *data, int sect)
 {
 	unsigned char buf[8];
 

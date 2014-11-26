@@ -33,7 +33,7 @@ static void cmd_file_delete(unsigned char *pkt);
 static void cmd_reg_report(unsigned char *pkt);
 static void cmd_file_dskf(unsigned char *pkt);
 static void pack_file_name(char *buffer, char *fname);
-static void unpack_file_name(char *fname, char *str);
+static void unpack_file_name(char *fname, unsigned char *str);
 static void pack_dir_record(unsigned char *buffer, int n);
 static int  send_packet(unsigned char *pkt);
 
@@ -514,7 +514,7 @@ pack_file_name(char *buffer, char *fname)
  */
 
 static void
-unpack_file_name(char *fname, char *str)
+unpack_file_name(char *fname, unsigned char *str)
 {
 	int i, j, k;
 
