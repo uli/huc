@@ -51,15 +51,15 @@ do_pseudo(int *ip)
 	case P_DWL:
 	case P_DWH:
 		if (lastlabl) {
-			if(lastlabl->data_type != P_DB)
-		 	   lastlabl = NULL;
+			if (lastlabl->data_type != P_DB)
+				lastlabl = NULL;
 		}
 		break;
 
 	default:
 		if (lastlabl) {
-			if(lastlabl->data_type != opval)
-		 	   lastlabl = NULL;
+			if (lastlabl->data_type != opval)
+				lastlabl = NULL;
 		}
 		break;
 	}
@@ -174,10 +174,10 @@ do_db(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_level  = 2;
+	data_level = 2;
 
 	/* skip spaces */
-	while (isspace(prlnbuf[++(*ip)]));
+	while (isspace(prlnbuf[++(*ip)])) ;
 
 	/* get bytes */
 	for (;;) {
@@ -193,7 +193,7 @@ do_db(int *ip)
 				}
 				if (c == '\\') {
 					c = prlnbuf[++(*ip)];
-					switch(c) {
+					switch (c) {
 					case 'r':
 						c = '\r';
 						break;
@@ -283,8 +283,8 @@ do_dw(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_size   = 2;
-	data_level  = 2;
+	data_size = 2;
+	data_level = 2;
 
 	/* get data */
 	for (;;) {
@@ -304,7 +304,7 @@ do_dw(int *ip)
 			}
 
 			/* store word */
-			putword(loccnt-2, value);
+			putword(loccnt - 2, value);
 		}
 
 		/* check if there's another word */
@@ -354,8 +354,8 @@ do_dwl(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_size   = 1;
-	data_level  = 2;
+	data_size = 1;
+	data_level = 2;
 
 	/* get data */
 	for (;;) {
@@ -420,8 +420,8 @@ do_dwh(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_size   = 1;
-	data_level  = 2;
+	data_size = 1;
+	data_level = 2;
 
 	/* get data */
 	for (;;) {
@@ -441,7 +441,7 @@ do_dwh(int *ip)
 			}
 
 			/* store word */
-			putbyte(loccnt - 1, ((value>>8) & 0xff));
+			putbyte(loccnt - 1, ((value >> 8) & 0xff));
 		}
 
 		/* check if there's another word */
@@ -636,7 +636,7 @@ do_bank(int *ip)
 	case ';':
 	case '\0':
 		break;
-		
+
 	case ',':
 		/* get name */
 		(*ip)++;
@@ -651,7 +651,7 @@ do_bank(int *ip)
 			}
 		}
 
-		/* copy name */			
+		/* copy name */
 		strcpy(bank_name[value], name);
 
 		/* check end of line */
@@ -667,14 +667,14 @@ do_bank(int *ip)
 	}
 
 	/* backup current bank infos */
-	bank_glabl[section][bank]  = glablptr;
+	bank_glabl[section][bank] = glablptr;
 	bank_loccnt[section][bank] = loccnt;
-	bank_page[section][bank]   = page;
+	bank_page[section][bank] = page;
 
 	/* get new bank infos */
-	bank     = value;
-	page     = bank_page[section][bank];
-	loccnt   = bank_loccnt[section][bank];
+	bank = value;
+	page = bank_page[section][bank];
+	loccnt = bank_loccnt[section][bank];
 	glablptr = bank_glabl[section][bank];
 
 	/* update the max bank counter */
@@ -701,7 +701,7 @@ do_incbin(int *ip)
 	FILE *fp;
 	char *p;
 	char fname[128];
-	int  size;
+	int size;
 
 	/* get file name */
 	if (!getstring(ip, fname, 127))
@@ -761,7 +761,7 @@ do_incbin(int *ip)
 	fclose(fp);
 
 	/* update bank and location counters */
-	bank  += (loccnt + size) >> 13;
+	bank += (loccnt + size) >> 13;
 	loccnt = (loccnt + size) & 0x1FFF;
 	if (bank > max_bank) {
 		if (loccnt)
@@ -823,7 +823,7 @@ do_mx(char *fname)
 			}
 
 			/* get count and address */
-			cnt  = htoi(&line[2], 2);
+			cnt = htoi(&line[2], 2);
 			addr = htoi(&line[4], 6);
 
 			if ((strlen(line) < 12) || (cnt < 4) || (addr == -1)) {
@@ -836,8 +836,8 @@ do_mx(char *fname)
 
 			/* checksum */
 			chksum = cnt + ((addr >> 16) & 0xFF) +
-						   ((addr >> 8) & 0xFF) +
-						   ((addr) & 0xFF) + 4;
+				 ((addr >> 8) & 0xFF) +
+				 ((addr) & 0xFF) + 4;
 
 			/* get data */
 			ptr = &line[10];
@@ -874,12 +874,12 @@ do_mx(char *fname)
 					error("Invalid address!");
 					return;
 				}
-				page   = (addr >> 13) & 0x07;
+				page = (addr >> 13) & 0x07;
 				loccnt = (addr & 0x1FFF);
 
 				/* define label */
 				if (flag == 0) {
-					flag  = 1;
+					flag = 1;
 					labldef(loccnt, 1);
 
 					/* output */
@@ -895,7 +895,7 @@ do_mx(char *fname)
 
 				/* update location counter */
 				loccnt += cnt;
-				size   += cnt;
+				size += cnt;
 			}
 		}
 	}
@@ -1044,7 +1044,7 @@ do_ds(int *ip)
 	case S_ZP:
 		/* zero page section */
 		limit = machine->zp_limit;
-		break;	
+		break;
 
 	case S_BSS:
 		/* ram section */
@@ -1191,7 +1191,7 @@ do_incchr(int *ip)
 			ty = y + (i << 3);
 
 			/* get tile */
-			size   = pcx_pack_8x8_tile(buffer, tx, ty);
+			size = pcx_pack_8x8_tile(buffer, tx, ty);
 			total += size;
 
 			/* store tile */
@@ -1229,8 +1229,8 @@ do_opt(int *ip)
 	char c;
 	char flag;
 	char name[32];
-	int  opt;
-	int  i;
+	int opt;
+	int i;
 
 	for (;;) {
 		/* skip spaces */
@@ -1244,7 +1244,7 @@ do_opt(int *ip)
 		if (c == ',')
 			continue;
 
-		/* end of line */	
+		/* end of line */
 		if (c == ';' || c == '\0')
 			break;
 
@@ -1308,9 +1308,9 @@ htoi(char *str, int nb)
 	int i;
 
 	val = 0;
-	
+
 	for (i = 0; i < nb; i++) {
-		 c = toupper(str[i]);
+		c = toupper(str[i]);
 
 		if ((c >= '0') && (c <= '9'))
 			val = (val << 4) + (c - '0');
