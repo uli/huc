@@ -46,15 +46,11 @@ dv_init(void)
 	/* get environment variable */
 	env = getenv("DEVELOPORT");
 
-	/* not found */
-	if (env == NULL)
-		return (DV_ERR);
-
 	/* ok found */
 	develo = 1;
 
 	/* parse string */
-	while (*env != '\0') {
+	while (env && *env != '\0') {
 		/* LPT port address */
 		if (strncasecmp(env, "LPT:", 4) == 0) {
 			env += 4;
