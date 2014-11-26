@@ -48,13 +48,13 @@ println(void)
 			cnt = 0;
 			for (i = 0; i < nb; i++) {
 				if (bank >= RESERVED_BANK) {
-					prlnbuf[16 + (3*cnt)] = '-';
-					prlnbuf[17 + (3*cnt)] = '-';
+					prlnbuf[16 + (3 * cnt)] = '-';
+					prlnbuf[17 + (3 * cnt)] = '-';
 				}
 				else {
 					hexcon(2, rom[bank][data_loccnt]);
-					prlnbuf[16 + (3*cnt)] = hex[1];
-					prlnbuf[17 + (3*cnt)] = hex[2];
+					prlnbuf[16 + (3 * cnt)] = hex[1];
+					prlnbuf[17 + (3 * cnt)] = hex[2];
 				}
 				data_loccnt++;
 				cnt++;
@@ -99,7 +99,7 @@ clearln(void)
 void
 loadlc(int offset, int pos)
 {
-	int	i;
+	int i;
 
 	if (pos)
 		i = 16;
@@ -123,7 +123,7 @@ loadlc(int offset, int pos)
 	prlnbuf[i++] = hex[1];
 	prlnbuf[i++] = hex[2];
 	prlnbuf[i++] = hex[3];
-	prlnbuf[i]   = hex[4];
+	prlnbuf[i] = hex[4];
 }
 
 
@@ -184,8 +184,8 @@ putword(int offset, int data)
 		map[bank][offset] = section + (page << 5);
 
 		/* high byte */
-		rom[bank][offset+1] = (data >> 8) & 0xFF;
-		map[bank][offset+1] = section + (page << 5);
+		rom[bank][offset + 1] = (data >> 8) & 0xFF;
+		map[bank][offset + 1] = section + (page << 5);
 
 		/* update rom size */
 		if (bank > max_bank)
@@ -211,7 +211,7 @@ putbuffer(void *data, int size)
 
 	/* check if the buffer will fit in the rom */
 	if (bank >= RESERVED_BANK) {
-		addr  = loccnt + size;
+		addr = loccnt + size;
 
 		if (addr > 0x1FFF) {
 			fatal_error("PROC overflow!");
@@ -219,7 +219,7 @@ putbuffer(void *data, int size)
 		}
 	}
 	else {
-		addr  = loccnt + size + (bank << 13);
+		addr = loccnt + size + (bank << 13);
 
 		if (addr > rom_limit) {
 			fatal_error("ROM overflow!");
@@ -240,7 +240,7 @@ putbuffer(void *data, int size)
 	}
 
 	/* update the location counter */
-	bank  += (loccnt + size) >> 13;
+	bank += (loccnt + size) >> 13;
 	loccnt = (loccnt + size) & 0x1FFF;
 
 	/* update rom size */
@@ -264,8 +264,8 @@ void
 write_srec(char *file, char *ext, int base)
 {
 	unsigned char data, chksum;
-	char  fname[128];
-	int   addr, dump, cnt, pos, i, j;
+	char fname[128];
+	int addr, dump, cnt, pos, i, j;
 	FILE *fp;
 
 	/* status message */
@@ -290,8 +290,8 @@ write_srec(char *file, char *ext, int base)
 
 	/* dump the rom */
 	dump = 0;
-	cnt  = 0;
-	pos  = 0;
+	cnt = 0;
+	pos = 0;
 
 	for (i = 0; i <= max_bank; i++) {
 		for (j = 0; j < 8192; j++) {
@@ -317,9 +317,9 @@ write_srec(char *file, char *ext, int base)
 				dump = 0;
 				addr = base + (i << 13) + pos;
 				chksum = cnt + ((addr >> 16) & 0xFF) +
-							   ((addr >> 8) & 0xFF) +
-							   ((addr) & 0xFF) +
-							   4;
+					 ((addr >> 8) & 0xFF) +
+					 ((addr) & 0xFF) +
+					 4;
 
 				/* number, address */
 				fprintf(fp, "S2%02X%06X", cnt + 4, addr);
@@ -339,7 +339,7 @@ write_srec(char *file, char *ext, int base)
 	}
 
 	/* starting address */
-	addr   = ((map[0][0] >> 5) << 13);
+	addr = ((map[0][0] >> 5) << 13);
 	chksum = ((addr >> 8) & 0xFF) + (addr & 0xFF) + 4;
 	fprintf(fp, "S804%06X%02X", addr, (~chksum) & 0xFF);
 
@@ -398,7 +398,7 @@ warning(char *stptr)
 
 	/* update the current file name */
 	if (infile_error != infile_num) {
-		infile_error  = infile_num;
+		infile_error = infile_num;
 		printf("#[%i]   %s\n", infile_num, input_file[infile_num].name);
 	}
 
