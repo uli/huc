@@ -19,7 +19,7 @@ main(int argc, char **argv)
 
 	/* check args */
 	if ((argc != 2) || (!strcmp(argv[1], "-?"))) {
-		printf("PERUN (v1.00)\n\n");
+		printf("PERUN (v1.00-" GIT_VERSION ", " GIT_DATE ")\n\n");
 		printf("perun [-? (for help)] infile[.mx]\n\n");
 		printf("infile : file to be transfered and executed\n");
 		return (0);

@@ -35,7 +35,7 @@ main(int argc, char **argv)
 	/* check args */
 	if (((argc != 2) && (argc != 1)) ||
 	    ((argc == 2) && !strcmp(argv[1], "-?"))) {
-		printf("GETROM (v1.00)\n\n");
+		printf("GETROM (v1.00-" GIT_VERSION ", " GIT_DATE ")\n\n");
 		printf("getrom [-? (for help)] [outfile]\n\n");
 		printf("outfile : file to write ROM contents into\n");
 		printf("          (default is 'system.rom')\n");
