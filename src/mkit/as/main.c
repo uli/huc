@@ -38,30 +38,32 @@
 
 /* variables */
 unsigned char ipl_buffer[4096];
-char   in_fname[128];	/* file names, input */
-char  out_fname[128];	/* output */
-char  bin_fname[128];	/* binary */
-char  lst_fname[128];	/* listing */
-char  sym_fname[128];	/* symbol table */
-char  zeroes[2048];	/* CDROM sector full of zeores */
-char *prg_name;	/* program name */
-FILE *in_fp;	/* file pointers, input */
-FILE *lst_fp;	/* listing */
-char  section_name[4][8] = { "  ZP", " BSS", "CODE", "DATA" };
-int   dump_seg;
-int   overlayflag;
-int   develo_opt;
-int   header_opt;
-int   srec_opt;
-int   run_opt;
-int   scd_opt;
-int   cd_opt;
-int   mx_opt;
-int   mlist_opt;	/* macro listing main flag */
-int   xlist;		/* listing file main flag */
-int   list_level;	/* output level */
-int   asm_opt[8];	/* assembler options */
-int   zero_need;	/* counter for trailing empty sectors on CDROM */
+char in_fname[128];	/* file names, input */
+char out_fname[128];	/* output */
+char bin_fname[128];	/* binary */
+char lst_fname[128];	/* listing */
+char sym_fname[128];	/* symbol table */
+char zeroes[2048];	/* CDROM sector full of zeores */
+char *prg_name;		/* program name */
+FILE *in_fp;		/* file pointers, input */
+FILE *lst_fp;		/* listing */
+char section_name[4][8] = {
+	"  ZP", " BSS", "CODE", "DATA"
+};
+int dump_seg;
+int overlayflag;
+int develo_opt;
+int header_opt;
+int srec_opt;
+int run_opt;
+int scd_opt;
+int cd_opt;
+int mx_opt;
+int mlist_opt;		/* macro listing main flag */
+int xlist;		/* listing file main flag */
+int list_level;		/* output level */
+int asm_opt[8];		/* assembler options */
+int zero_need;		/* counter for trailing empty sectors on CDROM */
 
 
 /* ----
@@ -74,20 +76,20 @@ main(int argc, char **argv)
 {
 	FILE *fp, *ipl;
 	char *p;
-	char  cmd[80];
+	char cmd[80];
 	int i, j;
 	int file;
 	int ram_bank;
 
 	/* get program name */
 	if ((prg_name = strrchr(argv[0], '/')) != NULL)
-		 prg_name++;
+		prg_name++;
 	else {
 		if ((prg_name = strrchr(argv[0], '\\')) == NULL)
-			 prg_name = argv[0];
+			prg_name = argv[0];
 		else
-			 prg_name++;
-	}	
+			prg_name++;
+	}
 
 	/* remove extension */
 	if ((p = strrchr(prg_name, '.')) != NULL)
@@ -113,7 +115,7 @@ main(int argc, char **argv)
 	file = 0;
 
 	/* display assembler version message */
-    printf("%s\n\n", machine->asm_title);
+	printf("%s\n\n", machine->asm_title);
 
 	/* parse command line */
 	if (argc > 1) {
@@ -161,14 +163,14 @@ main(int argc, char **argv)
 					if (machine->type == MACHINE_PCE) {
 						/* cd-rom */
 						if (!strcmp(argv[i], "-cd")) {
-							cd_opt  = STANDARD_CD;
+							cd_opt = STANDARD_CD;
 							scd_opt = 0;
 						}
 
 						/* super cd-rom */
 						else if (!strcmp(argv[i], "-scd")) {
 							scd_opt = SUPER_CD;
-							cd_opt  = 0;
+							cd_opt = 0;
 						}
 
 						/* cd-rom overlay */
@@ -182,11 +184,11 @@ main(int argc, char **argv)
 							develo_opt = 1;
 						else if (!strcmp(argv[i], "-dev"))
 							develo_opt = 1;
-		
+
 						/* output mx file */
 						else if (!strcmp(argv[i], "-mx"))
 							mx_opt = 1;
-				 	}
+					}
 				}
 			}
 			else {
@@ -196,9 +198,8 @@ main(int argc, char **argv)
 		}
 	}
 
-	if ( (overlayflag == 1) &&
-	     ((scd_opt == 0) && (cd_opt == 0)) )
-	{
+	if ((overlayflag == 1) &&
+	    ((scd_opt == 0) && (cd_opt == 0))) {
 		printf("Overlay option only valid for CD or SCD programs\n\n");
 		help();
 		return (0);
@@ -212,7 +213,7 @@ main(int argc, char **argv)
 	/* search file extension */
 	if ((p = strrchr(in_fname, '.')) != NULL) {
 		if (!strchr(p, PATH_SEPARATOR))
-		   *p = '\0';
+			*p = '\0';
 		else
 			p = NULL;
 	}
@@ -233,7 +234,7 @@ main(int argc, char **argv)
 		strcat(bin_fname, machine->rom_ext);
 
 	if (p)
-	   *p = '.';
+		*p = '.';
 	else
 		strcat(in_fname, ".asm");
 
@@ -255,10 +256,10 @@ main(int argc, char **argv)
 
 	/* clear symbol hash tables */
 	for (i = 0; i < 256; i++) {
-		hash_tbl[i]  = NULL;
+		hash_tbl[i] = NULL;
 		macro_tbl[i] = NULL;
-		func_tbl[i]  = NULL;
-		inst_tbl[i]  = NULL;
+		func_tbl[i] = NULL;
+		inst_tbl[i] = NULL;
 	}
 
 	/* fill the instruction hash table */
@@ -288,15 +289,15 @@ main(int argc, char **argv)
 	errcnt = 0;
 
 	if (cd_opt) {
-		rom_limit  = 0x10000;	/* 64KB */
+		rom_limit = 0x10000;	/* 64KB */
 		bank_limit = 0x07;
 	}
 	else if (scd_opt) {
-		rom_limit  = 0x40000;	/* 256KB */
+		rom_limit = 0x40000;	/* 256KB */
 		bank_limit = 0x1F;
 	}
 	else if (develo_opt || mx_opt) {
-		rom_limit  = 0x30000;	/* 192KB */
+		rom_limit = 0x30000;	/* 192KB */
 		bank_limit = 0x17;
 	}
 
@@ -325,34 +326,34 @@ main(int argc, char **argv)
 		for (i = 0; i < 4; i++) {
 			for (j = 0; j < 256; j++) {
 				bank_loccnt[i][j] = 0;
-				bank_glabl[i][j]  = NULL;
-				bank_page[i][j]   = 0;
+				bank_glabl[i][j] = NULL;
+				bank_page[i][j] = 0;
 			}
 		}
 
 		/* reset sections */
 		ram_bank = machine->ram_bank;
-		section  = S_CODE;
+		section = S_CODE;
 
 		/* .zp */
-		section_bank[S_ZP]           = ram_bank;
-		bank_page[S_ZP][ram_bank]    = machine->ram_page;
-		bank_loccnt[S_ZP][ram_bank]  = 0x0000;
+		section_bank[S_ZP] = ram_bank;
+		bank_page[S_ZP][ram_bank] = machine->ram_page;
+		bank_loccnt[S_ZP][ram_bank] = 0x0000;
 
 		/* .bss */
-		section_bank[S_BSS]          = ram_bank;
-		bank_page[S_BSS][ram_bank]   = machine->ram_page;
+		section_bank[S_BSS] = ram_bank;
+		bank_page[S_BSS][ram_bank] = machine->ram_page;
 		bank_loccnt[S_BSS][ram_bank] = 0x0200;
 
 		/* .code */
-		section_bank[S_CODE]         = 0x00;
-		bank_page[S_CODE][0x00]      = 0x07;
-		bank_loccnt[S_CODE][0x00]    = 0x0000;
+		section_bank[S_CODE] = 0x00;
+		bank_page[S_CODE][0x00] = 0x07;
+		bank_loccnt[S_CODE][0x00] = 0x0000;
 
 		/* .data */
-		section_bank[S_DATA]         = 0x00;
-		bank_page[S_DATA][0x00]      = 0x07;
-		bank_loccnt[S_DATA][0x00]    = 0x0000;
+		section_bank[S_DATA] = 0x00;
+		bank_page[S_DATA][0x00] = 0x07;
+		bank_loccnt[S_DATA][0x00] = 0x0000;
 
 		/* pass message */
 		printf("pass %i\n", pass + 1);
@@ -361,11 +362,11 @@ main(int argc, char **argv)
 		while (readline() != -1) {
 			assemble(0);
 			if (loccnt > 0x2000) {
-				loccnt&=0x1fff;
+				loccnt &= 0x1fff;
 				page++;
 				bank++;
-				if(pass==FIRST_PASS)
-				printf("   (Warning. Opcode crossing page boundary $%04X, bank $%02X)\n",(page*0x2000),bank);
+				if (pass == FIRST_PASS)
+					printf("   (Warning. Opcode crossing page boundary $%04X, bank $%02X)\n", (page * 0x2000), bank);
 			}
 			if (stop_pass)
 				break;
@@ -379,7 +380,7 @@ main(int argc, char **argv)
 		if (errcnt) {
 			printf("# %d error(s)\n", errcnt);
 			exit(1);
-			//break;
+			// break;
 		}
 
 		/* adjust bank base */
@@ -424,7 +425,7 @@ main(int argc, char **argv)
 				printf("Can not open output file '%s'!\n", bin_fname);
 				exit(1);
 			}
-		
+
 			/* boot code */
 			if ((header_opt) && (overlayflag == 0)) {
 				/* open ipl binary file */
@@ -460,24 +461,23 @@ main(int argc, char **argv)
 				/* write boot code */
 				fwrite(ipl_buffer, 1, 4096, fp);
 			}
-		
+
 			/* write rom */
 			fwrite(rom, 8192, (max_bank + 1), fp);
 
 			/* write trailing zeroes to fill */
 			/* at least 4 seconds of CDROM */
-			if (overlayflag == 0)
-			{
+			if (overlayflag == 0) {
 				memset(zeroes, 0, 2048);
 
 				/* calculate number of trailing zero sectors      */
 				/* rule 1: track must be at least 6 seconds total */
-				zero_need = (6*75) - 2 - (4 * (max_bank + 1));
+				zero_need = (6 * 75) - 2 - (4 * (max_bank + 1));
 
 				/* rule 2: track should have at least 2 seconds     */
 				/*         of trailing zeroes before an audio track */
-				if (zero_need < (2*75))
-					zero_need = (2*75);
+				if (zero_need < (2 * 75))
+					zero_need = (2 * 75);
 
 				while (zero_need > 0) {
 					fwrite(zeroes, 1, 2048, fp);
@@ -520,11 +520,11 @@ main(int argc, char **argv)
 					printf("Can not open binary file '%s'!\n", bin_fname);
 					exit(1);
 				}
-		
+
 				/* write header */
 				if (header_opt)
 					machine->write_header(fp, max_bank + 1);
-		
+
 				/* write rom */
 				fwrite(rom, 8192, (max_bank + 1), fp);
 				fclose(fp);
@@ -550,7 +550,7 @@ main(int argc, char **argv)
 		show_seg_usage();
 
 	/* ok */
-	return(0);
+	return (0);
 }
 
 
@@ -568,7 +568,7 @@ calc_bank_base(void)
 	/* cd */
 	if (cd_opt)
 		base = 0x80;
-	
+
 	/* super cd */
 	else if (scd_opt)
 		base = 0x68;
@@ -647,8 +647,8 @@ show_seg_usage(void)
 		printf("      ZP    -\n");
 	else {
 		start = ram_base;
-		stop  = ram_base + (max_zp - 1);
-		printf("      ZP    $%04X-$%04X  [%4i]     %4i/%4i\n", start, stop, stop - start + 1, stop-start+1, 256-(stop-start+1));
+		stop = ram_base + (max_zp - 1);
+		printf("      ZP    $%04X-$%04X  [%4i]     %4i/%4i\n", start, stop, stop - start + 1, stop - start + 1, 256 - (stop - start + 1));
 	}
 
 	/* bss usage */
@@ -656,8 +656,8 @@ show_seg_usage(void)
 		printf("     BSS    -\n");
 	else {
 		start = ram_base + 0x200;
-		stop  = ram_base + (max_bss - 1);
-		printf("     BSS    $%04X-$%04X  [%4i]     %4i/%4i\n\n", start, stop, stop - start + 1, stop-start+1, 8192-(stop-start+1));
+		stop = ram_base + (max_bss - 1);
+		printf("     BSS    $%04X-$%04X  [%4i]     %4i/%4i\n\n", start, stop, stop - start + 1, stop - start + 1, 8192 - (stop - start + 1));
 	}
 
 	/* bank usage */
@@ -680,9 +680,9 @@ show_seg_usage(void)
 		rom_free += 8192 - nb;
 
 		/* display bank infos */
-		if (nb)			
+		if (nb)
 			printf("BANK %2X  %-23s    %4i/%4i\n",
-					i, bank_name[i], nb, 8192 - nb);
+			       i, bank_name[i], nb, 8192 - nb);
 		else {
 			printf("BANK %2X  %-23s       0/8192\n", i, bank_name[i]);
 			continue;
@@ -714,10 +714,10 @@ show_seg_usage(void)
 
 			/* display section infos */
 			printf("    %s    $%04X-$%04X  [%4i]\n",
-					section_name[section],	/* section name */
-				    start + page,			/* starting address */
-					addr  + page - 1,		/* end address */
-					addr  - start);			/* size */
+			       section_name[section],		/* section name */
+			       start + page,			/* starting address */
+			       addr + page - 1,			/* end address */
+			       addr - start);			/* size */
 		}
 	}
 
