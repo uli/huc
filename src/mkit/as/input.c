@@ -7,10 +7,10 @@
 #include "externs.h"
 #include "protos.h"
 
-int    infile_error;
-int    infile_num;
+int infile_error;
+int infile_num;
 struct t_input_info input_file[8];
-char   incpath[10][128];
+char incpath[10][128];
 
 
 /* ----
@@ -22,24 +22,24 @@ char   incpath[10][128];
 void
 init_path(void)
 {
-	const char *p,*pl;
-	int	i, l;
+	const char *p, *pl;
+	int i, l;
 
 	p = getenv(machine->include_env) ? : machine->default_dir;
 
 	for (i = 0; i < 10; i++) {
-
 		pl = strchr(p, ';');
 
 		if (pl == NULL)
 			l = strlen(p);
 		else
-			l = pl-p;
+			l = pl - p;
 
 		if (l == 0) {
 			incpath[i][0] = '\0';
-		} else {
-			strncpy(incpath[i],p,l);
+		}
+		else {
+			strncpy(incpath[i], p, l);
 			p += l;
 			while (*p == ';') p++;
 		}
@@ -62,9 +62,9 @@ readline(void)
 {
 	char *ptr, *arg, num[8];
 	int j, n;
-	int	i;		/* pointer into prlnbuf */
-	int	c;		/* current character		*/
-	int	temp;	/* temp used for line number conversion */
+	int i;		/* pointer into prlnbuf */
+	int c;		/* current character		*/
+	int temp;	/* temp used for line number conversion */
 
 start:
 	memset(prlnbuf, ' ', SFIELD);
@@ -131,8 +131,8 @@ start:
 
 					/* \1 - \9 */
 					else if (c >= '1' && c <= '9') {
-						j   = c - '1';
-						n   = strlen(marg[midx][j]);
+						j = c - '1';
+						n = strlen(marg[midx][j]);
 						arg = marg[midx][j];
 					}
 
@@ -153,7 +153,7 @@ start:
 					i += n;
 				}
 				if (i >= LAST_CH_POS - 1)
-					i  = LAST_CH_POS - 1;
+					i = LAST_CH_POS - 1;
 			}
 			prlnbuf[i] = '\0';
 			mlptr = mlptr->next;
@@ -199,7 +199,7 @@ start:
 		c = getc_unlocked(in_fp);
 	}
 	prlnbuf[i] = '\0';
-	return(0);
+	return (0);
 }
 
 /* ----
@@ -213,8 +213,8 @@ open_input(char *name)
 {
 	FILE *fp;
 	char *p;
-	char  temp[128];
-	int   i;
+	char temp[128];
+	int i;
 
 	/* only 7 nested input files */
 	if (infile_num == 7) {
@@ -226,7 +226,7 @@ open_input(char *name)
 	if (infile_num) {
 		input_file[infile_num].lnum = slnum;
 		input_file[infile_num].fp = in_fp;
-	}				
+	}
 
 	/* get a copy of the file name */
 	strcpy(temp, name);
@@ -248,7 +248,7 @@ open_input(char *name)
 				return (1);
 			}
 		}
-	}				
+	}
 
 	/* open the file */
 	if ((fp = open_file(temp, "r")) == NULL)
@@ -315,18 +315,18 @@ close_input(void)
 FILE *
 open_file(char *name, char *mode)
 {
-	FILE 	*fileptr;
-	char	testname[256];
-	int	i;
+	FILE *fileptr;
+	char testname[256];
+	int i;
 
 	fileptr = fopen(name, mode);
-	if (fileptr != NULL) return(fileptr);
+	if (fileptr != NULL) return (fileptr);
 
 	for (i = 0; i < 10; i++) {
 		if (strlen(incpath[i])) {
 			strcpy(testname, incpath[i]);
 			strcat(testname, name);
-	
+
 			fileptr = fopen(testname, mode);
 			if (fileptr != NULL) break;
 		}
