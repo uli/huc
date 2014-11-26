@@ -20,10 +20,10 @@ dv_set_bank(int page, int bank)
 	buf[5] = 0;
 	buf[6] = 0;
 	buf[7] = 0;
-	
+
 	if (dv_send_cmd(buf) != DV_OK)
 		return (DV_ERR);
-	
+
 	return (DV_OK);
 }
 
@@ -46,7 +46,7 @@ dv_get_bank(unsigned char *bank)
 	buf[5] = 0;
 	buf[6] = 0;
 	buf[7] = 0;
-	
+
 	if (dv_send_cmd(buf) != DV_OK)
 		return (DV_ERR);
 	if (dv_recv_block(buf, 8) != DV_OK)
@@ -71,8 +71,8 @@ dv_get_ram(char *data, int addr, int len)
 	buf[0] = 4;
 	buf[1] = (addr & 0xFF00) >> 8;
 	buf[2] = (addr & 0x00FF);
-	buf[3] = (len  & 0xFF00) >> 8;
-	buf[4] = (len  & 0x00FF);
+	buf[3] = (len & 0xFF00) >> 8;
+	buf[4] = (len & 0x00FF);
 	buf[5] = 0;
 	buf[6] = 0;
 	buf[7] = 0;
@@ -81,7 +81,7 @@ dv_get_ram(char *data, int addr, int len)
 		return (DV_ERR);
 	if (dv_recv_block(data, len) != DV_OK)
 		return (DV_ERR);
-	
+
 	return (DV_OK);
 }
 
@@ -97,7 +97,7 @@ dv_set_ram(int addr, char *data, int len)
 {
 	unsigned char buf[8];
 	int size, pos, temp;
-	
+
 	size = len;
 	pos = 0;
 
@@ -113,7 +113,7 @@ dv_set_ram(int addr, char *data, int len)
 		buf[5] = 0;
 		buf[6] = 0;
 		buf[7] = 0;
-	
+
 		if (dv_send_cmd(buf) != DV_OK)
 			return (DV_ERR);
 		if (dv_send_block(&data[pos], temp) != DV_OK)
@@ -122,9 +122,9 @@ dv_set_ram(int addr, char *data, int len)
 			return (DV_ERR);
 
 		size -= temp;
-		pos  += temp;
+		pos += temp;
 	}
-	
+
 	return (DV_OK);
 }
 
@@ -139,7 +139,7 @@ dv_get_vram(char *data, int addr, int len)
 {
 	unsigned char buf[8];
 	int size, pos, temp;
-	
+
 	size = len;
 	pos = 0;
 
@@ -155,18 +155,18 @@ dv_get_vram(char *data, int addr, int len)
 		buf[5] = 0;
 		buf[6] = 0;
 		buf[7] = 0;
-	
+
 		if (dv_send_cmd(buf) != DV_OK)
 			return (DV_ERR);
 		if (dv_recv_block(&data[pos], temp) != DV_OK)
 			return (DV_ERR);
 
 		size -= temp;
-		pos  += temp;
+		pos += temp;
 	}
 
 	return (DV_OK);
-}	
+}
 
 
 /* ----
@@ -179,7 +179,7 @@ dv_set_vram(int addr, char *data, int len)
 {
 	unsigned char buf[8];
 	int size, pos, temp;
-	
+
 	size = len;
 	pos = 0;
 
@@ -195,7 +195,7 @@ dv_set_vram(int addr, char *data, int len)
 		buf[5] = 0;
 		buf[6] = 0;
 		buf[7] = 0;
-	
+
 		if (dv_send_cmd(buf) != DV_OK)
 			return (DV_ERR);
 		if (dv_send_block(&data[pos], temp) != DV_OK)
@@ -204,9 +204,9 @@ dv_set_vram(int addr, char *data, int len)
 			return (DV_ERR);
 
 		size -= temp;
-		pos  += temp;
+		pos += temp;
 	}
-	
+
 	return (DV_OK);
 }
 
@@ -234,7 +234,7 @@ dv_get_color(char *data, int addr, int len)
 		return (DV_ERR);
 	if (dv_recv_block(data, len) != DV_OK)
 		return (DV_ERR);
-	
+
 	return (DV_OK);
 }
 
@@ -264,7 +264,7 @@ dv_set_color(int addr, char *data, int len)
 		return (DV_ERR);
 	if (dv_wait_ack() != DV_OK)
 		return (DV_ERR);
-	
+
 	return (DV_OK);
 }
 
@@ -288,7 +288,7 @@ dv_exec(int addr, int slave)
 	buf[5] = 0;
 	buf[6] = 0;
 	buf[7] = 0;
-	
+
 	if (dv_send_cmd(buf) != DV_OK)
 		return (DV_ERR);
 
@@ -314,7 +314,7 @@ dv_read_cd(char *data, int sect)
 	buf[5] = 0;
 	buf[6] = 0;
 	buf[7] = 0;
-	
+
 	if (dv_send_cmd(buf) != DV_OK)
 		return (DV_ERR);
 	if (dv_get_ram(data, 0x2800, 2048) != DV_OK)

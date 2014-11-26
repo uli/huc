@@ -1,24 +1,23 @@
-
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
-#define PATH_SEPARATOR '\\'
-#define PATH_SEPARATOR_STRING "\\"
+#define PATH_SEPARATOR		'\\'
+#define PATH_SEPARATOR_STRING	"\\"
 #else
-#define PATH_SEPARATOR '/'
-#define PATH_SEPARATOR_STRING "/"
+#define PATH_SEPARATOR		'/'
+#define PATH_SEPARATOR_STRING	"/"
 #endif
 
 /* command status */
-#define DV_OK			 0
-#define DV_ERR			-1
-#define DV_CRC_ERR		-2
+#define DV_OK		0
+#define DV_ERR		-1
+#define DV_CRC_ERR	-2
 #define DV_TIMEOUT_ERR	-3
-#define DV_INTERNAL_ERR	-99
-#define DV_CMD  0
-#define DV_SEND 1
-#define DV_RECV 2
-#define DV_ACK  0x06
-#define DV_NAK  0x15
+#define DV_INTERNAL_ERR -99
+#define DV_CMD		0
+#define DV_SEND		1
+#define DV_RECV		2
+#define DV_ACK		0x06
+#define DV_NAK		0x15
 
 /* externs */
 extern int develo;	/* develo box presence flag */

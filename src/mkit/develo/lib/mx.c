@@ -7,11 +7,11 @@
 static unsigned char buffer[128];
 static unsigned char block_buffer[256];
 static char line[256];
-static int  bank_base;
-static int  bank,  old_bank;
-static int  block, old_block, last_block;
-static int  buffer_start, buffer_index;
-static int  display;
+static int bank_base;
+static int bank, old_bank;
+static int block, old_block, last_block;
+static int buffer_start, buffer_index;
+static int display;
 
 /* protos */
 static int htoi(char *str, int nb);
@@ -29,7 +29,7 @@ dv_load_mx(char *fname, int *a, int *b, int disp)
 {
 	FILE *fp;
 	char *ptr;
-	char  type;
+	char type;
 	int addr, data, cnt, chksum;
 	int start;
 	int ln;
@@ -52,11 +52,11 @@ dv_load_mx(char *fname, int *a, int *b, int disp)
 	printf("\n");
 
 	/* init variables */
- 	buffer_start = -1;
- 	buffer_index =  0;
+	buffer_start = -1;
+	buffer_index = 0;
 	old_block = 0;
-	old_bank  = 0;
-	start     = 0;
+	old_bank = 0;
+	start = 0;
 
 	/* line counter */
 	ln = 1;
@@ -76,7 +76,7 @@ dv_load_mx(char *fname, int *a, int *b, int disp)
 				goto err;
 
 			/* count, address */
-			cnt  = htoi(&line[2], 2);
+			cnt = htoi(&line[2], 2);
 			addr = htoi(&line[4], 6);
 
 			if ((cnt < 4) || (addr == -1))
@@ -87,8 +87,8 @@ dv_load_mx(char *fname, int *a, int *b, int disp)
 
 			/* checksum */
 			chksum = cnt + ((addr >> 16) & 0xFF) +
-						   ((addr >> 8) & 0xFF) +
-						   ((addr) & 0xFF) + 4;
+				 ((addr >> 8) & 0xFF) +
+				 ((addr) & 0xFF) + 4;
 
 			/* data */
 			ptr = &line[10];
@@ -160,9 +160,9 @@ htoi(char *str, int nb)
 	int i;
 
 	val = 0;
-	
+
 	for (i = 0; i < nb; i++) {
-		 c = toupper(str[i]);
+		c = toupper(str[i]);
 
 		if ((c >= '0') && (c <= '9'))
 			val = (val << 4) + (c - '0');
@@ -190,8 +190,8 @@ upload(unsigned char *data, int addr, int cnt)
 
 	/* calculate bank and block indexes */
 loop:
-	bank   = (addr >> 13);
-	block  = (addr >> 8);
+	bank = (addr >> 13);
+	block = (addr >> 8);
 	offset = (addr & 0xFF);
 
 	/* develo compatibility */
@@ -222,12 +222,12 @@ loop:
 			if (last_block) {
 				/* mask block index */
 				last_block = (last_block - 1) & 0x1F;
-	
+
 				/* progress bar */
 				if (last_block < 31) {
 					for (i = last_block; i < 31; i++)
 						printf("þ");
-		
+
 					/* ok */
 					printf(" OK\n");
 				}
@@ -260,7 +260,7 @@ loop:
 		/* copy a byte */
 		block_buffer[buffer_index++] = *data++;
 		addr += 1;
-		cnt  -= 1;
+		cnt -= 1;
 
 		/* buffer full */
 		if (buffer_index > 255) {
@@ -351,7 +351,7 @@ flush(int end)
 	/* reset block buffer */
 	memset(block_buffer, 0xFF, 256);
 	buffer_start = -1;
-	buffer_index =  0;
+	buffer_index = 0;
 	old_block = block;
 
 	/* ok */

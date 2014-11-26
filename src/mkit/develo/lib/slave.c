@@ -50,7 +50,7 @@ cmd_get_dir(unsigned char *pkt)
 	int i;
 	int n;
 
-	/* reset directory index */	
+	/* reset directory index */
 	if (pkt[1] != 0xFF)
 		dir_index = 0;
 
@@ -61,7 +61,7 @@ cmd_get_dir(unsigned char *pkt)
 	if (slave_display)
 		printf("get %i directory record(s) from index %i\n", n, dir_index);
 
-	/* check directory limit */		
+	/* check directory limit */
 	if ((dir_index + n) > dir_nb_records) {
 		n = dir_nb_records - dir_index;
 
@@ -72,7 +72,7 @@ cmd_get_dir(unsigned char *pkt)
 	/* send data */
 	memset(pkt, 0, 16);
 	pkt[0] = n;
-	pkt[1] =  (n * 32) & 0xFF;
+	pkt[1] = (n * 32) & 0xFF;
 	pkt[2] = ((n * 32) >> 8) & 0xFF;
 
 	if (send_packet(pkt) != DV_OK)
@@ -113,10 +113,10 @@ cmd_file_read(unsigned char *pkt)
 	char *msg;
 	int len, loc;
 	int n;
-	
+
 	len = 0;
 	loc = 0;
-	
+
 	/* execute command */
 	if (pkt[3] == 0xFF) {
 		/* get file record index */
@@ -165,7 +165,7 @@ cmd_file_read(unsigned char *pkt)
 			}
 		}
 	}
-	
+
 	/* return ack packet */
 	memset(pkt, 0, 16);
 	pkt[0] = (len) & 0x0FF;
@@ -176,7 +176,7 @@ cmd_file_read(unsigned char *pkt)
 	else {
 		msg = "OK";
 
-		/* transfer data */	
+		/* transfer data */
 		if (len) {
 			if (dv_send_byte(DV_ACK) != DV_OK)
 				msg = dv_get_errmsg();
@@ -207,16 +207,16 @@ cmd_file_write(unsigned char *pkt)
 	int n;
 
 	/* get record index */
-	n   = pkt[1] + (pkt[2] << 8);
-	fp  = NULL;	
+	n = pkt[1] + (pkt[2] << 8);
+	fp = NULL;
 	len = 0;
 	loc = 0;
-	
+
 	if (pkt[3] != 0xFF) {
 		/* packet error */
 		if (slave_display)
 			printf("write file - incorrect request (pkt[3] != 0xFF)!\n");
-	}	
+	}
 	else {
 		/* check record index */
 		if (n >= dir_nb_records) {
@@ -250,7 +250,7 @@ cmd_file_write(unsigned char *pkt)
 		}
 	}
 
-	/* get data */	
+	/* get data */
 	if (dv_recv_block(file_buffer, len) != DV_OK) {
 		/* error */
 		msg = dv_get_errmsg();
@@ -260,7 +260,7 @@ cmd_file_write(unsigned char *pkt)
 				msg = dv_get_errmsg();
 		}
 	}
-	else {	
+	else {
 		/* ok */
 		if (dv_send_byte(DV_ACK) != DV_OK)
 			msg = dv_get_errmsg();
@@ -269,12 +269,12 @@ cmd_file_write(unsigned char *pkt)
 			if (fp) {
 				fseek(fp, loc, SEEK_SET);
 				fwrite(file_buffer, len, 1, fp);
-	
+
 				/* update file record */
 				if (dir_info[n].fsize < (loc + len))
 					dir_info[n].fsize = (loc + len);
 			}
-	
+
 			/* second acknowledge (???) */
 			if (dv_send_byte(DV_ACK) != DV_OK)
 				msg = dv_get_errmsg();
@@ -306,7 +306,7 @@ cmd_file_create(unsigned char *pkt)
 	struct ftime ft;
 	char *msg;
 	int i;
-	
+
 	/* get file name */
 	unpack_file_name(fname, &pkt[1]);
 
@@ -314,7 +314,7 @@ cmd_file_create(unsigned char *pkt)
 	if (slave_display)
 		printf("create file \"%s\"\n", fname);
 
-	/* create file */	
+	/* create file */
 	if ((fh = creat(fname, S_IRUSR | S_IWUSR)) < 0)
 		msg = "can not create file!";
 	else {
@@ -347,7 +347,7 @@ cmd_file_create(unsigned char *pkt)
 	}
 
 	/* echo result */
- 	if (slave_display)
+	if (slave_display)
 		printf("    %s\n", msg);
 }
 
@@ -364,7 +364,7 @@ cmd_file_delete(unsigned char *pkt)
 	char *msg;
 	unsigned char c;
 	int i;
-	
+
 	/* get file name */
 	unpack_file_name(fname, &pkt[1]);
 
@@ -372,7 +372,7 @@ cmd_file_delete(unsigned char *pkt)
 	if (slave_display)
 		printf("delete file \"%s\"\n", fname);
 
-	/* search the file */	
+	/* search the file */
 	for (i = 0; i < dir_nb_records; i++) {
 		if (memcmp(dir_info[i].packed_fname, &pkt[1], 11) == 0) {
 			memset(dir_info[i].packed_fname, 0, 11);
@@ -421,9 +421,9 @@ static void
 cmd_reg_report(unsigned char *pkt)
 {
 	printf("dump registers : PC = %04X A=%02X X=%02X Y=%02X S=%02X F=",
-		   pkt[6] + (pkt[7] << 8) - 2,
-		   pkt[1], pkt[3],
-		   pkt[4], pkt[5]);
+	       pkt[6] + (pkt[7] << 8) - 2,
+	       pkt[1], pkt[3],
+	       pkt[4], pkt[5]);
 	if (pkt[2] & 0x80) putchar('N'); else putchar('-');
 	if (pkt[2] & 0x40) putchar('V'); else putchar('-');
 	if (pkt[2] & 0x20) putchar('T'); else putchar('-');
@@ -452,16 +452,16 @@ cmd_file_dskf(unsigned char *pkt)
 	getdfree(0, &df);
 	size = (df.df_avail * df.df_bsec * df.df_sclus);
 
-	/* echo command */	
+	/* echo command */
 	if (slave_display) {
 		printf("get disk free size\n");
 		printf("    size : %iKB\n", size / 1024);
 	}
 
-	/* send data */	
+	/* send data */
 	memset(pkt, 0, 16);
 	pkt[0] = (size) & 0xFF;
-	pkt[1] = (size >>  8) & 0xFF;
+	pkt[1] = (size >> 8) & 0xFF;
 	pkt[2] = (size >> 16) & 0xFF;
 	pkt[3] = (size >> 24) & 0xFF;
 
@@ -487,7 +487,7 @@ pack_file_name(char *buffer, char *fname)
 	int i, j;
 
 	/* pack name */
-	for (i = 0, j = 0; i < 8; i++,j++) {
+	for (i = 0, j = 0; i < 8; i++, j++) {
 		if (fname[j] == '.')
 			break;
 		if (fname[j] == 0)
@@ -527,7 +527,7 @@ unpack_file_name(char *fname, char *str)
 		fname[j++] = str[i];
 	}
 
-	k = j; 
+	k = j;
 
 	/* unpack file extension */
 	for (i = 8; i < 11; i++) {
@@ -571,7 +571,7 @@ pack_dir_record(unsigned char *buffer, int n)
 
 	/* file size */
 	buffer[19] = (dir_info[n].fsize) & 0xFF;
-	buffer[20] = (dir_info[n].fsize >>  8) & 0xFF;
+	buffer[20] = (dir_info[n].fsize >> 8) & 0xFF;
 	buffer[21] = (dir_info[n].fsize >> 16) & 0xFF;
 	buffer[22] = (dir_info[n].fsize >> 24) & 0xFF;
 
@@ -608,7 +608,7 @@ dv_slave(int disp)
 	slave_display = disp;
 	slave_mode = 1;
 
-	/* main loop */	
+	/* main loop */
 	while (slave_mode) {
 		/* wait packet */
 		slave_wait = 1;
@@ -618,7 +618,7 @@ dv_slave(int disp)
 		if (dv_send_byte('$') != DV_OK)
 			continue;
 
-		/* get command packet */		
+		/* get command packet */
 		if (dv_recv_block(pkt, 14) != DV_OK)
 			continue;
 
@@ -626,8 +626,8 @@ dv_slave(int disp)
 		if (dv_send_byte(DV_ACK) != DV_OK)
 			continue;
 
-		/* execute command */		
-		switch(pkt[0]) {
+		/* execute command */
+		switch (pkt[0]) {
 		case 255:
 			/* program quit */
 			return;
@@ -676,18 +676,18 @@ dv_slave_init(void)
 	int done;
 	int n;
 
-	/* scan current directory */	
+	/* scan current directory */
 	done = findfirst("*.*", &ff, 0);
 	n = 0;
 
-	while(!done) {
+	while (!done) {
 		/* get file infos */
-		pack_file_name(dir_info[n].packed_fname, ff.ff_name); /* packed name */
-		strncpy(dir_info[n].fname, ff.ff_name, 12);           /* name */
+		pack_file_name(dir_info[n].packed_fname, ff.ff_name);	/* packed name */
+		strncpy(dir_info[n].fname, ff.ff_name, 12);		/* name */
 		dir_info[n].fname[12] = '\0';
-		dir_info[n].fdate = ff.ff_fdate;    /* date */
-		dir_info[n].ftime = ff.ff_ftime;    /* time */
-		dir_info[n].fsize = ff.ff_fsize;    /* size */
+		dir_info[n].fdate = ff.ff_fdate;	/* date */
+		dir_info[n].ftime = ff.ff_ftime;	/* time */
+		dir_info[n].fsize = ff.ff_fsize;	/* size */
 
 		/* next entry */
 		done = findnext(&ff);
@@ -697,7 +697,7 @@ dv_slave_init(void)
 	/* number of directory records */
 	dir_nb_records = n;
 
-	/* ok */	
+	/* ok */
 	return (DV_OK);
 }
 

@@ -5,14 +5,14 @@
 #include <ctype.h>
 #include "develo.h"
 
-//#define PC98	1	/* uncomment this for PC98 machines - UNTESTED!! */
+// #define PC98	1	/* uncomment this for PC98 machines - UNTESTED!! */
 
 /* globals
  * ----
  */
-int develo;			/* develo box presence flag */
+int develo;		/* develo box presence flag */
 int develo_lpt;		/* parallel I/O port */
-int develo_com;		/* serial I/O port */ 
+int develo_com;		/* serial I/O port */
 int develo_wait1;	/* timeout delays */
 int develo_wait2;
 int develo_error;	/* latest error */

@@ -6,9 +6,9 @@
 /*#define PC98	1*/	/* uncomment this for PC98 machines - UNTESTED!! */
 
 /* externs */
-extern int develo;			/* develo box presence flag */
+extern int develo;		/* develo box presence flag */
 extern int develo_lpt;		/* parallel I/O port */
-extern int develo_com;		/* serial I/O port */ 
+extern int develo_com;		/* serial I/O port */
 extern int develo_wait1;	/* timeout delays */
 extern int develo_wait2;
 extern int develo_error;	/* latest error */
@@ -83,6 +83,7 @@ dv_send_block(unsigned char *buf, int len)
  * dv_recv_block()
  * ----
  */
+
 int
 dv_recv_block(unsigned char *buf, int len)
 {
@@ -127,6 +128,7 @@ dv_recv_block(unsigned char *buf, int len)
  * dv_wait_ack()
  * ----
  */
+
 int
 dv_wait_ack(void)
 {
@@ -134,12 +136,12 @@ dv_wait_ack(void)
 	case DV_ACK:
 		/* ok */
 		break;
-	
+
 	case DV_NAK:
 		/* bad CRC */
 		develo_error = DV_CRC_ERR;
 		return (DV_ERR);
-	
+
 	default:
 		/* timeout */
 		return (DV_ERR);
@@ -164,9 +166,9 @@ dv_crc(unsigned char *buf, int len)
 	int i;
 	unsigned int crc = 0;
 	unsigned char *p = buf;
-	
+
 	for (i = 0; i < len; i++) {
-		crc  = crc16tbl[(crc >> 8) ^ (*p)] ^ (crc << 8);
+		crc = crc16tbl[(crc >> 8) ^ (*p)] ^ (crc << 8);
 		crc &= 0xFFFF;
 		p++;
 	}
@@ -187,7 +189,7 @@ dv_request(int cmd)
 
 	/* develo status */
 	develo_status = cmd;
-	develo_error  = DV_OK;
+	develo_error = DV_OK;
 
 	/* request */
 	switch (cmd) {
@@ -334,7 +336,7 @@ dv_recv_byte(void)
 				return (DV_ERR);
 
 			c >>= 1;
-			c  |= 0x80;
+			c |= 0x80;
 			break;
 		}
 	}
@@ -437,7 +439,7 @@ dv_delay(void)
 {
 	int i;
 
-	for (i = 0; i < 100; i++);
+	for (i = 0; i < 100; i++) ;
 }
 
 
