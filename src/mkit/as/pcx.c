@@ -8,19 +8,19 @@
 #include "protos.h"
 
 /* globals */
-char pcx_name[128];		/* pcx file name */
-int  pcx_w, pcx_h;		/* pcx dimensions */
-int  pcx_nb_colors;		/* number of colors in the pcx */
-int  pcx_nb_args;		/* number of argument */
-unsigned int   pcx_arg[8];	/* pcx args array */
-unsigned char *pcx_buf;		/* pointer to the pcx buffer */
-unsigned char  pcx_pal[256][3];		/* palette */
-unsigned char  pcx_plane[128][4];	/* plane buffer */
-unsigned int     tile_offset;	/* offset in the tile reference table */
-struct t_tile    tile[256];		/* tile info table */
-struct t_tile   *tile_tbl[256];	/* tile hash table */
-struct t_symbol *tile_lablptr;	/* tile symbol reference */
-struct PCX_HEADER {		/* pcx file header */
+char pcx_name[128];			/* pcx file name */
+int pcx_w, pcx_h;			/* pcx dimensions */
+int pcx_nb_colors;			/* number of colors in the pcx */
+int pcx_nb_args;			/* number of argument */
+unsigned int pcx_arg[8];		/* pcx args array */
+unsigned char *pcx_buf;			/* pointer to the pcx buffer */
+unsigned char pcx_pal[256][3];		/* palette */
+unsigned char pcx_plane[128][4];	/* plane buffer */
+unsigned int tile_offset;		/* offset in the tile reference table */
+struct t_tile tile[256];		/* tile info table */
+struct t_tile *tile_tbl[256];		/* tile hash table */
+struct t_symbol *tile_lablptr;		/* tile symbol reference */
+struct PCX_HEADER {			/* pcx file header */
 	unsigned char manufacturer, version;
 	unsigned char encoding;
 	unsigned char bpp;
@@ -37,7 +37,7 @@ struct PCX_HEADER {		/* pcx file header */
 
 /* externs */
 extern struct t_symbol *expr_lablptr;	/* pointer to the lastest label */
-extern int expr_lablcnt;	/* number of label seen in an expression */
+extern int expr_lablcnt;		/* number of label seen in an expression */
 
 /* macros */
 #define GET_SHORT(a) ((a[1] << 8) + a[0])
@@ -154,7 +154,7 @@ pcx_set_tile(struct t_symbol *ref, unsigned int offset)
 		tile_tbl[i] = NULL;
 
 	/* get infos */
-	nb   = ref->nb - (start / ref->size);
+	nb = ref->nb - (start / ref->size);
 	size = ref->size;
 	data = &rom[ref->bank - bank_base][ref->value & 0x1FFF] + start;
 
@@ -165,7 +165,7 @@ pcx_set_tile(struct t_symbol *ref, unsigned int offset)
 	/* parse tiles */
 	for (i = 0; i < nb; i++) {
 		/* calculate tile crc */
-		crc  = crc_calc(data, size);
+		crc = crc_calc(data, size);
 		hash = (crc & 0xFF);
 
 		/* insert the tile in the tile table */
@@ -181,7 +181,7 @@ pcx_set_tile(struct t_symbol *ref, unsigned int offset)
 
 	/* ok */
 	tile_lablptr = ref;
-	tile_offset  = offset;
+	tile_offset = offset;
 	return (1);
 
 	/* error */
@@ -214,15 +214,15 @@ pcx_search_tile(unsigned char *data, int size)
 		return (-1);
 
 	/* calculate tile crc */
-	crc  = crc_calc(data, size);
+	crc = crc_calc(data, size);
 	tile = tile_tbl[crc & 0xFF];
 
 	/* search tile */
 	while (tile) {
 		if (tile->crc == crc) {
 			if (memcmp(tile->data, data, size) == 0)
-				return(tile->index);
-	 	}
+				return (tile->index);
+		}
 		tile = tile->next;
 	}
 
@@ -253,7 +253,7 @@ pcx_get_args(int *ip)
 	/* get args */
 	for (;;) {
 		/* skip spaces */
-		while (isspace(c = prlnbuf[(*ip)++]));
+		while (isspace(c = prlnbuf[(*ip)++])) ;
 
 		/* check syntax */
 		if ((c != ',') && (c != ';') && (c != 0)) {
@@ -273,7 +273,7 @@ pcx_get_args(int *ip)
 		/* check number of args */
 		if (pcx_nb_args == 7)
 			break;
-	}			
+	}
 
 	/* check number of args */
 	if (optype & (1 << pcx_nb_args)) {
@@ -323,13 +323,13 @@ pcx_parse_args(int i, int nb, int *a, int *b, int *c, int *d, int size)
 	}
 	else if (nb == 2) {		/* 2 args */
 		w = pcx_arg[i];
-		h = pcx_arg[i+1];
+		h = pcx_arg[i + 1];
 	}
 	else {					/* 4 args */
 		x = pcx_arg[i];
-		y = pcx_arg[i+1];
-		w = pcx_arg[i+2];
-		h = pcx_arg[i+3];
+		y = pcx_arg[i + 1];
+		w = pcx_arg[i + 2];
+		h = pcx_arg[i + 3];
 	}
 
 	/* check */
@@ -399,7 +399,7 @@ pcx_load(char *name)
 	}
 
 	/* malloc a buffer */
-    pcx_buf = malloc(pcx_w * pcx_h);
+	pcx_buf = malloc(pcx_w * pcx_h);
 	if (pcx_buf == NULL) {
 		error("Can not load file, not enough memory!");
 		return (0);
@@ -430,7 +430,7 @@ pcx_load(char *name)
 void
 decode_256(FILE *f, int w, int h)
 {
-	unsigned int   i, c, x, y;
+	unsigned int i, c, x, y;
 	unsigned char *ptr;
 
 	ptr = pcx_buf;
@@ -459,7 +459,7 @@ decode_256(FILE *f, int w, int h)
 			}
 			do {
 				x++;
-			   *ptr++ = c;
+				*ptr++ = c;
 				if (x == w) {
 					x = 0;
 					y++;
@@ -471,7 +471,7 @@ decode_256(FILE *f, int w, int h)
 	default:
 		error("Unsupported PCX encoding scheme!");
 		return;
-	}			
+	}
 
 	/* get the palette */
 	if (c != EOF)
@@ -530,7 +530,7 @@ decode_16(FILE *f, int w, int h)
 
 			/* unpack */
 			do {
-			    pcx_plane[x >> 3][p] = c;
+				pcx_plane[x >> 3][p] = c;
 				x += 8;
 
 				/* end of line */
@@ -572,16 +572,14 @@ decode_16(FILE *f, int w, int h)
 						x = 0;
 					}
 				}
-			}
-			while (--i);
-		}
-		while (y < h);
+			} while (--i);
+		} while (y < h);
 		break;
 
 	default:
 		error("Unsupported PCX encoding scheme!");
 		return;
-	}			
+	}
 
 	/* get the palette */
 	memset(pcx_pal, 0, 768);
