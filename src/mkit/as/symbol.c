@@ -42,21 +42,21 @@ symhash(void)
 int
 colsym(int *ip)
 {
-	int  err = 0;
-	int	 i = 0;
+	int err = 0;
+	int i = 0;
 	char c;
 	char local_check;
 
 	/* get the symbol */
-    local_check=prlnbuf[*ip];
+	local_check = prlnbuf[*ip];
 	for (;;) {
 		c = prlnbuf[*ip];
 		if (isdigit(c) && (i == 0))
 			break;
-		if (!isalnum(c) && (c != '_') && (c != '.'))
-		{ if((local_check=='.') && ((c=='-') || (c=='+')))
-            { }
-          else { break;}
+		if (!isalnum(c) && (c != '_') && (c != '.')) {
+			if ((local_check == '.') && ((c == '-') || (c == '+'))) {
+			}
+			else break;
 		}
 		if (i < (SBOLSZ - 1))
 			symbol[++i] = c;
@@ -64,7 +64,7 @@ colsym(int *ip)
 	}
 
 	symbol[0] = i;
-	symbol[i+1] = '\0';
+	symbol[i + 1] = '\0';
 
 	/* check if it's a reserved symbol */
 	if (i == 1) {
@@ -85,7 +85,7 @@ colsym(int *ip)
 //		symbol[0] = 0;
 //		symbol[1] = '\0';
 		return (0);
-	}	
+	}
 
 	/* ok */
 	return (i);
@@ -100,7 +100,8 @@ colsym(int *ip)
  * else, install symbol as undefined and return pointer
  */
 
-struct t_symbol *stlook(int flag)
+struct t_symbol *
+stlook(int flag)
 {
 	struct t_symbol *sym;
 	int sym_flag = 0;
@@ -114,7 +115,7 @@ struct t_symbol *stlook(int flag)
 
 			while (sym) {
 				if (!strcmp(symbol, sym->name))
-					break;			
+					break;
 				sym = sym->next;
 			}
 
@@ -137,10 +138,10 @@ struct t_symbol *stlook(int flag)
 	else {
 		/* search symbol */
 		hash = symhash();
-		sym  = hash_tbl[hash];
+		sym = hash_tbl[hash];
 		while (sym) {
 			if (!strcmp(symbol, sym->name))
-				break;			
+				break;
 			sym = sym->next;
 		}
 
@@ -170,7 +171,8 @@ struct t_symbol *stlook(int flag)
  * install symbol into symbol hash table
  */
 
-struct t_symbol *stinstall(int hash, int type)
+struct t_symbol *
+stinstall(int hash, int type)
 {
 	struct t_symbol *sym;
 
@@ -181,16 +183,16 @@ struct t_symbol *stinstall(int hash, int type)
 	}
 
 	/* init the symbol struct */
-	sym->type  = if_expr ? IFUNDEF : UNDEF;
+	sym->type = if_expr ? IFUNDEF : UNDEF;
 	sym->value = 0;
 	sym->local = NULL;
-	sym->proc  = NULL;
-	sym->bank  = RESERVED_BANK;
-	sym->nb    = 0;
-	sym->size  = 0;
-	sym->page  = -1;
-	sym->vram  = -1;
-	sym->pal   = -1;
+	sym->proc = NULL;
+	sym->bank = RESERVED_BANK;
+	sym->nb = 0;
+	sym->size = 0;
+	sym->page = -1;
+	sym->vram = -1;
+	sym->pal = -1;
 	sym->refcnt = 0;
 	sym->reserved = 0;
 	sym->data_type = -1;
@@ -230,7 +232,7 @@ labldef(int lval, int flag)
 	if (lablptr == NULL)
 		return (0);
 
-	/* adjust symbol address */	
+	/* adjust symbol address */
 	if (flag)
 		lval = (lval & 0x1FFF) | (page << 13);
 
@@ -275,8 +277,7 @@ labldef(int lval, int flag)
 	/* second pass */
 	else {
 		if ((lablptr->value != lval) ||
-		   ((flag) && (bank < bank_limit) && (lablptr->bank  != bank_base + bank)))
-		{
+		    ((flag) && (bank < bank_limit) && (lablptr->bank != bank_base + bank))) {
 			fatal_error("Internal error[1]!");
 			return (-1);
 		}
@@ -287,10 +288,10 @@ labldef(int lval, int flag)
 		if (section == S_CODE)
 			lablptr->proc = proc_ptr;
 
-		if ((section == S_BSS) || (section == S_ZP))
-		{
+		if ((section == S_BSS) || (section == S_ZP)) {
 			lablptr->bank = bank;
-		} else {
+		}
+		else {
 			lablptr->bank = bank_base + bank;
 		}
 		lablptr->page = page;
@@ -363,10 +364,10 @@ lablexists(char *name)
 		lablptr = stlook(1);
 
 		if (lablptr) {
-			return(1);
+			return (1);
 		}
 	}
-	return(0);
+	return (0);
 }
 
 
@@ -395,10 +396,10 @@ lablremap(void)
 			if (sym->local) {
 				local = sym->local;
 
-				while  (local) {
+				while (local) {
 					if (local->bank <= bank_limit)
 						local->bank += bank_base;
-	
+
 					/* next */
 					local = local->next;
 				}
@@ -445,7 +446,7 @@ labldump(FILE *fp)
 			if (sym->local) {
 				local = sym->local;
 
-				while  (local) {
+				while (local) {
 					fprintf(fp, "%2.2x\t%4.4x\t", local->bank, local->value);
 					fprintf(fp, "\t%s\t", &(local->name[1]));
 					if (strlen(&(local->name[1])) < 8)
@@ -453,7 +454,7 @@ labldump(FILE *fp)
 					if (strlen(&(local->name[1])) < 16)
 						fprintf(fp, "\t");
 					fprintf(fp, "\n");
-	
+
 					/* next */
 					local = local->next;
 				}
