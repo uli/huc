@@ -10,7 +10,7 @@ struct t_func *func_tbl[256];
 struct t_func *func_ptr;
 char func_line[128];
 char func_arg[8][10][80];
-int  func_idx;
+int func_idx;
 
 
 /* ----
@@ -48,7 +48,7 @@ do_func(int *ip)
 		/* install this new function in the hash table */
 		if (!func_install(*ip))
 			return;
-	} 
+	}
 }
 
 /* search a function */
@@ -63,7 +63,7 @@ func_look(void)
 	func_ptr = func_tbl[hash];
 	while (func_ptr) {
 		if (!strcmp(&symbol[1], func_ptr->name))
-			break;			
+			break;
 		func_ptr = func_ptr->next;
 	}
 
@@ -118,9 +118,9 @@ int
 func_extract(int ip)
 {
 	char *ptr;
-	char  c;
-	int   i, arg, max_arg;
-	int   end;
+	char c;
+	int i, arg, max_arg;
+	int end;
 
 	/* skip spaces */
 	while (isspace(prlnbuf[ip]))
@@ -135,17 +135,17 @@ func_extract(int ip)
 	while (!end) {
 		c = prlnbuf[ip++];
 		switch (c) {
-		/* end of line */	
+		/* end of line */
 		case ';':
 		case '\0':
-		   *ptr++ = '\0';
+			*ptr++ = '\0';
 			end = 1;
 			break;
 
 		/* function arg */
 		case '\\':
-		   *ptr++ = c;
-		    i++;
+			*ptr++ = c;
+			i++;
 			c = prlnbuf[ip++];
 			if ((c < '1') || (c > '9')) {
 				error("Invalid function argument!");
@@ -157,8 +157,8 @@ func_extract(int ip)
 
 		/* other */
 		default:
-		   *ptr++ = c;
-		    i++;
+			*ptr++ = c;
+			i++;
 			if (i == 127) {
 				error("Function line too long!");
 				return (-1);
@@ -195,9 +195,9 @@ func_getargs(void)
 		return (0);
 
 	/* initialize args */
-    line = NULL;
-	ptr  = func_arg[func_idx][0];
-	arg  = 0;
+	line = NULL;
+	ptr = func_arg[func_idx][0];
+	arg = 0;
 
 	for (i = 0; i < 9; i++)
 		func_arg[func_idx][i][0] = '\0';
@@ -220,7 +220,7 @@ func_getargs(void)
 			}
 			break;
 
-		/* end of line */	
+		/* end of line */
 		case ';':
 		case '\0':
 			error("Syntax error in function call!");
