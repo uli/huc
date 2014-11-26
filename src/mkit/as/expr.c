@@ -84,7 +84,7 @@ cont:
 				goto error;
 			if (!push_val(T_DECIMAL))
 				return (0);
-		} 
+		}
 
 		/* symbol */
 		else
@@ -93,7 +93,7 @@ cont:
 				goto error;
 			if (!push_val(T_SYMBOL))
 				return (0);
-		} 
+		}
 
 		/* operators */
 		else {
@@ -116,7 +116,7 @@ cont:
 				break;
 
 			/* hexa prefix */
- 			case '$':
+			case '$':
 				if (need_operator)
 					goto error;
 				if (!push_val(T_HEXA))
@@ -339,14 +339,14 @@ cont:
 		if (end != 1)
 			goto error;
 		expr++;
-		break;		
+		break;
 	case ',':
 		if (end != 2) {
 			error("Argument missing!");
 			return (0);
 		}
 		expr++;
-		break;		
+		break;
 	}
 
 	/* convert back the pointer to an array index */
@@ -453,7 +453,7 @@ push_val(int type)
 
 	/* decimal number 48 (or hexa 0x5F) */
 	case T_DECIMAL:
-		if((c == '0') && (toupper(expr[1]) == 'X')) {
+		if ((c == '0') && (toupper(expr[1]) == 'X')) {
 			mul = 16;
 			expr++;
 		}
@@ -462,11 +462,11 @@ push_val(int type)
 			val = c - '0';
 		}
 		/* extract a number */
-	extract:
+extract:
 		for (;;) {
 			expr++;
 			c = *expr;
-			
+
 			if (isdigit(c))
 				c -= '0';
 			else if (isalpha(c)) {
@@ -516,8 +516,8 @@ push_val(int type)
 int
 getsym(void)
 {
-	int	valid;
-	int	i;
+	int valid;
+	int i;
 	char c;
 	char local_check;
 
@@ -526,20 +526,20 @@ getsym(void)
 
 	/* get the symbol, stop to the first 'non symbol' char */
 	local_check = *expr;
-    while (valid) {
-        c = *expr;
-        if (isalpha(c) || c == '_' || c == '.' || (isdigit(c) && i >= 1)) {
-            symbol[++i] = c;
-            expr++;
-        }
-        else if((local_check=='.') && ((c=='-') || (c=='+'))) {
-            symbol[++i] = c;
-            expr++;
-        }
-        else {
-            valid = 0;
-        }
-    }
+	while (valid) {
+		c = *expr;
+		if (isalpha(c) || c == '_' || c == '.' || (isdigit(c) && i >= 1)) {
+			symbol[++i] = c;
+			expr++;
+		}
+		else if ((local_check == '.') && ((c == '-') || (c == '+'))) {
+			symbol[++i] = c;
+			expr++;
+		}
+		else {
+			valid = 0;
+		}
+	}
 
 	/* is it a reserved symbol? */
 	if (i == 1) {
@@ -554,13 +554,13 @@ getsym(void)
 
 	/* store symbol length */
 	symbol[0] = i;
-	symbol[i+1] = '\0';
+	symbol[i + 1] = '\0';
 
-    if (i > SBOLSZ - 1) {
-        char errorstr[512];
-        snprintf(errorstr, 512, "Symbol name too long ('%s' is %d chars long, max is %d)", symbol + 1, i, SBOLSZ - 1);
-        fatal_error(errorstr);
-    }
+	if (i > SBOLSZ - 1) {
+		char errorstr[512];
+		snprintf(errorstr, 512, "Symbol name too long ('%s' is %d chars long, max is %d)", symbol + 1, i, SBOLSZ - 1);
+		fatal_error(errorstr);
+	}
 
 	return (i);
 }
@@ -575,8 +575,8 @@ getsym(void)
 int
 getsym_op(void)
 {
-	int	valid;
-	int	i;
+	int valid;
+	int i;
 	char c;
 	char local_check;
 
@@ -592,14 +592,14 @@ getsym_op(void)
 				symbol[++i] = c;
 			expr++;
 		}
-		else if((local_check=='.') && ((c=='-') || (c=='+'))) {
-                if (i < SBOLSZ - 1)
-                    symbol[++i] = c;
-                expr++;
-             }
-            else {
-                valid = 0;
-            }
+		else if ((local_check == '.') && ((c == '-') || (c == '+'))) {
+			if (i < SBOLSZ - 1)
+				symbol[++i] = c;
+			expr++;
+		}
+		else {
+			valid = 0;
+		}
 	}
 
 	/* is it a reserved symbol? */
@@ -613,9 +613,9 @@ getsym_op(void)
 		}
 	}
 
-	/* store symbol length */	
+	/* store symbol length */
 	symbol[0] = i;
-	symbol[i+1] = '\0';
+	symbol[i + 1] = '\0';
 	return (i);
 }
 
@@ -721,8 +721,8 @@ do_op(void)
 	/* second arg */
 	if (op_pri[op] < 9)
 		val[1] = val_stack[--val_idx];
-        else
-                val[1] = 0;
+	else
+		val[1] = 0;
 
 	switch (op) {
 	/* BANK */
@@ -796,7 +796,7 @@ do_op(void)
 	/* HIGH */
 	case OP_HIGH:
 		val[0] = (val[0] & 0xFF00) >> 8;
-		break;		
+		break;
 
 	/* LOW */
 	case OP_LOW:
@@ -805,7 +805,7 @@ do_op(void)
 
 	case OP_ADD:
 		val[0] = val[1] + val[0];
-        break;
+		break;
 
 	case OP_SUB:
 		val[0] = val[1] - val[0];
@@ -813,88 +813,88 @@ do_op(void)
 
 	case OP_MUL:
 		val[0] = val[1] * val[0];
-        break;
+		break;
 
-    case OP_DIV:
-        if (val[0] == 0) {
+	case OP_DIV:
+		if (val[0] == 0) {
 			error("Divide by zero!");
 			return (0);
 		}
-        val[0] = val[1] / val[0];
-        break;
+		val[0] = val[1] / val[0];
+		break;
 
 	case OP_MOD:
-        if (val[0] == 0) {
+		if (val[0] == 0) {
 			error("Divide by zero!");
 			return (0);
 		}
-        val[0] = val[1] % val[0];
-        break;
+		val[0] = val[1] % val[0];
+		break;
 
-    case OP_NEG:
+	case OP_NEG:
 		val[0] = -val[0];
-        break;
+		break;
 
-    case OP_SHL:
-        val[0] = val[1] << (val[0] & 0x1F);
-        break;
+	case OP_SHL:
+		val[0] = val[1] << (val[0] & 0x1F);
+		break;
 
-    case OP_SHR:
-        val[0] = val[1] >> (val[0] & 0x1f);
-        break;
+	case OP_SHR:
+		val[0] = val[1] >> (val[0] & 0x1f);
+		break;
 
 	case OP_OR:
-        val[0] = val[1] | val[0];
+		val[0] = val[1] | val[0];
 		break;
 
-    case OP_XOR:
-        val[0] = val[1] ^ val[0];
+	case OP_XOR:
+		val[0] = val[1] ^ val[0];
 		break;
 
-    case OP_AND:
-        val[0] = val[1] & val[0];
-        break;
+	case OP_AND:
+		val[0] = val[1] & val[0];
+		break;
 
-    case OP_COM:
-        val[0] = ~val[0];
-        break;
+	case OP_COM:
+		val[0] = ~val[0];
+		break;
 
-    case OP_NOT:
-        val[0] = !val[0];
-        break;
+	case OP_NOT:
+		val[0] = !val[0];
+		break;
 
-    case OP_EQUAL:
-        val[0] = (val[1] == val[0]);
-        break;
+	case OP_EQUAL:
+		val[0] = (val[1] == val[0]);
+		break;
 
-    case OP_NOT_EQUAL:
-        val[0] = (val[1] != val[0]);
-        break;
+	case OP_NOT_EQUAL:
+		val[0] = (val[1] != val[0]);
+		break;
 
-    case OP_LOWER:
-        val[0] = (val[1] < val[0]);
-        break;
+	case OP_LOWER:
+		val[0] = (val[1] < val[0]);
+		break;
 
-    case OP_LOWER_EQUAL:
-        val[0] = (val[1] <= val[0]);
-        break;
+	case OP_LOWER_EQUAL:
+		val[0] = (val[1] <= val[0]);
+		break;
 
-    case OP_HIGHER:
-        val[0] = (val[1] > val[0]);
-        break;
+	case OP_HIGHER:
+		val[0] = (val[1] > val[0]);
+		break;
 
-    case OP_HIGHER_EQUAL:
-        val[0] = (val[1] >= val[0]);
-        break;
+	case OP_HIGHER_EQUAL:
+		val[0] = (val[1] >= val[0]);
+		break;
 
-    default:
+	default:
 		error("Invalid operator in expression!");
 		return (0);
-    }
+	}
 
 	/* result */
-    val_stack[val_idx] = val[0];
-    return (1);
+	val_stack[val_idx] = val[0];
+	return (1);
 }
 
 
