@@ -6,15 +6,15 @@
 #include "externs.h"
 #include "protos.h"
 
-int  mopt;
-int  in_macro;
-int  expand_macro;
+int mopt;
+int in_macro;
+int expand_macro;
 char marg[8][10][80];
-int  midx;
-int  mcounter, mcntmax;
-int  mcntstack[8];
-struct t_line  *mstack[8];
-struct t_line  *mlptr;
+int midx;
+int mcounter, mcntmax;
+int mcntstack[8];
+struct t_line *mstack[8];
+struct t_line *mlptr;
 struct t_macro *macro_tbl[256];
 struct t_macro *mptr;
 
@@ -67,7 +67,7 @@ do_macro(int *ip)
 		/* install this new macro in the hash table */
 		if (!macro_install())
 			return;
-	} 
+	}
 	in_macro = 1;
 }
 
@@ -82,13 +82,14 @@ do_endm(int *ip)
 
 /* search a macro in the hash table */
 
-struct t_macro *macro_look(int *ip)
+struct t_macro *
+macro_look(int *ip)
 {
 	struct t_macro *ptr;
 	char name[32];
 	char c;
-	int  hash;
-	int  l;
+	int hash;
+	int l;
 
 	/* calculate the symbol hash value and check syntax */
 	l = 0;
@@ -99,7 +100,8 @@ struct t_macro *macro_look(int *ip)
 			break;
 
 		if (!isalnum(c) && c != '_')
-		{ if(c!=0x2e) {	return (NULL); }}
+			if (c != 0x2e)
+				return (NULL);
 		if (l == 0) {
 			if (isdigit(c))
 				return (NULL);
@@ -117,7 +119,7 @@ struct t_macro *macro_look(int *ip)
 	ptr = macro_tbl[hash];
 	while (ptr) {
 		if (!strcmp(name, ptr->name))
-			break;			
+			break;
 		ptr = ptr->next;
 	}
 
@@ -131,9 +133,9 @@ int
 macro_getargs(int ip)
 {
 	char *ptr;
-	char  c, t;
-	int   i, j, f, arg;
-	int   level;
+	char c, t;
+	int i, j, f, arg;
+	int level;
 
 	/* can not nest too much macros */
 	if (midx == 7) {
@@ -168,7 +170,7 @@ macro_getargs(int ip)
 			}
 			break;
 
-		/* string */			
+		/* string */
 		case '{':
 			c = '}';
 		case '\"':
@@ -212,7 +214,7 @@ macro_getargs(int ip)
 			ptr[i] = '\0';
 			break;
 
-		/* end of line */	
+		/* end of line */
 		case ';':
 		case '\0':
 			return (1);
@@ -235,7 +237,7 @@ macro_getargs(int ip)
 				/* read a new line */
 				if (readline() == -1)
 					return (0);
-				
+
 				/* rewind line pointer and continue */
 				ip = SFIELD;
 				break;
@@ -292,25 +294,24 @@ macro_getargs(int ip)
 
 				if ((c == 'x') || (c == 'y')) {
 					if ((strcasecmp(ptr, "x++") == 0) ||
-						(strcasecmp(ptr, "y++") == 0) ||
-						(strlen(ptr) == 1))
-					{
+					    (strcasecmp(ptr, "y++") == 0) ||
+					    (strlen(ptr) == 1)) {
 						arg--;
 						ptr = marg[midx][arg];
-	
+
 						/* check string length */
 						if (strlen(ptr) > 75) {
 							error("Macro argument string too long, max. 80 characters!");
 							return (0);
 						}
-	
+
 						/* attach current arg to the previous one */
 						strcat(ptr, ",");
 						strcat(ptr, marg[midx][arg + 1]);
 						ptr = marg[midx][arg + 1];
 						ptr[0] = '\0';
 					}
-			 	}
+				}
 			}
 			break;
 		}
@@ -331,11 +332,11 @@ macro_install(void)
 
 	/* check macro name syntax */
 	/*
-	if (strchr(&symbol[1], '.')) {
-		error("Invalid macro name!");
-		return (0);
-	}
-	*/
+	   if (strchr(&symbol[1], '.')) {
+	        error("Invalid macro name!");
+	        return (0);
+	   }
+	 */
 
 	/* calculate symbol hash value */
 	for (i = 1; i <= symbol[0]; i++) {
@@ -369,7 +370,7 @@ macro_getargtype(char *arg)
 {
 	struct t_symbol *sym;
 	char c;
-	int  i;
+	int i;
 
 	/* skip spaces */
 	while (isspace(*arg))
@@ -398,7 +399,7 @@ macro_getargtype(char *arg)
 	default:
 		/* symbol */
 		c = arg[0];
-		for(i = 0; i < SBOLSZ; i++) {
+		for (i = 0; i < SBOLSZ; i++) {
 			c = arg[i];
 			if (isdigit(c) && (i == 0))
 				break;
@@ -414,12 +415,12 @@ macro_getargtype(char *arg)
 			else {
 				strncpy(&symbol[1], arg, i);
 				symbol[0] = i;
-				symbol[i+1] = '\0';
+				symbol[i + 1] = '\0';
 
 				if ((sym = stlook(0)) == NULL)
 					return (ARG_LABEL);
 				else {
-					if((sym->type == UNDEF) || (sym->type == IFUNDEF))
+					if ((sym->type == UNDEF) || (sym->type == IFUNDEF))
 						return (ARG_LABEL);
 					if (sym->bank == RESERVED_BANK)
 						return (ARG_ABS);
