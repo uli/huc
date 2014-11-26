@@ -52,6 +52,9 @@ $(GETROM) : getrom.c lib/libdevel.a
 	$(CC) $(CFLAGS) -s -o $(GETROM) getrom.c $(LIBDIR) $(LIB)
 	$(CP) $(GETROM) $(BINDIR)
 
+indent:
+	uncrustify -l c -q -c ../as/uncrustify.cfg --replace *.c */*.c */*.h
+
 #
 # Targets
 #
