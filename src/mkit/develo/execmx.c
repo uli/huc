@@ -12,7 +12,7 @@ int
 main(int argc, char **argv)
 {
 	char *ptr;
-	char  fname[128];
+	char fname[128];
 	int addr, page, bank;
 	int i;
 
@@ -52,7 +52,7 @@ main(int argc, char **argv)
 	if (addr > 0xFFFF) {
 		printf("incorrect address, %X!\n", addr);
 		exit(1);
-	}		
+	}
 
 	/* get page */
 	page = (addr >> 13);
@@ -64,7 +64,7 @@ main(int argc, char **argv)
 			exit(1);
 		}
 	}
-	
+
 	/* go */
 	if (dv_exec(addr, 0) != DV_OK) {
 		printf("%s, can not execute program!\n", dv_get_errmsg());
