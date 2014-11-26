@@ -1,4 +1,3 @@
-
 /* PCE.C */
 void pce_write_header(FILE *f, int banks);
 int  pce_pack_8x8_tile(unsigned char *buffer, void *data, int line_offset, int format);
@@ -122,7 +121,7 @@ struct t_opcode pce_pseudo[23] = {
 	{NULL,  "MML",    pce_mml,    PSEUDO, P_MML,    0},
 	{NULL,  "PAL",    pce_pal,    PSEUDO, P_PAL,    0},
 	{NULL,  "VRAM",   pce_vram,   PSEUDO, P_VRAM,   0},
-					             
+
 	{NULL, ".DEFCHR", pce_defchr, PSEUDO, P_DEFCHR, 0},
 	{NULL, ".DEFPAL", pce_defpal, PSEUDO, P_DEFPAL, 0},
 	{NULL, ".DEFSPR", pce_defspr, PSEUDO, P_DEFSPR, 0},
@@ -150,26 +149,26 @@ const char defdirs_pce[] =
 	"/usr/share/huc/include/pce;" \
 	"/usr/include/pce"
 #endif
-	;
+;
 
 /* PCE machine description */
 struct t_machine pce = {
-	MACHINE_PCE,   /* type */
-	"PCEAS", /* asm_name */
-	PCE_ASM_VERSION, /* asm_title */
-	".pce",  /* rom_ext */
-	"PCE_INCLUDE", /* include_env */
-	defdirs_pce, /* default_dirs */
-	0xD8,    /* zp_limit */
-	0x2000,  /* ram_limit */
-	0x2000,  /* ram_base */
-	1,       /* ram_page */
-	0xF8,    /* ram_bank */
-	pce_inst,   /* inst */
-	pce_pseudo, /* pseudo_inst */
-	pce_pack_8x8_tile,     /* pack_8x8_tile */
-	pce_pack_16x16_tile,   /* pack_16x16_tile */
-	pce_pack_16x16_sprite, /* pack_16x16_sprite */
-	pce_write_header /* write_header */
+	MACHINE_PCE,		/* type */
+	"PCEAS",		/* asm_name */
+	PCE_ASM_VERSION,	/* asm_title */
+	".pce",			/* rom_ext */
+	"PCE_INCLUDE",		/* include_env */
+	defdirs_pce,		/* default_dirs */
+	0xD8,			/* zp_limit */
+	0x2000,			/* ram_limit */
+	0x2000,			/* ram_base */
+	1,			/* ram_page */
+	0xF8,			/* ram_bank */
+	pce_inst,		/* inst */
+	pce_pseudo,		/* pseudo_inst */
+	pce_pack_8x8_tile,	/* pack_8x8_tile */
+	pce_pack_16x16_tile,	/* pack_16x16_tile */
+	pce_pack_16x16_sprite,	/* pack_16x16_sprite */
+	pce_write_header	/* write_header */
 };
 

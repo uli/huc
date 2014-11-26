@@ -40,9 +40,9 @@ pce_pack_8x8_tile(unsigned char *buffer, void *data, int line_offset, int format
 {
 	int i, j;
 	int cnt;
-	unsigned int   pixel, mask;
+	unsigned int pixel, mask;
 	unsigned char *ptr;
-	unsigned int  *packed;
+	unsigned int *packed;
 
 	/* pack the tile only in the last pass */
 	if (pass != LAST_PASS)
@@ -61,12 +61,12 @@ pce_pack_8x8_tile(unsigned char *buffer, void *data, int line_offset, int format
 		for (i = 0; i < 8; i++) {
 			for (j = 0; j < 8; j++) {
 				pixel = ptr[j ^ 0x07];
-				mask  = 1 << j;
-				buffer[cnt]    |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+1]  |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+16] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+17] |= (pixel & 0x08) ? mask : 0;
-			}				
+				mask = 1 << j;
+				buffer[cnt] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 1] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 16] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 17] |= (pixel & 0x08) ? mask : 0;
+			}
 			ptr += line_offset;
 			cnt += 2;
 		}
@@ -76,16 +76,16 @@ pce_pack_8x8_tile(unsigned char *buffer, void *data, int line_offset, int format
 		/* 4-bit packed format - from an array */
 		cnt = 0;
 		packed = (unsigned int *)data;
-	
+
 		for (i = 0; i < 8; i++) {
 			pixel = packed[i];
-	
+
 			for (j = 0; j < 8; j++) {
 				mask = 1 << j;
-				buffer[cnt]    |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+1]  |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+16] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+17] |= (pixel & 0x08) ? mask : 0;
+				buffer[cnt] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 1] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 16] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 17] |= (pixel & 0x08) ? mask : 0;
 				pixel >>= 4;
 			}
 			cnt += 2;
@@ -114,7 +114,7 @@ pce_pack_16x16_tile(unsigned char *buffer, void *data, int line_offset, int form
 {
 	int i, j;
 	int cnt;
-	unsigned int   pixel, mask;
+	unsigned int pixel, mask;
 	unsigned char *ptr;
 
 	/* pack the tile only in the last pass */
@@ -134,18 +134,18 @@ pce_pack_16x16_tile(unsigned char *buffer, void *data, int line_offset, int form
 		for (i = 0; i < 16; i++) {
 			for (j = 0; j < 8; j++) {
 				pixel = ptr[j ^ 0x07];
-				mask  = 1 << j;
-				buffer[cnt]    |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+1]  |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+16] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+17] |= (pixel & 0x08) ? mask : 0;
+				mask = 1 << j;
+				buffer[cnt] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 1] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 16] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 17] |= (pixel & 0x08) ? mask : 0;
 
 				pixel = ptr[(j + 8) ^ 0x07];
-				buffer[cnt+32] |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+33] |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+48] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+49] |= (pixel & 0x08) ? mask : 0;
-			}				
+				buffer[cnt + 32] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 33] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 48] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 49] |= (pixel & 0x08) ? mask : 0;
+			}
 			if (i == 7)
 				cnt += 48;
 			ptr += line_offset;
@@ -175,9 +175,9 @@ pce_pack_16x16_sprite(unsigned char *buffer, void *data, int line_offset, int fo
 {
 	int i, j;
 	int cnt;
-	unsigned int   pixel, mask;
+	unsigned int pixel, mask;
 	unsigned char *ptr;
-	unsigned int  *packed;
+	unsigned int *packed;
 
 	/* pack the sprite only in the last pass */
 	if (pass != LAST_PASS)
@@ -197,22 +197,22 @@ pce_pack_16x16_sprite(unsigned char *buffer, void *data, int line_offset, int fo
 			/* right column */
 			for (j = 0; j < 8; j++) {
 				pixel = ptr[j ^ 0x0F];
-				mask  = 1 << j;
-				buffer[cnt]    |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+32] |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+64] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+96] |= (pixel & 0x08) ? mask : 0;
+				mask = 1 << j;
+				buffer[cnt] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 32] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 64] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 96] |= (pixel & 0x08) ? mask : 0;
 			}
 
 			/* left column */
 			for (j = 0; j < 8; j++) {
 				pixel = ptr[j ^ 0x07];
-				mask  = 1 << j;
-				buffer[cnt+1]  |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+33] |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+65] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+97] |= (pixel & 0x08) ? mask : 0;
-			}				
+				mask = 1 << j;
+				buffer[cnt + 1] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 33] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 65] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 97] |= (pixel & 0x08) ? mask : 0;
+			}
 			ptr += line_offset;
 			cnt += 2;
 		}
@@ -222,29 +222,29 @@ pce_pack_16x16_sprite(unsigned char *buffer, void *data, int line_offset, int fo
 		/* 4-bit packed format - from array */
 		cnt = 0;
 		packed = (unsigned int *)data;
-	
+
 		for (i = 0; i < 16; i++) {
 			/* left column */
 			pixel = packed[cnt];
-	
+
 			for (j = 0; j < 8; j++) {
 				mask = 1 << j;
-				buffer[cnt+1]  |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+33] |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+65] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+97] |= (pixel & 0x08) ? mask : 0;
+				buffer[cnt + 1] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 33] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 65] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 97] |= (pixel & 0x08) ? mask : 0;
 				pixel >>= 4;
 			}
 
 			/* right column */
 			pixel = packed[cnt + 1];
-	
+
 			for (j = 0; j < 8; j++) {
 				mask = 1 << j;
-				buffer[cnt]    |= (pixel & 0x01) ? mask : 0;
-				buffer[cnt+32] |= (pixel & 0x02) ? mask : 0;
-				buffer[cnt+64] |= (pixel & 0x04) ? mask : 0;
-				buffer[cnt+96] |= (pixel & 0x08) ? mask : 0;
+				buffer[cnt] |= (pixel & 0x01) ? mask : 0;
+				buffer[cnt + 32] |= (pixel & 0x02) ? mask : 0;
+				buffer[cnt + 64] |= (pixel & 0x04) ? mask : 0;
+				buffer[cnt + 96] |= (pixel & 0x08) ? mask : 0;
 				pixel >>= 4;
 			}
 			cnt += 2;
@@ -347,8 +347,8 @@ pce_defchr(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_size   = 3;
-	data_level  = 3;
+	data_size = 3;
+	data_level = 3;
 
 	/* check if there's a label */
 	if (lablptr) {
@@ -363,7 +363,7 @@ pce_defchr(int *ip)
 			return;
 		}
 		lablptr->vram = value;
-	
+
 		/* get the default palette */
 		if (!evaluate(ip, ','))
 			return;
@@ -414,8 +414,8 @@ pce_defpal(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_size   = 2;
-	data_level  = 3;
+	data_size = 2;
+	data_level = 3;
 
 	/* get data */
 	for (;;) {
@@ -470,14 +470,14 @@ pce_defspr(int *ip)
 
 	/* output infos */
 	data_loccnt = loccnt;
-	data_size   = 3;
-	data_level  = 3;
+	data_size = 3;
+	data_level = 3;
 
 	/* check if there's a label */
 	if (lablptr) {
 		/* define label */
 		labldef(loccnt, 1);
-	
+
 		/* get the VRAM address */
 		if (!evaluate(ip, ','))
 			return;
@@ -486,7 +486,7 @@ pce_defspr(int *ip)
 			return;
 		}
 		lablptr->vram = value;
-	
+
 		/* get the default palette */
 		if (!evaluate(ip, ','))
 			return;
@@ -549,8 +549,8 @@ pce_incbat(int *ip)
 	/* build the BAT */
 	if (pass == LAST_PASS) {
 		index = 0;
-		flag  = 0;
-		base  = (pcx_arg[0] >> 4);
+		flag = 0;
+		base = (pcx_arg[0] >> 4);
 
 		for (i = 0; i < h; i++) {
 			for (j = 0; j < w; j++) {
@@ -562,12 +562,12 @@ pce_incbat(int *ip)
 					for (l = 0; l < 8; l++) {
 						if ((ptr[l] & 0xF0) != ref)
 							flag = 1;
-					}				
+					}
 					ptr += pcx_w;
 				}
 				temp = (base & 0xFFF) | ((ref & 0xF0) << 8);
-				buffer[2*index]   = temp & 0xff;
-				buffer[2*index+1] = temp >> 8;
+				buffer[2 * index] = temp & 0xff;
+				buffer[2 * index + 1] = temp >> 8;
 
 				index++;
 				base++;
@@ -638,8 +638,8 @@ pce_incpal(int *ip)
 			g = pcx_pal[start + i][1];
 			b = pcx_pal[start + i][2];
 			temp = ((r & 0xE0) >> 2) | ((g & 0xE0) << 1) | ((b & 0xE0) >> 5);
-			buffer[2*i]   = temp & 0xff;
-			buffer[2*i+1] = temp >> 8;
+			buffer[2 * i] = temp & 0xff;
+			buffer[2 * i + 1] = temp >> 8;
 		}
 	}
 
@@ -863,7 +863,7 @@ pce_mml(int *ip)
 			return;
 
 		/* adjust buffer size */
-		offset  += size;
+		offset += size;
 		bufsize -= size;
 
 		/* next string */
@@ -899,7 +899,7 @@ pce_mml(int *ip)
 				/* read a new line */
 				if (readline() == -1)
 					return;
-				
+
 				/* rewind line pointer and continue */
 				*ip = SFIELD;
 			}
@@ -908,7 +908,7 @@ pce_mml(int *ip)
 				return;
 			}
 		}
-	}			
+	}
 
 	/* stop */
 	offset += mml_stop(buffer + offset);
