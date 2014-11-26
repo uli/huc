@@ -20,17 +20,21 @@ TARGETS  = $(EXECMX) $(PERUN) $(GETROM)
 
 all::
 ifeq "$(origin DJGPP)" "undefined"
-	@echo 'Skipping Develo directories on Linux'
+ifneq "$(shell uname -s)" "Linux"
+	@echo 'Skipping Develo directories on this platform'
 else
 	$(MAKE) lib "COMMAND=$@"
 	$(MAKE) $(TARGETS)
 endif
+endif
 
 clean::
 ifeq "$(origin DJGPP)" "undefined"
-	@echo 'Skipping Develo directories on Linux'
+ifneq "$(shell uname -s)" "Linux"
+	@echo 'Skipping Develo directories on this platform'
 else
 	$(MAKE) lib "COMMAND=$@"
+endif
 endif
 
 .PHONY: lib
