@@ -1,14 +1,13 @@
-
-#define NES_ASM_VERSION	("NES Assembler (v 3.23-" GIT_VERSION " Beta, " GIT_DATE ")")
-#define PCE_ASM_VERSION	("PC Engine Assembler (v 3.23-" GIT_VERSION ", " GIT_DATE ")")
+#define NES_ASM_VERSION ("NES Assembler (v 3.23-" GIT_VERSION " Beta, " GIT_DATE ")")
+#define PCE_ASM_VERSION ("PC Engine Assembler (v 3.23-" GIT_VERSION ", " GIT_DATE ")")
 
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
-#define PATH_SEPARATOR '\\'
-#define PATH_SEPARATOR_STRING "\\"
+#define PATH_SEPARATOR		'\\'
+#define PATH_SEPARATOR_STRING	"\\"
 #else
-#define PATH_SEPARATOR '/'
-#define PATH_SEPARATOR_STRING "/"
+#define PATH_SEPARATOR		'/'
+#define PATH_SEPARATOR_STRING	"/"
 #endif
 
 /* machine */
@@ -17,26 +16,26 @@
 
 /* reserved bank index */
 #define RESERVED_BANK	0xF0
-#define PROC_BANK		0xF1
-#define GROUP_BANK		0xF2
+#define PROC_BANK	0xF1
+#define GROUP_BANK	0xF2
 
 /* tile format for encoder */
-#define CHUNKY_TILE		1
-#define PACKED_TILE		2
+#define CHUNKY_TILE	1
+#define PACKED_TILE	2
 
 /* line buffer length */
 #define LAST_CH_POS	158
-#define SFIELD	26
-#define SBOLSZ	64
+#define SFIELD		26
+#define SBOLSZ		64
 
 /* macro argument types */
-#define NO_ARG			0
-#define ARG_REG			1
-#define ARG_IMM			2
-#define ARG_ABS			3
+#define NO_ARG		0
+#define ARG_REG		1
+#define ARG_IMM		2
+#define ARG_ABS		3
 #define ARG_INDIRECT	4
-#define ARG_STRING		5
-#define ARG_LABEL		6
+#define ARG_STRING	5
+#define ARG_LABEL	6
 
 /* section types */
 #define S_ZP	0
@@ -45,22 +44,22 @@
 #define S_DATA	3
 
 /* assembler options */
-#define OPT_LIST	 0
-#define OPT_MACRO	 1
-#define OPT_WARNING	 2
-#define OPT_OPTIMIZE 3
+#define OPT_LIST	0
+#define OPT_MACRO	1
+#define OPT_WARNING	2
+#define OPT_OPTIMIZE	3
 
 /* assembler directives */
-#define P_DB		 0	// .db
-#define P_DW		 1	// .dw
-#define P_DS		 2	// .ds
-#define P_EQU		 3	// .equ
-#define P_ORG		 4	// .org
-#define P_PAGE		 5	// .page
-#define P_BANK		 6	// .bank
-#define P_INCBIN	 7	// .incbin
-#define P_INCLUDE	 8	// .include
-#define P_INCCHR	 9	// .incchr
+#define P_DB		0	// .db
+#define P_DW		1	// .dw
+#define P_DS		2	// .ds
+#define P_EQU		3	// .equ
+#define P_ORG		4	// .org
+#define P_PAGE		5	// .page
+#define P_BANK		6	// .bank
+#define P_INCBIN	7	// .incbin
+#define P_INCLUDE	8	// .include
+#define P_INCCHR	9	// .incchr
 #define P_INCSPR	10	// .incspr
 #define P_INCPAL	11	// .incpal
 #define P_INCBAT	12	// .incbat
@@ -101,13 +100,13 @@
 #define P_PGROUP	47	// .procgroup
 #define P_ENDPG		48	// .endprocgroup
 #define P_CALL		49	// .call
-#define P_DWL		50  // lsb of a WORD
+#define P_DWL		50	// lsb of a WORD
 #define P_DWH		51	// lsb of a WORD
 
 /* symbol flags */
 #define MDEF	3	/* multiply defined */
 #define UNDEF	1	/* undefined - may be zero page */
-#define IFUNDEF	2	/* declared in a .if expression */
+#define IFUNDEF 2	/* declared in a .if expression */
 #define DEFABS	4	/* defined - two byte address */
 #define MACRO	5	/* used for a macro name */
 #define FUNC	6	/* used for a function */
@@ -123,15 +122,15 @@
 #define CLASS8		0x0400000
 #define CLASS9		0x0800000
 #define CLASS10		0x1000000
-#define ACC			0x0000001
-#define IMM			0x0000002
-#define ZP			0x0000004
+#define ACC		0x0000001
+#define IMM		0x0000002
+#define ZP		0x0000004
 #define ZP_X		0x0000008
 #define ZP_Y		0x0000010
 #define ZP_IND		0x0000020
 #define ZP_IND_X	0x0000040
 #define ZP_IND_Y	0x0000080
-#define ABS			0x0000100
+#define ABS		0x0000100
 #define ABS_X		0x0000200
 #define ABS_Y		0x0000400
 #define ABS_IND		0x0000800
@@ -144,51 +143,51 @@
 /* structs */
 typedef struct t_opcode {
 	struct t_opcode *next;
-	char  *name;
+	char *name;
 	void (*proc)(int *);
-	int    flag;
-	int    value;
-	int    type_idx;
+	int flag;
+	int value;
+	int type_idx;
 } t_opcode;
 
 typedef struct t_input_info {
 	FILE *fp;
-	int   lnum;
-	int   if_level;
-	char  name[116];
+	int lnum;
+	int if_level;
+	char name[116];
 } t_input_info;
 
 typedef struct t_proc {
 	struct t_proc *next;
 	struct t_proc *link;
 	struct t_proc *group;
-	int  old_bank;
-	int  bank;
-	int  org;
-	int  base;
-	int  size;
-	int  call;
-	int  type;
-	int  refcnt;
+	int old_bank;
+	int bank;
+	int org;
+	int base;
+	int size;
+	int call;
+	int type;
+	int refcnt;
 	char name[SBOLSZ];
 } t_proc;
 
 typedef struct t_symbol {
 	struct t_symbol *next;
 	struct t_symbol *local;
-	struct t_proc   *proc;
-	int  type;
-	int  value;
-	int  bank;
-	int  page;
-	int  nb;
-	int  size;
-	int  vram;
-	int  pal;
-	int  refcnt;
-	int  reserved;
-	int  data_type;
-	int  data_size;
+	struct t_proc *proc;
+	int type;
+	int value;
+	int bank;
+	int page;
+	int nb;
+	int size;
+	int vram;
+	int pal;
+	int refcnt;
+	int reserved;
+	int data_type;
+	int data_size;
 	char name[SBOLSZ];
 } t_symbol;
 
@@ -212,7 +211,7 @@ typedef struct t_func {
 typedef struct t_tile {
 	struct t_tile *next;
 	unsigned char *data;
-	unsigned int   crc;
+	unsigned int crc;
 	int index;
 } t_tile;
 
@@ -230,9 +229,9 @@ typedef struct t_machine {
 	unsigned int ram_bank;
 	struct t_opcode *inst;
 	struct t_opcode *pseudo_inst;
-    int  (*pack_8x8_tile)(unsigned char *, void *, int, int);
-    int  (*pack_16x16_tile)(unsigned char *, void *, int,  int);
-    int  (*pack_16x16_sprite)(unsigned char *, void *, int,  int);
-    void (*write_header)(FILE *, int);
+	int (*pack_8x8_tile)(unsigned char *, void *, int, int);
+	int (*pack_16x16_tile)(unsigned char *, void *, int, int);
+	int (*pack_16x16_sprite)(unsigned char *, void *, int, int);
+	void (*write_header)(FILE *, int);
 } MACHINE;
 
