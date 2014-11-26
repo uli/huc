@@ -5,11 +5,11 @@
 #include "protos.h"
 
 /* defines */
-#define SND_STOP		0	/* stop processing (track finish) */
-#define SND_OFF			1	/* mute sound */
-#define SND_ON			2	/* turn on sound */
-#define SND_VOLUME		3	/* set voice volume (left & right) */
-#define SND_FREQ		4	/* set voice frequency */
+#define SND_STOP	0	/* stop processing (track finish) */
+#define SND_OFF		1	/* mute sound */
+#define SND_ON		2	/* turn on sound */
+#define SND_VOLUME	3	/* set voice volume (left & right) */
+#define SND_FREQ	4	/* set voice frequency */
 #define SND_DURATION	5	/* set voice duration */
 #define SND_NOISE_FREQ	6	/* set noise frequency */
 #define SND_NOISE_OFF	7	/* set noise off */
@@ -30,7 +30,9 @@ static unsigned int snd_timebase;
 static unsigned int snd_ticks_h, snd_ticks_l;
 static int snd_wave_flag;
 static int snd_off;
-static int tone_table[7]  = { 10, 12, 1, 3, 5, 6, 8 };
+static int tone_table[7] = {
+	10, 12, 1, 3, 5, 6, 8
+};
 static int freq_table[14] = {
 	0x001EDD,
 	0x0020B3, 0x0022A6,
@@ -112,22 +114,22 @@ mml_parse(unsigned char *buffer, int bufsize, char *ptr)
 		/* octave */
 		case 'O':
 			snd_octave = mml_get_value(&ptr);
-	
+
 			if ((snd_octave < 1) || (snd_octave > 7)) {
 				error("Incorrect octave!");
 				return (-1);
 			}
 			break;
-	
+
 		/* volume */
 		case 'V':
 			snd_volume = mml_get_value(&ptr);
-	
+
 			if (snd_volume > 15) {
 				error("Incorrect volume!");
 				return (-1);
 			}
-	
+
 			/* gen code */
 			*buffer++ = SND_VOLUME;
 			*buffer++ = (snd_volume << 4) + snd_volume;
@@ -137,23 +139,23 @@ mml_parse(unsigned char *buffer, int bufsize, char *ptr)
 		/* tempo */
 		case 'T':
 			snd_tempo = mml_get_value(&ptr);
-	
+
 			if ((snd_tempo < 32) || (snd_tempo > 256)) {
 				error("Incorrect tempo!");
 				return (-1);
 			}
 			break;
-	
+
 		/* length */
 		case 'L':
 			snd_length = mml_get_length(&ptr);
-	
+
 			if (!snd_length) {
 				error("Incorrect note length!");
 				return (-1);
 			}
 			break;
-	
+
 		/* notes */
 		case 'A':
 		case 'B':
@@ -191,26 +193,26 @@ mml_parse(unsigned char *buffer, int bufsize, char *ptr)
 			}
 
 			/* calculate frequency */
-			freq  = (freq_table[tone] << (snd_octave - 1));
+			freq = (freq_table[tone] << (snd_octave - 1));
 			value = (((3580000 * 16) / freq) + 1) >> 1;
 
 			/* gen code */
 			*buffer++ = SND_FREQ;
-			*buffer++ = (value)  & 0xFF;
+			*buffer++ = (value) & 0xFF;
 			*buffer++ = (value >> 8) & 0xFF;
 
 			if (snd_wave_flag) {
 				/* new waveform */
 				snd_wave_flag = 0;
 				snd_off = 0;
-			   *buffer++ = SND_WAVE_SINE + (snd_wave - 1);
+				*buffer++ = SND_WAVE_SINE + (snd_wave - 1);
 				size += 1;
 			}
 			else {
 				if (snd_off) {
 					/* sound on */
 					snd_off = 0;
-				   *buffer++ = SND_ON;
+					*buffer++ = SND_ON;
 					size += 1;
 				}
 			}
@@ -219,7 +221,7 @@ mml_parse(unsigned char *buffer, int bufsize, char *ptr)
 			*buffer++ = mml_calc_duration(len);
 			size += 5;
 			break;
-	
+
 		/* rest */
 		case 'R':
 			/* local length */
@@ -251,13 +253,13 @@ mml_parse(unsigned char *buffer, int bufsize, char *ptr)
 		case 'W':
 			snd_wave = mml_get_value(&ptr);
 			snd_wave_flag = 1;
-	
+
 			if ((snd_wave < 1) || (snd_wave > 3)) {
 				error("Incorrect waveform!");
 				return (-1);
 			}
 			break;
-	
+
 		/* other */
 		default:
 			error("Syntax error!");
@@ -361,13 +363,13 @@ mml_calc_duration(unsigned int len)
 	else {
 		/* fixed frequency (ie. vsync) */
 		mask = 0xFFFFFF;
-		tmp  = (256 - snd_tempo) * snd_timebase * ticks * 8;
+		tmp = (256 - snd_tempo) * snd_timebase * ticks * 8;
 		snd_ticks_h = (tmp >> 24);
 		snd_ticks_l = (tmp & 0xFFFFFF) + snd_ticks_l;
 	}
 
 	/* adjust timings */
-	if (snd_ticks_l  > mask) {
+	if (snd_ticks_l > mask) {
 		snd_ticks_l &= mask;
 		snd_ticks_h++;
 	}
