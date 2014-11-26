@@ -45,6 +45,8 @@ A. Toolchain features
 - more than 70 bugs fixed in various components
 - reformatted all assembler files to make them more readable and
   maintainable
+- many tools had their code formatting made more consistent and have
+  received uncrustify config files to keep them straight
 
 4. Other enhancements
 - support for interrupt handlers implemented in C
@@ -98,3 +100,4 @@ C. Tools
 - MML compiler from Develo CD
 - pceas updated to version 3.22
 - pceas symbol table rearranged to allow easier sorting by address
+- Develo tool ported to Linux (UNTESTED)
