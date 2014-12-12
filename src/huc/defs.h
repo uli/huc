@@ -279,7 +279,7 @@ struct tag_symbol {
 
 /* "switch" label stack */
 
-#define SWSTSZ  100
+#define SWSTSZ  256
 
 /* literal pool */
 
