@@ -13,6 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined _WIN32 || defined _WIN64
+#define strcasecmp stricmp
+#endif
+
 
 /* PCX header info */
 
@@ -387,32 +391,32 @@ int cmd_err;
 
    while ((argcnt < argc) && (argv[argcnt][0] == '-'))
    {
-      if (strncasecmp(argv[argcnt], "-help", 5) == 0)
+      if (strcasecmp(argv[argcnt], "-help") == 0)
       {
          usage();
          exit(0);
       }
-      else if (strncasecmp(argv[argcnt], "-pcepal2", 8) == 0)
+      else if (strcasecmp(argv[argcnt], "-pcepal2") == 0)
       {
          pcepal = 2;
          argcnt++;
       }
-      else if (strncasecmp(argv[argcnt], "-pcepal", 7) == 0)
+      else if (strcasecmp(argv[argcnt], "-pcepal") == 0)
       {
          pcepal = 1;
          argcnt++;
       }
-      else if (strncasecmp(argv[argcnt], "-dump", 5) == 0)
+      else if (strcasecmp(argv[argcnt], "-dump") == 0)
       {
          dump_palette = 1;
          argcnt++;
       }
-      else if (strncasecmp(argv[argcnt], "-ref", 4) == 0)
+      else if (strcasecmp(argv[argcnt], "-ref") == 0)
       {
          showref = 1;
          argcnt++;
       }
-      else if (strncasecmp(argv[argcnt], "-swap", 5) == 0)
+      else if (strcasecmp(argv[argcnt], "-swap") == 0)
       {
          if ((argcnt + 3) >= argc)
          {
