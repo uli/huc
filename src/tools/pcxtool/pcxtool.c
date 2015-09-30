@@ -58,7 +58,7 @@ unsigned char pal_b[MAX_PAL];
 int showref, dump_palette;
 int swap, swapfrom, swapto;
 int pcepal;
-
+int fixmask, maskcolor;
 
 
 /* and now for the program */
@@ -110,15 +110,17 @@ usage(void)
    printf("pcxtool [options] <input> [<output>]\n\n");
    printf("Input file will not be changed; output file creation is optional\n\n");
    printf("Options:\n");
-   printf("-dump     : display all palette values\n");
-   printf("-help     : show this help\n");
-   printf("-pcepal   : truncate palette to 3-bits (ie. $00,$20,...,$E0)\n");
-   printf("-pcepal2  : snap palette to nearest of 8 linear values (ie. $00,$24,$49,...,$FF)\n");
-/*   printf("-rngexp   : expand palette to full range before applying pce color depth cutoff\n"); */
-   printf("-ref      : show referenced palette values\n");
-   printf("-swap a b : swap palette order of 2 palette entries without changing appearance\n");
-   printf("            of picture. 'a' and 'b' may be decimal values (no prefix), or\n");
-   printf("            hexadecimal (prefixed by '$' or '0x')\n");
+   printf("-dump          : display all palette values\n");
+   printf("-help          : show this help\n");
+   printf("-pcepal        : truncate palette to 3-bits (ie. $00,$20,...,$E0)\n");
+   printf("-pcepal2       : snap palette to nearest of 8 linear values (ie. $00,$24,$49,...,$FF)\n");
+/*   printf("-rngexp        : expand palette to full range before applying pce color depth cutoff\n"); */
+   printf("-ref           : show referenced palette values\n");
+   printf("-swap a b      : swap palette order of 2 palette entries without changing appearance\n");
+   printf("                 of picture. 'a' and 'b' may be decimal values (no prefix) or\n");
+   printf("                 hexadecimal (prefixed by '$' or '0x')\n");
+   printf("-fixmask color : ensures that 'color', if used, is the first color in all 16 sub-palettes.\n");
+   printf("                 'color' may be a decimal value (no prefix) or hexadecimal (prefixed by '$' or '0x'\n");
 }
 
 
@@ -209,6 +211,36 @@ int x, y, temp;
    palette_reference[swapto]   = temp;
 }
 
+
+void
+fixmaskcolor(void)
+{
+int i, j;
+int maskr = (maskcolor >> 16) & 0xFF;
+int maskg = (maskcolor >> 8) & 0xFF;
+int maskb = maskcolor & 0xFF;
+int num_swapped = 0;
+
+   for (i=0; i < MAX_PAL; i += 16)
+   {
+      for (j=i + 1; j < i + 16; j++)
+      {
+         if (pal_r[j] == maskr && pal_g[j] == maskg && pal_b[j] == maskb)
+         {
+            swapto = i;
+            swapfrom = j;
+            swap_palette();
+            num_swapped++;
+            break;
+         }         
+      }
+   }
+
+   if (num_swapped == 0)
+   {
+      printf("\nNo color found that matches '0x%X'\n", maskcolor);
+   }
+}
 
 void
 pcepal_adjust(void)
@@ -429,6 +461,18 @@ int cmd_err;
          swapto   = get_val(argv[argcnt++]);
          printf("swapfrom = %d\nswapto = %d\n", swapfrom, swapto);
       }
+      else if (strcasecmp(argv[argcnt], "-fixmask") == 0)
+      {
+         if ((argcnt + 2) >= argc)
+         {
+            cmd_err = 1;
+            break;
+         }
+         fixmask = 1;
+         argcnt++;
+         maskcolor = get_val(argv[argcnt++]);
+         printf("maskcolor = %d\n", maskcolor);
+      }
       else
       {
          cmd_err = 1;
@@ -460,6 +504,11 @@ int cmd_err;
    if (swap)
    {
       swap_palette();
+   }
+
+   if (fixmask)
+   {
+      fixmaskcolor();
    }
 
    if (pcepal)
