@@ -47,7 +47,7 @@ pcx_header pcxhdr;
 
 unsigned char pixel[MAX_X*MAX_Y];
 
-char palette_reference[MAX_PAL];
+unsigned int palette_reference[MAX_PAL];
 
 unsigned char pal_r[MAX_PAL];
 unsigned char pal_g[MAX_PAL];
