@@ -45,7 +45,7 @@ pcx_header pcxhdr;
 
 /* for now, maximum size of image = 256 x 256 pixels */
 
-char pixel[MAX_X*MAX_Y];
+unsigned char pixel[MAX_X*MAX_Y];
 
 char palette_reference[MAX_PAL];
 
