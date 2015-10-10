@@ -59,6 +59,7 @@ int showref, dump_palette;
 int swap, swapfrom, swapto;
 int pcepal;
 int fixmask, maskcolor;
+int reverse;
 
 
 /* and now for the program */
@@ -121,6 +122,7 @@ usage(void)
    printf("                 hexadecimal (prefixed by '$' or '0x')\n");
    printf("-fixmask color : ensures that 'color', if used, is the first color in all 16 sub-palettes.\n");
    printf("                 'color' may be a decimal value (no prefix) or hexadecimal (prefixed by '$' or '0x'\n");
+   printf("-reverse       : reverse palette entries without changing the appearance (photoshop fixup)\n");
 }
 
 
@@ -239,6 +241,21 @@ int num_swapped = 0;
    if (num_swapped == 0)
    {
       printf("\nNo color found that matches '0x%X'\n", maskcolor);
+   }
+}
+
+void
+reverse_palette(void)
+{
+int i;
+int j;
+
+   for (i = 0; i < MAX_PAL / 2; i++)
+   {
+      j = MAX_PAL - i - 1;
+      swapto = i;
+      swapfrom = j;
+      swap_palette();
    }
 }
 
@@ -473,6 +490,11 @@ int cmd_err;
          maskcolor = get_val(argv[argcnt++]);
          printf("maskcolor = %d\n", maskcolor);
       }
+      else if (strcasecmp(argv[argcnt], "-reverse") == 0)
+      {
+         reverse = 1;
+         argcnt++;
+      }
       else
       {
          cmd_err = 1;
@@ -504,6 +526,11 @@ int cmd_err;
    if (swap)
    {
       swap_palette();
+   }
+
+   if (reverse)
+   {
+      reverse_palette();
    }
 
    if (fixmask)
