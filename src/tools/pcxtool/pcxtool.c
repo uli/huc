@@ -38,20 +38,23 @@ typedef struct
   short  bytes_line;
   short  palette_type;
   char   reserved2[58];
-} pcx_header;
+} pcx_header_t;
 
-pcx_header pcxhdr;
+typedef struct
+{
+   pcx_header_t header;
+  
+   /* for now, maximum size of image = 256 x 256 pixels */
+   unsigned char pixel[MAX_X*MAX_Y];
 
+   unsigned int palette_reference[MAX_PAL];
 
-/* for now, maximum size of image = 256 x 256 pixels */
+   unsigned char pal_r[MAX_PAL];
+   unsigned char pal_g[MAX_PAL];
+   unsigned char pal_b[MAX_PAL];
+} pcx_t;
 
-unsigned char pixel[MAX_X*MAX_Y];
-
-unsigned int palette_reference[MAX_PAL];
-
-unsigned char pal_r[MAX_PAL];
-unsigned char pal_g[MAX_PAL];
-unsigned char pal_b[MAX_PAL];
+pcx_t pcx;
 
 /* command-line options */
 
@@ -60,17 +63,34 @@ int swap, swapfrom, swapto;
 int pcepal;
 int fixmask, maskcolor;
 int reverse;
+int append, append_paletteslot;
+const char* append_file;
 
 
 /* and now for the program */
+
+int
+pcx_width( pcx_t *in ) {
+   return in->header.x_max - in->header.x_min + 1;
+}
+
+
+int
+pcx_height( pcx_t *in ) {
+   return in->header.y_max - in->header.y_min + 1;
+}
+
 
 void
 error(char *string, long pos)
 {
    printf("\n");
    printf(string);
-   printf("\n");
-   printf("At position %ld in file", pos);
+   if (pos >= 0)
+   {
+      printf("\n");
+      printf("At position %ld in file", pos);
+   }
    printf("\n\n");
    exit(1);
 }
@@ -82,22 +102,22 @@ init(void)
 int i;
 int j;
 
-   memset(&pcxhdr, 0, 128);
+   memset(&pcx.header, 0, 128);
 
    for (i = 0; i < MAX_PAL; i++)
    {
-      palette_reference[i] = 0;
+      pcx.palette_reference[i] = 0;
 
-      pal_r[i] = 0;
-      pal_g[i] = 0;
-      pal_b[i] = 0;
+      pcx.pal_r[i] = 0;
+      pcx.pal_g[i] = 0;
+      pcx.pal_b[i] = 0;
    }
 
    for (i = 0; i < MAX_X; i++)
    {
       for (j = 0; j < MAX_X; j++)
       {
-         pixel[i*MAX_X+j] = 0;
+         pcx.pixel[i*MAX_X+j] = 0;
       }
    }
 }
@@ -123,6 +143,8 @@ usage(void)
    printf("-fixmask color : ensures that 'color', if used, is the first color in all 16 sub-palettes.\n");
    printf("                 'color' may be a decimal value (no prefix) or hexadecimal (prefixed by '$' or '0x'\n");
    printf("-reverse       : reverse palette entries without changing the appearance (photoshop fixup)\n");
+   printf("-append f p    : append another pcx of the same width. 'f' is a pcx file. 'p' is a value from 0-15\n");
+   printf("                 where to store the source palette (first 16 palette values)\n");
 }
 
 
@@ -181,36 +203,36 @@ swap_palette(void)
 {
 int x, y, temp;
 
-   for (y=0; y < (pcxhdr.y_max-pcxhdr.y_min+1); y++)
+   for (y=0; y < (pcx.header.y_max-pcx.header.y_min+1); y++)
    {
-      for(x=0; x < pcxhdr.bytes_line; x++)
+      for(x=0; x < pcx.header.bytes_line; x++)
       {
-         if (pixel[y*MAX_X+x] == swapfrom)
+         if (pcx.pixel[y*MAX_X+x] == swapfrom)
          {
-            pixel[y*MAX_X+x] = swapto;
+            pcx.pixel[y*MAX_X+x] = swapto;
          }
-         else if (pixel[y*MAX_X+x] == swapto)
+         else if (pcx.pixel[y*MAX_X+x] == swapto)
          {
-            pixel[y*MAX_X+x] = swapfrom;
+            pcx.pixel[y*MAX_X+x] = swapfrom;
          }
       }
    }
 
-   temp            = pal_r[swapfrom];
-   pal_r[swapfrom] = pal_r[swapto];
-   pal_r[swapto]   = temp;
+   temp                = pcx.pal_r[swapfrom];
+   pcx.pal_r[swapfrom] = pcx.pal_r[swapto];
+   pcx.pal_r[swapto]   = temp;
 
-   temp            = pal_g[swapfrom];
-   pal_g[swapfrom] = pal_g[swapto];
-   pal_g[swapto]   = temp;
+   temp                = pcx.pal_g[swapfrom];
+   pcx.pal_g[swapfrom] = pcx.pal_g[swapto];
+   pcx.pal_g[swapto]   = temp;
 
-   temp            = pal_b[swapfrom];
-   pal_b[swapfrom] = pal_b[swapto];
-   pal_b[swapto]   = temp;
+   temp                = pcx.pal_b[swapfrom];
+   pcx.pal_b[swapfrom] = pcx.pal_b[swapto];
+   pcx.pal_b[swapto]   = temp;
 
-   temp                        = palette_reference[swapfrom];
-   palette_reference[swapfrom] = palette_reference[swapto];
-   palette_reference[swapto]   = temp;
+   temp                            = pcx.palette_reference[swapfrom];
+   pcx.palette_reference[swapfrom] = pcx.palette_reference[swapto];
+   pcx.palette_reference[swapto]   = temp;
 }
 
 
@@ -227,7 +249,7 @@ int num_swapped = 0;
    {
       for (j=i + 1; j < i + 16; j++)
       {
-         if (pal_r[j] == maskr && pal_g[j] == maskg && pal_b[j] == maskb)
+         if (pcx.pal_r[j] == maskr && pcx.pal_g[j] == maskg && pcx.pal_b[j] == maskb)
          {
             swapto = i;
             swapfrom = j;
@@ -268,42 +290,42 @@ int i;
    {
       if (pcepal == 1)
       {
-         pal_r[i] = pal_r[i] & 0xE0;
-         pal_g[i] = pal_g[i] & 0xE0;
-         pal_b[i] = pal_b[i] & 0xE0;
+         pcx.pal_r[i] = pcx.pal_r[i] & 0xE0;
+         pcx.pal_g[i] = pcx.pal_g[i] & 0xE0;
+         pcx.pal_b[i] = pcx.pal_b[i] & 0xE0;
       }
       else if (pcepal == 2)
       {
-         pal_r[i] = (pal_r[i] & 0xE0) * 255 / 224;
-         pal_g[i] = (pal_g[i] & 0xE0) * 255 / 224;
-         pal_b[i] = (pal_b[i] & 0xE0) * 255 / 224;
+         pcx.pal_r[i] = (pcx.pal_r[i] & 0xE0) * 255 / 224;
+         pcx.pal_g[i] = (pcx.pal_g[i] & 0xE0) * 255 / 224;
+         pcx.pal_b[i] = (pcx.pal_b[i] & 0xE0) * 255 / 224;
       }
    }
 }
 
 
 void
-read_pcx(FILE *in)
+read_pcx(FILE *in, pcx_t *dest)
 {
 int x,y;
 int repeat, temp;
 
-   temp = fread(&pcxhdr, 1, 128, in);
+   temp = fread(&dest->header, 1, 128, in);
    if (temp < 128)
       error("read_pcx: read header short", ftell(in));
 
-   for (y=0; y < (pcxhdr.y_max-pcxhdr.y_min+1); y++)
+   for (y=0; y < (dest->header.y_max-dest->header.y_min+1); y++)
    {
       x = 0;
 
-      while (x < pcxhdr.bytes_line)
+      while (x < dest->header.bytes_line)
       {
          temp = fgetc(in);
 
          if (temp == EOF)
             error("read_pcx: get byte", ftell(in));
 
-         if ((pcxhdr.compress == 1) && ((temp & 0xC0) == 0xC0))
+         if ((dest->header.compress == 1) && ((temp & 0xC0) == 0xC0))
          {
             repeat = temp & 0x3F;
 
@@ -311,18 +333,18 @@ int repeat, temp;
             if (temp == EOF)
                error("read_pcx: get repeated byte", ftell(in));
 
-            palette_reference[temp]++;
+            dest->palette_reference[temp]++;
             while (repeat > 0)
             {
-               pixel[y*MAX_X+x] = temp;
+               dest->pixel[y*MAX_X+x] = temp;
                repeat--;
                x++;
             }
          }
          else
          {
-            palette_reference[temp]++;
-            pixel[y*MAX_X+x] = temp;
+            dest->palette_reference[temp]++;
+            dest->pixel[y*MAX_X+x] = temp;
             x++;
          }
       }
@@ -339,18 +361,65 @@ int repeat, temp;
       temp = fgetc(in);
       if (temp == EOF)
          error("read_pcx: end in palette loop - r", ftell(in));
-      pal_r[x] = temp;
+      dest->pal_r[x] = temp;
 
       temp = fgetc(in);
       if (temp == EOF)
          error("read_pcx: end in palette loop - g", ftell(in));
-      pal_g[x] = temp;
+      dest->pal_g[x] = temp;
       
       temp = fgetc(in);
       if (temp == EOF)
          error("read_pcx: end in palette loop - b", ftell(in));
-      pal_b[x] = temp;
+      dest->pal_b[x] = temp;
    }
+}
+
+void
+append_pcx(void)
+{
+FILE *infile;
+pcx_t pcx2;
+int i;
+int width;
+int height;
+int height2;
+
+   infile = fopen(append_file, "rb");
+   if (infile == NULL)
+      error("append_pcx: couldn't open infile", -1);
+
+   read_pcx(infile, &pcx2);
+   fclose(infile);
+
+   if (pcx_width(&pcx) != pcx_width(&pcx2))
+      error("append_pcx: width must be the same in both pcx files", -1);
+
+   width = pcx_width(&pcx);
+   height = pcx_height(&pcx);
+   height2 = pcx_height(&pcx2);
+
+   pcx.header.y_max += height2;
+   if (pcx_height(&pcx) > MAX_Y)
+      error("append_pcx: new height exeeded internal maximum height", -1);
+
+   // Adjust pixels to the new palette
+   for (i=MAX_X * MAX_Y; i--;)
+      pcx2.pixel[i] += append_paletteslot * 16;
+
+   // Copy rows
+   unsigned char *dest = pcx.pixel + MAX_X * height;
+   unsigned char *src = pcx2.pixel;
+   for (i=height2; i--;)
+   {
+      memcpy(dest, src, width);
+      dest += MAX_X;
+      src += MAX_X;
+   }
+
+   memcpy(pcx.pal_r + append_paletteslot * 16, pcx2.pal_r, 16);
+   memcpy(pcx.pal_g + append_paletteslot * 16, pcx2.pal_g, 16);
+   memcpy(pcx.pal_b + append_paletteslot * 16, pcx2.pal_b, 16);
 }
 
 
@@ -360,24 +429,24 @@ write_pcx(FILE *out)
 int x,y;
 int repeat, temp;
 
-   pcxhdr.compress = 1;
+   pcx.header.compress = 1;
 
-   temp = fwrite(&pcxhdr, 1, 128, out);
+   temp = fwrite(&pcx.header, 1, 128, out);
    if (temp < 128)
       error("write_pcx: write header short", ftell(out));
 
-   for (y=0; y < (pcxhdr.y_max-pcxhdr.y_min+1); y++)
+   for (y=0; y < (pcx.header.y_max-pcx.header.y_min+1); y++)
    {
       x = 0;
       repeat = 1;
 
-      while (x < pcxhdr.bytes_line)
+      while (x < pcx.header.bytes_line)
       {
-         temp = pixel[y*MAX_X+x];
+         temp = pcx.pixel[y*MAX_X+x];
 
          if ( (repeat == 0x3F) ||
-              (x >= pcxhdr.bytes_line-1) ||
-              (temp != pixel[y*MAX_X+x+1]) )
+              (x >= pcx.header.bytes_line-1) ||
+              (temp != pcx.pixel[y*MAX_X+x+1]) )
          {
             if ((repeat > 1) || ((temp & 0xc0) == 0xc0))
             {
@@ -402,9 +471,9 @@ int repeat, temp;
 
    for (x = 0; x < MAX_PAL; x++)
    {
-      fputc(pal_r[x], out);
-      fputc(pal_g[x], out);
-      fputc(pal_b[x], out);
+      fputc(pcx.pal_r[x], out);
+      fputc(pcx.pal_g[x], out);
+      fputc(pcx.pal_b[x], out);
    }
 }
 
@@ -495,6 +564,16 @@ int cmd_err;
          reverse = 1;
          argcnt++;
       }
+      else if (strcasecmp(argv[argcnt], "-append") == 0)
+      {
+         append = 1;
+         argcnt++;
+         append_file = argv[argcnt++];
+         append_paletteslot = get_val(argv[argcnt++]);
+
+         if (append_paletteslot < 0 || append_paletteslot > 15)
+            error("Second argument to -append must be a value from 0 - 15", -1);
+      }
       else
       {
          cmd_err = 1;
@@ -519,7 +598,7 @@ int cmd_err;
    if (infile == NULL)
       error("main: couldn't open infile", 0);
 
-   read_pcx(infile);
+   read_pcx(infile, &pcx);
    fclose(infile);
 
 
@@ -543,10 +622,15 @@ int cmd_err;
       pcepal_adjust();
    }
 
+   if (append)
+   {
+      append_pcx();
+   }
+
    palcount = 0;
    for (i = 0; i < MAX_PAL; i++)
    {
-      if (palette_reference[i] > 0)
+      if (pcx.palette_reference[i] > 0)
          palcount++;
    }
 
@@ -556,13 +640,13 @@ int cmd_err;
 
       for (i = 0; i < MAX_PAL; i++)
       {
-         if (palette_reference[i] > 0)
+         if (pcx.palette_reference[i] > 0)
             ref_string = "(referenced)";
          else
             ref_string = "";
 
          printf("Palette $%02X: RGB = %02X%02X%02X   %s\n",
-                      i, pal_r[i], pal_g[i], pal_b[i], ref_string);
+                      i, pcx.pal_r[i], pcx.pal_g[i], pcx.pal_b[i], ref_string);
       }
    }
    else if (showref)
@@ -571,8 +655,8 @@ int cmd_err;
 
       for (i = 0; i < MAX_PAL; i++)
       {
-         if (palette_reference[i] > 0)
-            printf("Palette $%02X: RGB = %02X%02X%02X\n", i, pal_r[i], pal_g[i], pal_b[i]);
+         if (pcx.palette_reference[i] > 0)
+            printf("Palette $%02X: RGB = %02X%02X%02X\n", i, pcx.pal_r[i], pcx.pal_g[i], pcx.pal_b[i]);
       }
    }
 
