@@ -376,7 +376,7 @@ int repeat, temp;
          temp = pixel[y*MAX_X+x];
 
          if ( (repeat == 0x3F) ||
-              (x >= pcxhdr.bytes_line) ||
+              (x >= pcxhdr.bytes_line-1) ||
               (temp != pixel[y*MAX_X+x+1]) )
          {
             if ((repeat > 1) || ((temp & 0xc0) == 0xc0))
