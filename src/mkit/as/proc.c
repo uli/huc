@@ -278,25 +278,25 @@ proc_reloc(void)
 	int bank_base = 0;
 	int minbanks = 0;
 	int totalsize = 0;
+	struct t_proc *list = proc_first;
 
 	if (proc_nb == 0)
 		return;
-
-	struct t_proc *list = proc_first;
-	while(list)
-	{
-		totalsize += list->size;
-		list = list->link;
-	}
-
-	minbanks = totalsize / 0x2000;
 
 	/* init */
 	proc_ptr = proc_first;
 	bank = max_bank + 1;
 	bank_base = bank;
 
-	if(minbanks+bank_base > bank_limit)
+	while(list)
+	{
+		totalsize += list->size;
+		list = list->link;
+	}
+
+	minbanks = totalsize / 0x2000 + bank_base - 1;
+
+	if(minbanks > bank_limit)
 	{
 		printf("Bank need excceed Bank limit, aborting\n");
 		return;
@@ -313,7 +313,12 @@ proc_reloc(void)
 	}
 
 	for(i = 0; i < bank_limit; i++)
-		bankleft[i] = 0x2000;
+	{
+		if(i >= bank_base)
+			bankleft[i] = 0x2000;
+		else
+			bankleft[i] = 0;
+	}
 
 	proc_ptr = proc_first;
 
@@ -343,15 +348,15 @@ proc_reloc(void)
 				{
 					/* bank change */
 					minbanks++;
-					if (minbanks+bank_base > bank_limit) 
+					if (minbanks > bank_limit) 
 					{
 						int total = 0;
 		
 						fatal_error("Not enough ROM space for procs!");
 		
-						for(i = 0; i < bank-bank_base; i++)
+						for(i = bank_base; i < bank; i++)
 						{
-							printf("Bank %d: %d free\n", i+bank_base, bankleft[i]);
+							printf("Bank %d: %d free\n", i, bankleft[i]);
 							total += bankleft[i];
 						}
 						printf("Total free space in all banks %d\n", total);
@@ -367,11 +372,12 @@ proc_reloc(void)
 						printf("Total bytes that didn't fit in ROM %d\n", total);
 						return;
 					}
+					proposedbank = minbanks - 1;
 				}
 			}
 			
 			
-			proc_ptr->bank = proposedbank+bank_base;
+			proc_ptr->bank = proposedbank;
 			proc_ptr->org = 0x2000 - bankleft[proposedbank];
 
 			bankleft[proposedbank] -= proc_ptr->size;
@@ -386,7 +392,7 @@ proc_reloc(void)
 		}
 
 		/* next */
-		bank = minbanks-1+bank_base;
+		bank = minbanks-1;
 		max_bank = bank;
 		proc_ptr->refcnt = 0;
 		proc_ptr = proc_ptr->link;
