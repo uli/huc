@@ -294,7 +294,7 @@ proc_reloc(void)
 		list = list->link;
 	}
 
-	minbanks = totalsize / 0x2000 + bank_base - 1;
+	minbanks = totalsize / 0x2000 + bank_base;
 
 	if(minbanks > bank_limit)
 	{
@@ -320,9 +320,6 @@ proc_reloc(void)
 			bankleft[i] = 0;
 	}
 
-	// Use up supergrafx space
-	//bankleft[2] = 7787;
-
 	proc_ptr = proc_first;
 
 	/* alloc memory */
@@ -346,7 +343,7 @@ proc_reloc(void)
 						}
 					}
 				}
-	
+
 				if(proposedbank == -1)
 				{
 					/* bank change */
