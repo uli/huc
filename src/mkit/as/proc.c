@@ -57,7 +57,7 @@ do_call(int *ip)
 		check_eol(ip);
 
 		/* lookup proc table */
-		if ((ptr = proc_look())) {
+		if((ptr = proc_look())) {
 			/* check banks */
 			if (bank == ptr->bank)
 				value = ptr->org + 0xA000;
@@ -81,7 +81,7 @@ do_call(int *ip)
 					poke(call_ptr++, 0x20);
 					poke(call_ptr++, 0x48);			// pha
 					poke(call_ptr++, 0xA9);			// lda #...
-					poke(call_ptr++, ptr->bank + bank_base);
+					poke(call_ptr++, ptr->bank+bank_base);
 					poke(call_ptr++, 0x53);			// tam #5
 					poke(call_ptr++, 0x20);
 					poke(call_ptr++, 0x98);			// tya
@@ -110,7 +110,7 @@ do_call(int *ip)
 
 		/* opcode */
 		putbyte(data_loccnt, 0x20);
-		putword(data_loccnt + 1, value);
+		putword(data_loccnt+1, value);
 
 		/* output line */
 		println();
@@ -183,7 +183,7 @@ do_proc(int *ip)
 		return;
 
 	/* search (or create new) proc */
-	if ((ptr = proc_look()))
+	if((ptr = proc_look()))
 		proc_ptr = ptr;
 	else {
 		if (!proc_install())
@@ -198,16 +198,16 @@ do_proc(int *ip)
 	proc_ptr->refcnt++;
 
 	/* backup current bank infos */
-	bank_glabl[section][bank] = glablptr;
+	bank_glabl[section][bank]  = glablptr;
 	bank_loccnt[section][bank] = loccnt;
-	bank_page[section][bank] = page;
+	bank_page[section][bank]   = page;
 	proc_ptr->old_bank = bank;
 	proc_nb++;
 
 	/* set new bank infos */
-	bank = proc_ptr->bank;
-	page = 5;
-	loccnt = proc_ptr->org;
+	bank     = proc_ptr->bank;
+	page     = 5;
+	loccnt   = proc_ptr->org;
 	glablptr = lablptr;
 
 	/* define label */
@@ -250,8 +250,8 @@ do_endp(int *ip)
 
 	/* restore previous bank settings */
 	if (proc_ptr == NULL) {
-		page = bank_page[section][bank];
-		loccnt = bank_loccnt[section][bank];
+		page     = bank_page[section][bank];
+		loccnt   = bank_loccnt[section][bank];
 		glablptr = bank_glabl[section][bank];
 	}
 
@@ -320,6 +320,9 @@ proc_reloc(void)
 			bankleft[i] = 0;
 	}
 
+	// Use up supergrafx space
+	//bankleft[2] = 7787;
+
 	proc_ptr = proc_first;
 
 	/* alloc memory */
@@ -370,6 +373,7 @@ proc_reloc(void)
 							proc_ptr = proc_ptr->link;
 						}
 						printf("Total bytes that didn't fit in ROM %d\n", total);
+						errcnt++;
 						return;
 					}
 					proposedbank = minbanks - 1;
@@ -446,7 +450,6 @@ proc_reloc(void)
 }
 
 
-
 /* ----
  * proc_look()
  * ----
@@ -464,7 +467,7 @@ proc_look(void)
 	ptr = proc_tbl[hash];
 	while (ptr) {
 		if (!strcmp(&symbol[1], ptr->name))
-			break;
+			break;			
 		ptr = ptr->next;
 	}
 
@@ -511,7 +514,7 @@ proc_install(void)
 	/* link it */
 	if (proc_first == NULL) {
 		proc_first = proc_ptr;
-		proc_last = proc_ptr;
+		proc_last  = proc_ptr;
 	}
 	else {
 		proc_last->link = proc_ptr;
