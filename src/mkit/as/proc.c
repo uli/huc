@@ -18,6 +18,7 @@ int call_bank;
 struct t_proc *proc_look(void);
 int            proc_install(void);
 void           poke(int addr, int data);
+void           proc_sortlist(void);
 
 
 /* ----
@@ -56,7 +57,7 @@ do_call(int *ip)
 		check_eol(ip);
 
 		/* lookup proc table */
-		if ((ptr = proc_look())) {
+		if((ptr = proc_look())) {
 			/* check banks */
 			if (bank == ptr->bank)
 				value = ptr->org + 0xA000;
@@ -80,7 +81,7 @@ do_call(int *ip)
 					poke(call_ptr++, 0x20);
 					poke(call_ptr++, 0x48);			// pha
 					poke(call_ptr++, 0xA9);			// lda #...
-					poke(call_ptr++, ptr->bank + bank_base);
+					poke(call_ptr++, ptr->bank+bank_base);
 					poke(call_ptr++, 0x53);			// tam #5
 					poke(call_ptr++, 0x20);
 					poke(call_ptr++, 0x98);			// tya
@@ -109,7 +110,7 @@ do_call(int *ip)
 
 		/* opcode */
 		putbyte(data_loccnt, 0x20);
-		putword(data_loccnt + 1, value);
+		putword(data_loccnt+1, value);
 
 		/* output line */
 		println();
@@ -182,7 +183,7 @@ do_proc(int *ip)
 		return;
 
 	/* search (or create new) proc */
-	if ((ptr = proc_look()))
+	if((ptr = proc_look()))
 		proc_ptr = ptr;
 	else {
 		if (!proc_install())
@@ -197,16 +198,16 @@ do_proc(int *ip)
 	proc_ptr->refcnt++;
 
 	/* backup current bank infos */
-	bank_glabl[section][bank] = glablptr;
+	bank_glabl[section][bank]  = glablptr;
 	bank_loccnt[section][bank] = loccnt;
-	bank_page[section][bank] = page;
+	bank_page[section][bank]   = page;
 	proc_ptr->old_bank = bank;
 	proc_nb++;
 
 	/* set new bank infos */
-	bank = proc_ptr->bank;
-	page = 5;
-	loccnt = proc_ptr->org;
+	bank     = proc_ptr->bank;
+	page     = 5;
+	loccnt   = proc_ptr->org;
 	glablptr = lablptr;
 
 	/* define label */
@@ -249,8 +250,8 @@ do_endp(int *ip)
 
 	/* restore previous bank settings */
 	if (proc_ptr == NULL) {
-		page = bank_page[section][bank];
-		loccnt = bank_loccnt[section][bank];
+		page     = bank_page[section][bank];
+		loccnt   = bank_loccnt[section][bank];
 		glablptr = bank_glabl[section][bank];
 	}
 
@@ -271,13 +272,13 @@ proc_reloc(void)
 {
 	struct t_symbol *sym;
 	struct t_symbol *local;
-	struct t_proc *group;
+	struct t_proc   *group;
 	int i;
-	int addr;
-	int tmp;
 	int *bankleft = NULL;
-	int currentbank = 0;
 	int bank_base = 0;
+	int minbanks = 0;
+	int totalsize = 0;
+	struct t_proc *list = proc_first;
 
 	if (proc_nb == 0)
 		return;
@@ -285,79 +286,102 @@ proc_reloc(void)
 	/* init */
 	proc_ptr = proc_first;
 	bank = max_bank + 1;
-	addr = 0;
+	bank_base = bank;
 
-	bankleft = (int *)malloc(sizeof(int) * bank_limit);
-	if (!bankleft) {
+	while(list)
+	{
+		totalsize += list->size;
+		list = list->link;
+	}
+
+	minbanks = totalsize / 0x2000 + bank_base;
+
+	if(minbanks > bank_limit)
+	{
+		printf("Bank need excceed Bank limit, aborting\n");
+		return;
+	}
+
+	/* Bin packing, descending order sort */
+	proc_sortlist();
+
+	bankleft = (int*)malloc(sizeof(int)*bank_limit);
+	if(!bankleft)
+	{
 		fatal_error("Not enough RAM to allocate banks!");
 		return;
 	}
 
-	for (i = 0; i < bank_limit; i++)
-		bankleft[i] = 0x2000;
+	for(i = 0; i < bank_limit; i++)
+	{
+		if(i >= bank_base)
+			bankleft[i] = 0x2000;
+		else
+			bankleft[i] = 0;
+	}
 
 	proc_ptr = proc_first;
 
-	bank_base = bank;
 	/* alloc memory */
 	while (proc_ptr) {
 		/* proc */
 		if (proc_ptr->group == NULL) {
-			int back_allocated = 0;
 			int check = 0;
+			int unusedspace = 0x2000;
+			int proposedbank = -1;
 
-			for (check = 0; check < currentbank; check++) {
-				if (bankleft[check] > proc_ptr->size) {
-					proc_ptr->bank = check + bank_base;
-					proc_ptr->org = 0x2000 - bankleft[check];
+			while(proposedbank == -1)
+			{
+				for(check = 0; check < minbanks; check++)
+				{
+					if(bankleft[check] > proc_ptr->size)
+					{
+						if(unusedspace > bankleft[check] - proc_ptr->size)
+						{
+							unusedspace = bankleft[check] - proc_ptr->size;
+							proposedbank = check;
+						}
+					}
+				}
 
-					bankleft[check] -= proc_ptr->size;
-
-					check = currentbank;
-					back_allocated = 1;
+				if(proposedbank == -1)
+				{
+					/* bank change */
+					minbanks++;
+					if (minbanks > bank_limit) 
+					{
+						int total = 0;
+		
+						fatal_error("Not enough ROM space for procs!");
+		
+						for(i = bank_base; i < bank; i++)
+						{
+							printf("Bank %d: %d free\n", i, bankleft[i]);
+							total += bankleft[i];
+						}
+						printf("Total free space in all banks %d\n", total);
+		
+						total = 0;
+						proc_ptr = proc_first;
+						while (proc_ptr) {
+							printf("Proc: %s Bank: 0x%X Size: %d\n", proc_ptr->name, proc_ptr->bank == 241 ? 0 : proc_ptr->bank, proc_ptr->size);
+							if(proc_ptr->bank == 241)
+								total += proc_ptr->size;
+							proc_ptr = proc_ptr->link;
+						}
+						printf("Total bytes that didn't fit in ROM %d\n", total);
+						errcnt++;
+						return;
+					}
+					proposedbank = minbanks - 1;
 				}
 			}
+			
+			
+			proc_ptr->bank = proposedbank;
+			proc_ptr->org = 0x2000 - bankleft[proposedbank];
 
-			if (!back_allocated) {
-				tmp = addr + proc_ptr->size;
-
-				/* bank change */
-				if (tmp > 0x2000) {
-					bankleft[currentbank] = 0x2000 - addr;
-
-					currentbank++;
-					bank++;
-					addr = 0;
-				}
-
-				if (bank > bank_limit) {
-					int total = 0;
-
-					fatal_error("Not enough ROM space for procs!");
-
-					for (i = 0; i < bank - bank_base; i++) {
-						printf("Bank %d: %d free\n", i + bank_base, bankleft[i]);
-						total += bankleft[i];
-					}
-					printf("Total free space in all banks %d\n", total);
-
-					total = 0;
-					proc_ptr = proc_first;
-					while (proc_ptr) {
-						printf("Proc: %s Bank: 0x%X Size: %d\n", proc_ptr->name, proc_ptr->bank == 241 ? 0 : proc_ptr->bank, proc_ptr->size);
-						if (proc_ptr->bank == 241)
-							total += proc_ptr->size;
-						proc_ptr = proc_ptr->link;
-					}
-					printf("Total bytes that didn't fit in ROM %d\n", total);
-					return;
-				}
-
-				/* reloc proc */
-				proc_ptr->bank = bank;
-				proc_ptr->org = addr;
-				addr += proc_ptr->size;
-			}
+			bankleft[proposedbank] -= proc_ptr->size;
 		}
 
 		/* group */
@@ -369,6 +393,7 @@ proc_reloc(void)
 		}
 
 		/* next */
+		bank = minbanks-1;
 		max_bank = bank;
 		proc_ptr->refcnt = 0;
 		proc_ptr = proc_ptr->link;
@@ -386,22 +411,22 @@ proc_reloc(void)
 
 			/* remap addr */
 			if (sym->proc) {
-				sym->bank = proc_ptr->bank;
+				sym->bank   =  proc_ptr->bank;
 				sym->value += (proc_ptr->org - proc_ptr->base);
 
 				/* local symbols */
 				if (sym->local) {
 					local = sym->local;
-
+	
 					while (local) {
 						proc_ptr = local->proc;
-
+			
 						/* remap addr */
 						if (local->proc) {
-							local->bank = proc_ptr->bank;
+							local->bank   =  proc_ptr->bank;
 							local->value += (proc_ptr->org - proc_ptr->base);
 						}
-
+		
 						/* next */
 						local = local->next;
 					}
@@ -439,7 +464,7 @@ proc_look(void)
 	ptr = proc_tbl[hash];
 	while (ptr) {
 		if (!strcmp(&symbol[1], ptr->name))
-			break;
+			break;			
 		ptr = ptr->next;
 	}
 
@@ -486,7 +511,7 @@ proc_install(void)
 	/* link it */
 	if (proc_first == NULL) {
 		proc_first = proc_ptr;
-		proc_last = proc_ptr;
+		proc_last  = proc_ptr;
 	}
 	else {
 		proc_last->link = proc_ptr;
@@ -511,3 +536,55 @@ poke(int addr, int data)
 	map[call_bank][addr] = S_CODE + (4 << 5);
 }
 
+/* ----
+ * proc_sortlist()
+ * ----
+ *
+ */
+
+void
+proc_sortlist(void)
+{
+	struct t_proc *unsorted_list = proc_first;
+	struct t_proc *sorted_list = NULL;
+	while(unsorted_list)
+	{
+		proc_ptr = unsorted_list;
+		unsorted_list = unsorted_list->link;
+		proc_ptr->link = NULL;
+
+		/* link it */
+		if (sorted_list == NULL) 
+		{
+			sorted_list = proc_ptr;
+		}
+		else 
+		{
+			int inserted = 0;
+			struct t_proc *list = sorted_list;
+			struct t_proc *previous = NULL;
+			while(!inserted && list)
+			{
+				if(list->size < proc_ptr->size)
+				{
+					if(!previous)
+						sorted_list = proc_ptr;
+					else
+						previous->link = proc_ptr;
+					proc_ptr->link = list;
+					inserted = 1;
+				}
+				else
+				{
+					previous = list;
+					list = list->link;
+				}
+			}
+	
+			if(!inserted)
+				previous->link = proc_ptr;
+		}
+	}
+	proc_first = sorted_list;
+	return;
+}
