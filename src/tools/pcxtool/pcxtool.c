@@ -63,7 +63,7 @@ void
 error(char *string, long pos)
 {
    printf("\n");
-   printf(string);
+   printf("%s", string);
    printf("\n");
    printf("At position %ld in file", pos);
    printf("\n\n");

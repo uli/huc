@@ -5,7 +5,7 @@
 #include <huc.h>
 #include <st.h>
 
-#incspr(bonk,"charwalk.pcx",0,0,2,8)
+#incspr(bonk,"charwalk.pcx",0,0,3,1)
 #incpal(bonkpal,"charwalk.pcx")
 #incspr(bullet,"bullet.pcx",0,0,1,1)
 #incpal(bulletpal,"bullet.pcx")

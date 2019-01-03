@@ -117,7 +117,7 @@ pcx_set_tile(struct t_symbol *ref, unsigned int offset)
 		return (1);
 
 	/* same tile set? */
-	if ((ref == NULL))
+	if (ref == NULL)
 		return (1);
 	if ((ref == tile_lablptr) && (offset == tile_offset))
 		return (1);
