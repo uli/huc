@@ -954,7 +954,7 @@ void log_raw(char *format, ...)
 		return;
 	}
 
-	fprintf(out, buf);
+	fprintf(out, "%s",  buf);
 
 	fclose(out);
 

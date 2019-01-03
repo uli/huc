@@ -90,7 +90,7 @@ int main (int argc, char *argv[])
 					break;
 
 				case 'c':
-					if ((*(p + 1) == 'd')) {
+					if (*(p + 1) == 'd') {
 						cdflag = 1;	/* pass '-cd' to assembler */
 						p++;
 						break;

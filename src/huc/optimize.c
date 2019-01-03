@@ -1610,7 +1610,7 @@ lv1_loop:
 	if (optimize >= 2) {
 		long offset;
 		long i, j;
-		long flag;
+		long flag = 0;
 		long t;
 		long jp;
 

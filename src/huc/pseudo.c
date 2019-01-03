@@ -835,7 +835,7 @@ void do_inc_ex (long type)
 	num = 0;
 	nb_tile = 0;
 	while (!end) {
-		if (match("\\")) ;
+		// if (match("\\")) ;
 		if (!readqstr()) {
 			error("not a file name");
 			kill();
@@ -849,7 +849,7 @@ void do_inc_ex (long type)
 		strcpy(tiles[num].fname, litq2);
 
 		for (i = 0; i < 5; i++) {
-			if (match("\\")) ;
+			// if (match("\\")) ;
 			if (!number(&tiles[num].arg[i])) {
 				error("not a number");
 				kill();
