@@ -1610,7 +1610,7 @@ lv1_loop:
 	if (optimize >= 2) {
 		long offset;
 		long i, j;
-		long flag = 0;
+		//long flag = 0;
 		long t;
 		long jp;
 
@@ -1642,7 +1642,7 @@ lv1_loop:
 				/* check instruction */
 				switch (q_ins[j].code) {
 				case I_JSR:
-					flag |= 0x0001;
+					//flag |= 0x0001;
 
 					if (q_ins[j].type == T_LIB)
 						offset += 2;

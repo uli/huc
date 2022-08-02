@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include "shared.h"
 
 /* Bit 0 : BG enable, Bit 1 : OBJ enable */
