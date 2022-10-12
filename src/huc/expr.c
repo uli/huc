@@ -858,7 +858,7 @@ long heir11 (LVALUE *lval, int comma)
 			lval->indirect = ptr->type;		// lval->indirect = lval->val_type = ptr->type
 			lval->ptr_type = 0;
 			lval->ptr_order = 0;
-			lval->tagsym = (long)NULL_TAG;
+			lval->tagsym = (void *)NULL_TAG;
 			if (ptr->type == CSTRUCT)
 				lval->tagsym = &tag_table[ptr->tagidx];
 			if (ptr->ident == POINTER) {

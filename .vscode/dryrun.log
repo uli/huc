@@ -1,0 +1,288 @@
+make[4]: Entering directory `/Users/bob0/Documents/huc/src/huc'
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c code.c -o code.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c const.c -o const.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c data.c -o data.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c error.c -o error.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c expr.c -o expr.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c function.c -o function.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c gen.c -o gen.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c io.c -o io.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c lex.c -o lex.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c main.c -o main.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c optimize.c -o optimize.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c pragma.c -o pragma.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c preproc.c -o preproc.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c primary.c -o primary.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c pseudo.c -o pseudo.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c stmt.c -o stmt.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c sym.c -o sym.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c while.c -o while.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c struct.c -o struct.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c enum.c -o enum.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c initials.c -o initials.o
+cc -g code.o const.o data.o error.o expr.o function.o gen.o io.o lex.o main.o optimize.o pragma.o preproc.o primary.o pseudo.o stmt.o sym.o while.o struct.o enum.o initials.o  -o huc
+cp huc ../../bin
+make[4]: Leaving directory `/Users/bob0/Documents/huc/src/huc'
+ 
+echo " "
+ 
+echo " -----> make all in mkit"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=mkit all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/src/mkit'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make as develo "COMMAND=all"
+ 
+make[5]: Entering directory `/Users/bob0/Documents/huc/src/mkit'
+echo " "
+echo " -----> make all in as"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=as all
+ 
+uname: illegal option -- o
+usage: uname [-amnprsv]
+
+make[6]: Entering directory `/Users/bob0/Documents/huc/src/mkit/as'
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c main.c -o main.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c input.c -o input.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c assemble.c -o assemble.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c expr.c -o expr.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c code.c -o code.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c command.c -o command.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c macro.c -o macro.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c func.c -o func.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c proc.c -o proc.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c symbol.c -o symbol.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c pcx.c -o pcx.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c output.c -o output.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c crc.c -o crc.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c pce.c -o pce.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c map.c -o map.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c mml.c -o mml.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c nes.c -o nes.o
+cc -g main.o input.o assemble.o expr.o code.o command.o macro.o func.o proc.o symbol.o pcx.o output.o crc.o pce.o map.o mml.o nes.o -o pceas
+cp pceas ../../../bin
+ 
+cc -g main.o input.o assemble.o expr.o code.o command.o macro.o func.o proc.o symbol.o pcx.o output.o crc.o pce.o map.o mml.o nes.o -o nesasm
+cp nesasm ../../../bin
+make[6]: Leaving directory `/Users/bob0/Documents/huc/src/mkit/as'
+echo " "
+echo " -----> make all in develo"
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=develo all
+ 
+uname: illegal option -- o
+usage: uname [-amnprsv]
+
+make[6]: Entering directory `/Users/bob0/Documents/huc/src/mkit/develo'
+echo 'Skipping Develo directories on this platform'
+ 
+make[6]: Leaving directory `/Users/bob0/Documents/huc/src/mkit/develo'
+ 
+make[5]: Leaving directory `/Users/bob0/Documents/huc/src/mkit'
+ 
+make[4]: Leaving directory `/Users/bob0/Documents/huc/src/mkit'
+ 
+echo " "
+echo " -----> make all in isolink"
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=isolink all
+ 
+uname: illegal option -- o
+usage: uname [-amnprsv]
+
+make[4]: Entering directory `/Users/bob0/Documents/huc/src/isolink'
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c main.c -o main.o
+cc -g main.o   -o isolink
+cp isolink ../../bin
+ 
+make[4]: Leaving directory `/Users/bob0/Documents/huc/src/isolink'
+echo " "
+echo " -----> make all in tools"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=tools all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/src/tools'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make pcxtool mod2mml mml "COMMAND=all"
+ 
+make[5]: Entering directory `/Users/bob0/Documents/huc/src/tools'
+echo " "
+echo " -----> make all in pcxtool"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=pcxtool all
+ 
+uname: illegal option -- o
+usage: uname [-amnprsv]
+
+make[6]: Entering directory `/Users/bob0/Documents/huc/src/tools/pcxtool'
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -c pcxtool.c -o pcxtool.o
+cc -g pcxtool.o  -o pcxtool
+cp pcxtool ../../../bin
+make[6]: Leaving directory `/Users/bob0/Documents/huc/src/tools/pcxtool'
+ 
+echo " "
+echo " -----> make all in mod2mml"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=mod2mml all
+ 
+uname: illegal option -- o
+usage: uname [-amnprsv]
+
+make[6]: Entering directory `/Users/bob0/Documents/huc/src/tools/mod2mml'
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -Wno-char-subscripts -c mod2mml.c -o mod2mml.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -Wno-char-subscripts -c analyze.c -o analyze.o
+ 
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -Wno-char-subscripts -c waves.c -o waves.o
+cc -g mod2mml.o analyze.o waves.o  -o mod2mml -lm
+cp mod2mml ../../../bin
+ 
+make[6]: Leaving directory `/Users/bob0/Documents/huc/src/tools/mod2mml'
+echo " "
+echo " -----> make all in mml"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=mml all
+ 
+uname: illegal option -- o
+usage: uname [-amnprsv]
+
+make[6]: Entering directory `/Users/bob0/Documents/huc/src/tools/mml'
+cc  -Werror -Wall -g -O2 -DGIT_VERSION="\"941e0e5-dirty\"" -DGIT_DATE="\"2019-01-03\"" -Dosx -Wno-char-subscripts -D_GNU_SOURCE -c mml.c -o mml.o
+cc -g mml.o -lm -o mml
+cp mml ../../../bin
+make[6]: Leaving directory `/Users/bob0/Documents/huc/src/tools/mml'
+ 
+make[5]: Leaving directory `/Users/bob0/Documents/huc/src/tools'
+ 
+make[4]: Leaving directory `/Users/bob0/Documents/huc/src/tools'
+ 
+make[3]: Leaving directory `/Users/bob0/Documents/huc/src'
+ 
+make[2]: Leaving directory `/Users/bob0/Documents/huc/src'
+ 
+echo " "
+echo " -----> make all in tgemu"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=tgemu all
+ 
+make[2]: Entering directory `/Users/bob0/Documents/huc/tgemu'
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o game.o game.c
+ 
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/fileio.o src/fileio.c
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/pce.o src/pce.c
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/psg.o src/psg.c
+ 
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/render.o src/render.c
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/system.o src/system.c
+ 
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/unzip.o src/unzip.c
+ 
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/vce.o src/vce.c
+ 
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/vdc.o src/vdc.c
+ 
+cc -Wall -W -Isrc -Isrc/cpu -Isrc/unix -fno-strict-aliasing -D_GNU_SOURCE -DLSB_FIRST -DFAST_MEM -O2 -g   -c -o src/cpu/h6280.o src/cpu/h6280.c
+cc -o tgemu  game.o src/fileio.o src/pce.o src/psg.o src/render.o src/system.o src/unzip.o src/vce.o src/vdc.o src/cpu/h6280.o  -lz
+make[2]: Leaving directory `/Users/bob0/Documents/huc/tgemu'
+ 
+echo " "
+echo " -----> make all in examples"
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=examples all
+ 
+make[2]: Entering directory `/Users/bob0/Documents/huc/examples'
+/Applications/Xcode.app/Contents/Developer/usr/bin/make acd designer scroll sgx shmup "COMMAND=all"
+ 
+make[3]: Entering directory `/Users/bob0/Documents/huc/examples'
+echo " "
+echo " -----> make all in acd"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=acd all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/examples/acd'
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -acd -sgx -fno-recursive -msmall ac_test.c 
+# inject pce_tile.bin at 1000
+dd if=pce_tile.bin of=ac_test.iso bs=`printf %d 0xe1000` seek=1
+# inject pce_bat.bin at 9000
+dd if=pce_bat.bin of=ac_test.iso bs=`printf %d 0xe9000` seek=1
+# inject pce_pal.bin at 9800
+ 
+dd if=pce_pal.bin of=ac_test.iso bs=`printf %d 0xe9800` seek=1
+echo padding ISO track to 00000 bytes
+dd if=/dev/zero of=ac_test.iso bs=`printf %d 0x200000` seek=1 count=0
+make[4]: Leaving directory `/Users/bob0/Documents/huc/examples/acd'
+echo " "
+echo " -----> make all in designer"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=designer all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/examples/designer'
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -fno-recursive -msmall design.c pointer.c waves.c -lst
+make[4]: Leaving directory `/Users/bob0/Documents/huc/examples/designer'
+ 
+echo " "
+echo " -----> make all in scroll"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=scroll all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/examples/scroll'
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -fno-recursive -msmall scroll.c 
+make[4]: Leaving directory `/Users/bob0/Documents/huc/examples/scroll'
+ 
+echo " "
+echo " -----> make all in sgx"
+ 
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=sgx all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/examples/sgx'
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -sgx -fno-recursive -msmall -scd sgx_test.c 
+ 
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -sgx -fno-recursive -msmall sgx_test.c 
+mv sgx_test.pce sgx_test.sgx
+make[4]: Leaving directory `/Users/bob0/Documents/huc/examples/sgx'
+echo " "
+ 
+echo " -----> make all in shmup"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make --directory=shmup all
+ 
+make[4]: Entering directory `/Users/bob0/Documents/huc/examples/shmup'
+../../bin/mod2mml -d 11=4,12=3,13=1,15=2 -a -n -v 3=28,1=28 -f 3=.25 -o bgm.asm ackerlight.mod
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -scd -msmall -fno-recursive -lst shmup.c
+ 
+PCE_INCLUDE=../../include/pce PCE_PCEAS=../../bin/pceas ../../bin/huc -msmall -fno-recursive -lst shmup.c
+make[4]: Leaving directory `/Users/bob0/Documents/huc/examples/shmup'
+ 
+make[3]: Leaving directory `/Users/bob0/Documents/huc/examples'
+ 
+make[2]: Leaving directory `/Users/bob0/Documents/huc/examples'
+ 
+make[1]: Leaving directory `/Users/bob0/Documents/huc'
+ 
+make: Leaving directory `/Users/bob0/Documents/huc'
+ 
